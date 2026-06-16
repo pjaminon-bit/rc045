@@ -638,6 +638,19 @@
   document.getElementById('hamburger').addEventListener('click', function() {
     document.querySelector('.nav-links').classList.toggle('open');
   });
+
+  // Sluit menu bij scrollen
+  window.addEventListener('scroll', function() {
+    document.querySelector('.nav-links').classList.remove('open');
+  });
+
+  // Sluit menu bij touch buiten het menu
+  document.addEventListener('touchstart', function(e) {
+    const nav = document.querySelector('.nav');
+    if (!nav.contains(e.target)) {
+      document.querySelector('.nav-links').classList.remove('open');
+    }
+  });
 </script>
 
 </body>
