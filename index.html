@@ -60,399 +60,108 @@
       justify-content: space-between;
       height: 72px;
     }
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .nav-logo img {
-      height: 48px;
-      width: auto;
-    }
-    .nav-logo-text {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 18px;
-      color: var(--dark);
-    }
-    .nav-logo-sub {
-      font-size: 11px;
-      font-weight: 400;
-      color: var(--muted);
-      display: block;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      list-style: none;
-    }
-    .nav-links a {
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-      transition: background 0.15s, color 0.15s;
-    }
+    .nav-logo { display: flex; align-items: center; gap: 12px; }
+    .nav-logo img { height: 48px; width: auto; }
+    .nav-logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 18px; color: var(--dark); }
+    .nav-logo-sub { font-size: 11px; font-weight: 400; color: var(--muted); display: block; letter-spacing: 0.05em; text-transform: uppercase; }
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a { padding: 6px 14px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--text); transition: background 0.15s, color 0.15s; }
     .nav-links a:hover { background: var(--teal-light); color: var(--teal-dark); }
-    .nav-links .nav-cta a {
-      background: var(--teal);
-      color: white;
-      font-weight: 600;
-    }
+    .nav-links .nav-cta a { background: var(--teal); color: white; font-weight: 600; }
     .nav-links .nav-cta a:hover { background: var(--teal-dark); }
-    .nav-hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      padding: 8px;
-      border: none;
-      background: none;
-    }
-    .nav-hamburger span {
-      width: 24px;
-      height: 2px;
-      background: var(--text);
-      border-radius: 2px;
-      transition: 0.3s;
-    }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; }
+    .nav-hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
 
     /* ===== HERO ===== */
-    .hero {
-      position: relative;
-      overflow: hidden;
-      background: var(--dark);
-      min-height: 580px;
-      display: flex;
-      align-items: center;
-    }
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      background-image: url('https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg');
-      background-size: cover;
-      background-position: center;
-      opacity: 0.35;
-    }
-    .hero-gradient {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%);
-    }
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 80px 24px;
-    }
+    .hero { position: relative; overflow: hidden; background: var(--dark); min-height: 580px; display: flex; align-items: center; }
+    .hero-bg { position: absolute; inset: 0; background-image: url('https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg'); background-size: cover; background-position: center; opacity: 0.35; }
+    .hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
+    .hero-content { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: 80px 24px; }
     .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(200,154,26,0.2);
-      border: 1px solid rgba(200,154,26,0.5);
-      color: #E8C76A;
-      padding: 6px 16px;
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 24px;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(200,154,26,0.2); border: 1px solid rgba(200,154,26,0.5);
+      color: #E8C76A; padding: 6px 16px; border-radius: 100px;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; margin-bottom: 24px;
     }
     .hero-badge::before {
-      content: '';
-      width: 8px;
-      height: 8px;
-      background: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 0 3px rgba(34,197,94,0.3);
-      animation: pulse 2s infinite;
+      content: ''; width: 8px; height: 8px; background: var(--green);
+      border-radius: 50%; box-shadow: 0 0 0 3px rgba(34,197,94,0.3); animation: pulse 2s infinite;
     }
-    .hero-badge-closed::before {
-      background: #EF4444;
-      box-shadow: 0 0 0 3px rgba(239,68,68,0.3);
-      animation: pulse-red 2s infinite;
-    }
-    @keyframes pulse-red {
-      0%, 100% { box-shadow: 0 0 0 3px rgba(239,68,68,0.3); }
-      50% { box-shadow: 0 0 0 6px rgba(239,68,68,0.1); }
-    }
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.3); }
-      50% { box-shadow: 0 0 0 6px rgba(34,197,94,0.1); }
-    }
-    .hero h1 {
-      font-size: clamp(36px, 6vw, 64px);
-      font-weight: 800;
-      color: white;
-      margin-bottom: 20px;
-      max-width: 700px;
-    }
+    .hero-badge-closed::before { background: #EF4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.3); animation: pulse-red 2s infinite; }
+    @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 0 3px rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0.1); } }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.3); } 50% { box-shadow: 0 0 0 6px rgba(34,197,94,0.1); } }
+    .hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 800; color: white; margin-bottom: 20px; max-width: 700px; }
     .hero h1 span { color: #E8C76A; }
-    .hero p {
-      font-size: 18px;
-      color: rgba(255,255,255,0.75);
-      max-width: 540px;
-      margin-bottom: 36px;
-      line-height: 1.7;
-    }
-    .hero-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 28px;
-      border-radius: 10px;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
-    }
+    .hero p { font-size: 18px; color: rgba(255,255,255,0.75); max-width: 540px; margin-bottom: 36px; line-height: 1.7; }
+    .hero-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; border: none; }
     .btn-primary { background: var(--teal); color: white; }
     .btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(58,122,119,0.35); }
-    .btn-outline {
-      background: rgba(255,255,255,0.1);
-      color: white;
-      border: 1.5px solid rgba(255,255,255,0.3);
-      backdrop-filter: blur(4px);
-    }
+    .btn-outline { background: rgba(255,255,255,0.1); color: white; border: 1.5px solid rgba(255,255,255,0.3); backdrop-filter: blur(4px); }
     .btn-outline:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
     .btn-white { background: white; color: var(--teal-dark); }
     .btn-white:hover { background: var(--teal-light); transform: translateY(-1px); }
 
     /* ===== INFO BAR ===== */
-    .info-bar {
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-    .info-bar-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-    }
-    .info-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 24px 0;
-      border-right: 1px solid var(--border);
-    }
+    .info-bar { background: var(--white); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
+    .info-bar-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); }
+    .info-item { display: flex; align-items: center; gap: 16px; padding: 24px 0; border-right: 1px solid var(--border); }
     .info-item:last-child { border-right: none; padding-left: 32px; }
     .info-item:first-child { padding-right: 32px; }
     .info-item:nth-child(2) { padding: 24px 32px; }
-    .info-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: var(--teal-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 22px;
-    }
-    .info-label {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 2px;
-    }
-    .info-value {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 15px;
-      color: var(--text);
-    }
-    .info-value small {
-      font-weight: 400;
-      font-size: 13px;
-      color: var(--muted);
-      font-family: 'Inter', sans-serif;
-    }
+    .info-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--teal-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; }
+    .info-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 2px; }
+    .info-value { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; color: var(--text); }
+    .info-value small { font-weight: 400; font-size: 13px; color: var(--muted); font-family: 'Inter', sans-serif; }
 
     /* ===== LOCATIE LINK ===== */
-    .info-location-link {
-      color: inherit;
-      text-decoration: none;
-      border-bottom: 1.5px dashed var(--muted);
-      padding-bottom: 1px;
-      transition: border-color 0.2s, color 0.2s;
-      cursor: pointer;
-    }
-    .info-location-link:hover {
-      color: var(--teal-dark);
-      border-bottom-color: var(--teal-dark);
-    }
+    .info-location-link { color: inherit; text-decoration: none; border-bottom: 1.5px dashed var(--muted); padding-bottom: 1px; transition: border-color 0.2s, color 0.2s; cursor: pointer; }
+    .info-location-link:hover { color: var(--teal-dark); border-bottom-color: var(--teal-dark); }
 
     /* ===== STATUS OPEN / CLOSED ===== */
-    .status-open {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #16A34A;
-      font-size: 13px;
-      font-weight: 600;
-      margin-top: 2px;
-    }
-    .status-open::before {
-      content: '';
-      width: 7px;
-      height: 7px;
-      background: var(--green);
-      border-radius: 50%;
-    }
-    .status-closed {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #DC2626;
-      font-size: 13px;
-      font-weight: 600;
-      margin-top: 2px;
-    }
-    .status-closed::before {
-      content: '';
-      width: 7px;
-      height: 7px;
-      background: #EF4444;
-      border-radius: 50%;
-    }
+    .status-open { display: inline-flex; align-items: center; gap: 6px; color: #16A34A; font-size: 13px; font-weight: 600; margin-top: 2px; }
+    .status-open::before { content: ''; width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
+    .status-closed { display: inline-flex; align-items: center; gap: 6px; color: #DC2626; font-size: 13px; font-weight: 600; margin-top: 2px; }
+    .status-closed::before { content: ''; width: 7px; height: 7px; background: #EF4444; border-radius: 50%; }
 
     /* ===== SECTION BASE ===== */
     .section { padding: 80px 24px; }
     .container { max-width: 1200px; margin: 0 auto; }
-    .section-label {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--gold);
-      margin-bottom: 12px;
-    }
-    .section-title {
-      font-size: clamp(28px, 4vw, 42px);
-      font-weight: 700;
-      color: var(--dark);
-      margin-bottom: 16px;
-    }
-    .section-sub {
-      font-size: 17px;
-      color: var(--muted);
-      max-width: 560px;
-      line-height: 1.7;
-    }
+    .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 12px; }
+    .section-title { font-size: clamp(28px, 4vw, 42px); font-weight: 700; color: var(--dark); margin-bottom: 16px; }
+    .section-sub { font-size: 17px; color: var(--muted); max-width: 560px; line-height: 1.7; }
     .section-header { margin-bottom: 48px; }
     .section-header.center { text-align: center; }
     .section-header.center .section-sub { margin: 0 auto; }
 
     /* ===== ABOUT SECTION ===== */
     .about { background: var(--white); }
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-      align-items: center;
-    }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
     .about-images { position: relative; }
-    .about-img-main {
-      width: 100%;
-      height: 380px;
-      object-fit: cover;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-    .about-img-secondary {
-      position: absolute;
-      bottom: -28px;
-      right: -28px;
-      width: 220px;
-      height: 160px;
-      object-fit: cover;
-      border-radius: var(--radius);
-      border: 4px solid var(--white);
-      box-shadow: var(--shadow);
-    }
-    .about-features {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 32px;
-    }
-    .feature-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-    }
+    .about-img-main { width: 100%; height: 380px; object-fit: cover; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .about-img-secondary { position: absolute; bottom: -28px; right: -28px; width: 220px; height: 160px; object-fit: cover; border-radius: var(--radius); border: 4px solid var(--white); box-shadow: var(--shadow); }
+    .about-features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
+    .feature-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
     .feature-card-icon { font-size: 24px; margin-bottom: 8px; }
     .feature-card h4 { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
     .feature-card p { font-size: 13px; color: var(--muted); }
 
     /* ===== PRICING CARDS ===== */
     .pricing { background: var(--bg); }
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-    }
-    .price-card {
-      background: var(--white);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 36px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+    .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .price-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 36px; transition: transform 0.2s, box-shadow 0.2s; }
     .price-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
     .price-card.featured { background: var(--dark); border-color: var(--dark); color: white; }
-    .price-card-tag {
-      display: inline-block;
-      background: var(--teal-light);
-      color: var(--teal-dark);
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 20px;
-    }
+    .price-card-tag { display: inline-block; background: var(--teal-light); color: var(--teal-dark); padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 20px; }
     .price-card.featured .price-card-tag { background: rgba(200,154,26,0.2); color: #E8C76A; }
     .price-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
     .price-card.featured h3 { color: white; }
     .price-list { list-style: none; margin: 20px 0 28px; }
-    .price-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 15px;
-    }
+    .price-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
     .price-card.featured .price-list li { border-bottom-color: rgba(255,255,255,0.1); }
     .price-list li:last-child { border-bottom: none; }
-    .price-list .price-amount {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 17px;
-      color: var(--teal);
-    }
+    .price-list .price-amount { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; color: var(--teal); }
     .price-card .btn-primary { width: 100%; justify-content: center; }
     .price-card.featured .btn-white { width: 100%; justify-content: center; }
     .price-note { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
@@ -460,259 +169,85 @@
 
     /* ===== TRACK PHOTOS ===== */
     .track { background: var(--white); }
-    .track-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      grid-template-rows: 240px 240px;
-      gap: 16px;
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
+    .track-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
     .track-photo { object-fit: cover; width: 100%; height: 100%; transition: transform 0.4s; }
     .track-photo:hover { transform: scale(1.03); }
     .track-photo-wrap { overflow: hidden; }
     .track-photo-wrap.tall { grid-row: span 2; }
-    .track-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      align-items: start;
-    }
+    .track-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
 
     /* ===== RULES SECTION ===== */
     .rules { background: var(--dark); color: white; }
     .rules .section-title { color: white; }
     .rules .section-sub { color: rgba(255,255,255,0.6); }
-    .rules-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-    .rule-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: var(--radius);
-      padding: 24px;
-      transition: background 0.2s;
-    }
+    .rules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .rule-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 24px; transition: background 0.2s; }
     .rule-card:hover { background: rgba(255,255,255,0.09); }
-    .rule-card-num {
-      font-family: 'Poppins', sans-serif;
-      font-size: 36px;
-      font-weight: 800;
-      color: rgba(200,154,26,0.4);
-      line-height: 1;
-      margin-bottom: 12px;
-    }
+    .rule-card-num { font-family: 'Poppins', sans-serif; font-size: 36px; font-weight: 800; color: rgba(200,154,26,0.4); line-height: 1; margin-bottom: 12px; }
     .rule-card h4 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: white; }
     .rule-card p { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; }
-    .rules-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 40px;
-      color: #E8C76A;
-      font-weight: 600;
-      font-size: 15px;
-      border-bottom: 1.5px solid rgba(200,154,26,0.4);
-      padding-bottom: 2px;
-      transition: border-color 0.2s;
-    }
+    .rules-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 40px; color: #E8C76A; font-weight: 600; font-size: 15px; border-bottom: 1.5px solid rgba(200,154,26,0.4); padding-bottom: 2px; transition: border-color 0.2s; }
     .rules-link:hover { border-color: #E8C76A; }
 
     /* ===== LOCATION ===== */
     .location { background: var(--bg); }
-    .location-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      align-items: start;
-    }
-    .location-map {
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      aspect-ratio: 4/3;
-      background: #E5E3DF;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-    .location-map iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      position: absolute;
-      inset: 0;
-    }
+    .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    .location-map { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); aspect-ratio: 4/3; background: #E5E3DF; display: flex; align-items: center; justify-content: center; position: relative; }
+    .location-map iframe { width: 100%; height: 100%; border: none; position: absolute; inset: 0; }
     .map-placeholder { text-align: center; color: var(--muted); }
     .map-placeholder .map-icon { font-size: 48px; margin-bottom: 12px; }
     .map-placeholder p { font-size: 14px; }
-    .map-placeholder a {
-      display: inline-block;
-      margin-top: 12px;
-      background: var(--teal);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    .opening-hours {
-      background: var(--white);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px;
-      margin-bottom: 24px;
-    }
-    .opening-hours h3 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .hours-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 15px;
-    }
+    .map-placeholder a { display: inline-block; margin-top: 12px; background: var(--teal); color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+    .opening-hours { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 24px; }
+    .opening-hours h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .hours-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
     .hours-row:last-child { border-bottom: none; }
     .hours-day { font-weight: 500; }
     .hours-time { color: var(--muted); font-size: 14px; }
-    .hours-note {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 14px;
-      padding: 12px;
-      background: var(--teal-light);
-      border-radius: 8px;
-      line-height: 1.5;
-    }
-    .address-card {
-      background: var(--white);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 28px;
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
+    .hours-note { font-size: 13px; color: var(--muted); margin-top: 14px; padding: 12px; background: var(--teal-light); border-radius: 8px; line-height: 1.5; }
+    .address-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 20px 28px; display: flex; gap: 16px; align-items: flex-start; }
     .address-card-icon { font-size: 24px; margin-top: 2px; }
     .address-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
     .address-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
 
     /* ===== CONTACT ===== */
     .contact { background: var(--white); }
-    .contact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1.5fr;
-      gap: 64px;
-      align-items: start;
-    }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 64px; align-items: start; }
     .contact-info p { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 32px; }
     .contact-channels { display: flex; flex-direction: column; gap: 12px; }
-    .channel {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      transition: border-color 0.2s;
-    }
+    .channel { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; transition: border-color 0.2s; }
     .channel:hover { border-color: var(--teal); }
-    .channel-icon { font-size: 22px; width: 44px; text-align: center; }
+    .channel-icon { font-size: 22px; width: 44px; text-align: center; display: flex; align-items: center; justify-content: center; }
     .channel-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
     .channel-value { font-size: 15px; font-weight: 600; color: var(--text); }
     .contact-form { display: flex; flex-direction: column; gap: 16px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 13px; font-weight: 600; color: var(--text); }
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      padding: 12px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      color: var(--text);
-      background: var(--bg);
-      transition: border-color 0.2s, box-shadow 0.2s;
-      outline: none;
-    }
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      border-color: var(--teal);
-      box-shadow: 0 0 0 3px rgba(58,122,119,0.12);
-    }
+    .form-group input, .form-group textarea, .form-group select { padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--text); background: var(--bg); transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,122,119,0.12); }
     .form-group textarea { resize: vertical; min-height: 120px; }
     .form-submit .btn-primary { width: 100%; justify-content: center; }
 
     /* ===== FOOTER ===== */
-    .footer {
-      background: var(--dark);
-      color: rgba(255,255,255,0.6);
-      padding: 48px 24px 32px;
-    }
+    .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 48px 24px 32px; }
     .footer-inner { max-width: 1200px; margin: 0 auto; }
-    .footer-top {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 48px;
-      padding-bottom: 40px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 32px;
-    }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 32px; }
     .footer-brand img { height: 44px; margin-bottom: 16px; }
     .footer-brand p { font-size: 14px; line-height: 1.7; max-width: 280px; }
     .footer-social { display: flex; gap: 10px; margin-top: 20px; }
-    .social-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      transition: background 0.2s;
-      cursor: pointer;
-    }
+    .social-btn { width: 38px; height: 38px; border-radius: 8px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background 0.2s; cursor: pointer; }
     .social-btn:hover { background: var(--teal); color: white; }
-    .footer-col h4 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 16px;
-    }
+    .footer-col h4 { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; color: white; margin-bottom: 16px; }
     .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
     .footer-col ul a { font-size: 14px; transition: color 0.2s; }
     .footer-col ul a:hover { color: var(--teal); }
-    .footer-bottom {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-    }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
     .footer-bottom a { color: var(--teal); }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
-      .about-grid,
-      .pricing-grid,
-      .location-grid,
-      .contact-grid,
-      .footer-top { grid-template-columns: 1fr; }
+      .about-grid, .pricing-grid, .location-grid, .contact-grid, .footer-top { grid-template-columns: 1fr; }
       .info-bar-inner { grid-template-columns: 1fr; }
       .info-item { border-right: none; border-bottom: 1px solid var(--border); padding: 20px 0 !important; }
       .info-item:last-child { border-bottom: none; }
@@ -816,16 +351,8 @@
   <div class="container">
     <div class="about-grid">
       <div class="about-images">
-        <img
-          src="https://rc045.nl/.cm4all/uproc.php/0/Terrein%20impressie/.Impressie_baan2.jpg"
-          alt="RC045 baan overzicht"
-          class="about-img-main"
-        >
-        <img
-          src="https://rc045.nl/.cm4all/uproc.php/0/Terrein%20impressie/.Impressie_crawler2.jpg"
-          alt="RC045 crawler baan"
-          class="about-img-secondary"
-        >
+        <img src="https://rc045.nl/.cm4all/uproc.php/0/Terrein%20impressie/.Impressie_baan2.jpg" alt="RC045 baan overzicht" class="about-img-main">
+        <img src="https://rc045.nl/.cm4all/uproc.php/0/Terrein%20impressie/.Impressie_crawler2.jpg" alt="RC045 crawler baan" class="about-img-secondary">
       </div>
       <div>
         <div class="section-label">Wie zijn wij</div>
@@ -872,8 +399,6 @@
       <p class="section-sub">Je kunt altijd eerst als gast komen rijden om te ervaren of het iets voor jou is. Daarna kun je eventueel lid worden en volop genieten van onze banen.</p>
     </div>
     <div class="pricing-grid">
-
-      <!-- Gastrijden -->
       <div class="price-card">
         <div class="price-card-tag">Gastrijden</div>
         <h3>Kom eens gastrijden!</h3>
@@ -881,24 +406,13 @@
           Rij een hele dag mee op onze baan zonder lidmaatschap. Check onze openingstijden en kom gewoon langs, meld je wel even bij een (bestuurs)lid als je er bent! Je krijgt dan een dagpas en we leggen je alles uit. We helpen je op weg, of je nu een beginner bent of al ervaring hebt.
         </p>
         <ul class="price-list">
-          <li>
-            <span>Volwassene (16+)</span>
-            <span class="price-amount">€10</span>
-          </li>
-          <li>
-            <span>Jeugd (t/m 15 jaar)</span>
-            <span class="price-amount">€5</span>
-          </li>
-                    <li>
-            <span>Groepen krijgen korting!</span>
-            <span class="price-amount">%</span>
-          </li>
+          <li><span>Volwassene (16+)</span><span class="price-amount">€10</span></li>
+          <li><span>Jeugd (t/m 15 jaar)</span><span class="price-amount">€5</span></li>
+          <li><span>Groepen krijgen korting!</span><span class="price-amount">%</span></li>
         </ul>
         <a href="#contact" class="btn btn-primary">Nog vragen neem dan contact op →</a>
         <p class="price-note">Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</p>
       </div>
-
-      <!-- Lidmaatschap -->
       <div class="price-card featured">
         <div class="price-card-tag">Lidmaatschap</div>
         <h3>Word lid van RC045</h3>
@@ -906,23 +420,13 @@
           Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.
         </p>
         <ul class="price-list">
-          <li>
-            <span>Jeugdlid (t/m 15 jaar)</span>
-            <span class="price-amount">€50/jaar</span>
-          </li>
-          <li>
-            <span>Seniorlid (16+)</span>
-            <span class="price-amount">€100/jaar</span>
-          </li>
-          <li>
-            <span>Eenmalige inschrijfkosten</span>
-            <span class="price-amount">€10</span>
-          </li>
+          <li><span>Jeugdlid (t/m 15 jaar)</span><span class="price-amount">€50/jaar</span></li>
+          <li><span>Seniorlid (16+)</span><span class="price-amount">€100/jaar</span></li>
+          <li><span>Eenmalige inschrijfkosten</span><span class="price-amount">€10</span></li>
         </ul>
         <a href="mailto:secretaris@rc045.nl" class="btn btn-white">Aanmelden via e-mail →</a>
         <p class="price-note">Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.</p>
       </div>
-
     </div>
   </div>
 </section>
@@ -941,50 +445,23 @@
           Volg bij aankomst de pijlen met het RC045-logo en je ziet ons vanzelf. Er is voldoende parkeergelegenheid.
         </p>
         <ul style="list-style:none; display:flex; flex-direction:column; gap:12px;">
-          <li style="display:flex; align-items:center; gap:10px; font-size:15px;">
-            <span style="color:var(--green); font-size:18px;">✓</span>
-            Race-circuit voor buggy's, truggies en meer
-          </li>
-          <li style="display:flex; align-items:center; gap:10px; font-size:15px;">
-            <span style="color:var(--green); font-size:18px;">✓</span>
-            Off-road crawler-parcours
-          </li>
-          <li style="display:flex; align-items:center; gap:10px; font-size:15px;">
-            <span style="color:var(--green); font-size:18px;">✓</span>
-            Jump-track met schansen
-          </li>
-          <li style="display:flex; align-items:center; gap:10px; font-size:15px;">
-            <span style="color:var(--green); font-size:18px;">✓</span>
-            Kantine & werkruimte aanwezig
-          </li>
-          <li style="display:flex; align-items:center; gap:10px; font-size:15px;">
-            <span style="color:var(--green); font-size:18px;">✓</span>
-            Voldoende parkeerruimte
-          </li>
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span>Race-circuit voor buggy's, truggies en meer</li>
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span>Off-road crawler-parcours</li>
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span>Jump-track met schansen</li>
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span>Kantine & werkruimte aanwezig</li>
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span>Voldoende parkeerruimte</li>
         </ul>
       </div>
       <div>
         <div class="track-grid">
           <div class="track-photo-wrap tall">
-            <img
-              src="https://rc045.nl/.cm4all/uproc.php/0/Terrein%20impressie/.Impressie_baan2.jpg"
-              alt="RC045 baan"
-              class="track-photo"
-            >
+            <img src="https://rc045.nl/.cm4all/uproc.php/0/Terrein%20impressie/.Impressie_baan2.jpg" alt="RC045 baan" class="track-photo">
           </div>
           <div class="track-photo-wrap">
-            <img
-              src="https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg"
-              alt="RC auto op de baan"
-              class="track-photo"
-            >
+            <img src="https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg" alt="RC auto op de baan" class="track-photo">
           </div>
           <div class="track-photo-wrap">
-            <img
-              src="https://rc045.nl/.cm4all/uproc.php/0/Terrein%20impressie/.Impressie_crawler2.jpg"
-              alt="Crawler baan"
-              class="track-photo"
-            >
+            <img src="https://rc045.nl/.cm4all/uproc.php/0/Terrein%20impressie/.Impressie_crawler2.jpg" alt="Crawler baan" class="track-photo">
           </div>
         </div>
       </div>
@@ -1001,36 +478,12 @@
       <p class="section-sub">We hebben duidelijke regels zodat iedereen veilig en plezierig kan rijden. Hieronder de belangrijkste punten.</p>
     </div>
     <div class="rules-grid">
-      <div class="rule-card">
-        <div class="rule-card-num">01</div>
-        <h4>Alleen elektrisch</h4>
-        <p>Nitro en benzine zijn niet toegestaan op ons terrein. Alleen elektrisch aangedreven voertuigen zijn welkom.</p>
-      </div>
-      <div class="rule-card">
-        <div class="rule-card-num">02</div>
-        <h4>Veiligheid baan</h4>
-        <p>Alleen rijders op het rijderspodium. Kijkers blijven achter de draad. De baanmeester (oranje hesje) heeft gezag.</p>
-      </div>
-      <div class="rule-card">
-        <div class="rule-card-num">03</div>
-        <h4>Gastrijders</h4>
-        <p>Aanmelden bij een bestuurslid verplicht. Onder 16 jaar altijd begeleid door ouder/verzorger.</p>
-      </div>
-      <div class="rule-card">
-        <div class="rule-card-num">04</div>
-        <h4>Laden van accu's</h4>
-        <p>Accu's laden buiten, nooit in de kantine of op het rijderspodium. Defecte accu's neem je mee als chemisch afval.</p>
-      </div>
-      <div class="rule-card">
-        <div class="rule-card-num">05</div>
-        <h4>Netjes houden</h4>
-        <p>Ieder lid ruimt mee op. Afval scheiden we in de daarvoor aangewezen bakken. De kantine laten we schoon achter.</p>
-      </div>
-      <div class="rule-card">
-        <div class="rule-card-num">06</div>
-        <h4>Geen alcohol of drugs</h4>
-        <p>Alcoholhoudende dranken en verdovende middelen zijn verboden tijdens de openingstijden. Veiligheid altijd eerst.</p>
-      </div>
+      <div class="rule-card"><div class="rule-card-num">01</div><h4>Alleen elektrisch</h4><p>Nitro en benzine zijn niet toegestaan op ons terrein. Alleen elektrisch aangedreven voertuigen zijn welkom.</p></div>
+      <div class="rule-card"><div class="rule-card-num">02</div><h4>Veiligheid baan</h4><p>Alleen rijders op het rijderspodium. Kijkers blijven achter de draad. De baanmeester (oranje hesje) heeft gezag.</p></div>
+      <div class="rule-card"><div class="rule-card-num">03</div><h4>Gastrijders</h4><p>Aanmelden bij een bestuurslid verplicht. Onder 16 jaar altijd begeleid door ouder/verzorger.</p></div>
+      <div class="rule-card"><div class="rule-card-num">04</div><h4>Laden van accu's</h4><p>Accu's laden buiten, nooit in de kantine of op het rijderspodium. Defecte accu's neem je mee als chemisch afval.</p></div>
+      <div class="rule-card"><div class="rule-card-num">05</div><h4>Netjes houden</h4><p>Ieder lid ruimt mee op. Afval scheiden we in de daarvoor aangewezen bakken. De kantine laten we schoon achter.</p></div>
+      <div class="rule-card"><div class="rule-card-num">06</div><h4>Geen alcohol of drugs</h4><p>Alcoholhoudende dranken en verdovende middelen zijn verboden tijdens de openingstijden. Veiligheid altijd eerst.</p></div>
     </div>
     <a href="https://rc045.nl/Baanreglement/" target="_blank" class="rules-link">Volledig baanreglement lezen →</a>
   </div>
@@ -1047,9 +500,7 @@
       <div class="location-map">
         <iframe
           src="https://www.openstreetmap.org/export/embed.html?bbox=6.0694%2C50.8879%2C6.0744%2C50.8909&layer=mapnik&marker=50.889462%2C6.071899"
-          allowfullscreen
-          loading="lazy"
-          title="RC045 locatie"
+          allowfullscreen loading="lazy" title="RC045 locatie"
         ></iframe>
         <div class="map-placeholder" style="display:none;">
           <div class="map-icon">📍</div>
@@ -1066,12 +517,16 @@
           </div>
           <div class="hours-row">
             <span class="hours-day">Zaterdag</span>
-<span class="hours-time">10:00 – 17:00 </span>          </div>
+            <span class="hours-time">10:00 – 17:00</span>
+          </div>
           <div class="hours-row">
             <span class="hours-day">Zondag</span>
-<span class="hours-time">10:00 – 17:00</span>          </div>
+            <span class="hours-time">10:00 – 17:00</span>
+          </div>
           <div class="hours-note">
-ℹ️ <strong>Let op:</strong> We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze <a href="https://www.facebook.com/rc045/" target="_blank" class="info-location-link" style="color:var(--teal-dark);">Facebook-pagina</a> voor actuele openingstijden. <br><br><strong>❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.</strong>          </div>
+            ℹ️ <strong>Let op:</strong> We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze <a href="https://www.facebook.com/rc045/" target="_blank" class="info-location-link" style="color:var(--teal-dark);">Facebook-pagina</a> voor actuele openingstijden.
+            <br><br><strong>❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.</strong>
+          </div>
         </div>
         <div class="address-card">
           <div class="address-card-icon">📍</div>
@@ -1092,6 +547,8 @@
 <section class="section contact" id="contact">
   <div class="container">
     <div class="contact-grid">
+
+      <!-- Linkerkolom: info + kanalen -->
       <div class="contact-info">
         <div class="section-label">Contact</div>
         <h2 class="section-title">Heb je een vraag?</h2>
@@ -1104,28 +561,28 @@
               <div class="channel-value">secretaris@rc045.nl</div>
             </div>
           </a>
-<a href="https://www.facebook.com/rc045/" target="_blank" class="channel">
-  <div class="channel-icon">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="Facebook" width="28" height="28">
-  </div>
+          <a href="https://www.facebook.com/rc045/" target="_blank" class="channel">
+            <div class="channel-icon">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="Facebook" width="28" height="28">
+            </div>
             <div>
               <div class="channel-label">Facebook</div>
               <div class="channel-value">facebook.com/rc045</div>
             </div>
           </a>
           <a href="https://www.instagram.com/rc045" target="_blank" class="channel">
-  <div class="channel-icon">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" width="28" height="28">
-  </div>
-  <div>
-    <div class="channel-label">Instagram</div>
-    <div class="channel-value">instagram.com/rc045</div>
-  </div>
-</a>
+            <div class="channel-icon">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" width="28" height="28">
             </div>
-          </div>
+            <div>
+              <div class="channel-label">Instagram</div>
+              <div class="channel-value">instagram.com/rc045</div>
+            </div>
+          </a>
         </div>
       </div>
+
+      <!-- Rechterkolom: formulier -->
       <form class="contact-form" onsubmit="return false;">
         <div class="form-row">
           <div class="form-group">
@@ -1164,6 +621,7 @@
           <button type="submit" class="btn btn-primary">Verstuur bericht →</button>
         </div>
       </form>
+
     </div>
   </div>
 </section>
@@ -1212,15 +670,15 @@
 <script>
   function updateStatus() {
     const now = new Date();
-    const day = now.getDay();   // 0=zo, 1=ma, 2=di, 3=wo, 4=do, 5=vr, 6=za
+    const day = now.getDay();
     const hour = now.getHours();
     const minute = now.getMinutes();
     const time = hour + minute / 60;
 
     const isOpen =
-      (day === 3 && time >= 19 && time < 22) ||   // Woensdag avond 19:00–22:00
-      (day === 6 && time >= 10 && time < 15) ||   // Zaterdag 10:00–15:00
-      (day === 0 && time >= 10 && time < 17);     // Zondag 10:00–17:00
+      (day === 3 && time >= 19 && time < 22) ||
+      (day === 6 && time >= 10 && time < 15) ||
+      (day === 0 && time >= 10 && time < 17);
 
     const el = document.getElementById('status-indicator');
     const badge = document.getElementById('hero-badge');
@@ -1238,7 +696,7 @@
   }
 
   updateStatus();
-  setInterval(updateStatus, 60000); // elke minuut checken!
+  setInterval(updateStatus, 60000);
 </script>
 
 </body>
