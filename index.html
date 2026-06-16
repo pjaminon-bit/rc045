@@ -21,7 +21,7 @@
       --white: #FFFFFF; --green: #22C55E;
       --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08); --shadow-hover: 0 8px 32px rgba(0,0,0,0.14);
     }
-    .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: relative; }
     .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
     .nav-logo { display: flex; align-items: center; gap: 12px; }
     .nav-logo img { height: 48px; width: auto; }
@@ -189,6 +189,19 @@
     }
     @media (max-width: 700px) {
       .nav-links { display: none; }
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 72px;
+        left: 0;
+        right: 0;
+        background: rgba(255,251,247,0.98);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 24px 20px;
+        gap: 4px;
+        z-index: 99;
+      }
       .nav-hamburger { display: flex; }
       .section { padding: 60px 20px; }
       .hero-content { padding: 64px 20px; }
@@ -227,7 +240,7 @@
       </li>
       <li class="nav-cta"><a href="#contact">Ik heb een vraag</a></li>
     </ul>
-    <button class="nav-hamburger" onclick="this.classList.toggle('open')">
+    <button class="nav-hamburger" id="hamburger">
       <span></span><span></span><span></span>
     </button>
   </div>
@@ -620,6 +633,11 @@
   updateStatus();
   setInterval(updateStatus, 60000);
   document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+  // Hamburger menu
+  document.getElementById('hamburger').addEventListener('click', function() {
+    document.querySelector('.nav-links').classList.toggle('open');
+  });
 </script>
 
 </body>
