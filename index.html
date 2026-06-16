@@ -670,7 +670,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2025 RC045 Bashers of the South · Kerkrade Eygelshoven</span>
+<span>© 2021–<span id="footer-year"></span> RC045 Bashers of the South · Kerkrade Eygelshoven</span>
       <span>Gemaakt met ❤️ voor onze hobby</span>
     </div>
   </div>
@@ -707,6 +707,9 @@
 
   updateStatus();
   setInterval(updateStatus, 60000);
+
+  
+document.getElementById('footer-year').textContent = new Date().getFullYear();
 </script>
 
 </body>
