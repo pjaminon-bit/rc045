@@ -7,15 +7,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    /* ===== RESET & BASE ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: #292524; background: #FAF6EC; }
     h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; line-height: 1.2; }
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; height: auto; display: block; }
-
-    /* ===== CSS VARIABLES ===== */
     :root {
       --teal: #3A7A77; --teal-dark: #2D6260; --teal-light: #EAF4F3;
       --gold: #C89A1A; --gold-light: #FBF4DF; --rust: #8B3319;
@@ -24,8 +21,6 @@
       --white: #FFFFFF; --green: #22C55E;
       --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08); --shadow-hover: 0 8px 32px rgba(0,0,0,0.14);
     }
-
-    /* ===== NAVIGATION ===== */
     .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
     .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
     .nav-logo { display: flex; align-items: center; gap: 12px; }
@@ -39,8 +34,6 @@
     .nav-links .nav-cta a:hover { background: var(--teal-dark); }
     .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; }
     .nav-hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
-
-    /* ===== HERO ===== */
     .hero { position: relative; overflow: hidden; background: var(--dark); min-height: 580px; display: flex; align-items: center; }
     .hero-bg { position: absolute; inset: 0; background-image: url('https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg'); background-size: cover; background-position: center; opacity: 0.35; }
     .hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
@@ -61,8 +54,6 @@
     .btn-outline:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
     .btn-white { background: white; color: var(--teal-dark); }
     .btn-white:hover { background: var(--teal-light); transform: translateY(-1px); }
-
-    /* ===== INFO BAR ===== */
     .info-bar { background: var(--white); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
     .info-bar-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); }
     .info-item { display: flex; align-items: center; gap: 16px; padding: 24px 0; border-right: 1px solid var(--border); }
@@ -73,18 +64,12 @@
     .info-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 2px; }
     .info-value { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; color: var(--text); }
     .info-value small { font-weight: 400; font-size: 13px; color: var(--muted); font-family: 'Inter', sans-serif; }
-
-    /* ===== LOCATIE LINK ===== */
     .info-location-link { color: inherit; text-decoration: none; border-bottom: 1.5px dashed var(--muted); padding-bottom: 1px; transition: border-color 0.2s, color 0.2s; cursor: pointer; }
     .info-location-link:hover { color: var(--teal-dark); border-bottom-color: var(--teal-dark); }
-
-    /* ===== STATUS OPEN / CLOSED ===== */
     .status-open { display: inline-flex; align-items: center; gap: 6px; color: #16A34A; font-size: 13px; font-weight: 600; margin-top: 2px; }
     .status-open::before { content: ''; width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
     .status-closed { display: inline-flex; align-items: center; gap: 6px; color: #DC2626; font-size: 13px; font-weight: 600; margin-top: 2px; }
     .status-closed::before { content: ''; width: 7px; height: 7px; background: #EF4444; border-radius: 50%; }
-
-    /* ===== SECTION BASE ===== */
     .section { padding: 80px 24px; }
     .container { max-width: 1200px; margin: 0 auto; }
     .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 12px; }
@@ -93,8 +78,6 @@
     .section-header { margin-bottom: 48px; }
     .section-header.center { text-align: center; }
     .section-header.center .section-sub { margin: 0 auto; }
-
-    /* ===== ABOUT SECTION ===== */
     .about { background: var(--white); }
     .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
     .about-images { position: relative; }
@@ -105,8 +88,6 @@
     .feature-card-icon { font-size: 24px; margin-bottom: 8px; }
     .feature-card h4 { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
     .feature-card p { font-size: 13px; color: var(--muted); }
-
-    /* ===== PRICING CARDS ===== */
     .pricing { background: var(--bg); }
     .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
     .price-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 36px; transition: transform 0.2s, box-shadow 0.2s; }
@@ -125,8 +106,6 @@
     .price-card.featured .btn-white { width: 100%; justify-content: center; }
     .price-note { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
     .price-card.featured .price-note { color: rgba(255,255,255,0.5); }
-
-    /* ===== TRACK PHOTOS ===== */
     .track { background: var(--white); }
     .track-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
     .track-photo { object-fit: cover; width: 100%; height: 100%; transition: transform 0.4s; }
@@ -134,8 +113,6 @@
     .track-photo-wrap { overflow: hidden; }
     .track-photo-wrap.tall { grid-row: span 2; }
     .track-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
-
-    /* ===== RULES SECTION ===== */
     .rules { background: var(--dark); color: white; }
     .rules .section-title { color: white; }
     .rules .section-sub { color: rgba(255,255,255,0.6); }
@@ -147,8 +124,6 @@
     .rule-card p { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; }
     .rules-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 40px; color: #E8C76A; font-weight: 600; font-size: 15px; border-bottom: 1.5px solid rgba(200,154,26,0.4); padding-bottom: 2px; transition: border-color 0.2s; }
     .rules-link:hover { border-color: #E8C76A; }
-
-    /* ===== LOCATION ===== */
     .location { background: var(--bg); }
     .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
     .location-map { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); aspect-ratio: 4/3; background: #E5E3DF; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -168,8 +143,6 @@
     .address-card-icon { font-size: 24px; margin-top: 2px; }
     .address-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
     .address-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
-
-    /* ===== CONTACT ===== */
     .contact { background: var(--white); }
     .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 64px; align-items: start; }
     .contact-info p { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 32px; }
@@ -187,31 +160,20 @@
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,122,119,0.12); }
     .form-group textarea { resize: vertical; min-height: 120px; }
     .form-submit .btn-primary { width: 100%; justify-content: center; }
-
-    /* ===== FOOTER ===== */
     .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 48px 24px 32px; }
     .footer-inner { max-width: 1200px; margin: 0 auto; }
     .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 32px; }
     .footer-brand img { height: 44px; margin-bottom: 16px; }
     .footer-brand p { font-size: 14px; line-height: 1.7; max-width: 280px; }
-    .footer-social { display: flex; gap: 10px; margin-top: 20px; }
-    .social-btn {
-      width: 38px; height: 38px; border-radius: 8px;
-      background: rgba(255,255,255,0.08);
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s; cursor: pointer;
-      overflow: hidden;
-    }
-    .social-btn img { width: 22px; height: 22px; object-fit: contain; }
-    .social-btn:hover { background: var(--teal); }
+    .footer-social { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
+    .footer-social a { opacity: 0.75; transition: opacity 0.2s; }
+    .footer-social a:hover { opacity: 1; }
     .footer-col h4 { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; color: white; margin-bottom: 16px; }
     .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
     .footer-col ul a { font-size: 14px; transition: color 0.2s; }
     .footer-col ul a:hover { color: var(--teal); }
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
     .footer-bottom a { color: var(--teal); }
-
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
       .about-grid, .pricing-grid, .location-grid, .contact-grid, .footer-top { grid-template-columns: 1fr; }
       .info-bar-inner { grid-template-columns: 1fr; }
@@ -237,7 +199,6 @@
 </head>
 <body>
 
-<!-- ===== NAVIGATION ===== -->
 <nav class="nav">
   <div class="nav-inner">
     <a href="#" class="nav-logo">
@@ -272,7 +233,6 @@
   </div>
 </nav>
 
-<!-- ===== HERO ===== -->
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-gradient"></div>
@@ -292,7 +252,6 @@
   </div>
 </section>
 
-<!-- ===== INFO BAR ===== -->
 <div class="info-bar">
   <div class="info-bar-inner">
     <div class="info-item">
@@ -323,7 +282,6 @@
   </div>
 </div>
 
-<!-- ===== OVER ONS ===== -->
 <section class="section about" id="over-ons">
   <div class="container">
     <div class="about-grid">
@@ -367,7 +325,6 @@
   </div>
 </section>
 
-<!-- ===== LIDMAATSCHAP & GASTRIJDEN ===== -->
 <section class="section pricing" id="lidmaatschap">
   <div class="container">
     <div class="section-header center">
@@ -408,7 +365,6 @@
   </div>
 </section>
 
-<!-- ===== DE BAAN ===== -->
 <section class="section track" id="baan">
   <div class="container">
     <div class="track-layout">
@@ -446,7 +402,6 @@
   </div>
 </section>
 
-<!-- ===== BAANREGLEMENT ===== -->
 <section class="section rules">
   <div class="container">
     <div class="section-header">
@@ -466,7 +421,6 @@
   </div>
 </section>
 
-<!-- ===== LOCATIE ===== -->
 <section class="section location" id="locatie">
   <div class="container">
     <div class="section-header">
@@ -520,7 +474,6 @@
   </div>
 </section>
 
-<!-- ===== CONTACT ===== -->
 <section class="section contact" id="contact">
   <div class="container">
     <div class="contact-grid">
@@ -599,14 +552,21 @@
 </section>
 
 <!-- ===== FOOTER ===== -->
-<div class="footer-social">
-  <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="Facebook" width="28" height="28">
-  </a>
-  <a href="https://www.instagram.com/rc045" target="_blank" title="Instagram">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" width="28" height="28">
-  </a>
-</div>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="rc045-logo.png" alt="RC045">
+        <p>Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="Facebook" width="28" height="28">
+          </a>
+          <a href="https://www.instagram.com/rc045" target="_blank" title="Instagram">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" width="28" height="28">
+          </a>
+        </div>
+      </div>
       <div class="footer-col">
         <h4>Navigatie</h4>
         <ul>
@@ -636,7 +596,6 @@
   </div>
 </footer>
 
-<!-- ===== STATUS SCRIPT ===== -->
 <script>
   function updateStatus() {
     const now = new Date();
@@ -644,30 +603,22 @@
     const hour = now.getHours();
     const minute = now.getMinutes();
     const time = hour + minute / 60;
-
     const isOpen =
       (day === 3 && time >= 19 && time < 22) ||
       (day === 6 && time >= 10 && time < 15) ||
       (day === 0 && time >= 10 && time < 17);
-
     const el = document.getElementById('status-indicator');
     const badge = document.getElementById('hero-badge');
     if (isOpen) {
-      el.className = 'status-open';
-      el.textContent = 'Nu open';
-      badge.className = 'hero-badge';
-      badge.textContent = '🏁 Nu open!';
+      el.className = 'status-open'; el.textContent = 'Nu open';
+      badge.className = 'hero-badge'; badge.textContent = '🏁 Nu open!';
     } else {
-      el.className = 'status-closed';
-      el.textContent = 'Nu gesloten';
-      badge.className = 'hero-badge hero-badge-closed';
-      badge.textContent = '🏁 Vandaag gesloten';
+      el.className = 'status-closed'; el.textContent = 'Nu gesloten';
+      badge.className = 'hero-badge hero-badge-closed'; badge.textContent = '🏁 Vandaag gesloten';
     }
   }
-
   updateStatus();
   setInterval(updateStatus, 60000);
-
   document.getElementById('footer-year').textContent = new Date().getFullYear();
 </script>
 
