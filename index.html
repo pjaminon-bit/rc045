@@ -760,7 +760,33 @@
   </style>
 </head>
 <body>
+<script>
+  function updateStatus() {
+    const now = new Date();
+    const day = now.getDay();   // 0=zo, 1=ma, 2=di, 3=wo, 4=do, 5=vr, 6=za
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const time = hour + minute / 60;
 
+    // Openingstijden
+    const isOpen =
+      (day === 3 && time >= 19 && time < 22) ||   // Woensdag avond 19:00–22:00
+      (day === 6 && time >= 10 && time < 15) ||   // Zaterdag 10:00–15:00
+      (day === 0 && time >= 10 && time < 17);     // Zondag 10:00–17:00
+
+    const el = document.getElementById('status-indicator');
+    if (isOpen) {
+      el.className = 'status-open';
+      el.textContent = 'Nu open';
+    } else {
+      el.className = 'status-closed';
+      el.textContent = 'Gesloten';
+    }
+  }
+
+  updateStatus();
+  setInterval(updateStatus, 60000); // elke minuut checken
+</script>
 <!-- ===== NAVIGATION ===== -->
 <nav class="nav">
   <div class="nav-inner">
@@ -815,7 +841,7 @@
         <div class="info-label">Openingstijden</div>
         <div class="info-value">Zaterdag 10:00–15:00</div>
         <div class="info-value">Zondag 10:00–15:00</div>
-        <div class="status-open">Nu gesloten</div>
+        <div id="status-indicator"></div>
       </div>
     </div>
     <div class="info-item">
