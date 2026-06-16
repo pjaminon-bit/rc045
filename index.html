@@ -772,7 +772,7 @@
     const isOpen =
       (day === 3 && time >= 19 && time < 22) ||   // Woensdag avond 19:00–22:00
       (day === 6 && time >= 10 && time < 15) ||   // Zaterdag 10:00–15:00
-      (day === 0 && time >= 10 && time < 17);     // Zondag 10:00–17:00
+      (day === 0 && time >= 10 && time < 15);     // Zondag 10:00–15:00
 
     const el = document.getElementById('status-indicator');
     if (isOpen) {
