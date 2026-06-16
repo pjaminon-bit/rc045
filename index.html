@@ -287,6 +287,20 @@
       font-family: 'Inter', sans-serif;
     }
 
+    /* ===== LOCATIE LINK ===== */
+    .info-location-link {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1.5px dashed var(--muted);
+      padding-bottom: 1px;
+      transition: border-color 0.2s, color 0.2s;
+      cursor: pointer;
+    }
+    .info-location-link:hover {
+      color: var(--teal-dark);
+      border-bottom-color: var(--teal-dark);
+    }
+
     /* ===== STATUS OPEN / CLOSED ===== */
     .status-open {
       display: inline-flex;
@@ -758,7 +772,7 @@
     <img src="rc045-logo.png" alt="RC045" style="height: 140px; width: auto; margin-bottom: 24px; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));">
     <div id="hero-badge" class="hero-badge"></div>
     <h1>RC045<br><span>BASHERS OF THE SOUTH</span></h1>
-    <p>Wij zijn een gezellige vereniging voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners én ervaren hobbyisten. Jong én oud.</p>
+    <p>Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners én ervaren hobbyisten. Jong én oud.</p>
     <div class="hero-buttons">
       <a href="#lidmaatschap" class="btn btn-primary">🏎️ Lid worden!</a>
       <a href="#over-ons" class="btn btn-outline">Meer over ons</a>
@@ -780,10 +794,12 @@
     </div>
     <div class="info-item">
       <div class="info-icon">📍</div>
-      <a href="#locatie" style="text-decoration:none; color:inherit;">
+      <div>
         <div class="info-label">Locatie</div>
-        <div class="info-value">Wijngaardsberg 26 <small>Kerkrade (Eygelshoven)</small></div>
-      </a>
+        <div class="info-value">
+          <a href="#locatie" class="info-location-link">Wijngaardsberg 26 <small>Kerkrade (Eygelshoven)</small></a>
+        </div>
+      </div>
     </div>
     <div class="info-item">
       <div class="info-icon">💬</div>
@@ -1026,7 +1042,7 @@
     <div class="location-grid">
       <div class="location-map">
         <iframe
-          src="https://www.openstreetmap.org/export/embed.html?bbox=6.0258%2C50.8741%2C6.0308%2C50.8771&layer=mapnik&marker=50.8756%2C6.0283"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=6.0694%2C50.8879%2C6.0744%2C50.8909&layer=mapnik&marker=50.889462%2C6.071899"
           allowfullscreen
           loading="lazy"
           title="RC045 locatie"
@@ -1034,7 +1050,7 @@
         <div class="map-placeholder" style="display:none;">
           <div class="map-icon">📍</div>
           <p>Wijngaardsberg 26<br>Kerkrade Eygelshoven</p>
-          <a href="https://maps.google.com/?q=Wijngaardsberg+26+Kerkrade" target="_blank">Open in Google Maps</a>
+          <a href="https://www.openstreetmap.org/search?lat=50.889462&lon=6.071899&zoom=19#map=19/50.889461/6.071900" target="_blank">Open in OpenStreetMap</a>
         </div>
       </div>
       <div>
@@ -1061,7 +1077,7 @@
           <div>
             <h4>Adres</h4>
             <p>Wijngaardsberg 26<br>Kerkrade Eygelshoven<br><br>Op het terrein van Kok Lexmond. Volg de pijlen RC045.</p>
-            <a href="https://www.openstreetmap.org/?mlat=50.8756&mlon=6.0283#map=17/50.8756/6.0283" target="_blank" style="display:inline-block; margin-top:12px; color:var(--teal); font-weight:600; font-size:14px;">
+            <a href="https://www.openstreetmap.org/search?lat=50.889462&lon=6.071899&zoom=19#map=19/50.889461/6.071900" target="_blank" style="display:inline-block; margin-top:12px; color:var(--teal); font-weight:600; font-size:14px;">
               Routebeschrijving openen →
             </a>
           </div>
@@ -1210,7 +1226,7 @@
       el.className = 'status-closed';
       el.textContent = 'Gesloten';
       badge.className = 'hero-badge hero-badge-closed';
-      badge.textContent = '🏁 Gesloten – kom ons volgen op Facebook';
+      badge.textContent = '🏁 Vandaag gesloten';
     }
   }
 
