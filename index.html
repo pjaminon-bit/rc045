@@ -74,7 +74,7 @@
 
     /* ===== INFO BAR ===== */
     .info-bar { background: var(--white); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
-    .info-bar-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); }
+    .info-bar-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(4, 1fr); }
     .info-item { display: flex; align-items: center; gap: 16px; padding: 24px 0; border-right: 1px solid var(--border); }
     .info-item:last-child { border-right: none; padding-left: 32px; }
     .info-item:first-child { padding-right: 32px; }
@@ -349,6 +349,14 @@
       <div>
         <div class="info-label" data-i18n="info.membership">Lidmaatschap</div>
         <div class="info-value" data-i18n="info.from">Vanaf €50/jaar <small>Jeugd t/m 15 jaar</small></div>
+      </div>
+    </div>
+    <div class="info-item" id="weather-item">
+      <div class="info-icon" id="weather-icon">🌤️</div>
+      <div>
+        <div class="info-label" data-i18n="info.weather">Weer in Eygelshoven</div>
+        <div class="info-value" id="weather-temp">—</div>
+        <div style="font-size:13px; color:var(--muted);" id="weather-desc">Laden...</div>
       </div>
     </div>
   </div>
@@ -669,7 +677,7 @@
       'hero.intro': 'Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners én ervaren hobbyisten. Jong én oud.',
       'hero.btn.member': '🏎️ Lid worden!', 'hero.btn.more': 'Meer over ons',
       'info.hours': 'Openingstijden', 'info.sat': 'Zaterdag 10:00–15:00', 'info.sun': 'Zondag 10:00–17:00',
-      'info.location': 'Locatie', 'info.membership': 'Lidmaatschap', 'info.from': 'Vanaf €50/jaar',
+      'info.location': 'Locatie', 'info.membership': 'Lidmaatschap', 'info.from': 'Vanaf €50/jaar', 'info.weather': 'Weer in Eygelshoven',
       'about.label': 'Wie zijn wij', 'about.title': 'Gezellig racen in het hart van Limburg',
       'about.p1': 'RC045 is een actieve vereniging voor iedereen die gek is op radiografisch bestuurbare auto\'s. We rijden met elektrische RC-auto\'s in alle schalen. Of je nu net begint of al jaren rijdt: bij ons ben je welkom.',
       'about.p2': 'We beschikken over een eigen baan in Eygelshoven, op het terrein van Kok Lexmond. Naast de basher baan hebben we ook een enorm crawler-parcours en een jump-track.',
@@ -732,7 +740,7 @@
       'hero.intro': 'We are a friendly club from the south of Limburg for enthusiasts of electrically powered, radio-controlled cars. For beginners and experienced hobbyists alike. Young and old.',
       'hero.btn.member': '🏎️ Become a member!', 'hero.btn.more': 'More about us',
       'info.hours': 'Opening hours', 'info.sat': 'Saturday 10:00–15:00', 'info.sun': 'Sunday 10:00–17:00',
-      'info.location': 'Location', 'info.membership': 'Membership', 'info.from': 'From €50/year',
+      'info.location': 'Location', 'info.membership': 'Membership', 'info.from': 'From €50/year', 'info.weather': 'Weather in Eygelshoven',
       'about.label': 'Who we are', 'about.title': 'Fun racing in the heart of Limburg',
       'about.p1': 'RC045 is an active club for anyone passionate about radio-controlled cars. We drive electric RC cars in all scales. Whether you\'re just starting out or have been racing for years: you\'re welcome here.',
       'about.p2': 'We have our own track in Eygelshoven, on the grounds of Kok Lexmond. Besides the basher track, we also have a huge crawler course and a jump track.',
@@ -791,11 +799,11 @@
     },
     de: {
       'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
-      'nav.location': 'Standort', 'nav.question': 'Kontakt',
+      'nav.location': 'Standort', 'nav.question': 'Ich habe eine Frage',
       'hero.intro': 'Wir sind ein freundlicher Verein aus dem Süden von Limburg für Liebhaber von elektrisch angetriebenen, ferngesteuerten Autos. Für Anfänger und erfahrene Hobbyisten. Jung und Alt.',
       'hero.btn.member': '🏎️ Mitglied werden!', 'hero.btn.more': 'Mehr über uns',
       'info.hours': 'Öffnungszeiten', 'info.sat': 'Samstag 10:00–15:00', 'info.sun': 'Sonntag 10:00–17:00',
-      'info.location': 'Standort', 'info.membership': 'Mitgliedschaft', 'info.from': 'Ab €50/Jahr',
+      'info.location': 'Standort', 'info.membership': 'Mitgliedschaft', 'info.from': 'Ab €50/Jahr', 'info.weather': 'Wetter in Eygelshoven',
       'about.label': 'Wer wir sind', 'about.title': 'Spaßiges Fahren im Herzen von Limburg',
       'about.p1': 'RC045 ist ein aktiver Verein für alle, die ferngesteuerte Autos lieben. Wir fahren elektrische RC-Autos in allen Maßstäben. Ob Anfänger oder Erfahrener – bei uns bist du willkommen.',
       'about.p2': 'Wir haben eine eigene Strecke in Eygelshoven auf dem Gelände von Kok Lexmond. Neben der Basher-Strecke gibt es auch einen riesigen Crawler-Parcours und eine Sprungstrecke.',
@@ -870,8 +878,65 @@
     document.querySelectorAll('.lang-flag').forEach(btn => btn.classList.remove('active'));
     document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`).classList.add('active');
     document.documentElement.lang = lang;
+    updateWeatherDisplay();
     updateStatus();
   }
+
+  // ===== WEER =====
+  const weatherCodes = {
+    0: ['☀️','Helder'], 1: ['🌤️','Vrijwel helder'], 2: ['⛅','Bewolkt'], 3: ['☁️','Zwaar bewolkt'],
+    45: ['🌫️','Mist'], 48: ['🌫️','IJsmist'], 51: ['🌦️','Lichte motregen'], 53: ['🌦️','Motregen'],
+    55: ['🌧️','Zware motregen'], 61: ['🌧️','Lichte regen'], 63: ['🌧️','Regen'], 65: ['🌧️','Zware regen'],
+    71: ['❄️','Lichte sneeuw'], 73: ['❄️','Sneeuw'], 75: ['❄️','Zware sneeuw'],
+    80: ['🌦️','Buien'], 81: ['🌧️','Zware buien'], 82: ['⛈️','Hevige buien'],
+    95: ['⛈️','Onweer'], 96: ['⛈️','Onweer met hagel'], 99: ['⛈️','Zwaar onweer']
+  };
+  const weatherCodesEN = {
+    0: 'Clear', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast',
+    45: 'Fog', 48: 'Icy fog', 51: 'Light drizzle', 53: 'Drizzle',
+    55: 'Heavy drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
+    71: 'Light snow', 73: 'Snow', 75: 'Heavy snow',
+    80: 'Showers', 81: 'Heavy showers', 82: 'Violent showers',
+    95: 'Thunderstorm', 96: 'Thunderstorm with hail', 99: 'Heavy thunderstorm'
+  };
+  const weatherCodesDE = {
+    0: 'Klar', 1: 'Meist klar', 2: 'Teilweise bewölkt', 3: 'Bedeckt',
+    45: 'Nebel', 48: 'Eisnebel', 51: 'Leichter Nieselregen', 53: 'Nieselregen',
+    55: 'Starker Nieselregen', 61: 'Leichter Regen', 63: 'Regen', 65: 'Starker Regen',
+    71: 'Leichter Schnee', 73: 'Schnee', 75: 'Starker Schnee',
+    80: 'Schauer', 81: 'Starke Schauer', 82: 'Heftige Schauer',
+    95: 'Gewitter', 96: 'Gewitter mit Hagel', 99: 'Schweres Gewitter'
+  };
+
+  let weatherData = null;
+
+  async function fetchWeather() {
+    try {
+      const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.889&longitude=6.072&current=temperature_2m,weathercode,windspeed_10m&wind_speed_unit=kmh&timezone=Europe/Amsterdam');
+      const data = await res.json();
+      weatherData = data.current;
+      updateWeatherDisplay();
+    } catch(e) {
+      document.getElementById('weather-desc').textContent = '—';
+    }
+  }
+
+  function updateWeatherDisplay() {
+    if (!weatherData) return;
+    const code = weatherData.weathercode;
+    const temp = Math.round(weatherData.temperature_2m);
+    const wind = Math.round(weatherData.windspeed_10m);
+    const [icon, descNL] = weatherCodes[code] || ['🌤️', 'Onbekend'];
+    const descEN = weatherCodesEN[code] || 'Unknown';
+    const descDE = weatherCodesDE[code] || 'Unbekannt';
+    const desc = currentLang === 'en' ? descEN : currentLang === 'de' ? descDE : descNL;
+    document.getElementById('weather-icon').textContent = icon;
+    document.getElementById('weather-temp').textContent = temp + '°C · ' + wind + ' km/h';
+    document.getElementById('weather-desc').textContent = desc;
+  }
+
+  fetchWeather();
+  setInterval(fetchWeather, 600000);
 
   // ===== STATUS =====
   function updateStatus() {
