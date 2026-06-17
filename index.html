@@ -74,7 +74,7 @@
 
     /* ===== INFO BAR ===== */
     .info-bar { background: var(--white); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
-    .info-bar-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(4, 1fr); }
+    .info-bar-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); }
     .info-item { display: flex; align-items: center; gap: 16px; padding: 24px 0; border-right: 1px solid var(--border); }
     .info-item:last-child { border-right: none; padding-left: 32px; }
     .info-item:first-child { padding-right: 32px; }
@@ -190,6 +190,22 @@
     .address-card-icon { font-size: 24px; margin-top: 2px; }
     .address-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
     .address-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ===== WEER WIDGET ===== */
+    .weather-card {
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 20px 28px;
+      margin-bottom: 24px; display: flex; align-items: center; gap: 20px;
+    }
+    .weather-icon-big { font-size: 48px; line-height: 1; flex-shrink: 0; }
+    .weather-temp-big {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 36px; color: var(--dark); line-height: 1;
+    }
+    .weather-desc-text { font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .weather-details { display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+    .weather-detail { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+    .weather-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
 
     /* ===== CONTACT ===== */
     .contact { background: var(--white); }
@@ -348,15 +364,7 @@
       <div class="info-icon">💬</div>
       <div>
         <div class="info-label" data-i18n="info.membership">Lidmaatschap</div>
-        <div class="info-value" data-i18n="info.from">Vanaf €50/jaar <small>Jeugd</small></div>
-      </div>
-    </div>
-    <div class="info-item" id="weather-item">
-      <div class="info-icon" id="weather-icon">🌤️</div>
-      <div>
-        <div class="info-label" data-i18n="info.weather">Weer in Eygelshoven</div>
-        <div class="info-value" id="weather-temp">—</div>
-        <div style="font-size:13px; color:var(--muted);" id="weather-desc">Laden...</div>
+        <div class="info-value" data-i18n="info.from">Vanaf €50/jaar <small>Jeugd t/m 15 jaar</small></div>
       </div>
     </div>
   </div>
@@ -517,6 +525,18 @@
         <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=6.0694%2C50.8879%2C6.0744%2C50.8909&layer=mapnik&marker=50.889462%2C6.071899" allowfullscreen loading="lazy" title="RC045 locatie"></iframe>
       </div>
       <div class="reveal reveal-delay-2">
+        <div class="weather-card">
+          <div class="weather-icon-big" id="weather-icon">🌤️</div>
+          <div>
+            <div class="weather-label" data-i18n="info.weather">Weer in Eygelshoven</div>
+            <div class="weather-temp-big" id="weather-temp">—</div>
+            <div class="weather-desc-text" id="weather-desc">Laden...</div>
+            <div class="weather-details">
+              <div class="weather-detail">💨 <span id="weather-wind">—</span></div>
+              <div class="weather-detail">💧 <span id="weather-humid">—</span></div>
+            </div>
+          </div>
+        </div>
         <div class="opening-hours">
           <h3 data-i18n="hours.title">🕐 Openingstijden</h3>
           <div class="hours-row">
@@ -912,7 +932,7 @@
 
   async function fetchWeather() {
     try {
-      const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.889&longitude=6.072&current=temperature_2m,weathercode,windspeed_10m&wind_speed_unit=kmh&timezone=Europe/Amsterdam');
+      const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.889&longitude=6.072&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&wind_speed_unit=kmh&timezone=Europe/Amsterdam');
       const data = await res.json();
       weatherData = data.current;
       updateWeatherDisplay();
@@ -931,8 +951,12 @@
     const descDE = weatherCodesDE[code] || 'Unbekannt';
     const desc = currentLang === 'en' ? descEN : currentLang === 'de' ? descDE : descNL;
     document.getElementById('weather-icon').textContent = icon;
-    document.getElementById('weather-temp').textContent = temp + '°C · ' + wind + ' km/h';
+    document.getElementById('weather-temp').textContent = temp + '°C';
     document.getElementById('weather-desc').textContent = desc;
+    const windEl = document.getElementById('weather-wind');
+    const humidEl = document.getElementById('weather-humid');
+    if (windEl) windEl.textContent = wind + ' km/h';
+    if (humidEl) humidEl.textContent = Math.round(weatherData.relativehumidity_2m) + '%';
   }
 
   fetchWeather();
