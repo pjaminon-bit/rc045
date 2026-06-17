@@ -23,21 +23,14 @@
     }
 
     /* ===== TAALKNOP ===== */
-    .lang-switcher {
-      position: fixed; top: 16px; right: 16px; z-index: 500;
-      background: var(--white); border: 1.5px solid var(--border);
-      border-radius: 10px; padding: 6px 8px;
-      box-shadow: var(--shadow);
-      display: flex; gap: 4px;
+    .lang-flags { display: flex; align-items: center; gap: 2px; }
+    .lang-flag {
+      font-size: 20px; cursor: pointer; border: none; background: none;
+      padding: 3px 5px; border-radius: 6px; line-height: 1;
+      opacity: 0.4; transition: opacity 0.2s, transform 0.15s;
     }
-    .lang-btn {
-      padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700;
-      cursor: pointer; border: none; background: transparent;
-      color: var(--muted); transition: background 0.15s, color 0.15s;
-      letter-spacing: 0.04em;
-    }
-    .lang-btn:hover { background: var(--teal-light); color: var(--teal-dark); }
-    .lang-btn.active { background: var(--teal); color: white; }
+    .lang-flag:hover { opacity: 0.8; transform: scale(1.2); }
+    .lang-flag.active { opacity: 1; transform: scale(1.2); }
 
     /* ===== NAVIGATION ===== */
     .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
@@ -259,18 +252,10 @@
       .hero-content { padding: 64px 20px; }
       .track-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
       .track-photo-wrap.tall { grid-row: span 1; }
-      .lang-switcher { top: 80px; right: 10px; }
     }
   </style>
 </head>
 <body>
-
-<!-- ===== TAALKNOP ===== -->
-<div class="lang-switcher">
-  <button class="lang-btn active" onclick="setLang('nl')">🇳🇱 NL</button>
-  <button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
-  <button class="lang-btn" onclick="setLang('de')">🇩🇪 DE</button>
-</div>
 
 <!-- ===== LIGHTBOX ===== -->
 <div class="lightbox" id="lightbox">
@@ -310,6 +295,11 @@
       </li>
       <li class="nav-cta"><a href="#contact" data-i18n="nav.question">Ik heb een vraag</a></li>
     </ul>
+    <div class="lang-flags">
+      <button class="lang-flag active" onclick="setLang('nl')" title="Nederlands">🇳🇱</button>
+      <button class="lang-flag" onclick="setLang('en')" title="English">🇬🇧</button>
+      <button class="lang-flag" onclick="setLang('de')" title="Deutsch">🇩🇪</button>
+    </div>
     <button class="nav-hamburger" id="hamburger">
       <span></span><span></span><span></span>
     </button>
@@ -801,7 +791,7 @@
     },
     de: {
       'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
-      'nav.location': 'Standort', 'nav.question': 'Ich habe eine Frage',
+      'nav.location': 'Standort', 'nav.question': 'Kontakt',
       'hero.intro': 'Wir sind ein freundlicher Verein aus dem Süden von Limburg für Liebhaber von elektrisch angetriebenen, ferngesteuerten Autos. Für Anfänger und erfahrene Hobbyisten. Jung und Alt.',
       'hero.btn.member': '🏎️ Mitglied werden!', 'hero.btn.more': 'Mehr über uns',
       'info.hours': 'Öffnungszeiten', 'info.sat': 'Samstag 10:00–15:00', 'info.sun': 'Sonntag 10:00–17:00',
@@ -877,8 +867,8 @@
       const key = el.getAttribute('data-i18n-placeholder');
       if (t[key]) el.placeholder = t[key];
     });
-    document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+    document.querySelectorAll('.lang-flag').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`).classList.add('active');
     document.documentElement.lang = lang;
     updateStatus();
   }
