@@ -110,6 +110,9 @@
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
       .form-card { padding: 24px 20px; }
+      .nav-logo-sub { display: none; }
+      .nav-back span, .nav-back-text { display: none; }
+      .nav-back { padding: 8px 10px; }
     }
   </style>
 </head>
@@ -131,7 +134,7 @@
         <button class="lang-flag" onclick="setLang('en')" title="English">🇬🇧</button>
         <button class="lang-flag" onclick="setLang('de')" title="Deutsch">🇩🇪</button>
       </div>
-      <a href="index.html" class="nav-back" data-i18n="nav.back">← Terug naar de site</a>
+      <a href="index.html" class="nav-back" data-i18n="nav.back">← <span class="nav-back-text">Terug naar de site</span></a>
     </div>
   </div>
 </nav>
