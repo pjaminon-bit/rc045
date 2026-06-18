@@ -38,6 +38,7 @@
     .nav-logo { display: flex; align-items: center; gap: 12px; }
     .nav-logo img { height: 48px; width: auto; }
     .nav-logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: var(--dark); }
+
     .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
     .nav-links a { padding: 6px 14px; border-radius: 8px; font-size: 16px; font-weight: 500; color: var(--text); transition: background 0.15s, color 0.15s; }
     .nav-links a:hover { background: var(--teal-light); color: var(--teal-dark); }
@@ -79,18 +80,16 @@
     /* ===== FOOTER ===== */
     .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 32px 24px; text-align: center; font-size: 13px; }
     .footer a { color: var(--teal); }
-
-        @media (max-width: 700px) {
-      .nav-links { display: none; }
-      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: rgba(255,251,247,0.98); border-bottom: 1px solid var(--border); padding: 12px 24px 20px; gap: 4px; z-index: 99; }
-      .nav-hamburger { display: flex; }
-    }
-      .nav-hamburger { display: flex; }
     }
     @media (max-width: 600px) {
       .artikel { padding: 24px 20px; }
       .artikel-num { font-size: 28px; }
       .artikel-title { font-size: 17px; }
+    }
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: rgba(255,251,247,0.98); border-bottom: 1px solid var(--border); padding: 12px 24px 20px; gap: 4px; z-index: 99; }
+      .nav-hamburger { display: flex; }
     }
   </style>
 </head>
@@ -110,7 +109,7 @@
       <li><a href="index.html#baan">De baan</a></li>
       <li><a href="index.html#locatie">Locatie</a></li>
       <li><a href="index.html#contact">Contact</a></li>
-      <li class="nav-active"><a href="baanreglement.html">Baanreglement</a></li>
+      <li class="nav-lid"><a href="baanreglement.html">Baanreglement</a></li>
     </ul>
     <div class="lang-flags">
       <button class="lang-flag active" onclick="setLang('nl')" title="Nederlands">🇳🇱</button>
