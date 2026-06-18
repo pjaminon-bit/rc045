@@ -594,12 +594,12 @@
         <div class="form-group">
           <label for="telefoon" data-i18n="form.phone">Telefoonnummer</label>
           <div style="display:flex; gap:8px;">
-            <select id="landcode" name="landcode" style="width:110px; flex-shrink:0;">
+            <select id="landcode" style="width:110px; flex-shrink:0;">
               <option value="+31">🇳🇱 +31</option>
               <option value="+49">🇩🇪 +49</option>
               <option value="+32">🇧🇪 +32</option>
             </select>
-            <input type="tel" id="telefoon" name="telefoon" style="flex:1;">
+            <input type="tel" id="telefoon" style="flex:1;"><input type="hidden" id="telefoon-combined" name="telefoon">
           </div>
         </div>
         <div id="phone-warning" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
@@ -902,6 +902,10 @@
       const error = document.getElementById('form-error');
       const email = document.getElementById('email').value.trim();
       const telefoon = document.getElementById('telefoon').value.trim();
+      const landcode = document.getElementById('landcode').value;
+      if (telefoon) {
+        document.getElementById('telefoon-combined').value = landcode + ' ' + telefoon;
+      }
       const warning = document.getElementById('contact-warning');
       if (!email && !telefoon) {
         warning.style.display = 'block';
