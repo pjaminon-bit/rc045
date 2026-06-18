@@ -22,6 +22,13 @@
       --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
 
+    /* ===== NAV LINKS & HAMBURGER ===== */
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a { padding: 6px 14px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--text); transition: background 0.15s, color 0.15s; white-space: nowrap; }
+    .nav-links a:hover { background: var(--teal-light); color: var(--teal-dark); }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; margin-left: 8px; }
+    .nav-hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; }
+
     /* ===== TAALKNOP ===== */
     .lang-flags { display: flex; align-items: center; gap: 2px; }
     .lang-flag {
@@ -76,25 +83,26 @@
     .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 32px 24px; text-align: center; font-size: 13px; }
     .footer a { color: var(--teal); }
 
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: rgba(255,251,247,0.98); border-bottom: 1px solid var(--border); padding: 12px 24px 20px; gap: 4px; z-index: 99; }
+      .nav-hamburger { display: flex; }
+    }
     @media (max-width: 600px) {
       .artikel { padding: 24px 20px; }
       .artikel-num { font-size: 28px; }
       .artikel-title { font-size: 17px; }
-      .nav-logo-sub { display: none; }
-      .nav-back-text { display: none; }
-      .nav-back { padding: 8px 10px; }
     }
   </style>
 </head>
 <body>
 
-<nav class="nav">
+<nav class="nav" id="main-nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
       <img src="rc045-logo.png" alt="RC045 logo">
       <div>
         <span class="nav-logo-text">RC045</span>
-        <span class="nav-logo-sub">BASHER OF THE SOUTH</span>
       </div>
     </a>
     <div class="nav-right">
@@ -103,7 +111,17 @@
         <button class="lang-flag" onclick="setLang('en')" title="English">🇬🇧</button>
         <button class="lang-flag" onclick="setLang('de')" title="Deutsch">🇩🇪</button>
       </div>
-      <a href="index.html" class="nav-back" data-i18n="nav.back">← <span class="nav-back-text">Terug naar de site</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html#over-ons">Over ons</a></li>
+        <li><a href="index.html#lidmaatschap">Lidmaatschap</a></li>
+        <li><a href="index.html#baan">De baan</a></li>
+        <li><a href="index.html#locatie">Locatie</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="index.html" style="color:var(--muted);">← Hoofdpagina</a></li>
+      </ul>
+      <button class="nav-hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </nav>
