@@ -286,7 +286,7 @@
     </a>
     <ul class="nav-links" id="nav-links">
       <li data-section="over-ons"><a href="#over-ons" data-i18n="nav.about">Over ons</a></li>
-      <li data-section="lidmaatschap"><a href="#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
+      <li data-section="lidmaatschap"><a href="#lid-worden" data-i18n="nav.membership">Lidmaatschap</a></li>
       <li data-section="baan"><a href="#baan" data-i18n="nav.track">De baan</a></li>
       <li data-section="locatie"><a href="#locatie" data-i18n="nav.location">Locatie</a></li>
       <li class="nav-cta"><a href="#contact" data-i18n="nav.question">Contact</a></li>
@@ -401,7 +401,7 @@
 </section>
 
 <!-- ===== LIDMAATSCHAP & GASTRIJDEN ===== -->
-<section class="section pricing" id="lidmaatschap">
+<section class="section pricing" id="lidmaatschap-section"><span id="lidmaatschap" style="display:block; position:relative; top:-80px;"></span>
   <div class="container">
     <div class="section-header center reveal">
       <div class="section-label" data-i18n="pricing.label">Meedoen</div>
@@ -421,6 +421,7 @@
         <a href="#contact" class="btn btn-primary" data-i18n="guest.btn">Nog vragen neem dan contact op →</a>
         <p class="price-note" data-i18n="guest.note">Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</p>
       </div>
+      <span id="lid-worden" style="display:block; position:relative; top:-80px;"></span>
       <div class="price-card featured reveal reveal-delay-2">
         <div class="price-card-tag" data-i18n="member.tag">Lidmaatschap</div>
         <h3 data-i18n="member.title">Word lid van RC045</h3>
@@ -486,6 +487,7 @@
       <div class="rule-card reveal reveal-delay-1"><div class="rule-card-num">04</div><h4 data-i18n="rule4.title">Laden van accu's</h4><p data-i18n="rule4.text">Accu's laden buiten, nooit in de kantine of op het rijderspodium. Defecte accu's neem je mee als chemisch afval.</p></div>
       <div class="rule-card reveal reveal-delay-2"><div class="rule-card-num">05</div><h4 data-i18n="rule5.title">Netjes houden</h4><p data-i18n="rule5.text">Ieder lid ruimt mee op. Afval scheiden we in de daarvoor aangewezen bakken. De kantine laten we schoon achter.</p></div>
       <div class="rule-card reveal reveal-delay-3"><div class="rule-card-num">06</div><h4 data-i18n="rule6.title">Geen alcohol of drugs</h4><p data-i18n="rule6.text">Alcoholhoudende dranken en verdovende middelen zijn verboden tijdens de openingstijden. Veiligheid altijd eerst.</p></div>
+      <div class="rule-card reveal reveal-delay-1"><div class="rule-card-num">07</div><h4 data-i18n="rule7.title">Geen rijden op asfalt</h4><p data-i18n="rule7.text">Het is verboden om te rijden op het asfalt.</p></div>
     </div>
     <a href="https://rc045.nl/Baanreglement/" target="_blank" class="rules-link" data-i18n="rules.link">Volledig baanreglement lezen →</a>
   </div>
@@ -519,7 +521,7 @@
           <h3 data-i18n="hours.title">🕐 Openingstijden</h3>
           <div class="hours-row">
             <span class="hours-day" data-i18n="hours.wed">Woensdag</span>
-            <span class="hours-time" data-i18n="hours.wed.time">In de zomer bij voldoende animo</span>
+            <span class="hours-time" data-i18n="hours.wed.time">Woensdagavond bij voldoende animo</span>
           </div>
           <div class="hours-row">
             <span class="hours-day" data-i18n="hours.sat">Zaterdag</span>
@@ -667,7 +669,7 @@
       <div class="footer-col">
         <h4 data-i18n="footer.join">Meedoen</h4>
         <ul>
-          <li><a href="#lidmaatschap" data-i18n="footer.become">Lid worden</a></li>
+          <li><a href="#lid-worden" data-i18n="footer.become">Lid worden</a></li>
           <li><a href="#lidmaatschap" data-i18n="guest.tag">Gastrijden</a></li>
           <li><a href="https://rc045.nl/Baanreglement/" data-i18n="footer.rules">Baanreglement</a></li>
           <li><a href="https://rc045.nl/Sponsoring/" data-i18n="footer.sponsor">Sponsoring</a></li>
@@ -697,7 +699,7 @@
       'feat1.title': 'Alleen elektrisch', 'feat1.text': 'Nitro en benzine zijn niet toegestaan. Alle electrische auto\'s zijn welkom!',
       'feat2.title': 'Crawler-baan', 'feat2.text': 'Speciaal terrein voor crawlers en uitdagende obstakels, we breiden ons parcours regelmatig uit',
       'feat3.title': 'Jump-track', 'feat3.text': 'Volle gas over de schansen! Voor wie van actie houdt',
-      'feat4.title': 'Voor iedereen', 'feat4.text': 'Van 4 jaar, is iedereen welkom!',
+      'feat4.title': 'Voor iedereen', 'feat4.text': 'Van 4 tot 90 jaar, iedereen is welkom!',
       'pricing.label': 'Meedoen', 'pricing.title': 'Lid worden of een keer komen kijken?',
       'pricing.sub': 'Je kunt altijd eerst als gast komen rijden om te ervaren of het iets voor jou is. Daarna kun je eventueel lid worden en volop genieten van onze banen.',
       'guest.tag': 'Gastrijden', 'guest.title': 'Kom eens gastrijden!',
@@ -723,9 +725,9 @@
       'rule4.title': 'Laden van accu\'s', 'rule4.text': 'Accu\'s laden buiten, nooit in de kantine of op het rijderspodium. Defecte accu\'s neem je mee als chemisch afval.',
       'rule5.title': 'Netjes houden', 'rule5.text': 'Ieder lid ruimt mee op. Afval scheiden we in de daarvoor aangewezen bakken. De kantine laten we schoon achter.',
       'rule6.title': 'Geen alcohol of drugs', 'rule6.text': 'Alcoholhoudende dranken en verdovende middelen zijn verboden tijdens de openingstijden. Veiligheid altijd eerst.',
-      'rules.link': 'Volledig baanreglement lezen →',
+      'rule7.title': 'Geen rijden op asfalt', 'rule7.text': 'Het is verboden om te rijden op het asfalt.', 'rules.link': 'Volledig baanreglement lezen →',
       'loc.label': 'Bezoek ons', 'loc.title': 'Hoe vind je ons?',
-      'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.wed.time': 'In de zomer bij voldoende animo',
+      'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.wed.time': 'Woensdagavond bij voldoende animo',
       'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
       'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze',
       'hours.note.fb': 'Facebook-pagina', 'hours.note.times': 'voor actuele openingstijden.',
@@ -759,7 +761,7 @@
       'feat1.title': 'Electric only', 'feat1.text': 'Nitro and petrol are not allowed. All electric cars are welcome!',
       'feat2.title': 'Crawler track', 'feat2.text': 'Dedicated terrain for crawlers and challenging obstacles — we regularly expand the course.',
       'feat3.title': 'Jump track', 'feat3.text': 'Full throttle over the ramps! For those who love action.',
-      'feat4.title': 'For everyone', 'feat4.text': 'From age 4 everyone is welcome!',
+      'feat4.title': 'For everyone', 'feat4.text': 'From age 4 to 90 — everyone is welcome!',
       'pricing.label': 'Join us', 'pricing.title': 'Become a member or come and have a look?',
       'pricing.sub': 'You can always come as a guest first to see if it suits you. After that, you can become a member and enjoy our tracks to the fullest.',
       'guest.tag': 'Guest riding', 'guest.title': 'Come for a guest ride!',
@@ -785,9 +787,9 @@
       'rule4.title': 'Charging batteries', 'rule4.text': 'Charge batteries outside only — never in the canteen or on the driver\'s platform. Take defective batteries away as chemical waste.',
       'rule5.title': 'Keep it tidy', 'rule5.text': 'Every member helps clean up. We separate waste in the designated bins. We leave the canteen as we found it.',
       'rule6.title': 'No alcohol or drugs', 'rule6.text': 'Alcoholic beverages and narcotics are prohibited during opening hours. Safety always comes first.',
-      'rules.link': 'Read the full track regulations →',
+      'rule7.title': 'No riding on asphalt', 'rule7.text': 'It is forbidden to ride on the asphalt.', 'rules.link': 'Read the full track regulations →',
       'loc.label': 'Visit us', 'loc.title': 'How to find us?',
-      'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.wed.time': 'Summer evenings when there\'s enough interest',
+      'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.wed.time': 'Wednesday evenings when there\'s enough interest',
       'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
       'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance. Check our',
       'hours.note.fb': 'Facebook page', 'hours.note.times': 'for current opening hours.',
@@ -821,7 +823,7 @@
       'feat1.title': 'Nur elektrisch', 'feat1.text': 'Nitro und Benzin sind nicht erlaubt. Alle elektrischen Autos sind willkommen!',
       'feat2.title': 'Crawler-Strecke', 'feat2.text': 'Spezielles Gelände für Crawler und anspruchsvolle Hindernisse – wir erweitern den Parcours regelmäßig.',
       'feat3.title': 'Sprungstrecke', 'feat3.text': 'Vollgas über die Rampen! Für alle, die Action lieben.',
-      'feat4.title': 'Für alle', 'feat4.text': 'Ab 4 Jahre –ist jeder willkommen!',
+      'feat4.title': 'Für alle', 'feat4.text': 'Von 4 bis 90 Jahre – jeder ist willkommen!',
       'pricing.label': 'Mitmachen', 'pricing.title': 'Mitglied werden oder einfach vorbeischauen?',
       'pricing.sub': 'Du kannst zunächst als Gast fahren, um zu sehen, ob es dir gefällt. Danach kannst du Mitglied werden und unsere Strecken in vollen Zügen genießen.',
       'guest.tag': 'Gastfahren', 'guest.title': 'Komm mal als Gast fahren!',
@@ -847,9 +849,9 @@
       'rule4.title': 'Akkus laden', 'rule4.text': 'Akkus nur draußen laden – niemals in der Kantine oder auf dem Fahrerpodium. Defekte Akkus als Sondermüll entsorgen.',
       'rule5.title': 'Sauber halten', 'rule5.text': 'Jedes Mitglied räumt mit auf. Müll trennen wir in die vorgesehenen Behälter. Wir hinterlassen die Kantine sauber.',
       'rule6.title': 'Kein Alkohol oder Drogen', 'rule6.text': 'Alkoholische Getränke und Betäubungsmittel sind während der Öffnungszeiten verboten. Sicherheit geht immer vor.',
-      'rules.link': 'Vollständiges Streckenreglement lesen →',
+      'rule7.title': 'Kein Fahren auf Asphalt', 'rule7.text': 'Es ist verboten, auf dem Asphalt zu fahren.', 'rules.link': 'Vollständiges Streckenreglement lesen →',
       'loc.label': 'Besuche uns', 'loc.title': 'Wie findest du uns?',
-      'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.wed.time': 'Im Sommer bei ausreichend Interesse',
+      'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.wed.time': 'Mittwochabend bei ausreichend Interesse',
       'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
       'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen. Schau auf unsere',
       'hours.note.fb': 'Facebook-Seite', 'hours.note.times': 'für aktuelle Öffnungszeiten.',
