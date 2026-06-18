@@ -67,6 +67,8 @@
     .contributie-sub { font-size: 13px; color: var(--teal-dark); opacity: 0.75; }
     .contributie-breakdown { margin-top: 12px; font-size: 13px; color: var(--teal-dark); line-height: 1.6; }
     .contributie-placeholder { font-size: 15px; color: var(--muted); font-style: italic; }
+    .contributie-bedrag { animation: countUp 0.5s ease-out; }
+    @keyframes countUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ===== FORM ===== */
     .form-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 36px; box-shadow: var(--shadow); }
@@ -95,11 +97,31 @@
     .akkoord-group label { font-size: 14px; color: var(--text); line-height: 1.5; cursor: pointer; }
     .akkoord-group label a { color: var(--teal); font-weight: 600; text-decoration: underline; }
 
+    /* ===== INPUT ERROR ===== */
+    .input-error { border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.12) !important; }
+
     /* ===== MELDINGEN ===== */
     .melding { display: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; margin-top: 8px; }
     .melding.warning { background: #FEF3C7; color: #92400E; }
     .melding.error { background: #FEE2E2; color: #DC2626; }
     .melding.success { background: var(--teal-light); color: var(--teal-dark); font-size: 16px; font-weight: 700; text-align: center; padding: 20px; }
+
+    /* ===== IBAN CARD ===== */
+    .iban-card { background: var(--gold-light); border: 1.5px solid var(--gold); border-radius: var(--radius); padding: 20px 24px; margin-top: 16px; }
+    .iban-card h4 { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .iban-number { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 800; color: var(--dark); letter-spacing: 0.08em; margin-bottom: 4px; }
+    .iban-detail { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* ===== FAQ ===== */
+    .faq-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 36px; box-shadow: var(--shadow); margin-top: 24px; }
+    .faq-title { font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 24px; }
+    .faq-item { border-bottom: 1px solid var(--border); padding: 16px 0; cursor: pointer; }
+    .faq-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .faq-question { font-size: 15px; font-weight: 600; color: var(--text); display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .faq-question::after { content: '+'; font-size: 20px; color: var(--teal); flex-shrink: 0; transition: transform 0.2s; }
+    .faq-item.open .faq-question::after { transform: rotate(45deg); }
+    .faq-answer { font-size: 14px; color: var(--muted); line-height: 1.7; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; }
+    .faq-item.open .faq-answer { max-height: 200px; padding-top: 12px; }
 
     /* ===== SUBMIT ===== */
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; border: none; }
@@ -284,6 +306,36 @@
     </form>
   </div>
 
+  <div class="faq-card">
+    <div class="faq-title" data-i18n="faq.title">Veelgestelde vragen</div>
+
+    <div class="faq-item">
+      <div class="faq-question" data-i18n="faq.q1">Wanneer ben ik officieel lid?</div>
+      <div class="faq-answer" data-i18n="faq.a1">Je bent officieel lid zodra je aanmelding is bevestigd door het bestuur én de contributie is ontvangen op onze bankrekening. Je ontvangt dan een bevestiging per e-mail of via de WhatsApp groep.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" data-i18n="faq.q2">Hoe bereken ik mijn contributie?</div>
+      <div class="faq-answer" data-i18n="faq.a2">De contributie wordt berekend op basis van de maand waarin je je aanmeldt. Je betaalt voor de resterende maanden van het jaar. De exacte berekening zie je automatisch zodra je je geboortedatum invult.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" data-i18n="faq.q3">Wat als ik later in het jaar lid word?</div>
+      <div class="faq-answer" data-i18n="faq.a3">Dan betaal je een pro-rata bedrag voor de resterende maanden. Schrijf je in december in? Dan betaal je meteen de volledige contributie voor het volgende jaar.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" data-i18n="faq.q4">Moet ik elk jaar opnieuw betalen?</div>
+      <div class="faq-answer" data-i18n="faq.a4">Ja, de contributie wordt jaarlijks geïnd. Je ontvangt hierover tijdig bericht via de WhatsApp groep of nieuwsbrief.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question" data-i18n="faq.q5">Kan ik eerst komen kijken voor ik lid word?</div>
+      <div class="faq-answer" data-i18n="faq.a5">Ja, je kunt altijd eerst als gastrijder langskomen. Volwassenen betalen €10, jeugd t/m 15 jaar betaalt €5 per dag. Meld je bij aankomst bij een bestuurslid.</div>
+    </div>
+
+  </div>
+
 </main>
 
 <!-- ===== FOOTER ===== -->
@@ -309,8 +361,15 @@
       'form.email': 'E-mailadres *', 'form.mobile': 'Mobiel nummer *',
       'form.agree1a': 'Ik ga akkoord met het', 'form.agree1link': 'baanreglement',
       'form.agree1b': 'van RC045 en verklaar dit gelezen en begrepen te hebben.',
-      'form.agree2': 'Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar',
-      'form.agree2b': 't.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 2026".',
+      'form.agree2': 'Ik ga akkoord met de contributieverplichting en maak het verschuldigde bedrag z.s.m. over naar onderstaand rekeningnummer.',
+      'iban.title': 'Betalingsgegevens', 'iban.name': 'T.n.v. RC045',
+      'iban.ref': 'Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 2026"',
+      'faq.title': 'Veelgestelde vragen',
+      'faq.q1': 'Wanneer ben ik officieel lid?', 'faq.a1': 'Je bent officieel lid zodra je aanmelding is bevestigd door het bestuur én de contributie is ontvangen op onze bankrekening. Je ontvangt dan een bevestiging per e-mail of via de WhatsApp groep.',
+      'faq.q2': 'Hoe bereken ik mijn contributie?', 'faq.a2': 'De contributie wordt berekend op basis van de maand waarin je je aanmeldt. Je betaalt voor de resterende maanden van het jaar. De exacte berekening zie je automatisch zodra je je geboortedatum invult.',
+      'faq.q3': 'Wat als ik later in het jaar lid word?', 'faq.a3': 'Dan betaal je een pro-rata bedrag voor de resterende maanden. Schrijf je in december in? Dan betaal je meteen de volledige contributie voor het volgende jaar.',
+      'faq.q4': 'Moet ik elk jaar opnieuw betalen?', 'faq.a4': 'Ja, de contributie wordt jaarlijks geïnd. Je ontvangt hierover tijdig bericht via de WhatsApp groep of nieuwsbrief.',
+      'faq.q5': 'Kan ik eerst komen kijken voor ik lid word?', 'faq.a5': 'Ja, je kunt altijd eerst als gastrijder langskomen. Volwassenen betalen €10, jeugd t/m 15 jaar betaalt €5 per dag. Meld je bij aankomst bij een bestuurslid.',
       'form.submit': 'Aanmelden bij RC045 →',
       'warn.email': '⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl)',
       'warn.mobile': '⚠️ Vul een geldig mobiel nummer in (minimaal 9 cijfers)',
@@ -339,8 +398,15 @@
       'form.email': 'Email address *', 'form.mobile': 'Mobile number *',
       'form.agree1a': 'I agree to the', 'form.agree1link': 'track regulations',
       'form.agree1b': 'of RC045 and declare that I have read and understood them.',
-      'form.agree2': 'I agree to the membership fee obligation and will transfer the amount due as soon as possible to',
-      'form.agree2b': 'in the name of RC045, stating my full name + "contributie RC045 2026".',
+      'form.agree2': 'I agree to the membership fee obligation and will transfer the amount due as soon as possible to the bank account below.',
+      'iban.title': 'Payment details', 'iban.name': 'In the name of RC045',
+      'iban.ref': 'Please include: first name + last name + "contributie RC045 2026"',
+      'faq.title': 'Frequently asked questions',
+      'faq.q1': 'When am I officially a member?', 'faq.a1': 'You are officially a member once your registration has been confirmed by the board and the membership fee has been received in our bank account. You will then receive a confirmation by email or via the WhatsApp group.',
+      'faq.q2': 'How is my membership fee calculated?', 'faq.a2': 'The fee is calculated based on the month you register. You pay for the remaining months of the year. The exact amount is shown automatically once you enter your date of birth.',
+      'faq.q3': 'What if I join later in the year?', 'faq.a3': 'You pay a pro-rata amount for the remaining months. Joining in December? Then you pay the full membership fee for the following year.',
+      'faq.q4': 'Do I need to pay every year?', 'faq.a4': 'Yes, membership fees are collected annually. You will be notified in time via the WhatsApp group or newsletter.',
+      'faq.q5': 'Can I come and have a look before joining?', 'faq.a5': 'Yes, you can always come as a guest rider first. Adults pay €10, youth up to 15 years pay €5 per day. Check in with a board member on arrival.',
       'form.submit': 'Register with RC045 →',
       'warn.email': '⚠️ Please enter a valid email address (e.g. name@example.com)',
       'warn.mobile': '⚠️ Please enter a valid mobile number (at least 9 digits)',
@@ -369,8 +435,15 @@
       'form.email': 'E-Mail-Adresse *', 'form.mobile': 'Handynummer *',
       'form.agree1a': 'Ich stimme dem', 'form.agree1link': 'Streckenreglement',
       'form.agree1b': 'von RC045 zu und erkläre, es gelesen und verstanden zu haben.',
-      'form.agree2': 'Ich stimme der Beitragspflicht zu und werde den fälligen Betrag schnellstmöglich überweisen auf',
-      'form.agree2b': 'auf den Namen RC045, unter Angabe meines Vor- und Nachnamens + "contributie RC045 2026".',
+      'form.agree2': 'Ich stimme der Beitragspflicht zu und werde den fälligen Betrag schnellstmöglich auf das untenstehende Konto überweisen.',
+      'iban.title': 'Zahlungsdaten', 'iban.name': 'Auf den Namen RC045',
+      'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 2026"',
+      'faq.title': 'Häufig gestellte Fragen',
+      'faq.q1': 'Wann bin ich offiziell Mitglied?', 'faq.a1': 'Du bist offiziell Mitglied, sobald deine Anmeldung vom Vorstand bestätigt wurde und der Mitgliedsbeitrag auf unserem Konto eingegangen ist. Du erhältst dann eine Bestätigung per E-Mail oder über die WhatsApp-Gruppe.',
+      'faq.q2': 'Wie wird mein Mitgliedsbeitrag berechnet?', 'faq.a2': 'Der Beitrag wird anhand des Monats berechnet, in dem du dich anmeldest. Du zahlst für die verbleibenden Monate des Jahres. Den genauen Betrag siehst du automatisch, sobald du dein Geburtsdatum eingibst.',
+      'faq.q3': 'Was ist, wenn ich erst später im Jahr beitrete?', 'faq.a3': 'Du zahlst dann einen anteiligen Betrag für die verbleibenden Monate. Wenn du im Dezember beitrittst, zahlst du direkt den vollen Mitgliedsbeitrag für das nächste Jahr.',
+      'faq.q4': 'Muss ich jedes Jahr erneut zahlen?', 'faq.a4': 'Ja, der Mitgliedsbeitrag wird jährlich erhoben. Du wirst rechtzeitig über die WhatsApp-Gruppe oder den Newsletter informiert.',
+      'faq.q5': 'Kann ich erst vorbeischauen, bevor ich Mitglied werde?', 'faq.a5': 'Ja, du kannst jederzeit als Gastfahrer vorbeikommen. Erwachsene zahlen €10, Jugendliche bis 15 Jahre zahlen €5 pro Tag. Melde dich bei einem Vorstandsmitglied.',
       'form.submit': 'Bei RC045 anmelden →',
       'warn.email': '⚠️ Bitte gib eine gültige E-Mail-Adresse ein (z.B. name@beispiel.de)',
       'warn.mobile': '⚠️ Bitte gib eine gültige Handynummer ein (mindestens 9 Ziffern)',
@@ -518,18 +591,22 @@
     const email = document.getElementById('email').value.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       emailWarning.style.display = 'block';
+      setInputError('email', true);
       document.getElementById('email').focus();
       return;
     }
+    setInputError('email', false);
 
     // Mobiel validatie
     const mobielInput = document.getElementById('mobiel').value.trim();
     const mobielCijfers = mobielInput.replace(/[\s\-()]/g, '');
     if (!mobielInput || !/^\d+$/.test(mobielCijfers) || mobielCijfers.length < 9) {
       mobielWarning.style.display = 'block';
+      setInputError('mobiel', true);
       document.getElementById('mobiel').focus();
       return;
     }
+    setInputError('mobiel', false);
 
     // Combineer landcode + mobiel
     const landcode = document.getElementById('landcode').value;
@@ -554,13 +631,8 @@
         headers: { 'Accept': 'application/json' }
       });
       if (res.ok) {
-        formSuccess.style.display = 'block';
-        form.reset();
-        document.getElementById('contributie-content').innerHTML = '<p class="contributie-placeholder" data-i18n="contrib.placeholder">Vul je geboortedatum in om de contributie te berekenen.</p>';
-        document.getElementById('jeugdlid-badge').className = 'jeugdlid-badge';
-        btn.textContent = '✅ Aanmelding verzonden!';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
+          window.location.href = 'bedankt.html';
+        } else {
         throw new Error();
       }
     } catch {
@@ -569,6 +641,20 @@
       btn.disabled = false;
     }
   });
+  // ===== FAQ =====
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-question').addEventListener('click', function() {
+      item.classList.toggle('open');
+    });
+  });
+
+  // ===== INPUT ERROR STYLING =====
+  function setInputError(id, hasError) {
+    const el = document.getElementById(id);
+    if (hasError) el.classList.add('input-error');
+    else el.classList.remove('input-error');
+  }
+
 </script>
 
 </body>
