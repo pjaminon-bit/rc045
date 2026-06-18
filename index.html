@@ -602,23 +602,17 @@
         </div>
       </div>
       <form class="contact-form reveal reveal-delay-2" action="https://formspree.io/f/xbdevlzw" method="POST" id="contact-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="voornaam" data-i18n="form.first">Voornaam *</label>
-            <input type="text" id="voornaam" name="voornaam" data-i18n-placeholder="form.first.ph" placeholder="Jan" required>
-          </div>
-          <div class="form-group">
-            <label for="achternaam" data-i18n="form.last">Achternaam *</label>
-            <input type="text" id="achternaam" name="achternaam" data-i18n-placeholder="form.last.ph" placeholder="Jansen" required>
-          </div>
+        <div class="form-group">
+          <label for="naam" data-i18n="form.name">Naam *</label>
+          <input type="text" id="naam" name="naam"  required>
         </div>
         <div class="form-group">
           <label for="email" data-i18n="form.email">E-mailadres *</label>
-          <input type="email" id="email" name="email" placeholder="jan@voorbeeld.nl" required>
+          <input type="email" id="email" name="email"  required>
         </div>
         <div class="form-group">
           <label for="telefoon" data-i18n="form.phone">Telefoonnummer</label>
-          <input type="tel" id="telefoon" name="telefoon" placeholder="06 12 34 56 78">
+          <input type="tel" id="telefoon" name="telefoon" >
         </div>
         <div class="form-group">
           <label for="onderwerp" data-i18n="form.subject">Onderwerp</label>
@@ -748,7 +742,7 @@
       'contact.label': 'Contact', 'contact.title': 'Heb je een vraag?',
       'contact.text': 'Wil je meer weten over een lidmaatschap, gastrijden, eens komen kijken, of heb je gewoon een vraag? Stuur ons een bericht en we reageren zo snel mogelijk.',
       'contact.email.label': 'E-mail',
-      'form.first': 'Voornaam *', 'form.first.ph': 'Jan', 'form.last': 'Achternaam *', 'form.last.ph': 'Jansen',
+      'form.name': 'Naam *', 'form.name.ph': 'Jan Jansen',
       'form.email': 'E-mailadres *', 'form.phone': 'Telefoonnummer', 'form.subject': 'Onderwerp',
       'form.select': 'Selecteer een onderwerp...', 'form.opt1': 'Lidmaatschap aanvragen',
       'form.opt2': 'Gastrijden aanmelden', 'form.opt3': 'Algemene vraag', 'form.opt4': 'Sponsoring', 'form.opt5': 'Overig',
@@ -811,7 +805,7 @@
       'contact.label': 'Contact', 'contact.title': 'Got a question?',
       'contact.text': 'Want to know more about membership, guest riding, or just have a question? Send us a message and we\'ll get back to you as soon as possible.',
       'contact.email.label': 'Email',
-      'form.first': 'First name *', 'form.first.ph': 'John', 'form.last': 'Last name *', 'form.last.ph': 'Smith',
+      'form.name': 'Name *', 'form.name.ph': 'John Smith',
       'form.email': 'Email address *', 'form.phone': 'Phone number', 'form.subject': 'Subject',
       'form.select': 'Select a subject...', 'form.opt1': 'Request membership',
       'form.opt2': 'Register as guest rider', 'form.opt3': 'General question', 'form.opt4': 'Sponsorship', 'form.opt5': 'Other',
@@ -874,7 +868,7 @@
       'contact.label': 'Kontakt', 'contact.title': 'Hast du eine Frage?',
       'contact.text': 'Möchtest du mehr über die Mitgliedschaft, Gastfahren oder hast du einfach eine Frage? Schick uns eine Nachricht und wir antworten so schnell wie möglich.',
       'contact.email.label': 'E-Mail',
-      'form.first': 'Vorname *', 'form.first.ph': 'Max', 'form.last': 'Nachname *', 'form.last.ph': 'Müller',
+      'form.name': 'Name *', 'form.name.ph': 'Max Müller',
       'form.email': 'E-Mail-Adresse *', 'form.phone': 'Telefonnummer', 'form.subject': 'Betreff',
       'form.select': 'Betreff auswählen...', 'form.opt1': 'Mitgliedschaft beantragen',
       'form.opt2': 'Als Gastfahrer anmelden', 'form.opt3': 'Allgemeine Frage', 'form.opt4': 'Sponsoring', 'form.opt5': 'Sonstiges',
@@ -916,6 +910,14 @@
       const btn = document.getElementById('form-btn');
       const success = document.getElementById('form-success');
       const error = document.getElementById('form-error');
+      const email = document.getElementById('email').value.trim();
+      const telefoon = document.getElementById('telefoon').value.trim();
+      const warning = document.getElementById('contact-warning');
+      if (!email && !telefoon) {
+        warning.style.display = 'block';
+        return;
+      }
+      warning.style.display = 'none';
       btn.textContent = '⏳ Verzenden...';
       btn.disabled = true;
       success.style.display = 'none';
