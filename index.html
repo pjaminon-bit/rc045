@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -600,28 +601,28 @@
           </a>
         </div>
       </div>
-      <form class="contact-form reveal reveal-delay-2" onsubmit="return false;">
+      <form class="contact-form reveal reveal-delay-2" action="https://formspree.io/f/xbdevlzw" method="POST" id="contact-form">
         <div class="form-row">
           <div class="form-group">
             <label for="voornaam" data-i18n="form.first">Voornaam *</label>
-            <input type="text" id="voornaam" data-i18n-placeholder="form.first.ph" placeholder="Jan">
+            <input type="text" id="voornaam" name="voornaam" data-i18n-placeholder="form.first.ph" placeholder="Jan" required>
           </div>
           <div class="form-group">
             <label for="achternaam" data-i18n="form.last">Achternaam *</label>
-            <input type="text" id="achternaam" data-i18n-placeholder="form.last.ph" placeholder="Jansen">
+            <input type="text" id="achternaam" name="achternaam" data-i18n-placeholder="form.last.ph" placeholder="Jansen" required>
           </div>
         </div>
         <div class="form-group">
           <label for="email" data-i18n="form.email">E-mailadres *</label>
-          <input type="email" id="email" placeholder="jan@voorbeeld.nl">
+          <input type="email" id="email" name="email" placeholder="jan@voorbeeld.nl" required>
         </div>
         <div class="form-group">
           <label for="telefoon" data-i18n="form.phone">Telefoonnummer</label>
-          <input type="tel" id="telefoon" placeholder="06 12 34 56 78">
+          <input type="tel" id="telefoon" name="telefoon" placeholder="06 12 34 56 78">
         </div>
         <div class="form-group">
           <label for="onderwerp" data-i18n="form.subject">Onderwerp</label>
-          <select id="onderwerp">
+          <select id="onderwerp" name="onderwerp">
             <option value="" data-i18n="form.select">Selecteer een onderwerp...</option>
             <option data-i18n="form.opt1">Lidmaatschap aanvragen</option>
             <option data-i18n="form.opt2">Gastrijden aanmelden</option>
@@ -632,10 +633,16 @@
         </div>
         <div class="form-group">
           <label for="bericht" data-i18n="form.message">Bericht *</label>
-          <textarea id="bericht" data-i18n-placeholder="form.message.ph" placeholder="Schrijf hier je vraag of bericht..."></textarea>
+          <textarea id="bericht" name="bericht" data-i18n-placeholder="form.message.ph" placeholder="Schrijf hier je vraag of bericht..." required></textarea>
+        </div>
+        <div id="form-success" style="display:none; padding:16px; background:var(--teal-light); border-radius:8px; color:var(--teal-dark); font-weight:600; text-align:center;">
+          ✅ Bericht verzonden! We nemen zo snel mogelijk contact op.
+        </div>
+        <div id="form-error" style="display:none; padding:16px; background:#FEE2E2; border-radius:8px; color:#DC2626; font-weight:600; text-align:center;">
+          ❌ Er ging iets mis. Probeer het opnieuw of mail naar secretaris@rc045.nl
         </div>
         <div class="form-submit">
-          <button type="submit" class="btn btn-primary" data-i18n="form.send">Verstuur bericht →</button>
+          <button type="submit" class="btn btn-primary" id="form-btn" data-i18n="form.send">Verstuur bericht →</button>
         </div>
       </form>
     </div>
@@ -899,6 +906,39 @@
     document.documentElement.lang = lang;
     updateWeatherDisplay();
     updateStatus();
+  }
+
+  // ===== CONTACTFORMULIER =====
+  const form = document.getElementById('contact-form');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('form-btn');
+      const success = document.getElementById('form-success');
+      const error = document.getElementById('form-error');
+      btn.textContent = '⏳ Verzenden...';
+      btn.disabled = true;
+      success.style.display = 'none';
+      error.style.display = 'none';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          success.style.display = 'block';
+          form.reset();
+          btn.textContent = '✅ Verzonden!';
+        } else {
+          throw new Error();
+        }
+      } catch {
+        error.style.display = 'block';
+        btn.textContent = 'Verstuur bericht →';
+        btn.disabled = false;
+      }
+    });
   }
 
   // ===== WEER =====
