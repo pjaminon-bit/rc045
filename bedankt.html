@@ -1,1 +1,129 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bedankt! – RC045 Bashers of the South</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: #292524; background: #FAF6EC; min-height: 100vh; display: flex; flex-direction: column; }
+    h1, h2, h3 { font-family: 'Poppins', sans-serif; line-height: 1.2; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; height: auto; display: block; }
+    :root {
+      --teal: #3A7A77; --teal-dark: #2D6260; --teal-light: #EAF4F3;
+      --gold: #C89A1A; --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
+      --border: #DDD8C0; --bg: #FAF6EC; --white: #FFFFFF; --green: #22C55E;
+      --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
 
+    /* ===== NAV ===== */
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .nav-logo { display: flex; align-items: center; gap: 12px; }
+    .nav-logo img { height: 48px; width: auto; }
+    .nav-logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: var(--dark); }
+    .nav-back { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--muted); transition: background 0.15s, color 0.15s; }
+    .nav-back:hover { background: var(--teal-light); color: var(--teal-dark); }
+
+    /* ===== MAIN ===== */
+    .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
+    .bedankt-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 56px 48px; box-shadow: var(--shadow); max-width: 600px; width: 100%; text-align: center; }
+    .bedankt-icon { font-size: 64px; margin-bottom: 24px; animation: bounceIn 0.6s ease; }
+    @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+    .bedankt-card h1 { font-size: 32px; font-weight: 800; color: var(--dark); margin-bottom: 16px; }
+    .bedankt-card p { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 12px; }
+
+    /* ===== IBAN ===== */
+    .iban-card { background: var(--teal-light); border: 1.5px solid var(--teal); border-radius: var(--radius); padding: 20px 24px; margin: 28px 0; text-align: left; }
+    .iban-card h4 { font-size: 13px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+    .iban-number { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 800; color: var(--dark); letter-spacing: 0.08em; margin-bottom: 6px; }
+    .iban-detail { font-size: 13px; color: var(--teal-dark); line-height: 1.6; }
+
+    /* ===== BUTTONS ===== */
+    .btn-group { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 32px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--teal); color: white; }
+    .btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(58,122,119,0.35); }
+    .btn-outline { background: transparent; color: var(--teal-dark); border: 1.5px solid var(--teal); }
+    .btn-outline:hover { background: var(--teal-light); }
+
+    /* ===== STAPPEN ===== */
+    .stappen { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; text-align: left; }
+    .stap { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); }
+    .stap-num { width: 28px; height: 28px; border-radius: 50%; background: var(--teal); color: white; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stap-text { font-size: 14px; color: var(--text); line-height: 1.5; }
+    .stap-text strong { color: var(--dark); }
+
+    /* ===== FOOTER ===== */
+    .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 32px 24px; text-align: center; font-size: 13px; }
+    .footer a { color: var(--teal); }
+
+    @media (max-width: 600px) {
+      .bedankt-card { padding: 36px 24px; }
+      .bedankt-card h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="rc045-logo.png" alt="RC045 logo">
+      <div><span class="nav-logo-text">RC045</span></div>
+    </a>
+    <a href="index.html" class="nav-back">← Terug naar de site</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="bedankt-card">
+    <div class="bedankt-icon">🏎️</div>
+    <h1>Welkom bij RC045!</h1>
+    <p>Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.</p>
+
+    <div class="stappen">
+      <div class="stap">
+        <div class="stap-num">1</div>
+        <div class="stap-text"><strong>Maak de contributie over</strong> via onderstaande gegevens. Vermeld je naam duidelijk.</div>
+      </div>
+      <div class="stap">
+        <div class="stap-num">2</div>
+        <div class="stap-text"><strong>Wacht op bevestiging</strong> van het bestuur per e-mail of WhatsApp.</div>
+      </div>
+      <div class="stap">
+        <div class="stap-num">3</div>
+        <div class="stap-text"><strong>Kom langs!</strong> Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd.</div>
+      </div>
+    </div>
+
+    <div class="iban-card">
+      <h4>Betalingsgegevens</h4>
+      <div class="iban-number">NL51 RABO 0367 6153 63</div>
+      <div class="iban-detail">
+        T.n.v. RC045<br>
+        Vermeld bij overboeking: <strong>voornaam + achternaam + "contributie RC045 2026"</strong>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <a href="index.html" class="btn btn-primary">🏠 Naar de hoofdpagina</a>
+      <a href="index.html#locatie" class="btn btn-outline">📍 Hoe kom ik er?</a>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <p>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South · <a href="index.html">Terug naar de site</a></p>
+</footer>
+
+<script>
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
