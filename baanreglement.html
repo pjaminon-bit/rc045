@@ -453,6 +453,17 @@ function setLang(lang) {
 
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+document.getElementById('hamburger').addEventListener('click', function() {
+  document.querySelector('.nav-links').classList.toggle('open');
+});
+window.addEventListener('scroll', function() {
+  document.querySelector('.nav-links').classList.remove('open');
+}, { passive: true });
+document.addEventListener('touchstart', function(e) {
+  const nav = document.getElementById('main-nav');
+  if (!nav.contains(e.target)) document.querySelector('.nav-links').classList.remove('open');
+});
+
 const heroBg = document.getElementById('hero-bg');
 window.addEventListener('scroll', function() {
   const scrollY = window.scrollY;
