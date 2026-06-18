@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aanmelden – RC045 Bashers of the South</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: #292524; background: #FAF6EC; }
+    h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; line-height: 1.2; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; height: auto; display: block; }
+    :root {
+      --teal: #3A7A77; --teal-dark: #2D6260; --teal-light: #EAF4F3;
+      --gold: #C89A1A; --gold-light: #FBF4DF;
+      --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
+      --cream: #EDE3C0; --border: #DDD8C0; --bg: #FAF6EC;
+      --white: #FFFFFF; --green: #22C55E;
+      --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    /* ===== NAV ===== */
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .nav-logo { display: flex; align-items: center; gap: 12px; }
+    .nav-logo img { height: 48px; width: auto; }
+    .nav-logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: var(--dark); }
+    .nav-logo-sub { font-size: 13px; font-weight: 400; color: var(--muted); display: block; letter-spacing: 0.05em; text-transform: uppercase; }
+    .nav-back { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--muted); transition: background 0.15s, color 0.15s; }
+    .nav-back:hover { background: var(--teal-light); color: var(--teal-dark); }
+
+    /* ===== HERO ===== */
+    .page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 320px; display: flex; align-items: center; justify-content: center; }
+    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
+    .page-hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
+    .page-hero-content { position: relative; z-index: 1; }
+    .page-hero .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 12px; }
+    .page-hero h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; color: white; margin-bottom: 12px; }
+    .page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 540px; margin: 0 auto; line-height: 1.7; }
+
+    /* ===== MAIN ===== */
+    .main { max-width: 800px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ===== CONTRIBUTIE CARD ===== */
+    .contributie-card { background: var(--teal-light); border: 1.5px solid var(--teal); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 32px; }
+    .contributie-card h3 { font-size: 16px; font-weight: 700; color: var(--teal-dark); margin-bottom: 8px; }
+    .contributie-bedrag { font-family: 'Poppins', sans-serif; font-size: 32px; font-weight: 800; color: var(--teal-dark); line-height: 1; margin: 8px 0 4px; }
+    .contributie-sub { font-size: 13px; color: var(--teal-dark); opacity: 0.75; }
+    .contributie-breakdown { margin-top: 12px; font-size: 13px; color: var(--teal-dark); line-height: 1.6; }
+    .contributie-placeholder { font-size: 15px; color: var(--muted); font-style: italic; }
+
+    /* ===== FORM ===== */
+    .form-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 36px; box-shadow: var(--shadow); }
+    .form-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin: 28px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .form-section-title:first-child { margin-top: 0; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: 13px; font-weight: 600; color: var(--text); }
+    .form-group label span { color: var(--teal); } 
+    .form-group input, .form-group select { padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--text); background: var(--bg); transition: border-color 0.2s, box-shadow 0.2s; outline: none; width: 100%; }
+    .form-group input:focus, .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,122,119,0.12); }
+    .phone-row { display: flex; gap: 8px; }
+    .phone-row select { width: 120px; flex-shrink: 0; }
+    .phone-row input { flex: 1; }
+
+    /* ===== JEUGDLID BADGE ===== */
+    .jeugdlid-badge { display: none; margin-top: 8px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+    .jeugdlid-badge.jeugd { background: #FEF3C7; color: #92400E; display: flex; align-items: center; gap: 6px; }
+    .jeugdlid-badge.senior { background: var(--teal-light); color: var(--teal-dark); display: flex; align-items: center; gap: 6px; }
+
+    /* ===== AKKOORD ===== */
+    .akkoord-group { display: flex; align-items: flex-start; gap: 12px; padding: 16px; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; margin-top: 8px; transition: border-color 0.2s; cursor: pointer; }
+    .akkoord-group:hover { border-color: var(--teal); }
+    .akkoord-group input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; accent-color: var(--teal); cursor: pointer; }
+    .akkoord-group label { font-size: 14px; color: var(--text); line-height: 1.5; cursor: pointer; }
+    .akkoord-group label a { color: var(--teal); font-weight: 600; text-decoration: underline; }
+
+    /* ===== MELDINGEN ===== */
+    .melding { display: none; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; margin-top: 8px; }
+    .melding.warning { background: #FEF3C7; color: #92400E; }
+    .melding.error { background: #FEE2E2; color: #DC2626; }
+    .melding.success { background: var(--teal-light); color: var(--teal-dark); font-size: 16px; font-weight: 700; text-align: center; padding: 20px; }
+
+    /* ===== SUBMIT ===== */
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--teal); color: white; width: 100%; justify-content: center; margin-top: 24px; font-size: 17px; padding: 16px; }
+    .btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(58,122,119,0.35); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ===== FOOTER ===== */
+    .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 32px 24px; text-align: center; font-size: 13px; }
+    .footer a { color: var(--teal); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-card { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="rc045-logo.png" alt="RC045 logo">
+      <div>
+        <span class="nav-logo-text">RC045</span>
+        <span class="nav-logo-sub">BASHER OF THE SOUTH</span>
+      </div>
+    </a>
+    <a href="index.html" class="nav-back">← Terug naar de site</a>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<div class="page-hero">
+  <div class="page-hero-bg" id="hero-bg"></div>
+  <div class="page-hero-gradient"></div>
+  <div class="page-hero-content">
+    <div class="section-label">Lidmaatschap</div>
+    <h1>Aanmelden als lid</h1>
+    <p>Vul het formulier in om je aan te melden bij RC045. Na ontvangst nemen we zo snel mogelijk contact met je op.</p>
+  </div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<main class="main">
+
+  <!-- Contributie berekening -->
+  <div class="contributie-card" id="contributie-card">
+    <h3>🏎️ Jouw contributie 2026</h3>
+    <div id="contributie-content">
+      <p class="contributie-placeholder">Vul je geboortedatum in om de contributie te berekenen.</p>
+    </div>
+  </div>
+
+  <!-- Formulier -->
+  <div class="form-card">
+    <form id="aanmeld-form" action="https://formspree.io/f/mgobjlkl" method="POST">
+
+      <!-- Persoonsgegevens -->
+      <div class="form-section-title">Persoonsgegevens</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="voornaam">Voornaam <span>*</span></label>
+          <input type="text" id="voornaam" name="voornaam" required>
+        </div>
+        <div class="form-group">
+          <label for="achternaam">Achternaam <span>*</span></label>
+          <input type="text" id="achternaam" name="achternaam" required>
+        </div>
+        <div class="form-group full">
+          <label for="geboortedatum">Geboortedatum <span>*</span></label>
+          <input type="date" id="geboortedatum" name="geboortedatum" required>
+          <div class="jeugdlid-badge" id="jeugdlid-badge"></div>
+        </div>
+      </div>
+
+      <!-- Adres -->
+      <div class="form-section-title">Adresgegevens</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="straat">Straat <span>*</span></label>
+          <input type="text" id="straat" name="straat" required>
+        </div>
+        <div class="form-group">
+          <label for="huisnummer">Huisnummer <span>*</span></label>
+          <input type="text" id="huisnummer" name="huisnummer" required>
+        </div>
+        <div class="form-group">
+          <label for="postcode">Postcode <span>*</span></label>
+          <input type="text" id="postcode" name="postcode" required>
+        </div>
+        <div class="form-group">
+          <label for="stad">Stad <span>*</span></label>
+          <input type="text" id="stad" name="stad" required>
+        </div>
+        <div class="form-group full">
+          <label for="land">Land <span>*</span></label>
+          <select id="land" name="land" required>
+            <option value="Nederland" selected>Nederland</option>
+            <option value="België">België</option>
+            <option value="Duitsland">Duitsland</option>
+            <option value="Anders">Anders</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Contactgegevens -->
+      <div class="form-section-title">Contactgegevens</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label for="email">E-mailadres <span>*</span></label>
+          <input type="email" id="email" name="email" required>
+          <div class="melding warning" id="email-warning">⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl)</div>
+        </div>
+        <div class="form-group full">
+          <label for="mobiel">Mobiel nummer <span>*</span></label>
+          <div class="phone-row">
+            <select id="landcode" name="landcode">
+              <option value="+31">🇳🇱 +31</option>
+              <option value="+32">🇧🇪 +32</option>
+              <option value="+49">🇩🇪 +49</option>
+            </select>
+            <input type="tel" id="mobiel" name="_mobiel_input">
+            <input type="hidden" id="mobiel-combined" name="mobiel">
+          </div>
+          <div class="melding warning" id="mobiel-warning">⚠️ Vul een geldig mobiel nummer in (minimaal 9 cijfers)</div>
+        </div>
+      </div>
+
+      <!-- Verborgen velden voor Formspree -->
+      <input type="hidden" id="jeugdlid-hidden" name="jeugdlid">
+      <input type="hidden" id="contributiebedrag-hidden" name="contributiebedrag">
+
+      <!-- Akkoord -->
+      <div class="form-section-title">Akkoordverklaring</div>
+      <div class="akkoord-group">
+        <input type="checkbox" id="akkoord-reglement" name="akkoord_reglement" value="ja" required>
+        <label for="akkoord-reglement">
+          Ik ga akkoord met het <a href="https://rc045.nl/Baanreglement/" target="_blank">baanreglement</a> van RC045 en verklaar dit gelezen en begrepen te hebben. <span style="color:var(--teal);">*</span>
+        </label>
+      </div>
+      <div class="akkoord-group" style="margin-top: 10px;">
+        <input type="checkbox" id="akkoord-betaling" name="akkoord_betaling" value="ja" required>
+        <label for="akkoord-betaling">
+          Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar <strong>NL51 RABO 0367 6153 63</strong> t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 2026". <span style="color:var(--teal);">*</span>
+        </label>
+      </div>
+
+      <!-- Meldingen -->
+      <div class="melding warning" id="akkoord-warning" style="margin-top:12px;">⚠️ Je dient akkoord te gaan met beide verklaringen om je te kunnen aanmelden.</div>
+      <div class="melding error" id="form-error" style="margin-top:12px;">❌ Er ging iets mis. Probeer het opnieuw of mail naar secretaris@rc045.nl</div>
+      <div class="melding success" id="form-success" style="margin-top:12px;">
+        ✅ Aanmelding ontvangen! We nemen zo snel mogelijk contact met je op.<br><br>
+        <span style="font-size:14px; font-weight:400;">Vergeet niet de contributie over te maken via de betalingsinstructies hierboven.</span>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="submit-btn">Aanmelden bij RC045 →</button>
+
+    </form>
+  </div>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South · <a href="index.html">Terug naar de site</a></p>
+</footer>
+
+<script>
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+  // ===== PARALLAX =====
+  const heroBg = document.getElementById('hero-bg');
+  window.addEventListener('scroll', function() {
+    const scrollY = window.scrollY;
+    if (scrollY < window.innerHeight * 1.2) heroBg.style.transform = `translateY(${scrollY * 0.5}px)`;
+  }, { passive: true });
+
+  // ===== PRO-RATA TABELLEN =====
+  const tabelSenior = {
+    1: 92, 2: 83, 3: 75, 4: 67, 5: 58, 6: 50,
+    7: 42, 8: 33, 9: 25, 10: 17, 11: 8, 12: null
+  };
+  const tabelJeugd = {
+    1: 46, 2: 42, 3: 38, 4: 33, 5: 29, 6: 25,
+    7: 21, 8: 17, 9: 13, 10: 8, 11: 4.16, 12: null
+  };
+  const maandNamen = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+
+  function berekenContributie() {
+    const geboortedatum = document.getElementById('geboortedatum').value;
+    const content = document.getElementById('contributie-content');
+
+    if (!geboortedatum) {
+      content.innerHTML = '<p class="contributie-placeholder">Vul je geboortedatum in om de contributie te berekenen.</p>';
+      document.getElementById('jeugdlid-hidden').value = '';
+      document.getElementById('contributiebedrag-hidden').value = '';
+      return;
+    }
+
+    const geb = new Date(geboortedatum);
+    const nu = new Date();
+    const maand = nu.getMonth() + 1; // 1-12
+    const jaar = nu.getFullYear();
+
+    // Leeftijd berekenen
+    let leeftijd = jaar - geb.getFullYear();
+    const verjaardag = new Date(jaar, geb.getMonth(), geb.getDate());
+    if (nu < verjaardag) leeftijd--;
+
+    const isJeugd = leeftijd <= 15;
+    const tabel = isJeugd ? tabelJeugd : tabelSenior;
+    const basisbedrag = isJeugd ? 50 : 100;
+    const contributie = tabel[maand];
+
+    // Update badge
+    const badge = document.getElementById('jeugdlid-badge');
+    badge.className = 'jeugdlid-badge ' + (isJeugd ? 'jeugd' : 'senior');
+    badge.textContent = isJeugd ? '🎯 Jeugdlid (t/m 15 jaar)' : '✓ Seniorlid (16+)';
+
+    document.getElementById('jeugdlid-hidden').value = isJeugd ? 'Ja' : 'Nee';
+
+    // December: volledige contributie 2027
+    if (contributie === null) {
+      content.innerHTML = `
+        <div class="contributie-bedrag">Volledige contributie 2027</div>
+        <div class="contributie-sub">${isJeugd ? 'Jeugdlid' : 'Seniorlid'} · inschrijving in december</div>
+        <div class="contributie-breakdown">Bij inschrijving in december betaal je de volledige contributie voor 2027. + €10 eenmalige inschrijfkosten.</div>
+      `;
+      document.getElementById('contributiebedrag-hidden').value = 'Volledige contributie 2027 + €10 inschrijfkosten';
+      return;
+    }
+
+    const totaal = contributie + 10;
+    document.getElementById('contributiebedrag-hidden').value = `€${contributie} contributie + €10 inschrijfkosten = €${totaal} totaal`;
+
+    content.innerHTML = `
+      <div class="contributie-bedrag">€${totaal},-</div>
+      <div class="contributie-sub">${isJeugd ? 'Jeugdlid' : 'Seniorlid'} · inschrijving in ${maandNamen[maand - 1]} ${jaar}</div>
+      <div class="contributie-breakdown">
+        Contributie: €${contributie} (pro-rata vanaf ${maandNamen[maand] || 'januari'})<br>
+        Eenmalige inschrijfkosten: €10<br>
+        <strong>Totaal over te maken: €${totaal}</strong>
+      </div>
+    `;
+  }
+
+  document.getElementById('geboortedatum').addEventListener('change', berekenContributie);
+
+  // ===== FORMULIER VALIDATIE & VERZENDING =====
+  const form = document.getElementById('aanmeld-form');
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('submit-btn');
+    const emailWarning = document.getElementById('email-warning');
+    const mobielWarning = document.getElementById('mobiel-warning');
+    const akkoordWarning = document.getElementById('akkoord-warning');
+    const formError = document.getElementById('form-error');
+    const formSuccess = document.getElementById('form-success');
+
+    // Reset meldingen
+    [emailWarning, mobielWarning, akkoordWarning, formError, formSuccess].forEach(el => el.style.display = 'none');
+
+    // Email validatie
+    const email = document.getElementById('email').value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailWarning.style.display = 'block';
+      document.getElementById('email').focus();
+      return;
+    }
+
+    // Mobiel validatie
+    const mobielInput = document.getElementById('mobiel').value.trim();
+    const mobielCijfers = mobielInput.replace(/[\s\-()]/g, '');
+    if (!mobielInput || !/^\d+$/.test(mobielCijfers) || mobielCijfers.length < 9) {
+      mobielWarning.style.display = 'block';
+      document.getElementById('mobiel').focus();
+      return;
+    }
+
+    // Combineer landcode + mobiel
+    const landcode = document.getElementById('landcode').value;
+    document.getElementById('mobiel-combined').value = landcode + ' ' + mobielInput;
+
+    // Akkoord validatie
+    const akkoordReglement = document.getElementById('akkoord-reglement').checked;
+    const akkoordBetaling = document.getElementById('akkoord-betaling').checked;
+    if (!akkoordReglement || !akkoordBetaling) {
+      akkoordWarning.style.display = 'block';
+      return;
+    }
+
+    // Verzenden
+    btn.textContent = '⏳ Aanmelding verzenden...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        formSuccess.style.display = 'block';
+        form.reset();
+        document.getElementById('contributie-content').innerHTML = '<p class="contributie-placeholder">Vul je geboortedatum in om de contributie te berekenen.</p>';
+        document.getElementById('jeugdlid-badge').className = 'jeugdlid-badge';
+        btn.textContent = '✅ Aanmelding verzonden!';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        throw new Error();
+      }
+    } catch {
+      formError.style.display = 'block';
+      btn.textContent = 'Aanmelden bij RC045 →';
+      btn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
