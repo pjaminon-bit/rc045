@@ -125,7 +125,7 @@
 
     /* ===== PRICING ===== */
     .pricing { background: var(--bg); }
-    .pricing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .pricing-grid { display: grid; grid-template-columns: 1fr; gap: 24px; max-width: 600px; margin: 0 auto; }
     .price-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 36px; transition: transform 0.2s, box-shadow 0.2s; }
     .price-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
     .price-card.featured { background: var(--dark); border-color: var(--dark); color: white; position: relative; overflow: hidden; }
