@@ -97,6 +97,10 @@
     .akkoord-group label { font-size: 14px; color: var(--text); line-height: 1.5; cursor: pointer; }
     .akkoord-group label a { color: var(--teal); font-weight: 600; text-decoration: underline; }
 
+    .form-group label span.req { color: var(--teal); font-weight: 700; }
+    .field-error { display: none; font-size: 13px; color: #DC2626; margin-top: 4px; font-weight: 500; }
+    .form-group.has-error .field-error { display: block; }
+
     /* ===== INPUT ERROR ===== */
     .input-error { border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,0.12) !important; }
 
@@ -209,22 +213,25 @@
 
   <!-- Formulier -->
   <div class="form-card">
-    <form id="aanmeld-form" action="https://formspree.io/f/mgobjlkl" method="POST">
+    <form id="aanmeld-form" action="https://formspree.io/f/mgobjlkl" method="POST" novalidate>
 
       <!-- Persoonsgegevens -->
       <div class="form-section-title" data-i18n="form.personal">Persoonsgegevens</div>
       <div class="form-grid">
         <div class="form-group">
-          <label for="voornaam" data-i18n="form.firstname">Voornaam</label>
-          <input type="text" id="voornaam" name="voornaam" required>
+          <label for="voornaam"><span data-i18n="form.firstname">Voornaam</span> <span class="req">*</span></label>
+          <input type="text" id="voornaam" name="voornaam">
+          <div class="field-error" id="voornaam-error" data-i18n="err.required">Dit veld is verplicht</div>
         </div>
         <div class="form-group">
-          <label for="achternaam" data-i18n="form.lastname">Achternaam</label>
-          <input type="text" id="achternaam" name="achternaam" required>
+          <label for="achternaam"><span data-i18n="form.lastname">Achternaam</span> <span class="req">*</span></label>
+          <input type="text" id="achternaam" name="achternaam">
+          <div class="field-error" id="achternaam-error" data-i18n="err.required">Dit veld is verplicht</div>
         </div>
         <div class="form-group full">
-          <label for="geboortedatum" data-i18n="form.dob">Geboortedatum</label>
-          <input type="date" id="geboortedatum" name="geboortedatum" required>
+          <label for="geboortedatum"><span data-i18n="form.dob">Geboortedatum</span> <span class="req">*</span></label>
+          <input type="date" id="geboortedatum" name="geboortedatum">
+          <div class="field-error" id="geboortedatum-error" data-i18n="err.required">Dit veld is verplicht</div>
           <div class="jeugdlid-badge" id="jeugdlid-badge"></div>
         </div>
       </div>
@@ -233,24 +240,28 @@
       <div class="form-section-title" data-i18n="form.address">Adresgegevens</div>
       <div class="form-grid">
         <div class="form-group">
-          <label for="straat" data-i18n="form.street">Straat</label>
-          <input type="text" id="straat" name="straat" required>
+          <label for="straat"><span data-i18n="form.street">Straat</span> <span class="req">*</span></label>
+          <input type="text" id="straat" name="straat">
+          <div class="field-error" id="straat-error" data-i18n="err.required">Dit veld is verplicht</div>
         </div>
         <div class="form-group">
-          <label for="huisnummer" data-i18n="form.number">Huisnummer</label>
-          <input type="text" id="huisnummer" name="huisnummer" required>
+          <label for="huisnummer"><span data-i18n="form.number">Huisnummer</span> <span class="req">*</span></label>
+          <input type="text" id="huisnummer" name="huisnummer">
+          <div class="field-error" id="huisnummer-error" data-i18n="err.required">Dit veld is verplicht</div>
         </div>
         <div class="form-group">
-          <label for="postcode" data-i18n="form.postcode">Postcode</label>
-          <input type="text" id="postcode" name="postcode" required>
+          <label for="postcode"><span data-i18n="form.postcode">Postcode</span> <span class="req">*</span></label>
+          <input type="text" id="postcode" name="postcode">
+          <div class="field-error" id="postcode-error" data-i18n="err.required">Dit veld is verplicht</div>
         </div>
         <div class="form-group">
-          <label for="stad" data-i18n="form.city">Stad</label>
-          <input type="text" id="stad" name="stad" required>
+          <label for="stad"><span data-i18n="form.city">Stad</span> <span class="req">*</span></label>
+          <input type="text" id="stad" name="stad">
+          <div class="field-error" id="stad-error" data-i18n="err.required">Dit veld is verplicht</div>
         </div>
         <div class="form-group full">
-          <label for="land" data-i18n="form.country">Land</label>
-          <select id="land" name="land" required>
+          <label for="land"><span data-i18n="form.country">Land</span> <span class="req">*</span></label>
+          <select id="land" name="land">
             <option value="Nederland" selected>Nederland</option>
             <option value="België">België</option>
             <option value="Duitsland">Duitsland</option>
@@ -263,12 +274,12 @@
       <div class="form-section-title" data-i18n="form.contact">Contactgegevens</div>
       <div class="form-grid">
         <div class="form-group full">
-          <label for="email" data-i18n="form.email">E-mailadres</label>
-          <input type="email" id="email" name="email" required>
+          <label for="email"><span data-i18n="form.email">E-mailadres</span></label>
+          <input type="email" id="email" name="email">
           <div class="melding warning" id="email-warning"><span data-i18n="warn.email">⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl)</span></div>
         </div>
         <div class="form-group full">
-          <label for="mobiel" data-i18n="form.mobile">Mobiel nummer</label>
+          <label for="mobiel"><span data-i18n="form.mobile">Mobiel nummer</span></label>
           <div class="phone-row">
             <select id="landcode" name="landcode">
               <option value="+31">🇳🇱 +31</option>
@@ -280,6 +291,9 @@
           </div>
           <div class="melding warning" id="mobiel-warning"><span data-i18n="warn.mobile">⚠️ Vul een geldig mobiel nummer in (minimaal 9 cijfers)</span></div>
         </div>
+        <div class="form-group full">
+          <div class="melding warning" id="contact-warning"><span data-i18n="warn.contact">⚠️ We hebben een e-mailadres of mobiel nummer van je nodig om contact op te nemen</span></div>
+        </div>
       </div>
 
       <!-- Verborgen velden voor Formspree -->
@@ -289,13 +303,13 @@
       <!-- Akkoord -->
       <div class="form-section-title" data-i18n="form.agreement">Akkoordverklaring</div>
       <div class="akkoord-group">
-        <input type="checkbox" id="akkoord-reglement" name="akkoord_reglement" value="ja" required>
+        <input type="checkbox" id="akkoord-reglement" name="akkoord_reglement" value="ja">
         <label for="akkoord-reglement">
           <span data-i18n="form.agree1a">Ik ga akkoord met het</span> <a href="baanreglement.html" data-i18n="form.agree1link">baanreglement</a> <span data-i18n="form.agree1b">van RC045 en verklaar dit gelezen en begrepen te hebben.</span> <span style="color:var(--teal);">*</span>
         </label>
       </div>
       <div class="akkoord-group" style="margin-top: 10px;">
-        <input type="checkbox" id="akkoord-betaling" name="akkoord_betaling" value="ja" required>
+        <input type="checkbox" id="akkoord-betaling" name="akkoord_betaling" value="ja">
         <label for="akkoord-betaling">
           <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <strong>NL51 RABO 0367 6153 63</strong> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 2026".</span> <span style="color:var(--teal);">*</span>
         </label>
@@ -362,11 +376,11 @@
       'contrib.placeholder': 'Vul je geboortedatum in om de contributie te berekenen.',
       'form.personal': 'Persoonsgegevens', 'form.address': 'Adresgegevens',
       'form.contact': 'Contactgegevens', 'form.agreement': 'Akkoordverklaring',
-      'form.firstname': 'Voornaam *', 'form.lastname': 'Achternaam *',
-      'form.dob': 'Geboortedatum *', 'form.street': 'Straat *',
-      'form.number': 'Huisnummer *', 'form.postcode': 'Postcode *',
-      'form.city': 'Stad *', 'form.country': 'Land *',
-      'form.email': 'E-mailadres *', 'form.mobile': 'Mobiel nummer *',
+      'form.firstname': 'Voornaam', 'form.lastname': 'Achternaam',
+      'form.dob': 'Geboortedatum', 'form.street': 'Straat',
+      'form.number': 'Huisnummer', 'form.postcode': 'Postcode',
+      'form.city': 'Stad', 'form.country': 'Land',
+      'form.email': 'E-mailadres', 'form.mobile': 'Mobiel nummer',
       'form.agree1a': 'Ik ga akkoord met het', 'form.agree1link': 'baanreglement',
       'form.agree1b': 'van RC045 en verklaar dit gelezen en begrepen te hebben.',
       'form.agree2': 'Ik ga akkoord met de contributieverplichting en maak het verschuldigde bedrag z.s.m. over naar onderstaand rekeningnummer.',
@@ -379,6 +393,8 @@
       'faq.q4': 'Moet ik elk jaar opnieuw betalen?', 'faq.a4': 'Ja, de contributie wordt jaarlijks geïnd. Je ontvangt hierover tijdig bericht via de WhatsApp groep of nieuwsbrief.',
       'faq.q5': 'Kan ik eerst komen kijken voor ik lid word?', 'faq.a5': 'Ja, je kunt altijd eerst als gastrijder langskomen. Volwassenen betalen €10, jeugd t/m 15 jaar betaalt €5 per dag. Meld je bij aankomst bij een bestuurslid.',
       'form.submit': 'Aanmelden bij RC045 →',
+      'err.required': 'Dit veld is verplicht',
+      'warn.contact': '⚠️ We hebben een e-mailadres of mobiel nummer van je nodig om contact op te nemen',
       'warn.email': '⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl)',
       'warn.mobile': '⚠️ Vul een geldig mobiel nummer in (minimaal 9 cijfers)',
       'warn.agree': '⚠️ Je dient akkoord te gaan met beide verklaringen om je te kunnen aanmelden.',
@@ -399,11 +415,11 @@
       'contrib.placeholder': 'Enter your date of birth to calculate the membership fee.',
       'form.personal': 'Personal details', 'form.address': 'Address details',
       'form.contact': 'Contact details', 'form.agreement': 'Declaration of agreement',
-      'form.firstname': 'First name *', 'form.lastname': 'Last name *',
-      'form.dob': 'Date of birth *', 'form.street': 'Street *',
-      'form.number': 'House number *', 'form.postcode': 'Postcode *',
-      'form.city': 'City *', 'form.country': 'Country *',
-      'form.email': 'Email address *', 'form.mobile': 'Mobile number *',
+      'form.firstname': 'First name', 'form.lastname': 'Last name',
+      'form.dob': 'Date of birth', 'form.street': 'Street',
+      'form.number': 'House number', 'form.postcode': 'Postcode',
+      'form.city': 'City', 'form.country': 'Country',
+      'form.email': 'Email address', 'form.mobile': 'Mobile number',
       'form.agree1a': 'I agree to the', 'form.agree1link': 'track regulations',
       'form.agree1b': 'of RC045 and declare that I have read and understood them.',
       'form.agree2': 'I agree to the membership fee obligation and will transfer the amount due as soon as possible to the bank account below.',
@@ -416,6 +432,8 @@
       'faq.q4': 'Do I need to pay every year?', 'faq.a4': 'Yes, membership fees are collected annually. You will be notified in time via the WhatsApp group or newsletter.',
       'faq.q5': 'Can I come and have a look before joining?', 'faq.a5': 'Yes, you can always come as a guest rider first. Adults pay €10, youth up to 15 years pay €5 per day. Check in with a board member on arrival.',
       'form.submit': 'Register with RC045 →',
+      'err.required': 'This field is required',
+      'warn.contact': '⚠️ We need an email address or mobile number to contact you',
       'warn.email': '⚠️ Please enter a valid email address (e.g. name@example.com)',
       'warn.mobile': '⚠️ Please enter a valid mobile number (at least 9 digits)',
       'warn.agree': '⚠️ You must agree to both declarations in order to register.',
@@ -436,11 +454,11 @@
       'contrib.placeholder': 'Gib dein Geburtsdatum ein, um den Mitgliedsbeitrag zu berechnen.',
       'form.personal': 'Persönliche Daten', 'form.address': 'Adressdaten',
       'form.contact': 'Kontaktdaten', 'form.agreement': 'Einverständniserklärung',
-      'form.firstname': 'Vorname *', 'form.lastname': 'Nachname *',
-      'form.dob': 'Geburtsdatum *', 'form.street': 'Straße *',
-      'form.number': 'Hausnummer *', 'form.postcode': 'Postleitzahl *',
-      'form.city': 'Stadt *', 'form.country': 'Land *',
-      'form.email': 'E-Mail-Adresse *', 'form.mobile': 'Handynummer *',
+      'form.firstname': 'Vorname', 'form.lastname': 'Nachname',
+      'form.dob': 'Geburtsdatum', 'form.street': 'Straße',
+      'form.number': 'Hausnummer', 'form.postcode': 'Postleitzahl',
+      'form.city': 'Stadt', 'form.country': 'Land',
+      'form.email': 'E-Mail-Adresse', 'form.mobile': 'Handynummer',
       'form.agree1a': 'Ich stimme dem', 'form.agree1link': 'Streckenreglement',
       'form.agree1b': 'von RC045 zu und erkläre, es gelesen und verstanden zu haben.',
       'form.agree2': 'Ich stimme der Beitragspflicht zu und werde den fälligen Betrag schnellstmöglich auf das untenstehende Konto überweisen.',
@@ -453,6 +471,8 @@
       'faq.q4': 'Muss ich jedes Jahr erneut zahlen?', 'faq.a4': 'Ja, der Mitgliedsbeitrag wird jährlich erhoben. Du wirst rechtzeitig über die WhatsApp-Gruppe oder den Newsletter informiert.',
       'faq.q5': 'Kann ich erst vorbeischauen, bevor ich Mitglied werde?', 'faq.a5': 'Ja, du kannst jederzeit als Gastfahrer vorbeikommen. Erwachsene zahlen €10, Jugendliche bis 15 Jahre zahlen €5 pro Tag. Melde dich bei einem Vorstandsmitglied.',
       'form.submit': 'Bei RC045 anmelden →',
+      'err.required': 'Dieses Feld ist erforderlich',
+      'warn.contact': '⚠️ Wir benötigen eine E-Mail-Adresse oder Handynummer, um dich zu kontaktieren',
       'warn.email': '⚠️ Bitte gib eine gültige E-Mail-Adresse ein (z.B. name@beispiel.de)',
       'warn.mobile': '⚠️ Bitte gib eine gültige Handynummer ein (mindestens 9 Ziffern)',
       'warn.agree': '⚠️ Du musst beiden Erklärungen zustimmen, um dich anmelden zu können.',
@@ -582,49 +602,93 @@
 
   // ===== FORMULIER VALIDATIE & VERZENDING =====
   const form = document.getElementById('aanmeld-form');
+  const verplichteVelden = ['voornaam', 'achternaam', 'geboortedatum', 'straat', 'huisnummer', 'postcode', 'stad'];
+
+  function setFieldError(id, hasError) {
+    const input = document.getElementById(id);
+    const group = input.closest('.form-group');
+    if (hasError) {
+      input.classList.add('input-error');
+      group.classList.add('has-error');
+    } else {
+      input.classList.remove('input-error');
+      group.classList.remove('has-error');
+    }
+  }
+
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const btn = document.getElementById('submit-btn');
     const emailWarning = document.getElementById('email-warning');
     const mobielWarning = document.getElementById('mobiel-warning');
+    const contactWarning = document.getElementById('contact-warning');
     const akkoordWarning = document.getElementById('akkoord-warning');
     const formError = document.getElementById('form-error');
     const formSuccess = document.getElementById('form-success');
 
-    // Reset meldingen
-    [emailWarning, mobielWarning, akkoordWarning, formError, formSuccess].forEach(el => el.style.display = 'none');
+    // Reset alle meldingen
+    [emailWarning, mobielWarning, contactWarning, akkoordWarning, formError, formSuccess].forEach(el => el.style.display = 'none');
+    verplichteVelden.forEach(id => setFieldError(id, false));
 
-    // Email validatie
+    let firstErrorEl = null;
+
+    // Check verplichte tekstvelden
+    verplichteVelden.forEach(id => {
+      const val = document.getElementById(id).value.trim();
+      if (!val) {
+        setFieldError(id, true);
+        if (!firstErrorEl) firstErrorEl = document.getElementById(id);
+      }
+    });
+
+    if (firstErrorEl) {
+      firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstErrorEl.focus();
+      return;
+    }
+
+    // Email + mobiel: minimaal één verplicht, en als ingevuld moet het geldig zijn
     const email = document.getElementById('email').value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const mobielInput = document.getElementById('mobiel').value.trim();
+    const mobielCijfers = mobielInput.replace(/[\s\-()]/g, '');
+
+    if (!email && !mobielInput) {
+      contactWarning.style.display = 'block';
+      document.getElementById('email').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       emailWarning.style.display = 'block';
       setInputError('email', true);
+      document.getElementById('email').scrollIntoView({ behavior: 'smooth', block: 'center' });
       document.getElementById('email').focus();
       return;
     }
     setInputError('email', false);
 
-    // Mobiel validatie
-    const mobielInput = document.getElementById('mobiel').value.trim();
-    const mobielCijfers = mobielInput.replace(/[\s\-()]/g, '');
-    if (!mobielInput || !/^\d+$/.test(mobielCijfers) || mobielCijfers.length < 9) {
+    if (mobielInput && (!/^\d+$/.test(mobielCijfers) || mobielCijfers.length < 9)) {
       mobielWarning.style.display = 'block';
       setInputError('mobiel', true);
+      document.getElementById('mobiel').scrollIntoView({ behavior: 'smooth', block: 'center' });
       document.getElementById('mobiel').focus();
       return;
     }
     setInputError('mobiel', false);
 
     // Combineer landcode + mobiel
-    const landcode = document.getElementById('landcode').value;
-    document.getElementById('mobiel-combined').value = landcode + ' ' + mobielInput;
+    if (mobielInput) {
+      const landcode = document.getElementById('landcode').value;
+      document.getElementById('mobiel-combined').value = landcode + ' ' + mobielInput;
+    }
 
     // Akkoord validatie
     const akkoordReglement = document.getElementById('akkoord-reglement').checked;
     const akkoordBetaling = document.getElementById('akkoord-betaling').checked;
     if (!akkoordReglement || !akkoordBetaling) {
       akkoordWarning.style.display = 'block';
+      akkoordWarning.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
@@ -639,8 +703,8 @@
         headers: { 'Accept': 'application/json' }
       });
       if (res.ok) {
-          window.location.href = 'bedankt.html';
-        } else {
+        window.location.href = 'bedankt.html';
+      } else {
         throw new Error();
       }
     } catch {
