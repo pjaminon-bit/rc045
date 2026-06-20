@@ -208,11 +208,11 @@
       </div>
     </a>
     <ul class="nav-links" id="nav-links">
-      <li><a href="index.html#over-ons">Over ons</a></li>
-      <li><a href="index.html#lidmaatschap">Lidmaatschap</a></li>
-      <li><a href="index.html#baan">De baan</a></li>
-      <li><a href="index.html#locatie">Locatie</a></li>
-      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
+      <li><a href="index.html#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
+      <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
+      <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
+      <li><a href="index.html#contact" data-i18n="nav.question">Contact</a></li>
       <li class="nav-lid"><a href="aanmelden.html">Lid worden</a></li>
     </ul>
     <div class="lang-flags">
@@ -407,6 +407,8 @@
   const i18n = {
     nl: {
       'nav.back': '← Terug naar de site',
+      'nav.about': 'Over ons', 'nav.membership': 'Lidmaatschap', 'nav.track': 'De baan',
+      'nav.location': 'Locatie', 'nav.question': 'Contact',
       'hero.label': 'Lidmaatschap', 'hero.title': 'Aanmelden als lid',
       'hero.sub': 'Vul het formulier in om je aan te melden bij RC045. Na ontvangst nemen we zo snel mogelijk contact met je op.',
       'contrib.title': '🏎️ Jouw contributie 2026',
@@ -446,6 +448,8 @@
     },
     en: {
       'nav.back': '← Back to the site',
+      'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
+      'nav.location': 'Location', 'nav.question': 'Contact',
       'hero.label': 'Membership', 'hero.title': 'Register as a member',
       'hero.sub': 'Fill in the form to register with RC045. We will contact you as soon as possible after receiving your registration.',
       'contrib.title': '🏎️ Your membership fee 2026',
@@ -485,6 +489,8 @@
     },
     de: {
       'nav.back': '← Zurück zur Website',
+      'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
+      'nav.location': 'Standort', 'nav.question': 'Contact',
       'hero.label': 'Mitgliedschaft', 'hero.title': 'Als Mitglied anmelden',
       'hero.sub': 'Fülle das Formular aus, um dich bei RC045 anzumelden. Nach Eingang melden wir uns so schnell wie möglich bei dir.',
       'contrib.title': '🏎️ Dein Mitgliedsbeitrag 2026',
@@ -574,6 +580,10 @@
     activeBtn.setAttribute('aria-pressed', 'true');
     document.documentElement.lang = lang;
     localStorage.setItem('rc045_lang', lang);
+    const currentUrl = new URL(window.location.href);
+    if (lang === 'nl') currentUrl.searchParams.delete('lang');
+    else currentUrl.searchParams.set('lang', lang);
+    history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
     updateInternalLinks(lang);
     berekenContributie();
   }
