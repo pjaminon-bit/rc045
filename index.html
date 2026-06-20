@@ -179,7 +179,7 @@
     .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; align-items: center; justify-content: center; }
     .lightbox.open { display: flex; }
     .lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-    .lightbox-close { position: absolute; top: 20px; right: 28px; color: white; font-size: 36px; cursor: pointer; line-height: 1; opacity: 0.7; transition: opacity 0.2s; }
+    .lightbox-close { position: absolute; top: 20px; right: 28px; color: white; font-size: 36px; cursor: pointer; line-height: 1; opacity: 0.7; transition: opacity 0.2s; background: none; border: none; padding: 4px; }
     .lightbox-close:hover { opacity: 1; }
 
     /* ===== RULES ===== */
@@ -282,6 +282,20 @@
       .track-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
       .track-photo-wrap.tall { grid-row: span 1; }
     }
+
+    /* ===== TOEGANKELIJKHEID: FOCUS STATES ===== */
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    .skip-link {
+      position: absolute; top: -100px; left: 16px; z-index: 1000;
+      background: var(--dark); color: white; padding: 12px 20px;
+      border-radius: 8px; font-weight: 600; font-size: 14px;
+      transition: top 0.2s;
+    }
+    .skip-link:focus { top: 16px; }
   </style>
   <script type="application/ld+json">
   {
@@ -335,15 +349,16 @@
   </script>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Naar hoofdinhoud</a>
 
 <!-- ===== LIGHTBOX ===== -->
 <div class="lightbox" id="lightbox">
-  <span class="lightbox-close" id="lightbox-close">×</span>
+  <button class="lightbox-close" id="lightbox-close" aria-label="Sluiten">×</button>
   <img src="" alt="" id="lightbox-img">
 </div>
 
 <!-- ===== TERUG NAAR BOVEN ===== -->
-<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Terug naar boven">↑</button>
 
 <!-- ===== NAVIGATION ===== -->
 <nav class="nav" id="main-nav">
@@ -364,18 +379,18 @@
 
     </ul>
     <div class="lang-flags">
-      <button class="lang-flag active" onclick="setLang('nl')" title="Nederlands">🇳🇱</button>
-      <button class="lang-flag" onclick="setLang('en')" title="English">🇬🇧</button>
-      <button class="lang-flag" onclick="setLang('de')" title="Deutsch">🇩🇪</button>
+      <button class="lang-flag active" onclick="setLang('nl')" title="Nederlands" aria-label="Nederlands" aria-pressed="true">🇳🇱</button>
+      <button class="lang-flag" onclick="setLang('en')" title="English" aria-label="English" aria-pressed="false">🇬🇧</button>
+      <button class="lang-flag" onclick="setLang('de')" title="Deutsch" aria-label="Deutsch" aria-pressed="false">🇩🇪</button>
     </div>
-    <button class="nav-hamburger" id="hamburger">
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu openen" aria-expanded="false" aria-controls="nav-links">
       <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
 
 <!-- ===== HERO ===== -->
-<section class="hero">
+<section class="hero" id="main-content">
   <div class="hero-bg" id="hero-bg"></div>
   <div class="hero-gradient"></div>
   <img src="rc045-logo.png" alt="" aria-hidden="true" style="position:absolute; right:-40px; top:50%; transform:translateY(-50%); height: 520px; width: auto; opacity: 0.13; pointer-events:none; filter: drop-shadow(0 0 40px rgba(200,154,26,0.2)); z-index:1;">
@@ -634,14 +649,14 @@
             </div>
           </a>
           <a href="https://www.facebook.com/rc045/" target="_blank" class="channel">
-            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="Facebook" width="28" height="28"></div>
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true"></div>
             <div>
               <div class="channel-label">Facebook</div>
               <div class="channel-value">facebook.com/rc045</div>
             </div>
           </a>
           <a href="https://www.instagram.com/rc045" target="_blank" class="channel">
-            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" width="28" height="28"></div>
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true"></div>
             <div>
               <div class="channel-label">Instagram</div>
               <div class="channel-value">instagram.com/rc045</div>
@@ -715,11 +730,11 @@
         <img src="rc045-logo.png" alt="RC045">
         <p data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
         <div class="footer-social">
-          <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="Facebook" width="28" height="28">
+          <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true">
           </a>
-          <a href="https://www.instagram.com/rc045" target="_blank" title="Instagram">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" width="28" height="28">
+          <a href="https://www.instagram.com/rc045" target="_blank" title="Instagram" aria-label="RC045 op Instagram">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true">
           </a>
         </div>
       </div>
@@ -955,8 +970,10 @@
       const key = el.getAttribute('data-i18n-placeholder');
       if (t[key]) el.placeholder = t[key];
     });
-    document.querySelectorAll('.lang-flag').forEach(btn => btn.classList.remove('active'));
-    document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`).classList.add('active');
+    document.querySelectorAll('.lang-flag').forEach(btn => { btn.classList.remove('active'); btn.setAttribute('aria-pressed', 'false'); });
+    const activeBtn = document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`);
+    activeBtn.classList.add('active');
+    activeBtn.setAttribute('aria-pressed', 'true');
     document.documentElement.lang = lang;
     updateWeatherDisplay();
     updateStatus();
@@ -1110,7 +1127,8 @@
 
   // ===== HAMBURGER =====
   document.getElementById('hamburger').addEventListener('click', function() {
-    document.querySelector('.nav-links').classList.toggle('open');
+    const isOpen = document.querySelector('.nav-links').classList.toggle('open');
+    this.setAttribute('aria-expanded', isOpen);
   });
   window.addEventListener('scroll', function() {
     document.querySelector('.nav-links').classList.remove('open');
