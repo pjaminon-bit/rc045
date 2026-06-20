@@ -329,13 +329,13 @@
         "@type": "OpeningHoursSpecification",
         "dayOfWeek": "Saturday",
         "opens": "10:00",
-        "closes": "17:00"
+        "closes": "15:00"
       },
       {
         "@type": "OpeningHoursSpecification",
         "dayOfWeek": "Sunday",
         "opens": "10:00",
-        "closes": "17:00"
+        "closes": "15:00"
       },
       {
         "@type": "OpeningHoursSpecification",
@@ -420,7 +420,7 @@
       <div>
         <div class="info-label" data-i18n="info.hours">Openingstijden</div>
         <div class="info-value" data-i18n="info.sat">Zaterdag 10:00–15:00</div>
-        <div class="info-value" data-i18n="info.sun">Zondag 10:00–17:00</div>
+        <div class="info-value" data-i18n="info.sun">Zondag 10:00–15:00</div>
         <div id="status-indicator"></div>
       </div>
     </div>
@@ -612,11 +612,11 @@
           </div>
           <div class="hours-row">
             <span class="hours-day" data-i18n="hours.sat">Zaterdag</span>
-            <span class="hours-time">10:00 – 17:00</span>
+            <span class="hours-time">10:00 – 15:00</span>
           </div>
           <div class="hours-row">
             <span class="hours-day" data-i18n="hours.sun">Zondag</span>
-            <span class="hours-time">10:00 – 17:00</span>
+            <span class="hours-time">10:00 – 15:00</span>
           </div>
 <div class="hours-note">
             ℹ️ <strong data-i18n="hours.note.attention">Let op:</strong> <span data-i18n="hours.note.text">We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze</span> <a href="https://www.facebook.com/rc045/" target="_blank" class="info-location-link" style="color:var(--teal-dark);" data-i18n="hours.note.fb">Facebook-pagina</a> <span data-i18n="hours.note.times">voor actuele openingstijden.</span>
@@ -778,7 +778,7 @@
       'nav.location': 'Locatie', 'nav.question': 'Contact', 'nav.join': 'Lid worden',
       'hero.intro': 'Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners én ervaren hobbyisten. Jong én oud.',
       'hero.btn.member': '🏎️ Lid worden!', 'hero.btn.more': 'Meer over ons',
-      'info.hours': 'Openingstijden', 'info.sat': 'Zaterdag 10:00–15:00', 'info.sun': 'Zondag 10:00–17:00',
+      'info.hours': 'Openingstijden', 'info.sat': 'Zaterdag 10:00–15:00', 'info.sun': 'Zondag 10:00–15:00',
       'info.location': 'Locatie', 'info.membership': 'Lidmaatschap', 'info.from': 'Vanaf €50/jaar', 'info.weather': 'Weer in Eygelshoven',
       'about.label': 'Wie zijn wij', 'about.title': 'Gezellig racen in het hart van Limburg',
       'about.p1': 'RC045 is een actieve vereniging voor iedereen die gek is op radiografisch bestuurbare auto\'s. We rijden met elektrische RC-auto\'s in alle schalen. Of je nu net begint of al jaren rijdt: bij ons ben je welkom.',
@@ -840,7 +840,7 @@
       'nav.location': 'Location', 'nav.question': 'Contact', 'nav.join': 'Become a member',
       'hero.intro': 'We are a friendly club from the south of Limburg for enthusiasts of electrically powered, radio-controlled cars. For beginners and experienced hobbyists alike. Young and old.',
       'hero.btn.member': '🏎️ Become a member!', 'hero.btn.more': 'More about us',
-      'info.hours': 'Opening hours', 'info.sat': 'Saturday 10:00–15:00', 'info.sun': 'Sunday 10:00–17:00',
+      'info.hours': 'Opening hours', 'info.sat': 'Saturday 10:00–15:00', 'info.sun': 'Sunday 10:00–15:00',
       'info.location': 'Location', 'info.membership': 'Membership', 'info.from': 'From €50/year', 'info.weather': 'Weather in Eygelshoven',
       'about.label': 'Who we are', 'about.title': 'Fun racing in the heart of Limburg',
       'about.p1': 'RC045 is an active club for anyone passionate about radio-controlled cars. We drive electric RC cars in all scales. Whether you\'re just starting out or have been racing for years: you\'re welcome here.',
@@ -902,7 +902,7 @@
       'nav.location': 'Standort', 'nav.question': 'Contact', 'nav.join': 'Mitglied werden',
       'hero.intro': 'Wir sind ein freundlicher Verein aus dem Süden von Limburg für Liebhaber von elektrisch angetriebenen, ferngesteuerten Autos. Für Anfänger und erfahrene Hobbyisten. Jung und Alt.',
       'hero.btn.member': '🏎️ Mitglied werden!', 'hero.btn.more': 'Mehr über uns',
-      'info.hours': 'Öffnungszeiten', 'info.sat': 'Samstag 10:00–15:00', 'info.sun': 'Sonntag 10:00–17:00',
+      'info.hours': 'Öffnungszeiten', 'info.sat': 'Samstag 10:00–15:00', 'info.sun': 'Sonntag 10:00–15:00',
       'info.location': 'Standort', 'info.membership': 'Mitgliedschaft', 'info.from': 'Ab €50/Jahr', 'info.weather': 'Wetter in Eygelshoven',
       'about.label': 'Wer wir sind', 'about.title': 'Spaßiges Fahren im Herzen von Limburg',
       'about.p1': 'RC045 ist ein aktiver Verein für alle, die ferngesteuerte Autos lieben. Wir fahren elektrische RC-Autos in allen Maßstäben. Ob Anfänger oder Erfahrener – bei uns bist du willkommen.',
@@ -1146,7 +1146,7 @@
     const isOpen =
       (day === 3 && time >= 19 && time < 22) ||
       (day === 6 && time >= 10 && time < 15) ||
-      (day === 0 && time >= 10 && time < 17);
+      (day === 0 && time >= 10 && time < 15);
     const el = document.getElementById('status-indicator');
     const badge = document.getElementById('hero-badge');
     if (isOpen) {
