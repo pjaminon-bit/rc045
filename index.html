@@ -1008,6 +1008,10 @@
     activeBtn.setAttribute('aria-pressed', 'true');
     document.documentElement.lang = lang;
     localStorage.setItem('rc045_lang', lang);
+    const currentUrl = new URL(window.location.href);
+    if (lang === 'nl') currentUrl.searchParams.delete('lang');
+    else currentUrl.searchParams.set('lang', lang);
+    history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
     updateInternalLinks(lang);
     updateWeatherDisplay();
     updateStatus();
