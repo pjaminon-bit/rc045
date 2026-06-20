@@ -149,11 +149,11 @@
       </div>
     </a>
     <ul class="nav-links" id="nav-links">
-      <li><a href="index.html#over-ons">Over ons</a></li>
-      <li><a href="index.html#lidmaatschap">Lidmaatschap</a></li>
-      <li><a href="index.html#baan">De baan</a></li>
-      <li><a href="index.html#locatie">Locatie</a></li>
-      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
+      <li><a href="index.html#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
+      <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
+      <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
+      <li><a href="index.html#contact" data-i18n="nav.question">Contact</a></li>
       <li class="nav-lid"><a href="baanreglement.html">Baanreglement</a></li>
     </ul>
     <div class="lang-flags">
@@ -335,6 +335,8 @@
 const i18n = {
   nl: {
     'nav.back': '← Terug naar de site',
+    'nav.about': 'Over ons', 'nav.membership': 'Lidmaatschap', 'nav.track': 'De baan',
+    'nav.location': 'Locatie', 'nav.question': 'Contact',
     'hero.title': 'Baanreglement',
     'hero.sub': 'Dit reglement is in het leven geroepen om onze hobby veilig uit te oefenen. Met het betreden van het RC045-terrein ga je akkoord met de inhoud van dit reglement.',
     'intro.bold': 'Belangrijk:',
@@ -384,6 +386,8 @@ const i18n = {
   },
   en: {
     'nav.back': '← Back to the site',
+    'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
+    'nav.location': 'Location', 'nav.question': 'Contact',
     'hero.title': 'Track Regulations',
     'hero.sub': 'These regulations were created to ensure our hobby can be practised safely. By entering the RC045 grounds, you agree to the contents of these regulations.',
     'intro.bold': 'Important:',
@@ -433,6 +437,8 @@ const i18n = {
   },
   de: {
     'nav.back': '← Zurück zur Website',
+    'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
+    'nav.location': 'Standort', 'nav.question': 'Contact',
     'hero.title': 'Streckenreglement',
     'hero.sub': 'Dieses Reglement wurde erstellt, um unser Hobby sicher ausüben zu können. Mit dem Betreten des RC045-Geländes stimmst du dem Inhalt dieses Reglements zu.',
     'intro.bold': 'Wichtig:',
@@ -525,6 +531,10 @@ function setLang(lang) {
     activeBtn.setAttribute('aria-pressed', 'true');
   document.documentElement.lang = lang;
   localStorage.setItem('rc045_lang', lang);
+  const currentUrl = new URL(window.location.href);
+  if (lang === 'nl') currentUrl.searchParams.delete('lang');
+  else currentUrl.searchParams.set('lang', lang);
+  history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
   updateInternalLinks(lang);
 }
 
