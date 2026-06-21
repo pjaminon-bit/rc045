@@ -92,10 +92,12 @@
 
     /* ===== FOTOGRID (zoals De baan) ===== */
     .photos-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 20px; }
-    .ontstaan-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; border-radius: var(--radius); overflow: hidden; }
-    .ontstaan-photo { object-fit: cover; width: 100%; height: 240px; transition: transform 0.4s; cursor: pointer; }
+    .ontstaan-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
+    .ontstaan-grid + .ontstaan-grid { margin-top: 16px; }
+    .ontstaan-photo { object-fit: cover; width: 100%; height: 100%; transition: transform 0.4s; cursor: pointer; }
     .ontstaan-photo:hover { transform: scale(1.05); }
     .ontstaan-photo-wrap { overflow: hidden; }
+    .ontstaan-photo-wrap.tall { grid-row: span 2; }
     .ontstaan-photo-wrap.empty { background: var(--teal-light); display: flex; align-items: center; justify-content: center; color: var(--teal-dark); font-size: 13px; font-weight: 600; text-align: center; padding: 16px; }
 
     /* ===== LIGHTBOX ===== */
@@ -132,8 +134,8 @@
       .nav-hamburger { display: flex; }
       .footer-top { grid-template-columns: 1fr; gap: 32px; }
       .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
-      .ontstaan-grid { grid-template-columns: 1fr; }
-      .ontstaan-photo { height: 200px; }
+      .ontstaan-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .ontstaan-photo-wrap.tall { grid-row: span 1; }
     }
     @media (max-width: 600px) {
       .story-card { padding: 24px 20px; }
@@ -214,7 +216,7 @@
 
   <div class="photos-title" data-i18n="photos.title">Foto's door de jaren heen</div>
   <div class="ontstaan-grid">
-    <div class="ontstaan-photo-wrap">
+    <div class="ontstaan-photo-wrap tall">
       <img src="images/basherbaaneersteaanleg.jpg" alt="Eerste aanleg van de RC045 baan" class="ontstaan-photo lightbox-trigger">
     </div>
     <div class="ontstaan-photo-wrap">
@@ -223,7 +225,9 @@
     <div class="ontstaan-photo-wrap">
       <img src="images/basherbaaneersteaanleglucht.jpg" alt="Luchtfoto van de eerste aanleg van de baan" class="ontstaan-photo lightbox-trigger">
     </div>
-    <div class="ontstaan-photo-wrap">
+  </div>
+  <div class="ontstaan-grid">
+    <div class="ontstaan-photo-wrap tall">
       <img src="images/basherbaaneersteaanlegmaaien.jpg" alt="Maaien tijdens de eerste aanleg van de baan" class="ontstaan-photo lightbox-trigger">
     </div>
     <div class="ontstaan-photo-wrap">
