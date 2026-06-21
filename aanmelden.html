@@ -64,9 +64,11 @@
     .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
     .nav-links a { padding: 6px 14px; border-radius: 8px; font-size: 16px; font-weight: 500; color: var(--text); transition: background 0.15s, color 0.15s; }
     .nav-links a:hover { background: var(--teal-light); color: var(--teal-dark); }
-    .nav-links .nav-active a { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
+    .nav-links .nav-cta a { background: transparent; color: var(--text); font-weight: 500; border: none; }
+    .nav-links .nav-cta a:hover { background: var(--teal-light); color: var(--teal-dark); }
     .nav-links .nav-lid a { background: var(--teal); color: white; font-weight: 600; border-radius: 8px; }
     .nav-links .nav-lid a:hover { background: var(--teal-dark); }
+    .nav-links .nav-lid.nav-active a { background: var(--teal-dark); box-shadow: inset 0 -2px 0 var(--gold); }
     .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; margin-left: 8px; }
     .nav-hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
 
@@ -212,8 +214,8 @@
       <li><a href="index.html#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
       <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
       <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
-      <li><a href="index.html#contact" data-i18n="nav.question">Contact</a></li>
-      <li class="nav-lid"><a href="aanmelden.html" data-i18n="nav.join">Lid worden</a></li>
+      <li class="nav-cta"><a href="index.html#contact" data-i18n="nav.question">Contact</a></li>
+      <li class="nav-lid nav-active"><a href="aanmelden.html" data-i18n="nav.join">Lid worden</a></li>
     </ul>
     <div class="lang-flags">
       <button class="lang-flag active" onclick="setLang('nl')" title="Nederlands" aria-label="Nederlands" aria-pressed="true">🇳🇱</button>
