@@ -102,6 +102,7 @@
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group.full { grid-column: 1 / -1; }
     .form-group label { font-size: 13px; font-weight: 600; color: var(--text); }
+    .hp-field { position: absolute; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden; }
     .form-group label span { color: var(--teal); } 
     .form-group input, .form-group select { padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--text); background: var(--bg); transition: border-color 0.2s, box-shadow 0.2s; outline: none; width: 100%; }
     .form-group input:focus, .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,122,119,0.12); }
@@ -265,6 +266,10 @@
   <!-- Formulier -->
   <div class="form-card">
     <form id="aanmeld-form" action="https://formspree.io/f/mgobjlkl" method="POST" novalidate>
+      <div class="hp-field" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
 
       <!-- Persoonsgegevens -->
       <div class="form-section-title" data-i18n="form.personal">Persoonsgegevens</div>
@@ -772,6 +777,11 @@
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
+
+    // Honeypot: als dit verborgen veld is ingevuld, is het een bot. Stilletjes niets doen.
+    if (document.getElementById('website').value.trim() !== '') {
+      return;
+    }
 
     const btn = document.getElementById('submit-btn');
     const emailWarning = document.getElementById('email-warning');
