@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Het ontstaan – RC045 Bashers of the South</title>
+  <title>RC045 – Bashers of the South</title>
   <meta name="description" content="RC045 - Bashers of the South: een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
   <meta property="og:title" content="RC045 - Bashers of the South">
   <meta property="og:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
@@ -22,10 +22,10 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#1E2C13">
-  <link rel="alternate" hreflang="nl" href="https://rc045.nl/ontstaan.html">
-  <link rel="alternate" hreflang="en" href="https://rc045.nl/ontstaan.html?lang=en">
-  <link rel="alternate" hreflang="de" href="https://rc045.nl/ontstaan.html?lang=de">
-  <link rel="alternate" hreflang="x-default" href="https://rc045.nl/ontstaan.html">
+  <link rel="alternate" hreflang="nl" href="https://rc045.nl/">
+  <link rel="alternate" hreflang="en" href="https://rc045.nl/?lang=en">
+  <link rel="alternate" hreflang="de" href="https://rc045.nl/?lang=de">
+  <link rel="alternate" hreflang="x-default" href="https://rc045.nl/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -37,11 +37,11 @@
     img { max-width: 100%; height: auto; display: block; }
     :root {
       --teal: #3A7A77; --teal-dark: #2D6260; --teal-light: #EAF4F3;
-      --gold: #C89A1A;
+      --gold: #C89A1A; --gold-light: #FBF4DF; --rust: #8B3319;
       --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
-      --border: #DDD8C0; --bg: #FAF6EC;
+      --cream: #EDE3C0; --border: #DDD8C0; --bg: #FAF6EC;
       --white: #FFFFFF; --green: #22C55E;
-      --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08); --shadow-hover: 0 8px 32px rgba(0,0,0,0.14);
     }
 
     /* ===== TAALKNOP ===== */
@@ -49,7 +49,8 @@
     .lang-flag {
       font-size: 20px; cursor: pointer; border: none; background: none;
       padding: 4px 8px; border-radius: 8px; line-height: 1;
-      opacity: 0.4; transition: all 0.15s; font-weight: 500; color: var(--text);
+      opacity: 0.4; transition: all 0.15s; font-weight: 500;
+      color: var(--text);
     }
     .lang-flag:hover { opacity: 0.8; background: var(--teal-light); }
     .lang-flag.active { opacity: 1; background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
@@ -60,10 +61,11 @@
     .nav-logo { display: flex; align-items: center; gap: 12px; }
     .nav-logo img { height: 48px; width: auto; }
     .nav-logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: var(--dark); }
-
+    .nav-logo-sub { font-size: 13px; font-weight: 400; color: var(--muted); display: block; letter-spacing: 0.05em; text-transform: uppercase; }
     .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
     .nav-links a { padding: 6px 14px; border-radius: 8px; font-size: 16px; font-weight: 500; color: var(--text); transition: background 0.15s, color 0.15s; }
     .nav-links a:hover { background: var(--teal-light); color: var(--teal-dark); }
+    .nav-links li.active > a, .nav-links li.active.nav-cta > a { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
     .nav-links .nav-cta a { background: transparent; color: var(--text); font-weight: 500; border: none; }
     .nav-links .nav-cta a:hover { background: var(--teal-light); color: var(--teal-dark); }
     .nav-links .nav-lid a { background: var(--teal); color: white; font-weight: 600; border-radius: 8px; }
@@ -71,33 +73,142 @@
     .nav-links .nav-lid.nav-active a { background: var(--teal-dark); box-shadow: inset 0 -2px 0 var(--gold); }
     .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; margin-left: 8px; }
     .nav-hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
+    /* ===== DROPDOWN ===== */
+    .nav-dropdown { position: relative; }
+    .nav-dropdown-trigger { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .nav-dropdown-trigger::after { content: ''; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor; opacity: 0.6; transition: transform 0.2s; }
+    .nav-dropdown.open .nav-dropdown-trigger::after { transform: rotate(180deg); }
+    .nav-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 180px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); padding: 6px; z-index: 50; list-style: none; }
+    .nav-dropdown.open .nav-dropdown-menu { display: block; }
+    .nav-dropdown-menu li { width: 100%; }
+    .nav-dropdown-menu a { display: block; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; }
+    .nav-dropdown-menu a:hover { background: var(--teal-light); color: var(--teal-dark); }
+    @media (max-width: 700px) {
+      .nav-dropdown-menu { position: static; box-shadow: none; border: none; padding: 0 0 0 16px; margin-top: 4px; display: none; }
+      .nav-dropdown.open .nav-dropdown-menu { display: block; }
+      .nav-dropdown-trigger::after { margin-left: auto; }
+    }
 
     /* ===== HERO ===== */
-    .page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 280px; display: flex; align-items: center; justify-content: center; }
-    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/crawlergroen.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
-    .page-hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
-    .page-hero-content { position: relative; z-index: 1; }
+    .hero { position: relative; overflow: hidden; background: var(--dark); min-height: 580px; display: flex; align-items: center; }
+    .hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
+    .hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
+    .hero-content { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: 80px 24px; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(200,154,26,0.2); border: 1px solid rgba(200,154,26,0.5); color: #E8C76A; padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 24px; }
+    .hero-badge::before { content: ''; width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 0 3px rgba(34,197,94,0.3); animation: pulse 2s infinite; }
+    .hero-badge-closed::before { background: #EF4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.3); animation: pulse-red 2s infinite; }
+    @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 0 3px rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0.1); } }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.3); } 50% { box-shadow: 0 0 0 6px rgba(34,197,94,0.1); } }
+    .hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 800; color: white; margin-bottom: 20px; max-width: 700px; }
+    .hero h1 span { color: #E8C76A; }
+    .hero p { font-size: 18px; color: rgba(255,255,255,0.75); max-width: 540px; margin-bottom: 36px; line-height: 1.7; }
+    .hero-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    /* ===== BUTTONS ===== */
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--teal); color: white; }
+    .btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(58,122,119,0.35); }
+    .btn-outline { background: rgba(255,255,255,0.1); color: white; border: 1.5px solid rgba(255,255,255,0.3); backdrop-filter: blur(4px); }
+    .btn-outline:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
+    .btn-white { background: white; color: var(--teal-dark); }
+    .btn-white:hover { background: var(--teal-light); transform: translateY(-1px); }
+
+    /* ===== INFO BAR ===== */
+    .info-bar { background: var(--white); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
+    .info-bar-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(3, 1fr); }
+    .info-item { display: flex; align-items: center; gap: 16px; padding: 24px 0; border-right: 1px solid var(--border); }
+    .info-item:last-child { border-right: none; padding-left: 32px; }
+    .info-item:first-child { padding-right: 32px; }
+    .info-item:nth-child(2) { padding: 24px 32px; }
+    .info-icon { width: 48px; height: 48px; border-radius: 12px; background: var(--teal-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; }
+    .info-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 2px; }
+    .info-value { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; color: var(--text); }
+    .info-value small { font-weight: 400; font-size: 13px; color: var(--muted); font-family: 'Inter', sans-serif; }
+    .info-location-link { color: inherit; text-decoration: none; border-bottom: 1.5px dashed var(--muted); padding-bottom: 1px; transition: border-color 0.2s, color 0.2s; cursor: pointer; }
+    .info-location-link:hover { color: var(--teal-dark); border-bottom-color: var(--teal-dark); }
+
+    /* ===== STATUS ===== */
+    .status-open { display: inline-flex; align-items: center; gap: 6px; color: #16A34A; font-size: 13px; font-weight: 600; margin-top: 2px; }
+    .status-open::before { content: ''; width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
+    .status-closed { display: inline-flex; align-items: center; gap: 6px; color: #DC2626; font-size: 13px; font-weight: 600; margin-top: 2px; }
+    .status-closed::before { content: ''; width: 7px; height: 7px; background: #EF4444; border-radius: 50%; }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ===== SECTION BASE ===== */
+    .section { padding: 80px 24px; }
+    .container { max-width: 1200px; margin: 0 auto; }
     .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 12px; }
-    .page-hero h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; color: white; margin-bottom: 12px; }
-    .page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+    .section-title { font-size: clamp(28px, 4vw, 42px); font-weight: 700; color: var(--dark); margin-bottom: 16px; }
+    .section-sub { font-size: 17px; color: var(--muted); max-width: 560px; line-height: 1.7; }
+    .section-header { margin-bottom: 48px; }
+    .section-header.center { text-align: center; }
+    .section-header.center .section-sub { margin: 0 auto; }
 
-    /* ===== MAIN ===== */
-    .main { max-width: 1000px; margin: 0 auto; padding: 56px 24px 80px; }
+    /* ===== ABOUT ===== */
+    .about { background: var(--white); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .about-images { position: relative; }
+    .about-img-main { width: 100%; height: 380px; object-fit: cover; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .about-img-secondary { position: absolute; bottom: -28px; right: -28px; width: 220px; height: 160px; object-fit: cover; border-radius: var(--radius); border: 4px solid var(--white); box-shadow: var(--shadow); }
+    .about-features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
+    .about-story-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; color: var(--teal-dark); font-weight: 600; font-size: 15px; border-bottom: 1.5px solid var(--teal); padding-bottom: 2px; transition: border-color 0.2s, color 0.2s; }
+    .about-story-link:hover { color: var(--teal); }
+    .feature-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--teal-light); }
+    .feature-card-icon { font-size: 24px; margin-bottom: 8px; }
+    .feature-card h4 { font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+    .feature-card p { font-size: 13px; color: var(--muted); }
 
-    /* ===== VERHAAL ===== */
-    .story-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); margin-bottom: 48px; }
-    .story-card p { font-size: 16px; color: var(--muted); line-height: 1.85; margin-bottom: 18px; }
-    .story-card p:last-child { margin-bottom: 0; }
-    .story-card strong { color: var(--dark); }
+    /* ===== PRICING ===== */
+    .pricing { background: var(--bg); }
+    .pricing-grid { display: grid; grid-template-columns: 1fr; gap: 24px; max-width: 600px; margin: 0 auto; }
+    .price-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 36px; transition: transform 0.2s, box-shadow 0.2s; }
+    .price-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+    .price-card.featured { background: var(--dark); border-color: var(--dark); color: white; position: relative; overflow: hidden; }
+    .price-card.featured::before { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent); animation: shimmer 4s infinite; pointer-events: none; }
+    @keyframes shimmer { 0% { left: -100%; } 100% { left: 200%; } }
+    .price-card-tag { display: inline-block; background: var(--teal-light); color: var(--teal-dark); padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 20px; }
+    .price-card.featured .price-card-tag { background: rgba(200,154,26,0.2); color: #E8C76A; }
+    .price-card h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .price-card.featured h3 { color: white; }
+    .price-list { list-style: none; margin: 20px 0 28px; }
+    .price-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
+    .price-card.featured .price-list li { border-bottom-color: rgba(255,255,255,0.1); }
+    .price-list li:last-child { border-bottom: none; }
+    .price-list .price-amount { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; color: var(--teal); }
+    .price-card .btn-primary { width: 100%; justify-content: center; }
+    .price-card.featured .btn-white { width: 100%; justify-content: center; }
+    .price-note { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+    .price-card.featured .price-note { color: rgba(255,255,255,0.5); }
 
-    /* ===== FOTOGRID (zoals De baan) ===== */
-    .photos-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 20px; }
-    .ontstaan-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
-    .ontstaan-photo { object-fit: cover; width: 100%; height: 100%; transition: transform 0.4s; cursor: pointer; }
-    .ontstaan-photo:hover { transform: scale(1.05); }
-    .ontstaan-photo-wrap { overflow: hidden; }
-    .ontstaan-photo-wrap.tall { grid-row: span 2; }
-    .ontstaan-photo-wrap.empty { background: var(--teal-light); display: flex; align-items: center; justify-content: center; color: var(--teal-dark); font-size: 13px; font-weight: 600; text-align: center; padding: 16px; }
+    /* ===== TRACK ===== */
+    .track { background: var(--white); }
+    .track-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
+    .track-photo { object-fit: cover; width: 100%; height: 100%; transition: transform 0.4s; cursor: pointer; }
+    .track-photo:hover { transform: scale(1.05); }
+    .track-photo-wrap { overflow: hidden; }
+    .track-photo-wrap.tall { grid-row: span 2; }
+    .track-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+
+    /* ===== FOTOSTROOK CAROUSEL ===== */
+    .photo-strip { width: 100%; height: 550px; overflow: hidden; }
+    .carousel { position: relative; width: 100%; height: 100%; }
+    .carousel-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; opacity: 0; transition: opacity 0.6s ease; }
+    .carousel-img.active { opacity: 1; }
+    .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; background: rgba(30,44,19,0.55); color: white; border: none; font-size: 26px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 2; }
+    .carousel-arrow:hover { background: rgba(30,44,19,0.8); }
+    .carousel-prev { left: 16px; }
+    .carousel-next { right: 16px; }
+    .carousel-dots { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 2; }
+    .carousel-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.5); border: none; cursor: pointer; padding: 0; transition: background 0.2s, transform 0.2s; }
+    .carousel-dot.active { background: white; transform: scale(1.2); }
 
     /* ===== LIGHTBOX ===== */
     .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; align-items: center; justify-content: center; }
@@ -105,6 +216,63 @@
     .lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
     .lightbox-close { position: absolute; top: 20px; right: 28px; color: white; font-size: 36px; cursor: pointer; line-height: 1; opacity: 0.7; transition: opacity 0.2s; background: none; border: none; padding: 4px; }
     .lightbox-close:hover { opacity: 1; }
+
+    /* ===== RULES ===== */
+    .rules { background: var(--dark); color: white; }
+    .rules .section-title { color: white; }
+    .rules .section-sub { color: rgba(255,255,255,0.6); }
+    .rules-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .rule-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius); padding: 24px; transition: background 0.2s, transform 0.2s; }
+    .rule-card:hover { background: rgba(255,255,255,0.09); transform: translateY(-3px); }
+    .rule-card-num { font-family: 'Poppins', sans-serif; font-size: 36px; font-weight: 800; color: rgba(200,154,26,0.4); line-height: 1; margin-bottom: 12px; }
+    .rule-card h4 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: white; }
+    .rule-card p { font-size: 14px; color: rgba(255,255,255,0.55); line-height: 1.6; }
+    .rules-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 40px; color: #E8C76A; font-weight: 600; font-size: 15px; border-bottom: 1.5px solid rgba(200,154,26,0.4); padding-bottom: 2px; transition: border-color 0.2s; }
+    .rules-link:hover { border-color: #E8C76A; }
+
+    /* ===== LOCATION ===== */
+    .location { background: var(--bg); }
+    .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+    .location-map { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); aspect-ratio: 4/3; background: #E5E3DF; display: flex; align-items: center; justify-content: center; position: relative; }
+    .location-map iframe { width: 100%; height: 100%; border: none; position: absolute; inset: 0; }
+    .opening-hours { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 24px; }
+    .opening-hours h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .hours-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
+    .hours-row:last-child { border-bottom: none; }
+    .hours-day { font-weight: 500; }
+    .hours-time { color: var(--muted); font-size: 14px; }
+    .hours-note { font-size: 13px; color: var(--muted); margin-top: 14px; padding: 12px; background: var(--teal-light); border-radius: 8px; line-height: 1.5; }
+    .address-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 20px 28px; display: flex; gap: 16px; align-items: flex-start; }
+    .address-card-icon { font-size: 24px; margin-top: 2px; }
+    .address-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .address-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ===== WEER WIDGET ===== */
+    .weather-card { background: var(--teal-light); border: 1.5px solid var(--teal-light); border-radius: var(--radius); padding: 20px 28px; margin-bottom: 24px; display: flex; align-items: center; gap: 20px; }
+    .weather-icon-big { font-size: 48px; line-height: 1; flex-shrink: 0; }
+    .weather-temp-big { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 36px; color: var(--teal-dark); line-height: 1; }
+    .weather-desc-text { font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .weather-details { display: flex; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+    .weather-detail { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+    .weather-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--teal-dark); margin-bottom: 6px; }
+
+/* ===== CONTACT ===== */
+    .contact { background: var(--white); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 64px; align-items: start; }
+    .contact-info p { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 32px; }
+    .contact-channels { display: flex; flex-direction: column; gap: 12px; }
+    .channel { display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; transition: border-color 0.2s, transform 0.2s; }
+    .channel:hover { border-color: var(--teal); transform: translateX(4px); }
+    .channel-icon { width: 44px; text-align: center; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .channel-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .channel-value { font-size: 15px; font-weight: 600; color: var(--text); }
+    .contact-form { display: flex; flex-direction: column; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 600; color: var(--text); }
+    .form-group input, .form-group textarea, .form-group select { padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--text); background: var(--bg); transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,122,119,0.12); }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-submit .btn-primary { width: 100%; justify-content: center; }
 
     /* ===== FOOTER ===== */
     .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 48px 24px 32px; }
@@ -127,17 +295,28 @@
     .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
     .back-to-top:hover { background: var(--teal-dark); }
 
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .about-grid, .pricing-grid, .location-grid, .contact-grid, .footer-top { grid-template-columns: 1fr; }
+      .info-bar-inner { grid-template-columns: 1fr; }
+      .info-item { border-right: none; border-bottom: 1px solid var(--border); padding: 20px 0 !important; }
+      .info-item:last-child { border-bottom: none; }
+      .rules-grid { grid-template-columns: 1fr; gap: 12px; }
+      .track-layout { grid-template-columns: 1fr; }
+      .about-img-secondary { display: none; }
+      .about-features { grid-template-columns: 1fr; }
+      .footer-top { gap: 32px; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+    }
     @media (max-width: 700px) {
       .nav-links { display: none; }
       .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: rgba(255,251,247,0.98); border-bottom: 1px solid var(--border); padding: 12px 24px 20px; gap: 4px; z-index: 99; }
       .nav-hamburger { display: flex; }
-      .footer-top { grid-template-columns: 1fr; gap: 32px; }
-      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
-      .ontstaan-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
-      .ontstaan-photo-wrap.tall { grid-row: span 1; }
-    }
-    @media (max-width: 600px) {
-      .story-card { padding: 24px 20px; }
+      .section { padding: 60px 20px; }
+      .hero-content { padding: 64px 20px; }
+      .track-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .track-photo-wrap.tall { grid-row: span 1; }
+      .photo-strip { height: 320px; }
     }
 
     /* ===== TOEGANKELIJKHEID: FOCUS STATES ===== */
@@ -154,11 +333,59 @@
     }
     .skip-link:focus { top: 16px; }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SportsClub",
+    "name": "RC045 - Bashers of the South",
+    "alternateName": "RC045",
+    "description": "Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.",
+    "url": "https://rc045.nl",
+    "logo": "https://rc045.nl/rc045-logo.png",
+    "image": "https://rc045.nl/rc045-logo.png",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Wijngaardsberg 26",
+      "postalCode": "6464 EZ",
+      "addressLocality": "Eygelshoven",
+      "addressRegion": "Limburg",
+      "addressCountry": "NL"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 50.889462,
+      "longitude": 6.071899
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Saturday",
+        "opens": "10:00",
+        "closes": "15:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Sunday",
+        "opens": "10:00",
+        "closes": "15:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Wednesday",
+        "opens": "18:00",
+        "closes": "22:00"
+      }
+    ],
+    "sameAs": [
+      "https://www.facebook.com/rc045/",
+      "https://www.instagram.com/rc045"
+    ],
+    "email": "secretaris@rc045.nl"
+  }
+  </script>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Naar hoofdinhoud</a>
-
-<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Terug naar boven">↑</button>
 
 <!-- ===== LIGHTBOX ===== -->
 <div class="lightbox" id="lightbox">
@@ -166,20 +393,30 @@
   <img src="" alt="" id="lightbox-img">
 </div>
 
+<!-- ===== TERUG NAAR BOVEN ===== -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Terug naar boven">↑</button>
+
+<!-- ===== NAVIGATION ===== -->
 <nav class="nav" id="main-nav">
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo">
+    <a href="#" class="nav-logo">
       <img src="rc045-logo.png" alt="RC045 logo">
       <div>
         <span class="nav-logo-text">RC045</span>
       </div>
     </a>
     <ul class="nav-links" id="nav-links">
-      <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
-      <li><a href="index.html#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
-      <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
-      <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
-      <li class="nav-cta"><a href="index.html#contact" data-i18n="nav.question">Contact</a></li>
+      <li class="nav-dropdown" id="over-ons-dropdown" data-section="over-ons">
+        <a href="#over-ons" class="nav-dropdown-trigger" data-i18n="nav.about">Over ons</a>
+        <ul class="nav-dropdown-menu">
+          <li><a href="#over-ons" data-i18n="nav.about">Over ons</a></li>
+          <li><a href="ontstaan.html" data-i18n="nav.story">Het ontstaan</a></li>
+        </ul>
+      </li>
+      <li data-section="lidmaatschap"><a href="#lid-worden" data-i18n="nav.membership">Lidmaatschap</a></li>
+      <li data-section="baan"><a href="#baan" data-i18n="nav.track">De baan</a></li>
+      <li data-section="locatie"><a href="#locatie" data-i18n="nav.location">Locatie</a></li>
+      <li class="nav-cta" data-section="contact"><a href="#contact" data-i18n="nav.question">Contact</a></li>
       <li class="nav-lid"><a href="aanmelden.html" data-i18n="nav.join">Lid worden</a></li>
     </ul>
     <div class="lang-flags">
@@ -193,35 +430,359 @@
   </div>
 </nav>
 
-<div class="page-hero">
-  <div class="page-hero-bg" id="hero-bg"></div>
-  <div class="page-hero-gradient"></div>
-  <div class="page-hero-content">
-    <div class="section-label" data-i18n="hero.label">Onze geschiedenis</div>
-    <h1 data-i18n="hero.title">Het ontstaan van RC045</h1>
-    <p data-i18n="hero.sub">Van een vakantie met vrienden tot een bloeiende vereniging, dit is ons verhaal.</p>
+<!-- ===== HERO ===== -->
+<section class="hero" id="main-content">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-gradient"></div>
+  <img src="rc045-logo.png" alt="" aria-hidden="true" style="position:absolute; right:-40px; top:50%; transform:translateY(-50%); height: 520px; width: auto; opacity: 0.13; pointer-events:none; filter: drop-shadow(0 0 40px rgba(200,154,26,0.2)); z-index:1;">
+  <div class="hero-content">
+    <img src="rc045-logo.png" alt="RC045" style="height: 140px; width: auto; margin-bottom: 24px; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));">
+    <div id="hero-badge" class="hero-badge"></div>
+    <h1>RC045<br><span>BASHERS OF THE SOUTH</span></h1>
+    <p data-i18n="hero.intro">Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners én ervaren hobbyisten. Jong én oud.</p>
+    <div class="hero-buttons">
+      <a href="aanmelden.html" class="btn btn-primary" data-i18n="hero.btn.member">🏎️ Lid worden!</a>
+      <a href="#over-ons" class="btn btn-outline" data-i18n="hero.btn.more">Meer over ons</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INFO BAR ===== -->
+<div class="info-bar">
+  <div class="info-bar-inner">
+    <div class="info-item">
+      <div class="info-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3A7A77" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div>
+        <div class="info-label" data-i18n="info.hours">Openingstijden</div>
+        <div class="info-value" data-i18n="info.sat">Zaterdag 10:00–15:00</div>
+        <div class="info-value" data-i18n="info.sun">Zondag 10:00–15:00</div>
+        <div id="status-indicator"></div>
+      </div>
+    </div>
+    <div class="info-item">
+      <div class="info-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3A7A77" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div>
+        <div class="info-label" data-i18n="info.location">Locatie</div>
+        <div class="info-value">
+          <a href="#locatie" class="info-location-link">Wijngaardsberg 26 <small>Kerkrade (Eygelshoven)</small></a>
+        </div>
+      </div>
+    </div>
+    <div class="info-item">
+      <div class="info-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3A7A77" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div>
+        <div class="info-label" data-i18n="info.membership">Lidmaatschap</div>
+        <div class="info-value" data-i18n="info.from">Vanaf €50/jaar <small>Jeugd t/m 15 jaar</small></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<main class="main" id="main-content">
-
-  <div class="story-card">
-    <p data-i18n="story.p1">In 2020 zijn wij met een groep vrienden op vakantie geweest waarbij ook enkele RC-auto's werden meegenomen. Het RC-virus werd hier al snel overgedragen en kort na deze vakantie had één ieder al snel één of meerdere RC-auto's aangeschaft.</p>
-    <p data-i18n="story.p2">Tijdens de zoektocht naar een locatie om te kunnen rijden kwamen wij al snel uit op het grasveld bij sportpark Strijthagen (naast het MTB parcours). Al snel bleek dat hier meer hobbyisten met hun RC-auto hun rondje kwamen rijden.</p>
-    <p data-i18n="story.p3">Dit resulteerde al snel tot een wekelijkse samenkomst (zondag) en de groep hobbyisten én toeschouwers groeide gestaag.</p>
-    <p data-i18n="story.p4">We kregen ook steeds meer aandacht van de media, o.a. RTV Parkstad, Omroep Landgraaf en L1 hebben ons één of meerdere keren bezocht en hebben eraan meegeholpen dat onze activiteiten steeds meer bekendheid kregen.</p>
-    <p data-i18n="story.p5">Door de steeds groter wordende belangstelling en omdat wij één en ander op een goede, gezellige en veilige manier wilden faciliteren hebben wij al snel onze vereniging RC045 opgericht.</p>
+<!-- ===== OVER ONS ===== -->
+<section class="section about" id="over-ons">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-images reveal">
+        <img src="images/crawlergroep.jpg" alt="RC045 leden hun crawlers op een rij" class="about-img-main">
+        <img src="https://rc045.nl/.cm4all/uproc.php/0/Terrein%20impressie/.Impressie_baan2.jpg" alt="RC045 baan overzicht" class="about-img-secondary">
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="section-label" data-i18n="about.label">Wie zijn wij</div>
+        <h2 class="section-title" data-i18n="about.title">Gezellig racen in het hart van Limburg</h2>
+        <p style="color: var(--muted); line-height: 1.8; margin-bottom: 24px;" data-i18n="about.p1">RC045 is een actieve vereniging voor iedereen die gek is op radiografisch bestuurbare auto's. We rijden met elektrische RC-auto's in alle schalen. Of je nu net begint of al jaren rijdt: bij ons ben je welkom.</p>
+        <p style="color: var(--muted); line-height: 1.8;" data-i18n="about.p2">We beschikken over een eigen baan in Eygelshoven, op het terrein van Kok Lexmond. Naast de basher baan hebben we ook een enorm crawler-parcours en een jump-track.</p>
+        <div class="about-features">
+          <div class="feature-card reveal reveal-delay-1">
+            <div class="feature-card-icon">⚡</div>
+            <h4 data-i18n="feat1.title">Alleen elektrisch</h4>
+            <p data-i18n="feat1.text">Nitro en benzine zijn niet toegestaan. Alle electrische auto's zijn welkom!</p>
+          </div>
+          <div class="feature-card reveal reveal-delay-2">
+            <div class="feature-card-icon">🏔️</div>
+            <h4 data-i18n="feat2.title">Crawler-baan</h4>
+            <p data-i18n="feat2.text">Speciaal terrein voor crawlers en uitdagende obstakels, we breiden ons parcours regelmatig uit</p>
+          </div>
+          <div class="feature-card reveal reveal-delay-3">
+            <div class="feature-card-icon">🚀</div>
+            <h4 data-i18n="feat3.title">Jump-track</h4>
+            <p data-i18n="feat3.text">Volle gas over de schansen! Voor wie van actie houdt</p>
+          </div>
+          <div class="feature-card reveal reveal-delay-4">
+            <div class="feature-card-icon">👨‍👩‍👧</div>
+            <h4 data-i18n="feat4.title">Voor iedereen</h4>
+            <p data-i18n="feat4.text">Vanaf 4 jaar is iedereen welkom!</p>
+          </div>
+        </div>
+        <a href="ontstaan.html" class="about-story-link reveal reveal-delay-4" data-i18n="about.storylink">Lees het ontstaansverhaal van RC045 →</a>
+      </div>
+    </div>
   </div>
+</section>
 
-  <div class="photos-title" data-i18n="photos.title">Foto's door de jaren heen</div>
-  <div class="ontstaan-grid">
-    <div class="ontstaan-photo-wrap tall empty" data-i18n="photo.placeholder">Foto volgt</div>
-    <div class="ontstaan-photo-wrap empty" data-i18n="photo.placeholder">Foto volgt</div>
-    <div class="ontstaan-photo-wrap empty" data-i18n="photo.placeholder">Foto volgt</div>
+<!-- ===== LIDMAATSCHAP & GASTRIJDEN ===== -->
+<section class="section pricing" id="lidmaatschap">
+  <div class="container">
+    <div class="section-header center reveal">
+      <div class="section-label" data-i18n="pricing.label">Meedoen</div>
+      <h2 class="section-title" data-i18n="pricing.title">Lid worden of een keer komen kijken?</h2>
+      <p class="section-sub" data-i18n="pricing.sub">Je kunt altijd eerst als gast komen rijden om te ervaren of het iets voor jou is. Daarna kun je eventueel lid worden en volop genieten van onze banen.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card reveal reveal-delay-1">
+        <div class="price-card-tag" data-i18n="guest.tag">Gastrijden</div>
+        <h3 data-i18n="guest.title">Kom eens gastrijden!</h3>
+        <p style="font-size: 14px; color: var(--muted); margin-top: 8px; line-height: 1.6;" data-i18n="guest.text">Rij een hele dag mee op onze baan zonder lidmaatschap. Check onze openingstijden en kom gewoon langs, meld je wel even bij een (bestuurs)lid als je er bent!</p>
+        <ul class="price-list">
+          <li><span data-i18n="guest.adult">Volwassene (16+)</span><span class="price-amount">€10</span></li>
+          <li><span data-i18n="guest.youth">Jeugd (t/m 15 jaar)</span><span class="price-amount">€5</span></li>
+          <li><span data-i18n="guest.group">Groepen krijgen korting!</span><span class="price-amount">%</span></li>
+        </ul>
+        <a href="#contact" class="btn btn-primary" data-i18n="guest.btn">Nog vragen neem dan contact op →</a>
+        <p class="price-note" data-i18n="guest.note">Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</p>
+      </div>
+      <span id="lid-worden" style="display:block; position:absolute; margin-top:-80px;"></span>
+      <div class="price-card featured reveal reveal-delay-2">
+        <div class="price-card-tag" data-i18n="member.tag">Lidmaatschap</div>
+        <h3 data-i18n="member.title">Word lid van RC045</h3>
+        <p style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 8px; line-height: 1.6;" data-i18n="member.text">Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.</p>
+        <ul class="price-list">
+          <li><span data-i18n="member.youth">Jeugdlid (t/m 15 jaar)</span><span class="price-amount">€50/jaar</span></li>
+          <li><span data-i18n="member.senior">Seniorlid (16+)</span><span class="price-amount">€100/jaar</span></li>
+          <li><span data-i18n="member.fee">Eenmalige inschrijfkosten</span><span class="price-amount">€10</span></li>
+        </ul>
+        <a href="aanmelden.html" class="btn btn-white" data-i18n="member.btn">Aanmelden via e-mail →</a>
+        <p class="price-note" data-i18n="member.note">Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.</p>
+      </div>
+    </div>
   </div>
+</section>
 
-</main>
+<!-- ===== DE BAAN ===== -->
+<section class="section track" id="baan">
+  <div class="container">
+    <div class="track-layout">
+      <div class="reveal">
+        <div class="section-label" data-i18n="track.label">Onze locatie</div>
+        <h2 class="section-title" data-i18n="track.title">De baan in Eygelshoven</h2>
+        <p style="color: var(--muted); line-height: 1.8; margin-bottom: 28px;" data-i18n="track.p1">Ons terrein bevindt zich op het perceel van Kok Lexmond in Kerkrade Eygelshoven. We beschikken over meerdere banen: een race-circuit, een crawler-parcours, en een jump-track voor de echte thrill-seekers.</p>
+        <p style="color: var(--muted); line-height: 1.8; margin-bottom: 28px;" data-i18n="track.p2">Volg bij aankomst de pijlen met het RC045-logo en je ziet ons vanzelf. Er is voldoende parkeergelegenheid.</p>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:12px;">
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span><span data-i18n="track.f1">Race-circuit voor buggy's, truggies en meer</span></li>
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span><span data-i18n="track.f2">Off-road crawler-parcours</span></li>
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span><span data-i18n="track.f3">Jump-track met schansen</span></li>
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span><span data-i18n="track.f4">Kantine & werkruimte aanwezig</span></li>
+          <li style="display:flex; align-items:center; gap:10px; font-size:15px;"><span style="color:var(--green); font-size:18px;">✓</span><span data-i18n="track.f5">Voldoende parkeerruimte</span></li>
+        </ul>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="track-grid">
+          <div class="track-photo-wrap tall">
+            <img src="images/crawlergroen.jpg" alt="RC045 crawler in actie op het parcours" class="track-photo lightbox-trigger">
+          </div>
+          <div class="track-photo-wrap">
+            <img src="images/crawlerblauw.jpg" alt="RC045 Ford crawler op het podium" class="track-photo lightbox-trigger">
+          </div>
+          <div class="track-photo-wrap">
+            <img src="images/crawlerobstakel.jpg" alt="RC045 Bronco crawler op het obstakelparcours" class="track-photo lightbox-trigger">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
+<!-- ===== FOTOSTROOK CAROUSEL ===== -->
+<section class="photo-strip reveal">
+  <div class="carousel" id="photo-carousel">
+    <img src="images/crawlerbrug.jpg" alt="RC045 Defender crawler op de touwbrug" class="carousel-img active">
+    <img src="images/crawlervlag.jpg" alt="RC045 crawler met vlag" class="carousel-img">
+    <img src="images/crawlerduo.jpg" alt="RC045 crawlers samen" class="carousel-img">
+    <img src="images/crawlervijver.jpg" alt="RC045 crawler bij de vijver" class="carousel-img">
+    <button class="carousel-arrow carousel-prev" aria-label="Vorige foto">‹</button>
+    <button class="carousel-arrow carousel-next" aria-label="Volgende foto">›</button>
+    <div class="carousel-dots">
+      <button class="carousel-dot active" data-index="0" aria-label="Foto 1"></button>
+      <button class="carousel-dot" data-index="1" aria-label="Foto 2"></button>
+      <button class="carousel-dot" data-index="2" aria-label="Foto 3"></button>
+      <button class="carousel-dot" data-index="3" aria-label="Foto 4"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BAANREGLEMENT ===== -->
+<section class="section rules">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label" data-i18n="rules.label">Reglement</div>
+      <h2 class="section-title" data-i18n="rules.title">Veiligheid staat voorop</h2>
+      <p class="section-sub" data-i18n="rules.sub">We hebben duidelijke regels zodat iedereen veilig en plezierig kan rijden. Hieronder de belangrijkste punten.</p>
+    </div>
+    <div class="rules-grid">
+      <div class="rule-card reveal reveal-delay-1"><div class="rule-card-num">01</div><h4 data-i18n="rule1.title">Alleen elektrisch</h4><p data-i18n="rule1.text">Nitro en benzine zijn niet toegestaan op ons terrein. Alleen elektrisch aangedreven voertuigen zijn welkom.</p></div>
+      <div class="rule-card reveal reveal-delay-2"><div class="rule-card-num">02</div><h4 data-i18n="rule2.title">Veiligheid baan</h4><p data-i18n="rule2.text">Alleen rijders mogen zich op het rijderspodium begeven. Kijken doe je achter het hek. De baanmeester (oranje hesje) bepaalt of er gereden mag worden.</p></div>
+      <div class="rule-card reveal reveal-delay-3"><div class="rule-card-num">03</div><h4 data-i18n="rule3.title">Gastrijders</h4><p data-i18n="rule3.text">Aanmelden bij een bestuurslid verplicht. Onder 16 jaar altijd begeleid door ouder/verzorger.</p></div>
+      <div class="rule-card reveal reveal-delay-1"><div class="rule-card-num">04</div><h4 data-i18n="rule4.title">Laden van accu's</h4><p data-i18n="rule4.text">Accu's laden we alleen buiten, bij de daarvoor bestemde laadplek te herkennen aan het laadpaal-bord. Defecte accu's mag je niet weggooien in onze emmers, neem ze mee naar huis en voer ze zelf af.</p></div>
+      <div class="rule-card reveal reveal-delay-2"><div class="rule-card-num">05</div><h4 data-i18n="rule5.title">Opgeruimd staat netjes</h4><p data-i18n="rule5.text">Ieder lid ruimt mee op. Afval scheiden we in de daarvoor aangewezen bakken. De kantine laten we schoon achter.</p></div>
+      <div class="rule-card reveal reveal-delay-3"><div class="rule-card-num">06</div><h4 data-i18n="rule6.title">Geen alcohol of drugs</h4><p data-i18n="rule6.text">Alcoholhoudende dranken en verdovende middelen zijn ten allen tijden verboden op het gehele terrein.</p></div>
+      <div class="rule-card reveal reveal-delay-1"><div class="rule-card-num">07</div><h4 data-i18n="rule7.title">Geen rijden op asfalt</h4><p data-i18n="rule7.text">Het is verboden om te rijden op het asfalt. Van de kantine naar het rijderspodium rijd je stapvoets.</p></div>
+    </div>
+    <a href="baanreglement.html" class="rules-link" data-i18n="rules.link">Volledig baanreglement lezen →</a>
+  </div>
+</section>
+
+<!-- ===== LOCATIE ===== -->
+<section class="section location" id="locatie">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label" data-i18n="loc.label">Bezoek ons</div>
+      <h2 class="section-title" data-i18n="loc.title">Hoe vind je ons?</h2>
+    </div>
+    <div class="location-grid">
+      <div class="location-map reveal">
+        <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=6.0694%2C50.8879%2C6.0744%2C50.8909&layer=mapnik&marker=50.889462%2C6.071899" allowfullscreen loading="lazy" title="RC045 locatie"></iframe>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="weather-card">
+          <div class="weather-icon-big" id="weather-icon">🌤️</div>
+          <div>
+            <div class="weather-label" data-i18n="info.weather">Weer in Eygelshoven</div>
+            <div class="weather-temp-big" id="weather-temp">—</div>
+            <div class="weather-desc-text" id="weather-desc">Laden...</div>
+            <div class="weather-details">
+              <div class="weather-detail">💨 <span id="weather-wind">—</span></div>
+              <div class="weather-detail">💧 <span id="weather-humid">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="opening-hours">
+          <h3 data-i18n="hours.title">🕐 Openingstijden</h3>
+          <div class="hours-row">
+            <span class="hours-day" data-i18n="hours.wed">Woensdag</span>
+            <span class="hours-time" data-i18n="hours.wed.time">Woensdagavond bij voldoende animo</span>
+          </div>
+          <div class="hours-row">
+            <span class="hours-day" data-i18n="hours.sat">Zaterdag</span>
+            <span class="hours-time">10:00 – 15:00</span>
+          </div>
+          <div class="hours-row">
+            <span class="hours-day" data-i18n="hours.sun">Zondag</span>
+            <span class="hours-time">10:00 – 15:00</span>
+          </div>
+<div class="hours-note">
+            ℹ️ <strong data-i18n="hours.note.attention">Let op:</strong> <span data-i18n="hours.note.text">We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze</span> <a href="https://www.facebook.com/rc045/" target="_blank" class="info-location-link" style="color:var(--teal-dark);" data-i18n="hours.note.fb">Facebook-pagina</a> <span data-i18n="hours.note.times">voor actuele openingstijden.</span>
+            <br><br><strong data-i18n="hours.weather">❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.</strong>
+          </div>
+        </div>
+        <div class="address-card">
+          <div class="address-card-icon">📍</div>
+          <div>
+            <h4 data-i18n="addr.title">Adres</h4>
+            <p>Wijngaardsberg 26<br>6464 EZ Eygelshoven<br><br><span data-i18n="addr.text">Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.</span></p>
+            <a href="https://www.openstreetmap.org/search?lat=50.889462&lon=6.071899&zoom=19#map=19/50.889461/6.071900" target="_blank" style="display:inline-block; margin-top:12px; color:var(--teal); font-weight:600; font-size:14px;" data-i18n="addr.route">Routebeschrijving openen →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section class="section contact" id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <div class="section-label" data-i18n="contact.label">Contact</div>
+        <h2 class="section-title" data-i18n="contact.title">Heb je een vraag?</h2>
+        <p data-i18n="contact.text">Wil je meer weten over een lidmaatschap, gastrijden, eens komen kijken, of heb je gewoon een vraag? Stuur ons een bericht en we reageren zo snel mogelijk.</p>
+        <div class="contact-channels">
+          <a href="mailto:secretaris@rc045.nl" class="channel">
+            <div class="channel-icon">✉️</div>
+            <div>
+              <div class="channel-label" data-i18n="contact.email.label">E-mail</div>
+              <div class="channel-value">secretaris@rc045.nl</div>
+            </div>
+          </a>
+          <a href="https://www.facebook.com/rc045/" target="_blank" class="channel">
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true"></div>
+            <div>
+              <div class="channel-label">Facebook</div>
+              <div class="channel-value">facebook.com/rc045</div>
+            </div>
+          </a>
+          <a href="https://www.instagram.com/rc045" target="_blank" class="channel">
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true"></div>
+            <div>
+              <div class="channel-label">Instagram</div>
+              <div class="channel-value">instagram.com/rc045</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <form class="contact-form reveal reveal-delay-2" action="https://formspree.io/f/xbdevlzw" method="POST" id="contact-form">
+        <div class="form-group">
+          <label for="naam" data-i18n="form.name">Naam *</label>
+          <input type="text" id="naam" name="naam" required>
+        </div>
+        <div class="form-group">
+          <label for="email" data-i18n="form.email">E-mailadres</label>
+          <input type="email" id="email" name="email">
+        </div>
+        <div id="email-warning" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
+          ⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl)
+        </div>
+        <div class="form-group">
+          <label for="telefoon" data-i18n="form.phone">Telefoonnummer</label>
+          <div style="display:flex; gap:8px;">
+            <select id="landcode" style="width:110px; flex-shrink:0;">
+              <option value="+31">🇳🇱 +31</option>
+              <option value="+49">🇩🇪 +49</option>
+              <option value="+32">🇧🇪 +32</option>
+            </select>
+            <input type="tel" id="telefoon" style="flex:1;"><input type="hidden" id="telefoon-combined" name="telefoon">
+          </div>
+        </div>
+        <div id="phone-warning" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
+          ⚠️ Vul een geldig telefoonnummer in (minimaal 9 cijfers)
+        </div>
+        <div id="contact-warning" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
+          ⚠️ We hebben een e-mailadres of telefoonnummer van je nodig om contact op te nemen.
+        </div>
+        <div class="form-group">
+          <label for="onderwerp" data-i18n="form.subject">Onderwerp</label>
+          <select id="onderwerp" name="onderwerp">
+            <option value="" data-i18n="form.select">Selecteer een onderwerp...</option>
+            <option data-i18n="form.opt1">Lidmaatschap aanvragen</option>
+            <option data-i18n="form.opt2">Gastrijden aanmelden</option>
+            <option data-i18n="form.opt3">Algemene vraag</option>
+            <option data-i18n="form.opt4">Sponsoring</option>
+            <option data-i18n="form.opt5">Overig</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="bericht" data-i18n="form.message">Bericht *</label>
+          <textarea id="bericht" name="bericht" data-i18n-placeholder="form.message.ph" placeholder="Schrijf hier je vraag of bericht..." required></textarea>
+        </div>
+        <div id="form-success" style="display:none; padding:16px; background:var(--teal-light); border-radius:8px; color:var(--teal-dark); font-weight:600; text-align:center;">
+          ✅ Bericht verzonden! We nemen zo snel mogelijk contact op.
+        </div>
+        <div id="form-error" style="display:none; padding:16px; background:#FEE2E2; border-radius:8px; color:#DC2626; font-weight:600; text-align:center;">
+          ❌ Er ging iets mis. Probeer het opnieuw of mail naar secretaris@rc045.nl
+        </div>
+        <div class="form-submit">
+          <button type="submit" class="btn btn-primary" id="form-btn" data-i18n="form.send">Verstuur bericht →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-top">
@@ -240,7 +801,7 @@
       <div class="footer-col">
         <h4 data-i18n="footer.nav">Navigatie</h4>
         <ul>
-          <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
+          <li><a href="#over-ons" data-i18n="nav.about">Over ons</a></li>
           <li><a href="ontstaan.html" data-i18n="footer.origin">Het ontstaan</a></li>
           <li><a href="https://rc045.nl/Over-ons/Bestuur-en-organisatie/" data-i18n="footer.board">Bestuur & organisatie</a></li>
           <li><a href="https://rc045.nl/Over-ons/Media/">Media</a></li>
@@ -252,10 +813,10 @@
         <h4 data-i18n="footer.join">Meedoen</h4>
         <ul>
           <li><a href="aanmelden.html" data-i18n="footer.become">Lid worden</a></li>
-          <li><a href="index.html#lidmaatschap" data-i18n="guest.tag">Gastrijden</a></li>
+          <li><a href="#lidmaatschap" data-i18n="guest.tag">Gastrijden</a></li>
           <li><a href="baanreglement.html" data-i18n="footer.rules">Baanreglement</a></li>
           <li><a href="https://rc045.nl/Sponsoring/" data-i18n="footer.sponsor">Sponsoring</a></li>
-          <li><a href="index.html#contact">Contact</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
       </div>
     </div>
@@ -270,58 +831,196 @@
   const i18n = {
     nl: {
       'nav.about': 'Over ons', 'nav.membership': 'Lidmaatschap', 'nav.track': 'De baan',
-      'nav.location': 'Locatie', 'nav.question': 'Contact', 'nav.story': 'Het ontstaan', 'nav.join': 'Lid worden',
+      'nav.location': 'Locatie', 'nav.question': 'Contact', 'nav.join': 'Lid worden', 'nav.story': 'Het ontstaan',
+      'hero.intro': 'Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners én ervaren hobbyisten. Jong én oud.',
+      'hero.btn.member': '🏎️ Lid worden!', 'hero.btn.more': 'Meer over ons',
+      'info.hours': 'Openingstijden', 'info.sat': 'Zaterdag 10:00–15:00', 'info.sun': 'Zondag 10:00–15:00',
+      'info.location': 'Locatie', 'info.membership': 'Lidmaatschap', 'info.from': 'Vanaf €50/jaar', 'info.weather': 'Weer in Eygelshoven',
+      'about.label': 'Wie zijn wij', 'about.title': 'Gezellig racen in het hart van Limburg',
+      'about.p1': 'RC045 is een actieve vereniging voor iedereen die gek is op radiografisch bestuurbare auto\'s. We rijden met elektrische RC-auto\'s in alle schalen. Of je nu net begint of al jaren rijdt: bij ons ben je welkom.',
+      'about.p2': 'We beschikken over een eigen baan in Eygelshoven, op het terrein van Kok Lexmond. Naast de basher baan hebben we ook een enorm crawler-parcours en een jump-track.',
+      'feat1.title': 'Alleen elektrisch', 'feat1.text': 'Nitro en benzine zijn niet toegestaan. Alle electrische auto\'s zijn welkom!',
+      'feat2.title': 'Crawler-baan', 'feat2.text': 'Speciaal terrein voor crawlers en uitdagende obstakels, we breiden ons parcours regelmatig uit',
+      'feat3.title': 'Jump-track', 'feat3.text': 'Volle gas over de schansen! Voor wie van actie houdt',
+      'feat4.title': 'Voor iedereen', 'feat4.text': 'Vanaf 4 jaar is iedereen welkom!',
+      'about.storylink': 'Lees het ontstaansverhaal van RC045 →',
+      'pricing.label': 'Meedoen', 'pricing.title': 'Lid worden of een keer komen kijken?',
+      'pricing.sub': 'Je kunt altijd eerst als gast komen rijden om te ervaren of het iets voor jou is. Daarna kun je eventueel lid worden en volop genieten van onze banen.',
+      'guest.tag': 'Gastrijden', 'guest.title': 'Kom eens gastrijden!',
+      'guest.text': 'Rij een hele dag mee op onze baan zonder lidmaatschap. Check onze openingstijden en kom gewoon langs, meld je wel even bij een (bestuurs)lid als je er bent!',
+      'guest.adult': 'Volwassene (16+)', 'guest.youth': 'Jeugd (t/m 15 jaar)', 'guest.group': 'Groepen krijgen korting!',
+      'guest.btn': 'Nog vragen neem dan contact op →',
+      'guest.note': 'Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.',
+      'member.tag': 'Lidmaatschap', 'member.title': 'Word lid van RC045',
+      'member.text': 'Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.',
+      'member.youth': 'Jeugdlid (t/m 15 jaar)', 'member.senior': 'Seniorlid (16+)', 'member.fee': 'Eenmalige inschrijfkosten',
+      'member.btn': 'Nu aanmelden →',
+      'member.note': 'Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.',
+      'track.label': 'Onze locatie', 'track.title': 'De baan in Eygelshoven',
+      'track.p1': 'Ons terrein bevindt zich op het perceel van Kok Lexmond in Kerkrade Eygelshoven. We beschikken over meerdere banen: een race-circuit, een crawler-parcours, en een jump-track voor de echte thrill-seekers.',
+      'track.p2': 'Volg bij aankomst de pijlen met het RC045-logo en je ziet ons vanzelf. Er is voldoende parkeergelegenheid.',
+      'track.f1': 'Race-circuit voor buggy\'s, truggies en meer', 'track.f2': 'Off-road crawler-parcours',
+      'track.f3': 'Jump-track met schansen', 'track.f4': 'Kantine & werkruimte aanwezig', 'track.f5': 'Voldoende parkeerruimte',
+      'rules.label': 'Reglement', 'rules.title': 'Veiligheid staat voorop',
+      'rules.sub': 'We hebben duidelijke regels zodat iedereen veilig en plezierig kan rijden. Hieronder de belangrijkste punten.',
+      'rule1.title': 'Alleen elektrisch', 'rule1.text': 'Nitro en benzine zijn niet toegestaan op ons terrein. Alleen elektrisch aangedreven voertuigen zijn welkom.',
+      'rule2.title': 'Veiligheid baan', 'rule2.text': 'Alleen rijders mogen zich op het rijderspodium begeven. Kijken doe je achter het hek. De baanmeester (oranje hesje) bepaalt of er gereden mag worden.',
+      'rule3.title': 'Gastrijders', 'rule3.text': 'Aanmelden bij een bestuurslid verplicht. Onder 16 jaar altijd begeleid door ouder/verzorger.',
+      'rule4.title': 'Laden van accu\'s', 'rule4.text': 'Accu\'s laden we alleen buiten, bij de daarvoor bestemde laadplek te herkennen aan het laadpaal-bord. Defecte accu\'s mag je niet weggooien in onze emmers, neem ze mee naar huis en voer ze zelf af.',
+      'rule5.title': 'Opgeruimd staat netjes', 'rule5.text': 'Ieder lid ruimt mee op. Afval scheiden we in de daarvoor aangewezen bakken. De kantine laten we schoon achter.',
+      'rule6.title': 'Geen alcohol of drugs', 'rule6.text': 'Alcoholhoudende dranken en verdovende middelen zijn ten allen tijden verboden op het gehele terrein.',
+      'rule7.title': 'Geen rijden op asfalt', 'rule7.text': 'Het is verboden om te rijden op het asfalt. Van de kantine naar het rijderspodium rijd je stapvoets.', 'rules.link': 'Volledig baanreglement lezen →',
+      'loc.label': 'Bezoek ons', 'loc.title': 'Hoe vind je ons?',
+      'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.wed.time': 'Woensdagavond bij voldoende animo',
+      'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
+      'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze',
+      'hours.note.fb': 'Facebook-pagina', 'hours.note.times': 'voor actuele openingstijden.',
+      'hours.weather': '❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
+      'addr.title': 'Adres', 'addr.text': 'Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.',
+      'addr.route': 'Routebeschrijving openen →',
+      'contact.label': 'Contact', 'contact.title': 'Heb je een vraag?',
+      'contact.text': 'Wil je meer weten over een lidmaatschap, gastrijden, eens komen kijken, of heb je gewoon een vraag? Stuur ons een bericht en we reageren zo snel mogelijk.',
+      'contact.email.label': 'E-mail',
+      'form.name': 'Naam *', 'form.email': 'E-mailadres', 'form.phone': 'Telefoonnummer', 'form.subject': 'Onderwerp',
+      'form.select': 'Selecteer een onderwerp...', 'form.opt1': 'Lidmaatschap aanvragen',
+      'form.opt2': 'Gastrijden aanmelden', 'form.opt3': 'Algemene vraag', 'form.opt4': 'Sponsoring', 'form.opt5': 'Overig',
+      'form.message': 'Bericht *', 'form.message.ph': 'Schrijf hier je vraag of bericht...', 'form.send': 'Verstuur bericht →',
       'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
       'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.board': 'Bestuur & organisatie',
       'footer.photos': 'Foto\'s', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
       'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
-      'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'guest.tag': 'Gastrijden',
-      'hero.label': 'Onze geschiedenis', 'hero.title': 'Het ontstaan van RC045',
-      'hero.sub': 'Van een vakantie met vrienden tot een bloeiende vereniging, dit is ons verhaal.',
-      'story.p1': 'In 2020 zijn wij met een groep vrienden op vakantie geweest waarbij ook enkele RC-auto\'s werden meegenomen. Het RC-virus werd hier al snel overgedragen en kort na deze vakantie had één ieder al snel één of meerdere RC-auto\'s aangeschaft.',
-      'story.p2': 'Tijdens de zoektocht naar een locatie om te kunnen rijden kwamen wij al snel uit op het grasveld bij sportpark Strijthagen (naast het MTB parcours). Al snel bleek dat hier meer hobbyisten met hun RC-auto hun rondje kwamen rijden.',
-      'story.p3': 'Dit resulteerde al snel tot een wekelijkse samenkomst (zondag) en de groep hobbyisten én toeschouwers groeide gestaag.',
-      'story.p4': 'We kregen ook steeds meer aandacht van de media, o.a. RTV Parkstad, Omroep Landgraaf en L1 hebben ons één of meerdere keren bezocht en hebben eraan meegeholpen dat onze activiteiten steeds meer bekendheid kregen.',
-      'story.p5': 'Door de steeds groter wordende belangstelling en omdat wij één en ander op een goede, gezellige en veilige manier wilden faciliteren hebben wij al snel onze vereniging RC045 opgericht.',
-      'photos.title': 'Foto\'s door de jaren heen', 'photo.placeholder': 'Foto volgt'
+      'footer.made': 'Gemaakt met ❤️ voor onze hobby',
+      'status.open': 'Nu open', 'status.closed': 'Nu gesloten', 'badge.open': '🏁 Nu open!', 'badge.closed': '🏁 Vandaag gesloten'
     },
     en: {
       'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
-      'nav.location': 'Location', 'nav.question': 'Contact', 'nav.story': 'Our history', 'nav.join': 'Become a member',
+      'nav.location': 'Location', 'nav.question': 'Contact', 'nav.join': 'Become a member', 'nav.story': 'Our history',
+      'hero.intro': 'We are a friendly club from the south of Limburg for enthusiasts of electrically powered, radio-controlled cars. For beginners and experienced hobbyists alike. Young and old.',
+      'hero.btn.member': '🏎️ Become a member!', 'hero.btn.more': 'More about us',
+      'info.hours': 'Opening hours', 'info.sat': 'Saturday 10:00–15:00', 'info.sun': 'Sunday 10:00–15:00',
+      'info.location': 'Location', 'info.membership': 'Membership', 'info.from': 'From €50/year', 'info.weather': 'Weather in Eygelshoven',
+      'about.label': 'Who we are', 'about.title': 'Fun racing in the heart of Limburg',
+      'about.p1': 'RC045 is an active club for anyone passionate about radio-controlled cars. We drive electric RC cars in all scales. Whether you\'re just starting out or have been racing for years: you\'re welcome here.',
+      'about.p2': 'We have our own track in Eygelshoven, on the grounds of Kok Lexmond. Besides the basher track, we also have a huge crawler course and a jump track.',
+      'feat1.title': 'Electric only', 'feat1.text': 'Nitro and petrol are not allowed. All electric cars are welcome!',
+      'feat2.title': 'Crawler track', 'feat2.text': 'Dedicated terrain for crawlers and challenging obstacles, we regularly expand the course.',
+      'feat3.title': 'Jump track', 'feat3.text': 'Full throttle over the ramps! For those who love action.',
+      'feat4.title': 'For everyone', 'feat4.text': 'From age 4, everyone is welcome!',
+      'about.storylink': 'Read the story of how RC045 started →',
+      'pricing.label': 'Join us', 'pricing.title': 'Become a member or come and have a look?',
+      'pricing.sub': 'You can always come as a guest first to see if it suits you. After that, you can become a member and enjoy our tracks to the fullest.',
+      'guest.tag': 'Guest riding', 'guest.title': 'Come for a guest ride!',
+      'guest.text': 'Ride all day on our track without a membership. Check our opening hours and just show up, and check in with a club member when you arrive!',
+      'guest.adult': 'Adult (16+)', 'guest.youth': 'Youth (up to 15)', 'guest.group': 'Groups get a discount!',
+      'guest.btn': 'Any questions? Contact us →',
+      'guest.note': 'Supervision by a parent or guardian required for under 16. Not available during private or members-only events.',
+      'member.tag': 'Membership', 'member.title': 'Become a member of RC045',
+      'member.text': 'Unlimited riding on all tracks, access to the group app, sharing knowledge with fellow hobbyists, and always someone to help you out.',
+      'member.youth': 'Youth member (up to 15)', 'member.senior': 'Senior member (16+)', 'member.fee': 'One-time registration fee',
+      'member.btn': 'Register now →',
+      'member.note': 'Pro-rata membership: you only pay for the remaining months of the year.',
+      'track.label': 'Our location', 'track.title': 'The track in Eygelshoven',
+      'track.p1': 'Our grounds are located on the Kok Lexmond site in Kerkrade Eygelshoven. We have multiple tracks: a race circuit, a crawler course, and a jump track for the real thrill-seekers.',
+      'track.p2': 'Follow the RC045 arrows on arrival and you\'ll find us easily. There is plenty of parking.',
+      'track.f1': 'Race circuit for buggies, truggies and more', 'track.f2': 'Off-road crawler course',
+      'track.f3': 'Jump track with ramps', 'track.f4': 'Canteen & workshop available', 'track.f5': 'Ample parking',
+      'rules.label': 'Rules', 'rules.title': 'Safety comes first',
+      'rules.sub': 'We have clear rules so everyone can ride safely and enjoyably. Here are the most important points.',
+      'rule1.title': 'Electric only', 'rule1.text': 'Nitro and petrol are not permitted on our grounds. Only electrically powered vehicles are welcome.',
+      'rule2.title': 'Track safety', 'rule2.text': 'Only riders are allowed on the driver\'s platform. Spectators watch from behind the fence. The track marshal (orange vest) decides whether riding is permitted.',
+      'rule3.title': 'Guest riders', 'rule3.text': 'Check-in with a board member is mandatory. Under 16 must always be accompanied by a parent or guardian.',
+      'rule4.title': 'Charging batteries', 'rule4.text': 'Batteries are only charged outside, at the designated charging area marked with the charging point sign. Do not throw defective batteries in our bins, take them home and dispose of them yourself.',
+      'rule5.title': 'Tidy up after yourself', 'rule5.text': 'Every member helps clean up. We separate waste in the designated bins. We leave the canteen as we found it.',
+      'rule6.title': 'No alcohol or drugs', 'rule6.text': 'Alcoholic beverages and narcotics are strictly prohibited at all times on the entire premises.',
+      'rule7.title': 'No riding on asphalt', 'rule7.text': 'It is forbidden to ride on the asphalt. From the canteen to the driver\'s platform, you ride at walking pace.', 'rules.link': 'Read the full track regulations →',
+      'loc.label': 'Visit us', 'loc.title': 'How to find us?',
+      'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.wed.time': 'Wednesday evenings when there\'s enough interest',
+      'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
+      'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance. Check our',
+      'hours.note.fb': 'Facebook page', 'hours.note.times': 'for current opening hours.',
+      'hours.weather': '❗ In bad weather we may decide to close early or not open at all.',
+      'addr.title': 'Address', 'addr.text': 'Our track is on the Kok Lexmond site, follow the RC045 arrows on arrival.',
+      'addr.route': 'Open directions →',
+      'contact.label': 'Contact', 'contact.title': 'Got a question?',
+      'contact.text': 'Want to know more about membership, guest riding, or just have a question? Send us a message and we\'ll get back to you as soon as possible.',
+      'contact.email.label': 'Email',
+      'form.name': 'Name *', 'form.email': 'Email address', 'form.phone': 'Phone number', 'form.subject': 'Subject',
+      'form.select': 'Select a subject...', 'form.opt1': 'Request membership',
+      'form.opt2': 'Register as guest rider', 'form.opt3': 'General question', 'form.opt4': 'Sponsorship', 'form.opt5': 'Other',
+      'form.message': 'Message *', 'form.message.ph': 'Write your question or message here...', 'form.send': 'Send message →',
       'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
       'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.board': 'Board & organisation',
       'footer.photos': 'Photos', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
       'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
-      'footer.made': 'Made with ❤️ for our hobby', 'guest.tag': 'Guest riding',
-      'hero.label': 'Our history', 'hero.title': 'The origin of RC045',
-      'hero.sub': 'From a holiday with friends to a thriving club, this is our story.',
-      'story.p1': 'In 2020 we went on holiday with a group of friends, bringing along a few RC cars. The RC virus spread quickly, and shortly after this holiday everyone had already bought one or more RC cars of their own.',
-      'story.p2': 'While searching for a location to drive, we soon found the grass field at Sportpark Strijthagen (next to the MTB course). It quickly became clear that other hobbyists were already coming there with their RC cars too.',
-      'story.p3': 'This soon led to a weekly gathering (on Sundays), and the group of hobbyists and spectators kept growing steadily.',
-      'story.p4': 'We also received more and more media attention. RTV Parkstad, Omroep Landgraaf, and L1 visited us on several occasions and helped our activities become increasingly well known.',
-      'story.p5': 'Because of the growing interest, and because we wanted to facilitate everything in a proper, friendly, and safe way, we soon founded our club RC045.',
-      'photos.title': 'Photos through the years', 'photo.placeholder': 'Photo coming soon'
+      'footer.made': 'Made with ❤️ for our hobby',
+      'status.open': 'Now open', 'status.closed': 'Now closed', 'badge.open': '🏁 Now open!', 'badge.closed': '🏁 Closed today'
     },
     de: {
       'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
-      'nav.location': 'Standort', 'nav.question': 'Contact', 'nav.story': 'Unsere Geschichte', 'nav.join': 'Mitglied werden',
+      'nav.location': 'Standort', 'nav.question': 'Contact', 'nav.join': 'Mitglied werden', 'nav.story': 'Unsere Geschichte',
+      'hero.intro': 'Wir sind ein freundlicher Verein aus dem Süden von Limburg für Liebhaber von elektrisch angetriebenen, ferngesteuerten Autos. Für Anfänger und erfahrene Hobbyisten. Jung und Alt.',
+      'hero.btn.member': '🏎️ Mitglied werden!', 'hero.btn.more': 'Mehr über uns',
+      'info.hours': 'Öffnungszeiten', 'info.sat': 'Samstag 10:00–15:00', 'info.sun': 'Sonntag 10:00–15:00',
+      'info.location': 'Standort', 'info.membership': 'Mitgliedschaft', 'info.from': 'Ab €50/Jahr', 'info.weather': 'Wetter in Eygelshoven',
+      'about.label': 'Wer wir sind', 'about.title': 'Spaßiges Fahren im Herzen von Limburg',
+      'about.p1': 'RC045 ist ein aktiver Verein für alle, die ferngesteuerte Autos lieben. Wir fahren elektrische RC-Autos in allen Maßstäben. Ob Anfänger oder Erfahrener, bei uns bist du willkommen.',
+      'about.p2': 'Wir haben eine eigene Strecke in Eygelshoven auf dem Gelände von Kok Lexmond. Neben der Basher-Strecke gibt es auch einen riesigen Crawler-Parcours und eine Sprungstrecke.',
+      'feat1.title': 'Nur elektrisch', 'feat1.text': 'Nitro und Benzin sind nicht erlaubt. Alle elektrischen Autos sind willkommen!',
+      'feat2.title': 'Crawler-Strecke', 'feat2.text': 'Spezielles Gelände für Crawler und anspruchsvolle Hindernisse, wir erweitern den Parcours regelmäßig.',
+      'feat3.title': 'Sprungstrecke', 'feat3.text': 'Vollgas über die Rampen! Für alle, die Action lieben.',
+      'feat4.title': 'Für alle', 'feat4.text': 'Ab 4 Jahren ist jeder willkommen!',
+      'about.storylink': 'Lies die Entstehungsgeschichte von RC045 →',
+      'pricing.label': 'Mitmachen', 'pricing.title': 'Mitglied werden oder einfach vorbeischauen?',
+      'pricing.sub': 'Du kannst zunächst als Gast fahren, um zu sehen, ob es dir gefällt. Danach kannst du Mitglied werden und unsere Strecken in vollen Zügen genießen.',
+      'guest.tag': 'Gastfahren', 'guest.title': 'Komm mal als Gast fahren!',
+      'guest.text': 'Fahre einen ganzen Tag auf unserer Strecke ohne Mitgliedschaft. Schau einfach vorbei, melde dich beim Ankommen kurz bei einem Vereinsmitglied!',
+      'guest.adult': 'Erwachsener (16+)', 'guest.youth': 'Jugend (bis 15 Jahre)', 'guest.group': 'Gruppen bekommen Rabatt!',
+      'guest.btn': 'Noch Fragen? Kontakt aufnehmen →',
+      'guest.note': 'Begleitung durch Elternteil oder Erziehungsberechtigte für unter 16 Jahre erforderlich. Nicht möglich bei geschlossenen Veranstaltungen.',
+      'member.tag': 'Mitgliedschaft', 'member.title': 'Werde Mitglied bei RC045',
+      'member.text': 'Unbegrenztes Fahren auf allen Strecken, Zugang zur Gruppen-App, Wissensaustausch mit Gleichgesinnten und immer jemand zum Helfen.',
+      'member.youth': 'Jugendmitglied (bis 15 Jahre)', 'member.senior': 'Seniorenmitglied (16+)', 'member.fee': 'Einmalige Anmeldegebühr',
+      'member.btn': 'Jetzt anmelden →',
+      'member.note': 'Anteilige Mitgliedschaft: Du zahlst nur für die verbleibenden Monate des Jahres.',
+      'track.label': 'Unser Standort', 'track.title': 'Die Strecke in Eygelshoven',
+      'track.p1': 'Unser Gelände befindet sich auf dem Kok Lexmond Grundstück in Kerkrade Eygelshoven. Wir haben mehrere Strecken: einen Rennkurs, einen Crawler-Parcours und eine Sprungstrecke für echte Adrenalin-Junkies.',
+      'track.p2': 'Folge beim Ankommen den RC045-Schildern und du findest uns sofort. Es gibt ausreichend Parkplätze.',
+      'track.f1': 'Rennstrecke für Buggys, Truggies und mehr', 'track.f2': 'Offroad-Crawler-Parcours',
+      'track.f3': 'Sprungstrecke mit Rampen', 'track.f4': 'Kantine & Werkraum vorhanden', 'track.f5': 'Ausreichend Parkplätze',
+      'rules.label': 'Reglement', 'rules.title': 'Sicherheit geht vor',
+      'rules.sub': 'Wir haben klare Regeln, damit alle sicher und angenehm fahren können. Hier sind die wichtigsten Punkte.',
+      'rule1.title': 'Nur elektrisch', 'rule1.text': 'Nitro und Benzin sind auf unserem Gelände nicht erlaubt. Nur elektrisch angetriebene Fahrzeuge sind willkommen.',
+      'rule2.title': 'Streckensicherheit', 'rule2.text': 'Nur Fahrer dürfen das Fahrerpodium betreten. Zuschauer bleiben hinter dem Zaun. Der Streckenmarschall (orangene Weste) entscheidet, ob gefahren werden darf.',
+      'rule3.title': 'Gastfahrer', 'rule3.text': 'Anmeldung bei einem Vorstandsmitglied erforderlich. Unter 16 Jahren immer mit Elternteil oder Erziehungsberechtigtem.',
+      'rule4.title': 'Akkus laden', 'rule4.text': 'Akkus werden nur draußen geladen, an dem dafür vorgesehenen Ladeplatz, erkennbar am Ladesäulen-Schild. Defekte Akkus nicht in unsere Eimer werfen, nimm sie mit nach Hause und entsorge sie selbst.',
+      'rule5.title': 'Aufgeräumt ist besser', 'rule5.text': 'Jedes Mitglied räumt mit auf. Müll trennen wir in die vorgesehenen Behälter. Wir hinterlassen die Kantine sauber.',
+      'rule6.title': 'Kein Alkohol oder Drogen', 'rule6.text': 'Alkoholische Getränke und Betäubungsmittel sind zu jeder Zeit auf dem gesamten Gelände verboten.',
+      'rule7.title': 'Kein Fahren auf Asphalt', 'rule7.text': 'Es ist verboten, auf dem Asphalt zu fahren. Von der Kantine zum Fahrerpodium fährst du Schrittgeschwindigkeit.', 'rules.link': 'Vollständiges Streckenreglement lesen →',
+      'loc.label': 'Besuche uns', 'loc.title': 'Wie findest du uns?',
+      'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.wed.time': 'Mittwochabend bei ausreichend Interesse',
+      'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
+      'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen. Schau auf unsere',
+      'hours.note.fb': 'Facebook-Seite', 'hours.note.times': 'für aktuelle Öffnungszeiten.',
+      'hours.weather': '❗ Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
+      'addr.title': 'Adresse', 'addr.text': 'Unsere Strecke liegt auf dem Gelände von Kok Lexmond, folge beim Ankommen den RC045-Schildern.',
+      'addr.route': 'Route öffnen →',
+      'contact.label': 'Kontakt', 'contact.title': 'Hast du eine Frage?',
+      'contact.text': 'Möchtest du mehr über die Mitgliedschaft, Gastfahren oder hast du einfach eine Frage? Schick uns eine Nachricht und wir antworten so schnell wie möglich.',
+      'contact.email.label': 'E-Mail',
+      'form.name': 'Name *', 'form.email': 'E-Mail-Adresse', 'form.phone': 'Telefonnummer', 'form.subject': 'Betreff',
+      'form.select': 'Betreff auswählen...', 'form.opt1': 'Mitgliedschaft beantragen',
+      'form.opt2': 'Als Gastfahrer anmelden', 'form.opt3': 'Allgemeine Frage', 'form.opt4': 'Sponsoring', 'form.opt5': 'Sonstiges',
+      'form.message': 'Nachricht *', 'form.message.ph': 'Schreib hier deine Frage oder Nachricht...', 'form.send': 'Nachricht senden →',
       'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
       'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.board': 'Vorstand & Organisation',
       'footer.photos': 'Fotos', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
       'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
-      'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'guest.tag': 'Gastfahren',
-      'hero.label': 'Unsere Geschichte', 'hero.title': 'Die Entstehung von RC045',
-      'hero.sub': 'Von einem Urlaub mit Freunden zu einem blühenden Verein, das ist unsere Geschichte.',
-      'story.p1': 'Im Jahr 2020 waren wir mit einer Gruppe von Freunden im Urlaub und hatten dabei auch einige RC-Autos mitgenommen. Das RC-Virus wurde schnell übertragen, und kurz nach diesem Urlaub hatte bereits jeder eines oder mehrere RC-Autos gekauft.',
-      'story.p2': 'Bei der Suche nach einem Ort zum Fahren landeten wir schnell auf der Wiese beim Sportpark Strijthagen (neben der MTB-Strecke). Schnell stellte sich heraus, dass auch andere Hobbyisten hier mit ihren RC-Autos ihre Runden drehten.',
-      'story.p3': 'Daraus entstand schnell ein wöchentliches Treffen (sonntags), und die Gruppe von Hobbyisten und Zuschauern wuchs stetig.',
-      'story.p4': 'Wir bekamen auch immer mehr Aufmerksamkeit von den Medien, u.a. haben uns RTV Parkstad, Omroep Landgraaf und L1 mehrmals besucht und dazu beigetragen, dass unsere Aktivitäten immer bekannter wurden.',
-      'story.p5': 'Wegen des wachsenden Interesses und weil wir alles auf eine gute, gesellige und sichere Weise gestalten wollten, gründeten wir bald unseren Verein RC045.',
-      'photos.title': 'Fotos im Laufe der Jahre', 'photo.placeholder': 'Foto folgt'
+      'footer.made': 'Gemacht mit ❤️ für unser Hobby',
+      'status.open': 'Jetzt geöffnet', 'status.closed': 'Jetzt geschlossen', 'badge.open': '🏁 Jetzt geöffnet!', 'badge.closed': '🏁 Heute geschlossen'
     }
   };
 
-  // ===== TAAL PERSISTENTIE TUSSEN PAGINA'S =====
+    // ===== TAAL PERSISTENTIE TUSSEN PAGINA'S =====
   function getInitialLang() {
     const urlLang = new URLSearchParams(window.location.search).get('lang');
     if (urlLang && i18n[urlLang]) return urlLang;
@@ -333,6 +1032,7 @@
   function updateInternalLinks(lang) {
     document.querySelectorAll('a[href]').forEach(a => {
       const href = a.getAttribute('href');
+      // Alleen lokale .html links en lokale anchors, geen externe/mailto/tel links
       if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
       if (!href.endsWith('.html') && !href.includes('.html#') && !href.includes('.html?')) return;
 
@@ -342,6 +1042,7 @@
       } else {
         url.searchParams.set('lang', lang);
       }
+      // Bouw relatieve href terug op (pad + query + hash)
       const newHref = url.pathname.split('/').pop() + url.search + url.hash;
       a.setAttribute('href', newHref);
     });
@@ -356,6 +1057,10 @@
       const key = el.getAttribute('data-i18n');
       if (t[key]) el.textContent = t[key];
     });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (t[key]) el.placeholder = t[key];
+    });
     document.querySelectorAll('.lang-flag').forEach(btn => { btn.classList.remove('active'); btn.setAttribute('aria-pressed', 'false'); });
     const activeBtn = document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`);
     activeBtn.classList.add('active');
@@ -367,12 +1072,178 @@
     else currentUrl.searchParams.set('lang', lang);
     history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
     updateInternalLinks(lang);
+    updateWeatherDisplay();
+    updateStatus();
   }
 
+  // ===== CONTACTFORMULIER =====
+  const form = document.getElementById('contact-form');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('form-btn');
+      const success = document.getElementById('form-success');
+      const error = document.getElementById('form-error');
+      const email = document.getElementById('email').value.trim();
+      const telefoon = document.getElementById('telefoon').value.trim();
+      const landcode = document.getElementById('landcode').value;
+      if (telefoon) {
+        document.getElementById('telefoon-combined').value = landcode + ' ' + telefoon;
+      }
+      const warning = document.getElementById('contact-warning');
+      if (!email && !telefoon) {
+        warning.style.display = 'block';
+        return;
+      }
+      warning.style.display = 'none';
+      const emailWarning = document.getElementById('email-warning');
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailWarning.style.display = 'block';
+        return;
+      }
+      emailWarning.style.display = 'none';
+      const phoneWarning = document.getElementById('phone-warning');
+      const telefoonVal = telefoon.replace(/[\s\-()]/g, '');
+      if (telefoon && (!/^\d+$/.test(telefoonVal) || telefoonVal.length < 9)) {
+        phoneWarning.style.display = 'block';
+        return;
+      }
+      phoneWarning.style.display = 'none';
+      btn.textContent = '⏳ Verzenden...';
+      btn.disabled = true;
+      success.style.display = 'none';
+      error.style.display = 'none';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          success.style.display = 'block';
+          form.reset();
+          btn.textContent = '✅ Verzonden!';
+        } else {
+          throw new Error();
+        }
+      } catch {
+        error.style.display = 'block';
+        btn.textContent = 'Verstuur bericht →';
+        btn.disabled = false;
+      }
+    });
+  }
+
+  // ===== WEER =====
+  const weatherCodes = {
+    0: ['☀️','Helder'], 1: ['🌤️','Vrijwel helder'], 2: ['⛅','Bewolkt'], 3: ['☁️','Zwaar bewolkt'],
+    45: ['🌫️','Mist'], 48: ['🌫️','IJsmist'], 51: ['🌦️','Lichte motregen'], 53: ['🌦️','Motregen'],
+    55: ['🌧️','Zware motregen'], 61: ['🌧️','Lichte regen'], 63: ['🌧️','Regen'], 65: ['🌧️','Zware regen'],
+    71: ['❄️','Lichte sneeuw'], 73: ['❄️','Sneeuw'], 75: ['❄️','Zware sneeuw'],
+    80: ['🌦️','Buien'], 81: ['🌧️','Zware buien'], 82: ['⛈️','Hevige buien'],
+    95: ['⛈️','Onweer'], 96: ['⛈️','Onweer met hagel'], 99: ['⛈️','Zwaar onweer']
+  };
+  const weatherCodesEN = {
+    0: 'Clear', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast',
+    45: 'Fog', 48: 'Icy fog', 51: 'Light drizzle', 53: 'Drizzle',
+    55: 'Heavy drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
+    71: 'Light snow', 73: 'Snow', 75: 'Heavy snow',
+    80: 'Showers', 81: 'Heavy showers', 82: 'Violent showers',
+    95: 'Thunderstorm', 96: 'Thunderstorm with hail', 99: 'Heavy thunderstorm'
+  };
+  const weatherCodesDE = {
+    0: 'Klar', 1: 'Meist klar', 2: 'Teilweise bewölkt', 3: 'Bedeckt',
+    45: 'Nebel', 48: 'Eisnebel', 51: 'Leichter Nieselregen', 53: 'Nieselregen',
+    55: 'Starker Nieselregen', 61: 'Leichter Regen', 63: 'Regen', 65: 'Starker Regen',
+    71: 'Leichter Schnee', 73: 'Schnee', 75: 'Starker Schnee',
+    80: 'Schauer', 81: 'Starke Schauer', 82: 'Heftige Schauer',
+    95: 'Gewitter', 96: 'Gewitter mit Hagel', 99: 'Schweres Gewitter'
+  };
+
+  let weatherData = null;
+
+  async function fetchWeather() {
+    try {
+      const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.889&longitude=6.072&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&wind_speed_unit=kmh&timezone=Europe/Amsterdam');
+      const data = await res.json();
+      weatherData = data.current;
+      updateWeatherDisplay();
+    } catch(e) {
+      document.getElementById('weather-desc').textContent = '—';
+    }
+  }
+
+  function updateWeatherDisplay() {
+    if (!weatherData) return;
+    const code = weatherData.weathercode;
+    const temp = Math.round(weatherData.temperature_2m);
+    const wind = Math.round(weatherData.windspeed_10m);
+    const [icon, descNL] = weatherCodes[code] || ['🌤️', 'Onbekend'];
+    const descEN = weatherCodesEN[code] || 'Unknown';
+    const descDE = weatherCodesDE[code] || 'Unbekannt';
+    const desc = currentLang === 'en' ? descEN : currentLang === 'de' ? descDE : descNL;
+    document.getElementById('weather-icon').textContent = icon;
+    document.getElementById('weather-temp').textContent = temp + '°C';
+    document.getElementById('weather-desc').textContent = desc;
+    const windEl = document.getElementById('weather-wind');
+    const humidEl = document.getElementById('weather-humid');
+    if (windEl) windEl.textContent = wind + ' km/h';
+    if (humidEl) humidEl.textContent = Math.round(weatherData.relativehumidity_2m) + '%';
+  }
+
+  fetchWeather();
+  setInterval(fetchWeather, 600000);
+
+  // ===== STATUS =====
+  function updateStatus() {
+    const t = i18n[currentLang];
+    const now = new Date();
+    const day = now.getDay();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const time = hour + minute / 60;
+    const isOpen =
+      (day === 3 && time >= 19 && time < 22) ||
+      (day === 6 && time >= 10 && time < 15) ||
+      (day === 0 && time >= 10 && time < 15);
+    const el = document.getElementById('status-indicator');
+    const badge = document.getElementById('hero-badge');
+    if (isOpen) {
+      el.className = 'status-open'; el.textContent = t['status.open'];
+      badge.className = 'hero-badge'; badge.textContent = t['badge.open'];
+    } else {
+      el.className = 'status-closed'; el.textContent = t['status.closed'];
+      badge.className = 'hero-badge hero-badge-closed'; badge.textContent = t['badge.closed'];
+    }
+  }
+  updateStatus();
+  setInterval(updateStatus, 60000);
+
+  // ===== FOOTER JAAR =====
   document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+  // Pas opgeslagen/URL-taal direct toe en update links bij eerste load
   if (currentLang !== 'nl') setLang(currentLang);
   else updateInternalLinks('nl');
+
+
+  // ===== DROPDOWN (Over ons) =====
+  document.querySelectorAll('.nav-dropdown').forEach(function(dropdown) {
+    const trigger = dropdown.querySelector('.nav-dropdown-trigger');
+    trigger.addEventListener('click', function(e) {
+      // Op mobiel (binnen open hamburgermenu) voorkomen we navigatie en togglen we het submenu
+      if (window.innerWidth <= 700 && document.querySelector('.nav-links').classList.contains('open')) {
+        e.preventDefault();
+        dropdown.classList.toggle('open');
+      }
+    });
+  });
+  // Op desktop: openen bij hover, maar ook klikbaar; sluiten bij klik elders
+  document.addEventListener('click', function(e) {
+    document.querySelectorAll('.nav-dropdown.open').forEach(function(dropdown) {
+      if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
+    });
+  });
 
   // ===== HAMBURGER =====
   document.getElementById('hamburger').addEventListener('click', function() {
@@ -387,6 +1258,27 @@
     if (!nav.contains(e.target)) document.querySelector('.nav-links').classList.remove('open');
   });
 
+  // ===== SCROLL REVEAL =====
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ===== ACTIVE NAV =====
+  const navItems = document.querySelectorAll('.nav-links li[data-section]');
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(li => li.classList.remove('active'));
+        const active = document.querySelector(`.nav-links li[data-section="${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -50% 0px' });
+  document.querySelectorAll('section[id]').forEach(s => navObserver.observe(s));
+
   // ===== PARALLAX =====
   const heroBg = document.getElementById('hero-bg');
   window.addEventListener('scroll', function() {
@@ -399,6 +1291,35 @@
   window.addEventListener('scroll', function() {
     backToTop.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
+
+  // ===== CAROUSEL =====
+  const carousel = document.getElementById('photo-carousel');
+  if (carousel) {
+    const carImages = carousel.querySelectorAll('.carousel-img');
+    const carDots = carousel.querySelectorAll('.carousel-dot');
+    let carIndex = 0;
+    let carInterval;
+
+    function showSlide(i) {
+      carIndex = (i + carImages.length) % carImages.length;
+      carImages.forEach((img, n) => img.classList.toggle('active', n === carIndex));
+      carDots.forEach((dot, n) => dot.classList.toggle('active', n === carIndex));
+    }
+
+    function startAutoplay() {
+      carInterval = setInterval(() => showSlide(carIndex + 1), 5000);
+    }
+    function resetAutoplay() {
+      clearInterval(carInterval);
+      startAutoplay();
+    }
+
+    carousel.querySelector('.carousel-prev').addEventListener('click', () => { showSlide(carIndex - 1); resetAutoplay(); });
+    carousel.querySelector('.carousel-next').addEventListener('click', () => { showSlide(carIndex + 1); resetAutoplay(); });
+    carDots.forEach(dot => dot.addEventListener('click', () => { showSlide(parseInt(dot.dataset.index)); resetAutoplay(); }));
+
+    startAutoplay();
+  }
 
   // ===== LIGHTBOX =====
   const lightbox = document.getElementById('lightbox');
