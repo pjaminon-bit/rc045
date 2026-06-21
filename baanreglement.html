@@ -108,8 +108,20 @@
     .back-to-top:hover { background: var(--teal-dark); }
 
     /* ===== FOOTER ===== */
-    .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 32px 24px; text-align: center; font-size: 13px; }
-    .footer a { color: var(--teal); }
+    .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 48px 24px 32px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 32px; }
+    .footer-brand img { height: 44px; margin-bottom: 16px; }
+    .footer-brand p { font-size: 14px; line-height: 1.7; max-width: 280px; }
+    .footer-social { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
+    .footer-social a { opacity: 0.75; transition: opacity 0.2s, transform 0.2s; display: flex; align-items: center; }
+    .footer-social img { width: 36px; height: 36px; object-fit: contain; }
+    .footer-social a:hover { opacity: 1; transform: translateY(-2px); }
+    .footer-col h4 { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; color: white; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 14px; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--teal); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
     }
     @media (max-width: 600px) {
       .artikel { padding: 24px 20px; }
@@ -120,6 +132,8 @@
       .nav-links { display: none; }
       .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: rgba(255,251,247,0.98); border-bottom: 1px solid var(--border); padding: 12px 24px 20px; gap: 4px; z-index: 99; }
       .nav-hamburger { display: flex; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
     }
 
     /* ===== TOEGANKELIJKHEID: FOCUS STATES ===== */
@@ -330,7 +344,47 @@
 </main>
 
 <footer class="footer">
-  <p>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South · <a href="index.html" data-i18n="nav.back">Terug naar de site</a></p>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="rc045-logo.png" alt="RC045">
+        <p data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true">
+          </a>
+          <a href="https://www.instagram.com/rc045" target="_blank" title="Instagram" aria-label="RC045 op Instagram">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true">
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.nav">Navigatie</h4>
+        <ul>
+          <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
+          <li><a href="https://rc045.nl/Het-ontstaan/" data-i18n="footer.origin">Het ontstaan</a></li>
+          <li><a href="https://rc045.nl/Over-ons/Bestuur-en-organisatie/" data-i18n="footer.board">Bestuur & organisatie</a></li>
+          <li><a href="https://rc045.nl/Over-ons/Media/">Media</a></li>
+          <li><a href="https://rc045.nl/Foto-s/" data-i18n="footer.photos">Foto's</a></li>
+          <li><a href="https://rc045.nl/Activiteitenkalender/" data-i18n="footer.calendar">Activiteitenkalender</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.join">Meedoen</h4>
+        <ul>
+          <li><a href="aanmelden.html" data-i18n="footer.become">Lid worden</a></li>
+          <li><a href="index.html#lidmaatschap" data-i18n="guest.tag">Gastrijden</a></li>
+          <li><a href="baanreglement.html" data-i18n="footer.rules">Baanreglement</a></li>
+          <li><a href="https://rc045.nl/Sponsoring/" data-i18n="footer.sponsor">Sponsoring</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South</span>
+      <span data-i18n="footer.made">Gemaakt met ❤️ voor onze hobby</span>
+    </div>
+  </div>
 </footer>
 
 <script>
@@ -339,6 +393,11 @@ const i18n = {
     'nav.back': '← Terug naar de site',
     'nav.about': 'Over ons', 'nav.membership': 'Lidmaatschap', 'nav.track': 'De baan',
     'nav.location': 'Locatie', 'nav.question': 'Contact', 'nav.rulespage': 'Baanreglement',
+      'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
+      'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.board': 'Bestuur & organisatie',
+      'footer.photos': 'Foto\'s', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
+      'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
+      'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'guest.tag': 'Gastrijden',
     'hero.title': 'Baanreglement',
     'hero.sub': 'Dit reglement is in het leven geroepen om onze hobby veilig uit te oefenen. Met het betreden van het RC045-terrein ga je akkoord met de inhoud van dit reglement.',
     'intro.bold': 'Belangrijk:',
@@ -390,6 +449,11 @@ const i18n = {
     'nav.back': '← Back to the site',
     'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
     'nav.location': 'Location', 'nav.question': 'Contact', 'nav.rulespage': 'Track regulations',
+      'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
+      'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.board': 'Board & organisation',
+      'footer.photos': 'Photos', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
+      'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
+      'footer.made': 'Made with ❤️ for our hobby', 'guest.tag': 'Guest riding',
     'hero.title': 'Track Regulations',
     'hero.sub': 'These regulations were created to ensure our hobby can be practised safely. By entering the RC045 grounds, you agree to the contents of these regulations.',
     'intro.bold': 'Important:',
@@ -441,6 +505,11 @@ const i18n = {
     'nav.back': '← Zurück zur Website',
     'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
     'nav.location': 'Standort', 'nav.question': 'Contact', 'nav.rulespage': 'Streckenreglement',
+      'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
+      'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.board': 'Vorstand & Organisation',
+      'footer.photos': 'Fotos', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
+      'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
+      'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'guest.tag': 'Gastfahren',
     'hero.title': 'Streckenreglement',
     'hero.sub': 'Dieses Reglement wurde erstellt, um unser Hobby sicher ausüben zu können. Mit dem Betreten des RC045-Geländes stimmst du dem Inhalt dieses Reglements zu.',
     'intro.bold': 'Wichtig:',
