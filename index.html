@@ -179,6 +179,8 @@
     .track { background: var(--white); }
     .track-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
     .track-grid + .track-grid { margin-top: 16px; }
+    .track-grid.four-photos { grid-template-rows: 122px 122px 122px; }
+    .track-grid.four-photos .track-photo-wrap.tall { grid-row: span 3; }
     .track-photo { object-fit: cover; width: 100%; height: 100%; transition: transform 0.4s; cursor: pointer; }
     .track-photo:hover { transform: scale(1.05); }
     .track-photo-wrap { overflow: hidden; }
@@ -306,6 +308,7 @@
       .section { padding: 60px 20px; }
       .hero-content { padding: 64px 20px; }
       .track-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .track-grid.four-photos .track-photo-wrap.tall { grid-row: span 1; }
       .track-photo-wrap.tall { grid-row: span 1; }
       .photo-strip { height: 320px; }
     }
@@ -586,6 +589,20 @@
           </div>
           <div class="track-photo-wrap">
             <img src="images/basherjumpen.jpg" alt="RC045 auto's springen over de jump" class="track-photo lightbox-trigger">
+          </div>
+        </div>
+        <div class="track-grid four-photos">
+          <div class="track-photo-wrap tall">
+            <img src="images/crawlercollage.jpg" alt="RC045 crawler collage" class="track-photo lightbox-trigger">
+          </div>
+          <div class="track-photo-wrap">
+            <img src="images/crawlercollage2.jpg" alt="RC045 crawler collage" class="track-photo lightbox-trigger">
+          </div>
+          <div class="track-photo-wrap">
+            <img src="images/crawlercollage3.jpg" alt="RC045 crawler collage" class="track-photo lightbox-trigger">
+          </div>
+          <div class="track-photo-wrap">
+            <img src="images/crawlercollage4.jpg" alt="RC045 crawler collage" class="track-photo lightbox-trigger">
           </div>
         </div>
       </div>
