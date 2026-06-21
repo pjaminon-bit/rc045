@@ -178,6 +178,7 @@
     /* ===== TRACK ===== */
     .track { background: var(--white); }
     .track-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
+    .track-grid + .track-grid { margin-top: 16px; }
     .track-photo { object-fit: cover; width: 100%; height: 100%; transition: transform 0.4s; cursor: pointer; }
     .track-photo:hover { transform: scale(1.05); }
     .track-photo-wrap { overflow: hidden; }
@@ -572,6 +573,17 @@
           </div>
           <div class="track-photo-wrap">
             <img src="images/crawlerobstakel.jpg" alt="RC045 Bronco crawler op het obstakelparcours" class="track-photo lightbox-trigger">
+          </div>
+        </div>
+        <div class="track-grid">
+          <div class="track-photo-wrap tall">
+            <img src="images/basherjump.jpg" alt="RC045 auto over de jump" class="track-photo lightbox-trigger">
+          </div>
+          <div class="track-photo-wrap">
+            <img src="images/basherbocht2.jpg" alt="RC045 auto in de bocht" class="track-photo lightbox-trigger">
+          </div>
+          <div class="track-photo-wrap">
+            <img src="images/basherjumpen.jpg" alt="RC045 auto's springen over de jump" class="track-photo lightbox-trigger">
           </div>
         </div>
       </div>
