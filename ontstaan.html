@@ -71,21 +71,6 @@
     .nav-links .nav-lid.nav-active a { background: var(--teal-dark); box-shadow: inset 0 -2px 0 var(--gold); }
     .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; margin-left: 8px; }
     .nav-hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
-    /* ===== DROPDOWN ===== */
-    .nav-dropdown { position: relative; display: flex; align-items: center; }
-    .nav-dropdown-toggle { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; padding: 0; margin-left: -4px; border: none; background: none; cursor: pointer; color: inherit; opacity: 0.6; }
-    .nav-dropdown-toggle::after { content: ''; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor; transition: transform 0.2s; }
-    .nav-dropdown.open .nav-dropdown-toggle::after { transform: rotate(180deg); }
-    .nav-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); left: 0; min-width: 180px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); padding: 6px; z-index: 50; list-style: none; }
-    .nav-dropdown.open .nav-dropdown-menu { display: block; }
-    .nav-dropdown-menu li { width: 100%; }
-    .nav-dropdown-menu a { display: block; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; }
-    .nav-dropdown-menu a:hover { background: var(--teal-light); color: var(--teal-dark); }
-    @media (max-width: 700px) {
-      .nav-dropdown { width: 100%; justify-content: space-between; }
-      .nav-dropdown-menu { position: static; box-shadow: none; border: none; padding: 0 0 0 16px; margin-top: 4px; display: none; width: 100%; }
-      .nav-dropdown.open .nav-dropdown-menu { display: block; }
-    }
 
     /* ===== HERO ===== */
     .page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 280px; display: flex; align-items: center; justify-content: center; }
@@ -190,14 +175,7 @@
       </div>
     </a>
     <ul class="nav-links" id="nav-links">
-      <li class="nav-dropdown" id="over-ons-dropdown">
-        <a href="index.html#over-ons" data-i18n="nav.about">Over ons</a>
-        <button class="nav-dropdown-toggle" type="button" aria-label="Submenu Over ons" aria-expanded="false"></button>
-        <ul class="nav-dropdown-menu">
-          <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
-          <li><a href="ontstaan.html" data-i18n="nav.story">Het ontstaan</a></li>
-        </ul>
-      </li>
+      <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
       <li><a href="index.html#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
       <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
       <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
@@ -396,25 +374,6 @@
   if (currentLang !== 'nl') setLang(currentLang);
   else updateInternalLinks('nl');
 
-
-  // ===== DROPDOWN (Over ons) =====
-  document.querySelectorAll('.nav-dropdown').forEach(function(dropdown) {
-    const toggleBtn = dropdown.querySelector('.nav-dropdown-toggle');
-    toggleBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const isOpen = dropdown.classList.toggle('open');
-      toggleBtn.setAttribute('aria-expanded', isOpen);
-    });
-  });
-  document.addEventListener('click', function(e) {
-    document.querySelectorAll('.nav-dropdown.open').forEach(function(dropdown) {
-      if (!dropdown.contains(e.target)) {
-        dropdown.classList.remove('open');
-        dropdown.querySelector('.nav-dropdown-toggle').setAttribute('aria-expanded', 'false');
-      }
-    });
-  });
 
   // ===== HAMBURGER =====
   document.getElementById('hamburger').addEventListener('click', function() {
