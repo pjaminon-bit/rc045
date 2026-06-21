@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Het ontstaan – RC045 Bashers of the South</title>
+  <meta name="description" content="RC045 - Bashers of the South: een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
+  <meta property="og:title" content="RC045 - Bashers of the South">
+  <meta property="og:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
+  <meta property="og:image" content="https://rc045.nl/rc045-logo.png">
+  <meta property="og:url" content="https://rc045.nl">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="nl_NL">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RC045 - Bashers of the South">
+  <meta name="twitter:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's.">
+  <meta name="twitter:image" content="https://rc045.nl/rc045-logo.png">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#1E2C13">
+  <link rel="alternate" hreflang="nl" href="https://rc045.nl/ontstaan.html">
+  <link rel="alternate" hreflang="en" href="https://rc045.nl/ontstaan.html?lang=en">
+  <link rel="alternate" hreflang="de" href="https://rc045.nl/ontstaan.html?lang=de">
+  <link rel="alternate" hreflang="x-default" href="https://rc045.nl/ontstaan.html">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: #292524; background: #FAF6EC; }
+    h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; line-height: 1.2; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; height: auto; display: block; }
+    :root {
+      --teal: #3A7A77; --teal-dark: #2D6260; --teal-light: #EAF4F3;
+      --gold: #C89A1A;
+      --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
+      --border: #DDD8C0; --bg: #FAF6EC;
+      --white: #FFFFFF; --green: #22C55E;
+      --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    /* ===== TAALKNOP ===== */
+    .lang-flags { display: flex; align-items: center; gap: 2px; }
+    .lang-flag {
+      font-size: 20px; cursor: pointer; border: none; background: none;
+      padding: 4px 8px; border-radius: 8px; line-height: 1;
+      opacity: 0.4; transition: all 0.15s; font-weight: 500; color: var(--text);
+    }
+    .lang-flag:hover { opacity: 0.8; background: var(--teal-light); }
+    .lang-flag.active { opacity: 1; background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
+
+    /* ===== NAVIGATION ===== */
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .nav-logo { display: flex; align-items: center; gap: 12px; }
+    .nav-logo img { height: 48px; width: auto; }
+    .nav-logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: var(--dark); }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+    .nav-links a { padding: 6px 14px; border-radius: 8px; font-size: 16px; font-weight: 500; color: var(--text); transition: background 0.15s, color 0.15s; }
+    .nav-links a:hover { background: var(--teal-light); color: var(--teal-dark); }
+    .nav-links .nav-cta a { background: transparent; color: var(--text); font-weight: 500; border: none; }
+    .nav-links .nav-cta a:hover { background: var(--teal-light); color: var(--teal-dark); }
+    .nav-links .nav-lid a { background: var(--teal); color: white; font-weight: 600; border-radius: 8px; }
+    .nav-links .nav-lid a:hover { background: var(--teal-dark); }
+    .nav-links .nav-lid.nav-active a { background: var(--teal-dark); box-shadow: inset 0 -2px 0 var(--gold); }
+    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; margin-left: 8px; }
+    .nav-hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
+
+    /* ===== HERO ===== */
+    .page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 280px; display: flex; align-items: center; justify-content: center; }
+    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/crawlergroen.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
+    .page-hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
+    .page-hero-content { position: relative; z-index: 1; }
+    .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 12px; }
+    .page-hero h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; color: white; margin-bottom: 12px; }
+    .page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+
+    /* ===== MAIN ===== */
+    .main { max-width: 1000px; margin: 0 auto; padding: 56px 24px 80px; }
+
+    /* ===== VERHAAL ===== */
+    .story-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); margin-bottom: 48px; }
+    .story-card p { font-size: 16px; color: var(--muted); line-height: 1.85; margin-bottom: 18px; }
+    .story-card p:last-child { margin-bottom: 0; }
+    .story-card strong { color: var(--dark); }
+
+    /* ===== FOTOGRID (zoals De baan) ===== */
+    .photos-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 20px; }
+    .ontstaan-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
+    .ontstaan-photo { object-fit: cover; width: 100%; height: 100%; transition: transform 0.4s; cursor: pointer; }
+    .ontstaan-photo:hover { transform: scale(1.05); }
+    .ontstaan-photo-wrap { overflow: hidden; }
+    .ontstaan-photo-wrap.tall { grid-row: span 2; }
+    .ontstaan-photo-wrap.empty { background: var(--teal-light); display: flex; align-items: center; justify-content: center; color: var(--teal-dark); font-size: 13px; font-weight: 600; text-align: center; padding: 16px; }
+
+    /* ===== LIGHTBOX ===== */
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; align-items: center; justify-content: center; }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .lightbox-close { position: absolute; top: 20px; right: 28px; color: white; font-size: 36px; cursor: pointer; line-height: 1; opacity: 0.7; transition: opacity 0.2s; background: none; border: none; padding: 4px; }
+    .lightbox-close:hover { opacity: 1; }
+
+    /* ===== FOOTER ===== */
+    .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 48px 24px 32px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 32px; }
+    .footer-brand img { height: 44px; margin-bottom: 16px; }
+    .footer-brand p { font-size: 14px; line-height: 1.7; max-width: 280px; }
+    .footer-social { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
+    .footer-social a { opacity: 0.75; transition: opacity 0.2s, transform 0.2s; display: flex; align-items: center; }
+    .footer-social img { width: 36px; height: 36px; object-fit: contain; }
+    .footer-social a:hover { opacity: 1; transform: translateY(-2px); }
+    .footer-col h4 { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; color: white; margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 14px; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--teal); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+
+    /* ===== TERUG NAAR BOVEN ===== */
+    .back-to-top { position: fixed; bottom: 24px; right: 16px; z-index: 99; width: 44px; height: 44px; border-radius: 50%; background: var(--teal); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: none; box-shadow: 0 4px 16px rgba(58,122,119,0.4); opacity: 0; transform: translateY(16px); transition: opacity 0.3s, transform 0.3s, background 0.2s; pointer-events: none; }
+    .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .back-to-top:hover { background: var(--teal-dark); }
+
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: rgba(255,251,247,0.98); border-bottom: 1px solid var(--border); padding: 12px 24px 20px; gap: 4px; z-index: 99; }
+      .nav-hamburger { display: flex; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+      .ontstaan-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .ontstaan-photo-wrap.tall { grid-row: span 1; }
+    }
+    @media (max-width: 600px) {
+      .story-card { padding: 24px 20px; }
+    }
+
+    /* ===== TOEGANKELIJKHEID: FOCUS STATES ===== */
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    .skip-link {
+      position: absolute; top: -100px; left: 16px; z-index: 1000;
+      background: var(--dark); color: white; padding: 12px 20px;
+      border-radius: 8px; font-weight: 600; font-size: 14px;
+      transition: top 0.2s;
+    }
+    .skip-link:focus { top: 16px; }
+  </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Naar hoofdinhoud</a>
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Terug naar boven">↑</button>
+
+<!-- ===== LIGHTBOX ===== -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close" aria-label="Sluiten">×</button>
+  <img src="" alt="" id="lightbox-img">
+</div>
+
+<nav class="nav" id="main-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="rc045-logo.png" alt="RC045 logo">
+      <div>
+        <span class="nav-logo-text">RC045</span>
+      </div>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
+      <li><a href="index.html#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
+      <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
+      <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
+      <li class="nav-cta"><a href="index.html#contact" data-i18n="nav.question">Contact</a></li>
+      <li class="nav-lid nav-active"><a href="ontstaan.html" data-i18n="nav.story">Het ontstaan</a></li>
+    </ul>
+    <div class="lang-flags">
+      <button class="lang-flag active" onclick="setLang('nl')" title="Nederlands" aria-label="Nederlands" aria-pressed="true">🇳🇱</button>
+      <button class="lang-flag" onclick="setLang('en')" title="English" aria-label="English" aria-pressed="false">🇬🇧</button>
+      <button class="lang-flag" onclick="setLang('de')" title="Deutsch" aria-label="Deutsch" aria-pressed="false">🇩🇪</button>
+    </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu openen" aria-expanded="false" aria-controls="nav-links">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-bg" id="hero-bg"></div>
+  <div class="page-hero-gradient"></div>
+  <div class="page-hero-content">
+    <div class="section-label" data-i18n="hero.label">Onze geschiedenis</div>
+    <h1 data-i18n="hero.title">Het ontstaan van RC045</h1>
+    <p data-i18n="hero.sub">Van een vakantie met vrienden tot een bloeiende vereniging — dit is ons verhaal.</p>
+  </div>
+</div>
+
+<main class="main" id="main-content">
+
+  <div class="story-card">
+    <p data-i18n="story.p1">In 2020 zijn wij met een groep vrienden op vakantie geweest waarbij ook enkele RC-auto's werden meegenomen. Het RC-virus werd hier al snel overgedragen en kort na deze vakantie had één ieder al snel één of meerdere RC-auto's aangeschaft.</p>
+    <p data-i18n="story.p2">Tijdens de zoektocht naar een locatie om te kunnen rijden kwamen wij al snel uit op het grasveld bij sportpark Strijthagen (naast het MTB parcours). Al snel bleek dat hier meer hobbyisten met hun RC-auto hun rondje kwamen rijden.</p>
+    <p data-i18n="story.p3">Dit resulteerde al snel tot een wekelijkse samenkomst (zondag) en de groep hobbyisten én toeschouwers groeide gestaag.</p>
+    <p data-i18n="story.p4">We kregen ook steeds meer aandacht van de media, o.a. RTV Parkstad, Omroep Landgraaf en L1 hebben ons één of meerdere keren bezocht en hebben eraan meegeholpen dat onze activiteiten steeds meer bekendheid kregen.</p>
+    <p data-i18n="story.p5">Door de steeds groter wordende belangstelling en omdat wij één en ander op een goede, gezellige en veilige manier wilden faciliteren hebben wij al snel onze vereniging RC045 opgericht.</p>
+  </div>
+
+  <div class="photos-title" data-i18n="photos.title">Foto's door de jaren heen</div>
+  <div class="ontstaan-grid">
+    <div class="ontstaan-photo-wrap tall empty" data-i18n="photo.placeholder">Foto volgt</div>
+    <div class="ontstaan-photo-wrap empty" data-i18n="photo.placeholder">Foto volgt</div>
+    <div class="ontstaan-photo-wrap empty" data-i18n="photo.placeholder">Foto volgt</div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="rc045-logo.png" alt="RC045">
+        <p data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true">
+          </a>
+          <a href="https://www.instagram.com/rc045" target="_blank" title="Instagram" aria-label="RC045 op Instagram">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true">
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.nav">Navigatie</h4>
+        <ul>
+          <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
+          <li><a href="ontstaan.html" data-i18n="footer.origin">Het ontstaan</a></li>
+          <li><a href="https://rc045.nl/Over-ons/Bestuur-en-organisatie/" data-i18n="footer.board">Bestuur & organisatie</a></li>
+          <li><a href="https://rc045.nl/Over-ons/Media/">Media</a></li>
+          <li><a href="https://rc045.nl/Foto-s/" data-i18n="footer.photos">Foto's</a></li>
+          <li><a href="https://rc045.nl/Activiteitenkalender/" data-i18n="footer.calendar">Activiteitenkalender</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.join">Meedoen</h4>
+        <ul>
+          <li><a href="aanmelden.html" data-i18n="footer.become">Lid worden</a></li>
+          <li><a href="index.html#lidmaatschap" data-i18n="guest.tag">Gastrijden</a></li>
+          <li><a href="baanreglement.html" data-i18n="footer.rules">Baanreglement</a></li>
+          <li><a href="https://rc045.nl/Sponsoring/" data-i18n="footer.sponsor">Sponsoring</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South</span>
+      <span data-i18n="footer.made">Gemaakt met ❤️ voor onze hobby</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const i18n = {
+    nl: {
+      'nav.about': 'Over ons', 'nav.membership': 'Lidmaatschap', 'nav.track': 'De baan',
+      'nav.location': 'Locatie', 'nav.question': 'Contact', 'nav.story': 'Het ontstaan',
+      'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
+      'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.board': 'Bestuur & organisatie',
+      'footer.photos': 'Foto\'s', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
+      'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
+      'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'guest.tag': 'Gastrijden',
+      'hero.label': 'Onze geschiedenis', 'hero.title': 'Het ontstaan van RC045',
+      'hero.sub': 'Van een vakantie met vrienden tot een bloeiende vereniging — dit is ons verhaal.',
+      'story.p1': 'In 2020 zijn wij met een groep vrienden op vakantie geweest waarbij ook enkele RC-auto\'s werden meegenomen. Het RC-virus werd hier al snel overgedragen en kort na deze vakantie had één ieder al snel één of meerdere RC-auto\'s aangeschaft.',
+      'story.p2': 'Tijdens de zoektocht naar een locatie om te kunnen rijden kwamen wij al snel uit op het grasveld bij sportpark Strijthagen (naast het MTB parcours). Al snel bleek dat hier meer hobbyisten met hun RC-auto hun rondje kwamen rijden.',
+      'story.p3': 'Dit resulteerde al snel tot een wekelijkse samenkomst (zondag) en de groep hobbyisten én toeschouwers groeide gestaag.',
+      'story.p4': 'We kregen ook steeds meer aandacht van de media, o.a. RTV Parkstad, Omroep Landgraaf en L1 hebben ons één of meerdere keren bezocht en hebben eraan meegeholpen dat onze activiteiten steeds meer bekendheid kregen.',
+      'story.p5': 'Door de steeds groter wordende belangstelling en omdat wij één en ander op een goede, gezellige en veilige manier wilden faciliteren hebben wij al snel onze vereniging RC045 opgericht.',
+      'photos.title': 'Foto\'s door de jaren heen', 'photo.placeholder': 'Foto volgt'
+    },
+    en: {
+      'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
+      'nav.location': 'Location', 'nav.question': 'Contact', 'nav.story': 'Our history',
+      'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
+      'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.board': 'Board & organisation',
+      'footer.photos': 'Photos', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
+      'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
+      'footer.made': 'Made with ❤️ for our hobby', 'guest.tag': 'Guest riding',
+      'hero.label': 'Our history', 'hero.title': 'The origin of RC045',
+      'hero.sub': 'From a holiday with friends to a thriving club — this is our story.',
+      'story.p1': 'In 2020 we went on holiday with a group of friends, bringing along a few RC cars. The RC virus spread quickly, and shortly after this holiday everyone had already bought one or more RC cars of their own.',
+      'story.p2': 'While searching for a location to drive, we soon found the grass field at Sportpark Strijthagen (next to the MTB course). It quickly became clear that other hobbyists were already coming there with their RC cars too.',
+      'story.p3': 'This soon led to a weekly gathering (on Sundays), and the group of hobbyists and spectators kept growing steadily.',
+      'story.p4': 'We also received more and more media attention — RTV Parkstad, Omroep Landgraaf, and L1 visited us on several occasions and helped our activities become increasingly well known.',
+      'story.p5': 'Because of the growing interest, and because we wanted to facilitate everything in a proper, friendly, and safe way, we soon founded our club RC045.',
+      'photos.title': 'Photos through the years', 'photo.placeholder': 'Photo coming soon'
+    },
+    de: {
+      'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
+      'nav.location': 'Standort', 'nav.question': 'Contact', 'nav.story': 'Unsere Geschichte',
+      'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
+      'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.board': 'Vorstand & Organisation',
+      'footer.photos': 'Fotos', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
+      'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
+      'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'guest.tag': 'Gastfahren',
+      'hero.label': 'Unsere Geschichte', 'hero.title': 'Die Entstehung von RC045',
+      'hero.sub': 'Von einem Urlaub mit Freunden zu einem blühenden Verein — das ist unsere Geschichte.',
+      'story.p1': 'Im Jahr 2020 waren wir mit einer Gruppe von Freunden im Urlaub und hatten dabei auch einige RC-Autos mitgenommen. Das RC-Virus wurde schnell übertragen, und kurz nach diesem Urlaub hatte bereits jeder eines oder mehrere RC-Autos gekauft.',
+      'story.p2': 'Bei der Suche nach einem Ort zum Fahren landeten wir schnell auf der Wiese beim Sportpark Strijthagen (neben der MTB-Strecke). Schnell stellte sich heraus, dass auch andere Hobbyisten hier mit ihren RC-Autos ihre Runden drehten.',
+      'story.p3': 'Daraus entstand schnell ein wöchentliches Treffen (sonntags), und die Gruppe von Hobbyisten und Zuschauern wuchs stetig.',
+      'story.p4': 'Wir bekamen auch immer mehr Aufmerksamkeit von den Medien, u.a. haben uns RTV Parkstad, Omroep Landgraaf und L1 mehrmals besucht und dazu beigetragen, dass unsere Aktivitäten immer bekannter wurden.',
+      'story.p5': 'Wegen des wachsenden Interesses und weil wir alles auf eine gute, gesellige und sichere Weise gestalten wollten, gründeten wir bald unseren Verein RC045.',
+      'photos.title': 'Fotos im Laufe der Jahre', 'photo.placeholder': 'Foto folgt'
+    }
+  };
+
+  // ===== TAAL PERSISTENTIE TUSSEN PAGINA'S =====
+  function getInitialLang() {
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang && i18n[urlLang]) return urlLang;
+    const storedLang = localStorage.getItem('rc045_lang');
+    if (storedLang && i18n[storedLang]) return storedLang;
+    return 'nl';
+  }
+
+  function updateInternalLinks(lang) {
+    document.querySelectorAll('a[href]').forEach(a => {
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
+      if (!href.endsWith('.html') && !href.includes('.html#') && !href.includes('.html?')) return;
+
+      const url = new URL(href, window.location.href);
+      if (lang === 'nl') {
+        url.searchParams.delete('lang');
+      } else {
+        url.searchParams.set('lang', lang);
+      }
+      const newHref = url.pathname.split('/').pop() + url.search + url.hash;
+      a.setAttribute('href', newHref);
+    });
+  }
+
+  let currentLang = getInitialLang();
+
+  function setLang(lang) {
+    currentLang = lang;
+    const t = i18n[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[key]) el.textContent = t[key];
+    });
+    document.querySelectorAll('.lang-flag').forEach(btn => { btn.classList.remove('active'); btn.setAttribute('aria-pressed', 'false'); });
+    const activeBtn = document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`);
+    activeBtn.classList.add('active');
+    activeBtn.setAttribute('aria-pressed', 'true');
+    document.documentElement.lang = lang;
+    localStorage.setItem('rc045_lang', lang);
+    const currentUrl = new URL(window.location.href);
+    if (lang === 'nl') currentUrl.searchParams.delete('lang');
+    else currentUrl.searchParams.set('lang', lang);
+    history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
+    updateInternalLinks(lang);
+  }
+
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+  if (currentLang !== 'nl') setLang(currentLang);
+  else updateInternalLinks('nl');
+
+  // ===== HAMBURGER =====
+  document.getElementById('hamburger').addEventListener('click', function() {
+    const isOpen = document.querySelector('.nav-links').classList.toggle('open');
+    this.setAttribute('aria-expanded', isOpen);
+  });
+  window.addEventListener('scroll', function() {
+    document.querySelector('.nav-links').classList.remove('open');
+  });
+  document.addEventListener('touchstart', function(e) {
+    const nav = document.getElementById('main-nav');
+    if (!nav.contains(e.target)) document.querySelector('.nav-links').classList.remove('open');
+  });
+
+  // ===== PARALLAX =====
+  const heroBg = document.getElementById('hero-bg');
+  window.addEventListener('scroll', function() {
+    const scrollY = window.scrollY;
+    if (scrollY < window.innerHeight * 1.2) heroBg.style.transform = `translateY(${scrollY * 0.5}px)`;
+  }, { passive: true });
+
+  // ===== TERUG NAAR BOVEN =====
+  const backToTop = document.getElementById('backToTop');
+  window.addEventListener('scroll', function() {
+    backToTop.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+
+  // ===== LIGHTBOX =====
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  document.querySelectorAll('.lightbox-trigger').forEach(img => {
+    img.addEventListener('click', function() {
+      lightboxImg.src = this.src; lightboxImg.alt = this.alt;
+      lightbox.classList.add('open'); document.body.style.overflow = 'hidden';
+    });
+  });
+  document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', function(e) { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+  function closeLightbox() { lightbox.classList.remove('open'); document.body.style.overflow = ''; }
+</script>
+
+</body>
+</html>
