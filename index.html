@@ -214,6 +214,23 @@
     .lightbox-close { position: absolute; top: 20px; right: 28px; color: white; font-size: 36px; cursor: pointer; line-height: 1; opacity: 0.7; transition: opacity 0.2s; background: none; border: none; padding: 4px; }
     .lightbox-close:hover { opacity: 1; }
 
+    /* ===== ACTIVITEITEN ===== */
+    .agenda { background: var(--bg); }
+    .agenda-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .agenda-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
+    .agenda-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+    .agenda-card-date { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 56px; height: 56px; background: var(--teal-light); border-radius: 10px; margin-bottom: 16px; flex-shrink: 0; }
+    .agenda-card-day { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 800; color: var(--teal-dark); line-height: 1; }
+    .agenda-card-month { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--teal); }
+    .agenda-card-tag { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 100px; margin-bottom: 10px; }
+    .agenda-card-tag.open-dag { background: var(--teal-light); color: var(--teal-dark); }
+    .agenda-card-tag.leden { background: var(--gold-light); color: var(--gold); }
+    .agenda-card-tag.wedstrijd { background: #FEE2E2; color: #DC2626; }
+    .agenda-card h3 { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+    .agenda-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .agenda-card-time { font-size: 13px; font-weight: 600; color: var(--teal); margin-top: 12px; display: flex; align-items: center; gap: 4px; }
+    @media (max-width: 900px) { .agenda-grid { grid-template-columns: 1fr; } }
+
     /* ===== RULES ===== */
     .rules { background: var(--dark); color: white; }
     .rules .section-title { color: white; }
@@ -711,6 +728,56 @@
   </div>
 </section>
 
+<!-- ===== ACTIVITEITEN ===== -->
+<section class="section agenda" id="activiteiten">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label" data-i18n="agenda.label">Agenda</div>
+      <h2 class="section-title" data-i18n="agenda.title">Activiteiten</h2>
+      <p class="section-sub" data-i18n="agenda.sub">Kijk hier wat er op de planning staat bij RC045. Check onze Facebook-pagina voor de meest actuele informatie.</p>
+    </div>
+    <div class="agenda-grid">
+
+      <!-- ===== ACTIVITEIT 1 — pas datum, tag, titel, omschrijving en tijd aan ===== -->
+      <div class="agenda-card reveal reveal-delay-1">
+        <div class="agenda-card-date">
+          <span class="agenda-card-day">12</span>
+          <span class="agenda-card-month">Jul</span>
+        </div>
+        <span class="agenda-card-tag open-dag" data-i18n="agenda.tag.opendag">Open dag</span>
+        <h3 data-i18n="agenda.event1.title">Open rijdag voor iedereen</h3>
+        <p data-i18n="agenda.event1.desc">Iedereen is welkom, leden en niet-leden. Kom kennismaken met onze baan en het bestuur.</p>
+        <div class="agenda-card-time">🕙 <span data-i18n="agenda.event1.time">10:00 - 15:00</span></div>
+      </div>
+
+      <!-- ===== ACTIVITEIT 2 — pas datum, tag, titel, omschrijving en tijd aan ===== -->
+      <div class="agenda-card reveal reveal-delay-2">
+        <div class="agenda-card-date">
+          <span class="agenda-card-day">26</span>
+          <span class="agenda-card-month">Jul</span>
+        </div>
+        <span class="agenda-card-tag leden" data-i18n="agenda.tag.leden">Ledenevenement</span>
+        <h3 data-i18n="agenda.event2.title">Zomerrijdag voor leden</h3>
+        <p data-i18n="agenda.event2.desc">Exclusief voor leden. Gezellig samen rijden gevolgd door een BBQ.</p>
+        <div class="agenda-card-time">🕙 <span data-i18n="agenda.event2.time">10:00 - 17:00</span></div>
+      </div>
+
+      <!-- ===== ACTIVITEIT 3 — pas datum, tag, titel, omschrijving en tijd aan ===== -->
+      <div class="agenda-card reveal reveal-delay-3">
+        <div class="agenda-card-date">
+          <span class="agenda-card-day">09</span>
+          <span class="agenda-card-month">Aug</span>
+        </div>
+        <span class="agenda-card-tag open-dag" data-i18n="agenda.tag.opendag">Open dag</span>
+        <h3 data-i18n="agenda.event3.title">Crawlerdag</h3>
+        <p data-i18n="agenda.event3.desc">Speciale dag voor crawler-liefhebbers. Het volledige parcours staat open voor leden en gasten.</p>
+        <div class="agenda-card-time">🕙 <span data-i18n="agenda.event3.time">10:00 - 15:00</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- ===== BAANREGLEMENT ===== -->
 <section class="section rules">
   <div class="container">
@@ -961,6 +1028,12 @@
       'track.p2': 'Volg bij aankomst de pijlen met het RC045-logo en je ziet ons vanzelf. Er is voldoende parkeergelegenheid.',
       'track.f1': 'Race-circuit voor buggy\'s, truggies en meer', 'track.f2': 'Off-road crawler-parcours',
       'track.f3': 'Jump-track met schans', 'track.f4': 'Kantine & werkruimte aanwezig', 'track.f5': 'Voldoende parkeerruimte',
+      'agenda.label': 'Agenda', 'agenda.title': 'Activiteiten',
+      'agenda.sub': 'Kijk hier wat er op de planning staat bij RC045. Check onze Facebook-pagina voor de meest actuele informatie.',
+      'agenda.tag.opendag': 'Open dag', 'agenda.tag.leden': 'Ledenevenement', 'agenda.tag.wedstrijd': 'Wedstrijd',
+      'agenda.event1.title': 'Open rijdag voor iedereen', 'agenda.event1.desc': 'Iedereen is welkom, leden en niet-leden. Kom kennismaken met onze baan en het bestuur.', 'agenda.event1.time': '10:00 - 15:00',
+      'agenda.event2.title': 'Zomerrijdag voor leden', 'agenda.event2.desc': 'Exclusief voor leden. Gezellig samen rijden gevolgd door een BBQ.', 'agenda.event2.time': '10:00 - 17:00',
+      'agenda.event3.title': 'Crawlerdag', 'agenda.event3.desc': 'Speciale dag voor crawler-liefhebbers. Het volledige parcours staat open voor leden en gasten.', 'agenda.event3.time': '10:00 - 15:00',
       'rules.label': 'Reglement', 'rules.title': 'Veiligheid staat voorop',
       'rules.sub': 'We hebben duidelijke regels zodat iedereen veilig en plezierig kan rijden. Hieronder de belangrijkste punten.',
       'rule1.title': 'Alleen elektrisch', 'rule1.text': 'Nitro en benzine zijn niet toegestaan op ons terrein. Alleen elektrisch aangedreven voertuigen zijn welkom.',
@@ -1024,6 +1097,12 @@
       'track.p2': 'Follow the RC045 arrows on arrival and you\'ll find us easily. There is plenty of parking.',
       'track.f1': 'Race circuit for buggies, truggies and more', 'track.f2': 'Off-road crawler course',
       'track.f3': 'Jump track with ramp', 'track.f4': 'Canteen & workshop available', 'track.f5': 'Ample parking',
+      'agenda.label': 'Events', 'agenda.title': 'Activities',
+      'agenda.sub': 'Check what is planned at RC045. Follow our Facebook page for the most up-to-date information.',
+      'agenda.tag.opendag': 'Open day', 'agenda.tag.leden': 'Members event', 'agenda.tag.wedstrijd': 'Race',
+      'agenda.event1.title': 'Open ride day for everyone', 'agenda.event1.desc': 'Everyone is welcome, members and non-members. Come and meet our track and board.', 'agenda.event1.time': '10:00 - 15:00',
+      'agenda.event2.title': 'Summer ride day for members', 'agenda.event2.desc': 'Exclusive for members. A fun day of riding together followed by a BBQ.', 'agenda.event2.time': '10:00 - 17:00',
+      'agenda.event3.title': 'Crawler day', 'agenda.event3.desc': 'A special day for crawler enthusiasts. The full course is open for members and guests.', 'agenda.event3.time': '10:00 - 15:00',
       'rules.label': 'Rules', 'rules.title': 'Safety comes first',
       'rules.sub': 'We have clear rules so everyone can ride safely and enjoyably. Here are the most important points.',
       'rule1.title': 'Electric only', 'rule1.text': 'Nitro and petrol are not permitted on our grounds. Only electrically powered vehicles are welcome.',
@@ -1087,6 +1166,12 @@
       'track.p2': 'Folge beim Ankommen den RC045-Schildern und du findest uns sofort. Es gibt ausreichend Parkplätze.',
       'track.f1': 'Rennstrecke für Buggys, Truggies und mehr', 'track.f2': 'Offroad-Crawler-Parcours',
       'track.f3': 'Sprungstrecke mit Rampe', 'track.f4': 'Kantine & Werkraum vorhanden', 'track.f5': 'Ausreichend Parkplätze',
+      'agenda.label': 'Veranstaltungen', 'agenda.title': 'Aktivitäten',
+      'agenda.sub': 'Schau hier, was bei RC045 geplant ist. Folge unserer Facebook-Seite für die aktuellsten Informationen.',
+      'agenda.tag.opendag': 'Offener Tag', 'agenda.tag.leden': 'Mitgliederevent', 'agenda.tag.wedstrijd': 'Rennen',
+      'agenda.event1.title': 'Offener Fahrtag für alle', 'agenda.event1.desc': 'Alle sind willkommen, Mitglieder und Nichtmitglieder. Lern unsere Strecke und den Vorstand kennen.', 'agenda.event1.time': '10:00 - 15:00',
+      'agenda.event2.title': 'Sommer-Fahrtag für Mitglieder', 'agenda.event2.desc': 'Exklusiv für Mitglieder. Ein gemütlicher Fahrtag zusammen, gefolgt von einem Grillabend.', 'agenda.event2.time': '10:00 - 17:00',
+      'agenda.event3.title': 'Crawler-Tag', 'agenda.event3.desc': 'Ein besonderer Tag für Crawler-Enthusiasten. Der gesamte Parcours steht für Mitglieder und Gäste offen.', 'agenda.event3.time': '10:00 - 15:00',
       'rules.label': 'Reglement', 'rules.title': 'Sicherheit geht vor',
       'rules.sub': 'Wir haben klare Regeln, damit alle sicher und angenehm fahren können. Hier sind die wichtigsten Punkte.',
       'rule1.title': 'Nur elektrisch', 'rule1.text': 'Nitro und Benzin sind auf unserem Gelände nicht erlaubt. Nur elektrisch angetriebene Fahrzeuge sind willkommen.',
