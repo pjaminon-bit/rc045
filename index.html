@@ -65,7 +65,8 @@
     .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
     .nav-links a { padding: 6px 14px; border-radius: 8px; font-size: 16px; font-weight: 500; color: var(--text); transition: background 0.15s, color 0.15s; }
     .nav-links a:hover { background: var(--teal-light); color: var(--teal-dark); }
-    .nav-links li.active > a, .nav-links li.active.nav-cta > a { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
+    .nav-links li.active > a, .nav-links li.active.nav-cta > a { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); animation: navActivate 0.3s ease; }
+    @keyframes navActivate { from { transform: translateY(-2px); opacity: 0.7; } to { transform: translateY(0); opacity: 1; } }
     .nav-links .nav-cta a { background: transparent; color: var(--text); font-weight: 500; border: none; }
     .nav-links .nav-cta a:hover { background: var(--teal-light); color: var(--teal-dark); }
     .nav-links .nav-lid a { background: var(--teal); color: white; font-weight: 600; border-radius: 8px; }
@@ -217,7 +218,11 @@
     /* ===== ACTIVITEITEN ===== */
     .agenda { background: var(--bg); }
     .agenda-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-    .agenda-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
+    .agenda-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; opacity: 0; transform: translateY(24px); }
+    .agenda-card.visible { animation: cardDrop 0.5s ease forwards; }
+    .agenda-card.visible:nth-child(2) { animation-delay: 0.1s; }
+    .agenda-card.visible:nth-child(3) { animation-delay: 0.2s; }
+    @keyframes cardDrop { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
     .agenda-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
     .agenda-card-date { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 56px; height: 56px; background: var(--teal-light); border-radius: 10px; margin-bottom: 16px; flex-shrink: 0; }
     .agenda-card-day { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 800; color: var(--teal-dark); line-height: 1; }
@@ -1427,6 +1432,17 @@
     if (!nav.contains(e.target)) document.querySelector('.nav-links').classList.remove('open');
   });
 
+  // ===== AGENDA DRUPPEL =====
+  const agendaObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        agendaObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.agenda-card').forEach(el => agendaObserver.observe(el));
+
   // ===== SCROLL REVEAL =====
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -1460,6 +1476,12 @@
   window.addEventListener('scroll', function() {
     backToTop.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
+
+  // ===== BROWSERTAB TITEL =====
+  const defaultTitle = document.title;
+  document.addEventListener('visibilitychange', function() {
+    document.title = document.hidden ? '🏎️ Kom terug! — RC045' : defaultTitle;
+  });
 
   // ===== CAROUSEL =====
   const carousel = document.getElementById('photo-carousel');
