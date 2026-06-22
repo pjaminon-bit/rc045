@@ -135,6 +135,13 @@
     .melding.error { background: #FEE2E2; color: #DC2626; }
     .melding.success { background: var(--teal-light); color: var(--teal-dark); font-size: 16px; font-weight: 700; text-align: center; padding: 20px; }
 
+
+    /* ===== IBAN KOPIEER KNOP ===== */
+    .iban-copy-wrap { display: flex; align-items: center; gap: 10px; }
+    .iban-copy-btn { background: none; border: 1.5px solid var(--teal); border-radius: 6px; padding: 3px 10px; font-size: 12px; font-weight: 600; color: var(--teal-dark); cursor: pointer; transition: background 0.15s; flex-shrink: 0; }
+    .iban-copy-btn:hover { background: var(--teal-light); }
+    .iban-copy-btn.copied { background: var(--teal); color: white; border-color: var(--teal); }
+
     /* ===== IBAN CARD ===== */
     .iban-card { background: var(--gold-light); border: 1.5px solid var(--gold); border-radius: var(--radius); padding: 20px 24px; margin-top: 16px; }
     .iban-card h4 { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -896,6 +903,18 @@
   window.addEventListener('scroll', function() {
     backToTop.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
+  // ===== IBAN KOPIEER KNOP =====
+  document.querySelectorAll('.iban-copy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      navigator.clipboard.writeText('NL51 RABO 0367 6153 63').then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✓ Gekopieerd!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    });
+  });
+
 </script>
 
 </body>
