@@ -565,6 +565,18 @@ window.addEventListener('scroll', function() {
   window.addEventListener('scroll', function() {
     backToTop.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
+  // ===== IBAN KOPIEER KNOP =====
+  document.querySelectorAll('.iban-copy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      navigator.clipboard.writeText('NL51 RABO 0367 6153 63').then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✓ Gekopieerd!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    });
+  });
+
 </script>
 
 </body>
