@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Baanreglement – RC045 Bashers of the South</title>
+  <title>Bedankt! – RC045 Bashers of the South</title>
   <meta name="description" content="RC045 - Bashers of the South: een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
   <meta property="og:title" content="RC045 - Bashers of the South">
   <meta property="og:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
@@ -22,82 +22,69 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#1E2C13">
-  <link rel="alternate" hreflang="nl" href="https://rc045.nl/baanreglement.html">
-  <link rel="alternate" hreflang="en" href="https://rc045.nl/baanreglement.html?lang=en">
-  <link rel="alternate" hreflang="de" href="https://rc045.nl/baanreglement.html?lang=de">
-  <link rel="alternate" hreflang="x-default" href="https://rc045.nl/baanreglement.html">
+  <link rel="alternate" hreflang="nl" href="https://rc045.nl/bedankt.html">
+  <link rel="alternate" hreflang="en" href="https://rc045.nl/bedankt.html?lang=en">
+  <link rel="alternate" hreflang="de" href="https://rc045.nl/bedankt.html?lang=de">
+  <link rel="alternate" hreflang="x-default" href="https://rc045.nl/bedankt.html">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: #292524; background: #FAF6EC; }
-    h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; line-height: 1.2; }
+    body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: #292524; background: #FAF6EC; min-height: 100vh; display: flex; flex-direction: column; }
+    h1, h2, h3 { font-family: 'Poppins', sans-serif; line-height: 1.2; }
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; height: auto; display: block; }
     :root {
       --teal: #3A7A77; --teal-dark: #2D6260; --teal-light: #EAF4F3;
-      --gold: #C89A1A;
-      --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
-      --border: #DDD8C0; --bg: #FAF6EC;
-      --white: #FFFFFF;
+      --gold: #C89A1A; --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
+      --border: #DDD8C0; --bg: #FAF6EC; --white: #FFFFFF;
       --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
 
-        /* ===== TAALKNOP ===== */
+    /* ===== TAALKNOP ===== */
     .lang-flags { display: flex; align-items: center; gap: 2px; }
-    .lang-flag {
-      font-size: 20px; cursor: pointer; border: none; background: none;
-      padding: 4px 8px; border-radius: 8px; line-height: 1;
-      opacity: 0.4; transition: all 0.15s; font-weight: 500; color: var(--text);
-    }
+    .lang-flag { font-size: 20px; cursor: pointer; border: none; background: none; padding: 4px 8px; border-radius: 8px; line-height: 1; opacity: 0.4; transition: all 0.15s; font-weight: 500; color: var(--text); }
     .lang-flag:hover { opacity: 0.8; background: var(--teal-light); }
     .lang-flag.active { opacity: 1; background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
 
-    /* ===== NAVIGATION ===== */
-    .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    /* ===== NAV ===== */
+    .nav { background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
     .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
     .nav-logo { display: flex; align-items: center; gap: 12px; }
     .nav-logo img { height: 48px; width: auto; }
     .nav-logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 22px; color: var(--dark); }
-
-    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
-    .nav-links a { padding: 6px 14px; border-radius: 8px; font-size: 16px; font-weight: 500; color: var(--text); transition: background 0.15s, color 0.15s; }
-    .nav-links a:hover { background: var(--teal-light); color: var(--teal-dark); }
-    .nav-links .nav-active a { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
-    .nav-links .nav-lid a { background: var(--teal); color: white; font-weight: 600; border-radius: 8px; }
-    .nav-links .nav-lid a:hover { background: var(--teal-dark); }
-    .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; margin-left: 8px; }
-    .nav-hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
-
-    /* ===== HERO ===== */
-    .page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 280px; display: flex; align-items: center; justify-content: center; }
-    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
-    .page-hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
-    .page-hero-content { position: relative; z-index: 1; }
-    .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 12px; }
-    .page-hero h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; color: white; margin-bottom: 12px; }
-    .page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+    .nav-back { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--muted); transition: background 0.15s, color 0.15s; }
+    .nav-back:hover { background: var(--teal-light); color: var(--teal-dark); }
 
     /* ===== MAIN ===== */
-    .main { max-width: 800px; margin: 0 auto; padding: 56px 24px 80px; }
+    .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
+    .bedankt-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 56px 48px; box-shadow: var(--shadow); max-width: 600px; width: 100%; text-align: center; }
+    .bedankt-icon { font-size: 64px; margin-bottom: 24px; animation: bounceIn 0.6s ease; }
+    @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+    .bedankt-card h1 { font-size: 32px; font-weight: 800; color: var(--dark); margin-bottom: 16px; }
+    .bedankt-card p { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 12px; }
 
-    /* ===== INTRO ===== */
-    .intro-card { background: var(--teal-light); border: 1.5px solid var(--teal); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 40px; font-size: 15px; color: var(--teal-dark); line-height: 1.7; }
+    /* ===== IBAN ===== */
+    .iban-card { background: var(--teal-light); border: 1.5px solid var(--teal); border-radius: var(--radius); padding: 20px 24px; margin: 28px 0; text-align: left; }
+    .iban-card h4 { font-size: 13px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+    .iban-number { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 800; color: var(--dark); letter-spacing: 0.08em; margin-bottom: 6px; }
+    .iban-detail { font-size: 13px; color: var(--teal-dark); line-height: 1.6; }
 
-    /* ===== ARTIKEL ===== */
-    .artikel { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 20px; box-shadow: var(--shadow); }
-    .artikel-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 20px; }
-    .artikel-num { font-family: 'Poppins', sans-serif; font-size: 36px; font-weight: 800; color: rgba(200,154,26,0.35); line-height: 1; flex-shrink: 0; min-width: 48px; }
-    .artikel-title { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 700; color: var(--dark); padding-top: 6px; }
-    .artikel-body { font-size: 15px; color: var(--muted); line-height: 1.8; }
-    .artikel-body p { margin-bottom: 12px; }
-    .artikel-body p:last-child { margin-bottom: 0; }
-    .artikel-body ul { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-    .artikel-body ul li { display: flex; align-items: flex-start; gap: 10px; }
-    .artikel-body ul li::before { content: '•'; color: var(--teal); font-size: 18px; flex-shrink: 0; margin-top: -1px; }
-    .sub-artikel { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-    .sub-artikel-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+    /* ===== STAPPEN ===== */
+    .stappen { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; text-align: left; }
+    .stap { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); }
+    .stap-num { width: 28px; height: 28px; border-radius: 50%; background: var(--teal); color: white; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .stap-text { font-size: 14px; color: var(--text); line-height: 1.5; }
+    .stap-text strong { color: var(--dark); }
+
+    /* ===== BUTTONS ===== */
+    .btn-group { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 32px; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--teal); color: white; }
+    .btn-primary:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(58,122,119,0.35); }
+    .btn-outline { background: transparent; color: var(--teal-dark); border: 1.5px solid var(--teal); }
+    .btn-outline:hover { background: var(--teal-light); }
 
 
     /* ===== TERUG NAAR BOVEN ===== */
@@ -108,16 +95,10 @@
     /* ===== FOOTER ===== */
     .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 32px 24px; text-align: center; font-size: 13px; }
     .footer a { color: var(--teal); }
-    }
+
     @media (max-width: 600px) {
-      .artikel { padding: 24px 20px; }
-      .artikel-num { font-size: 28px; }
-      .artikel-title { font-size: 17px; }
-    }
-    @media (max-width: 700px) {
-      .nav-links { display: none; }
-      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: rgba(255,251,247,0.98); border-bottom: 1px solid var(--border); padding: 12px 24px 20px; gap: 4px; z-index: 99; }
-      .nav-hamburger { display: flex; }
+      .bedankt-card { padding: 36px 24px; }
+      .bedankt-card h1 { font-size: 26px; }
     }
 
     /* ===== TOEGANKELIJKHEID: FOCUS STATES ===== */
@@ -140,191 +121,58 @@
 
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Terug naar boven">↑</button>
 
-<nav class="nav" id="main-nav">
+<nav class="nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
       <img src="rc045-logo.png" alt="RC045 logo">
-      <div>
-        <span class="nav-logo-text">RC045</span>
-      </div>
+      <div><span class="nav-logo-text">RC045</span></div>
     </a>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
-      <li><a href="index.html#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
-      <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
-      <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
-      <li><a href="index.html#contact" data-i18n="nav.question">Contact</a></li>
-      <li class="nav-lid"><a href="baanreglement.html">Baanreglement</a></li>
-    </ul>
-    <div class="lang-flags">
-      <button class="lang-flag active" onclick="setLang('nl')" title="Nederlands" aria-label="Nederlands" aria-pressed="true">🇳🇱</button>
-      <button class="lang-flag" onclick="setLang('en')" title="English" aria-label="English" aria-pressed="false">🇬🇧</button>
-      <button class="lang-flag" onclick="setLang('de')" title="Deutsch" aria-label="Deutsch" aria-pressed="false">🇩🇪</button>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="lang-flags">
+        <button class="lang-flag active" onclick="setLang('nl')" title="Nederlands" aria-label="Nederlands" aria-pressed="true">🇳🇱</button>
+        <button class="lang-flag" onclick="setLang('en')" title="English" aria-label="English" aria-pressed="false">🇬🇧</button>
+        <button class="lang-flag" onclick="setLang('de')" title="Deutsch" aria-label="Deutsch" aria-pressed="false">🇩🇪</button>
+      </div>
+      <a href="index.html" class="nav-back" data-i18n="nav.back">← Terug naar de site</a>
     </div>
-    <button class="nav-hamburger" id="hamburger" aria-label="Menu openen" aria-expanded="false" aria-controls="nav-links">
-      <span></span><span></span><span></span>
-    </button>
   </div>
 </nav>
 
-<div class="page-hero">
-  <div class="page-hero-bg" id="hero-bg"></div>
-  <div class="page-hero-gradient"></div>
-  <div class="page-hero-content">
-    <div class="section-label">RC045</div>
-    <h1 data-i18n="hero.title">Baanreglement</h1>
-    <p data-i18n="hero.sub">Dit reglement is in het leven geroepen om onze hobby veilig uit te oefenen. Met het betreden van het RC045-terrein ga je akkoord met de inhoud van dit reglement.</p>
-  </div>
-</div>
-
 <main class="main" id="main-content">
+  <div class="bedankt-card">
+    <div class="bedankt-icon">🏎️</div>
+    <h1 data-i18n="title">Welkom bij RC045!</h1>
+    <p data-i18n="sub">Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.</p>
 
-  <div class="intro-card">
-    <strong data-i18n="intro.bold">Belangrijk:</strong> <span data-i18n="intro.text">Er zal niet worden gediscussieerd over de inhoud van dit reglement. Het niet correct opvolgen van deze regels kan leiden tot een reprimande van het bestuur in welke aard dan ook (e.e.a. conform de notarieel vastgelegde statuten).</span>
-  </div>
-
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">01</div>
-      <div class="artikel-title" data-i18n="a1.title">Openingstijden van de baan</div>
-    </div>
-    <div class="artikel-body">
-      <ul>
-        <li data-i18n="a1.b1">Woensdagavond 18:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)</li>
-        <li data-i18n="a1.b2">Zaterdag 10:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)</li>
-        <li data-i18n="a1.b3">Zondag 10:00 uur tot einde</li>
-      </ul>
-      <p data-i18n="a1.p1">Tot einde wil zeggen dat bij onvoldoende animo het RC045-terrein zal worden gesloten door de sleutelhouder. Sluiting van het RC045-terrein zal ook via de WhatsApp groep van RC045 worden gecommuniceerd.</p>
-    </div>
-  </div>
-
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">02</div>
-      <div class="artikel-title" data-i18n="a2.title">Veiligheid</div>
-    </div>
-    <div class="artikel-body">
-      <div class="sub-artikel" style="padding-top:0; border-top:none;">
-        <div class="sub-artikel-title" data-i18n="a2.1.title">2.1 Rijderspodium</div>
-        <p data-i18n="a2.1.p1">Het is verboden voor niet-rijders zich op de baan te bevinden. Alleen rijders bevinden zich op de baan (rijderspodium). Aangewezen personen met een hesje mogen op de baan zijn in de rol van baanmeester. Kijkers dienen achter de draad te staan.</p>
-        <p data-i18n="a2.1.p2">De definitie van rijder is een lid of gastrijder die op dat moment een RC-auto bestuurt.</p>
+    <div class="stappen">
+      <div class="stap">
+        <div class="stap-num">1</div>
+        <div class="stap-text" data-i18n="stap1">Maak de contributie over via onderstaande gegevens. Vermeld je naam duidelijk.</div>
       </div>
-      <div class="sub-artikel">
-        <div class="sub-artikel-title" data-i18n="a2.2.title">2.2 Jumptrack</div>
-        <p data-i18n="a2.2.p1">Bij de jumptrack mogen alleen aangewezen personen rondom de schans staan. Rijders staan altijd aan de voorzijde. Indien er een auto beschadigd of stuk gaat zal deze door een baanmeester worden opgehaald. Wanneer een baanmeester een signaal geeft of gaat bewegen stopt iedereen met rijden.</p>
+      <div class="stap">
+        <div class="stap-num">2</div>
+        <div class="stap-text" data-i18n="stap2">Wacht op bevestiging van het bestuur per e-mail of WhatsApp.</div>
       </div>
-      <div class="sub-artikel">
-        <div class="sub-artikel-title" data-i18n="a2.3.title">2.3 Crawlerbaan</div>
-        <p data-i18n="a2.3.p1">Bij en op de crawlerbaan mogen rijders langs het parcours lopen. Kijkers blijven op een gepaste afstand. Wanneer de rijder aangeeft dat iemand opzij moet of van een hindernis af moet dient men hier gehoor aan te geven.</p>
-        <p data-i18n="a2.3.p2">De crawlerbaan is hoofdzakelijk alleen toegankelijk voor leden en gastrijders. Zonder toestemming van het bestuur is het betreden van de crawlerbaan verboden. Op de crawlerbaan is het alleen toegestaan om met crawler auto's deel te nemen. Kraton, X-Max en dergelijke zijn hier niet toegestaan.</p>
-      </div>
-      <div class="sub-artikel">
-        <div class="sub-artikel-title" data-i18n="a2.4.title">2.4 Accu's en apparatuur</div>
-        <p data-i18n="a2.4.p1">Auto's moeten technisch goed functioneren en alles moet goed vastzitten. Accu's worden buiten geladen en niet in de kantine of op het rijderspodium. Laad-apparatuur is veilig en voorzien van een goed functionerende stekker en stekkermaterialen.</p>
-      </div>
-      <div class="sub-artikel">
-        <div class="sub-artikel-title" data-i18n="a2.5.title">2.5 Rijden op asfalt</div>
-        <p data-i18n="a2.5.p1">Het is niet toegestaan buiten de baan op het asfalt te rijden. Voor het hekwerk gedoseerd rijden met veiligheid op de eerste plaats (alleen rechtstreeks van de baan naar werktafel of v.v.).</p>
-      </div>
-      <div class="sub-artikel">
-        <div class="sub-artikel-title" data-i18n="a2.6.title">2.6 Aansprakelijkheid</div>
-        <p data-i18n="a2.6.p1">Het betreden van het RC045-terrein is op eigen risico. Wij zijn niet aansprakelijk voor diefstal of andere schades aan bv. auto's of materiaal. Dit geldt ook bij schades die onderling veroorzaakt worden op en rondom de banen.</p>
-      </div>
-      <div class="sub-artikel">
-        <div class="sub-artikel-title" data-i18n="a2.7.title">2.7 Verantwoordelijkheid gasten</div>
-        <p data-i18n="a2.7.p1">Ieder lid is verantwoordelijk voor het gedrag en de acties van zijn/haar gasten en/of bezoekers.</p>
+      <div class="stap">
+        <div class="stap-num">3</div>
+        <div class="stap-text" data-i18n="stap3">Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!</div>
       </div>
     </div>
-  </div>
 
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">03</div>
-      <div class="artikel-title" data-i18n="a3.title">Gastrijders</div>
-    </div>
-    <div class="artikel-body">
-      <p data-i18n="a3.p1">Een gastrijder moet zich altijd aanmelden bij een bestuurslid of sleuteldrager. De baanregels moeten worden besproken met de gastrijder. Ieder verenigingslid moet zorgdragen dat een gastrijder op de hoogte is van de geldende regels. Gastrijders krijgen het reglement.</p>
-    </div>
-  </div>
-
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">04</div>
-      <div class="artikel-title" data-i18n="a4.title">Baanmeester</div>
-    </div>
-    <div class="artikel-body">
-      <p data-i18n="a4.p1">De aangewezen baanmeester is herkenbaar door een oranje hesje en heeft op het moment dat hij op de baan staat de leiding. Dat wil zeggen dat alles wat hij zegt moet worden uitgevoerd. Het stil leggen van een race dient per direct opgevolgd te worden.</p>
-      <p data-i18n="a4.p2">De baanmeester kan uit meerdere personen bestaan. Het is een roulerende taak en ieder lid zal zijn rol hierin nemen.</p>
-    </div>
-  </div>
-
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">05</div>
-      <div class="artikel-title" data-i18n="a5.title">Rijden en gebruik van brandstof</div>
-    </div>
-    <div class="artikel-body">
-      <p data-i18n="a5.p1">Nitro en benzine zijn niet toegestaan. Alleen elektrisch aangedreven voertuigen zijn welkom op ons terrein.</p>
-    </div>
-  </div>
-
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">06</div>
-      <div class="artikel-title" data-i18n="a6.title">Verdovende middelen</div>
-    </div>
-    <div class="artikel-body">
-      <p data-i18n="a6.p1">Het is verboden op en rond de baan verdovende middelen te gebruiken.</p>
-    </div>
-  </div>
-
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">07</div>
-      <div class="artikel-title" data-i18n="a7.title">Roken en drank</div>
-    </div>
-    <div class="artikel-body">
-      <p data-i18n="a7.p1">Het is niet toegestaan te roken of te drinken op de baan. Alcoholhoudende dranken zijn tijdens openingstijden verboden op het gehele terrein.</p>
-    </div>
-  </div>
-
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">08</div>
-      <div class="artikel-title" data-i18n="a8.title">Opruimen</div>
-    </div>
-    <div class="artikel-body">
-      <div class="sub-artikel" style="padding-top:0; border-top:none;">
-        <div class="sub-artikel-title" data-i18n="a8.1.title">8.1 Terrein netjes houden</div>
-        <p data-i18n="a8.1.p1">Ieder lid en gastrijder verplicht zich tot het opruimen en netjes houden van ons terrein. Zwerfafval moet worden voorkomen, waar nodig ruimen we dit met z'n allen op. Afval doen we scheiden in de daarvoor aangewezen prullenbakken en zakken. De kantine wordt door iedereen opgeruimd en schoongemaakt.</p>
-      </div>
-      <div class="sub-artikel">
-        <div class="sub-artikel-title" data-i18n="a8.2.title">8.2 Chemisch afval</div>
-        <p data-i18n="a8.2.p1">Elke rijder is verplicht milieubelastende materialen mee naar huis te nemen en zelf in te leveren als chemisch afval (bv. een defecte accu).</p>
+    <div class="iban-card">
+      <h4 data-i18n="iban.title">Betalingsgegevens</h4>
+      <div class="iban-number">NL51 RABO 0367 6153 63</div>
+      <div class="iban-detail">
+        <span data-i18n="iban.name">T.n.v. RC045</span><br>
+        <span data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 2026"</span>
       </div>
     </div>
-  </div>
 
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">09</div>
-      <div class="artikel-title" data-i18n="a9.title">AVG</div>
-    </div>
-    <div class="artikel-body">
-      <p data-i18n="a9.p1">Bij het betreden van het RC045-terrein stem je in met het delen van foto's en video's op social media.</p>
+    <div class="btn-group">
+      <a href="index.html" class="btn btn-primary" data-i18n="btn.home">🏠 Naar de hoofdpagina</a>
+      <a href="index.html#locatie" class="btn btn-outline" data-i18n="btn.location">📍 Hoe kom ik er?</a>
     </div>
   </div>
-
-  <div class="artikel">
-    <div class="artikel-header">
-      <div class="artikel-num">10</div>
-      <div class="artikel-title" data-i18n="a10.title">Het bestuur</div>
-    </div>
-    <div class="artikel-body">
-      <p data-i18n="a10.p1">Indien er een geschil ontstaat over bovengenoemde regels moet dit met het bestuur worden besproken. Een uitspraak van het bestuur is bindend en niet discutabel. Eventuele wijzigingen worden gecommuniceerd via de nieuwsbrief of in een ALV.</p>
-    </div>
-  </div>
-
 </main>
 
 <footer class="footer">
@@ -332,163 +180,43 @@
 </footer>
 
 <script>
-const i18n = {
-  nl: {
-    'nav.back': '← Terug naar de site',
-    'nav.about': 'Over ons', 'nav.membership': 'Lidmaatschap', 'nav.track': 'De baan',
-    'nav.location': 'Locatie', 'nav.question': 'Contact',
-    'hero.title': 'Baanreglement',
-    'hero.sub': 'Dit reglement is in het leven geroepen om onze hobby veilig uit te oefenen. Met het betreden van het RC045-terrein ga je akkoord met de inhoud van dit reglement.',
-    'intro.bold': 'Belangrijk:',
-    'intro.text': 'Er zal niet worden gediscussieerd over de inhoud van dit reglement. Het niet correct opvolgen van deze regels kan leiden tot een reprimande van het bestuur in welke aard dan ook (e.e.a. conform de notarieel vastgelegde statuten).',
-    'a1.title': 'Openingstijden van de baan',
-    'a1.b1': 'Woensdagavond 18:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)',
-    'a1.b2': 'Zaterdag 10:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)',
-    'a1.b3': 'Zondag 10:00 uur tot einde',
-    'a1.p1': 'Tot einde wil zeggen dat bij onvoldoende animo het RC045-terrein zal worden gesloten door de sleutelhouder. Sluiting van het RC045-terrein zal ook via de WhatsApp groep van RC045 worden gecommuniceerd.',
-    'a2.title': 'Veiligheid',
-    'a2.1.title': '2.1 Rijderspodium',
-    'a2.1.p1': 'Het is verboden voor niet-rijders zich op de baan te bevinden. Alleen rijders bevinden zich op de baan (rijderspodium). Aangewezen personen met een hesje mogen op de baan zijn in de rol van baanmeester. Kijkers dienen achter de draad te staan.',
-    'a2.1.p2': 'De definitie van rijder is een lid of gastrijder die op dat moment een RC-auto bestuurt.',
-    'a2.2.title': '2.2 Jumptrack',
-    'a2.2.p1': 'Bij de jumptrack mogen alleen aangewezen personen rondom de schans staan. Rijders staan altijd aan de voorzijde. Indien er een auto beschadigd of stuk gaat zal deze door een baanmeester worden opgehaald. Wanneer een baanmeester een signaal geeft of gaat bewegen stopt iedereen met rijden.',
-    'a2.3.title': '2.3 Crawlerbaan',
-    'a2.3.p1': 'Bij en op de crawlerbaan mogen rijders langs het parcours lopen. Kijkers blijven op een gepaste afstand. Wanneer de rijder aangeeft dat iemand opzij moet of van een hindernis af moet dient men hier gehoor aan te geven.',
-    'a2.3.p2': 'De crawlerbaan is hoofdzakelijk alleen toegankelijk voor leden en gastrijders. Zonder toestemming van het bestuur is het betreden van de crawlerbaan verboden. Op de crawlerbaan is het alleen toegestaan om met crawler auto\'s deel te nemen. Kraton, X-Max en dergelijke zijn hier niet toegestaan.',
-    'a2.4.title': '2.4 Accu\'s en apparatuur',
-    'a2.4.p1': 'Auto\'s moeten technisch goed functioneren en alles moet goed vastzitten. Accu\'s worden buiten geladen en niet in de kantine of op het rijderspodium. Laad-apparatuur is veilig en voorzien van een goed functionerende stekker en stekkermaterialen.',
-    'a2.5.title': '2.5 Rijden op asfalt',
-    'a2.5.p1': 'Het is niet toegestaan buiten de baan op het asfalt te rijden. Voor het hekwerk gedoseerd rijden met veiligheid op de eerste plaats (alleen rechtstreeks van de baan naar werktafel of v.v.).',
-    'a2.6.title': '2.6 Aansprakelijkheid',
-    'a2.6.p1': 'Het betreden van het RC045-terrein is op eigen risico. Wij zijn niet aansprakelijk voor diefstal of andere schades aan bv. auto\'s of materiaal. Dit geldt ook bij schades die onderling veroorzaakt worden op en rondom de banen.',
-    'a2.7.title': '2.7 Verantwoordelijkheid gasten',
-    'a2.7.p1': 'Ieder lid is verantwoordelijk voor het gedrag en de acties van zijn/haar gasten en/of bezoekers.',
-    'a3.title': 'Gastrijders',
-    'a3.p1': 'Een gastrijder moet zich altijd aanmelden bij een bestuurslid of sleuteldrager. De baanregels moeten worden besproken met de gastrijder. Ieder verenigingslid moet zorgdragen dat een gastrijder op de hoogte is van de geldende regels. Gastrijders krijgen het reglement.',
-    'a4.title': 'Baanmeester',
-    'a4.p1': 'De aangewezen baanmeester is herkenbaar door een oranje hesje en heeft op het moment dat hij op de baan staat de leiding. Dat wil zeggen dat alles wat hij zegt moet worden uitgevoerd. Het stil leggen van een race dient per direct opgevolgd te worden.',
-    'a4.p2': 'De baanmeester kan uit meerdere personen bestaan. Het is een roulerende taak en ieder lid zal zijn rol hierin nemen.',
-    'a5.title': 'Rijden en gebruik van brandstof',
-    'a5.p1': 'Nitro en benzine zijn niet toegestaan. Alleen elektrisch aangedreven voertuigen zijn welkom op ons terrein.',
-    'a6.title': 'Verdovende middelen',
-    'a6.p1': 'Het is verboden op en rond de baan verdovende middelen te gebruiken.',
-    'a7.title': 'Roken en drank',
-    'a7.p1': 'Het is niet toegestaan te roken of te drinken op de baan. Alcoholhoudende dranken zijn tijdens openingstijden verboden op het gehele terrein.',
-    'a8.title': 'Opruimen',
-    'a8.1.title': '8.1 Terrein netjes houden',
-    'a8.1.p1': 'Ieder lid en gastrijder verplicht zich tot het opruimen en netjes houden van ons terrein. Zwerfafval moet worden voorkomen, waar nodig ruimen we dit met z\'n allen op. Afval doen we scheiden in de daarvoor aangewezen prullenbakken en zakken. De kantine wordt door iedereen opgeruimd en schoongemaakt.',
-    'a8.2.title': '8.2 Chemisch afval',
-    'a8.2.p1': 'Elke rijder is verplicht milieubelastende materialen mee naar huis te nemen en zelf in te leveren als chemisch afval (bv. een defecte accu).',
-    'a9.title': 'AVG',
-    'a9.p1': 'Bij het betreden van het RC045-terrein stem je in met het delen van foto\'s en video\'s op social media.',
-    'a10.title': 'Het bestuur',
-    'a10.p1': 'Indien er een geschil ontstaat over bovengenoemde regels moet dit met het bestuur worden besproken. Een uitspraak van het bestuur is bindend en niet discutabel. Eventuele wijzigingen worden gecommuniceerd via de nieuwsbrief of in een ALV.'
-  },
-  en: {
-    'nav.back': '← Back to the site',
-    'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
-    'nav.location': 'Location', 'nav.question': 'Contact',
-    'hero.title': 'Track Regulations',
-    'hero.sub': 'These regulations were created to ensure our hobby can be practised safely. By entering the RC045 grounds, you agree to the contents of these regulations.',
-    'intro.bold': 'Important:',
-    'intro.text': 'These regulations are not open for discussion. Failure to comply may result in a reprimand from the board in any form (in accordance with the notarially recorded statutes).',
-    'a1.title': 'Track Opening Hours',
-    'a1.b1': 'Wednesday evening from 18:00 until close (subject to sufficient interest and weather conditions)',
-    'a1.b2': 'Saturday from 10:00 until close (subject to sufficient interest and weather conditions)',
-    'a1.b3': 'Sunday from 10:00 until close',
-    'a1.p1': '"Until close" means the RC045 grounds will be closed by the key holder if there is insufficient interest. Closure will also be communicated via the RC045 WhatsApp group.',
-    'a2.title': 'Safety',
-    'a2.1.title': '2.1 Driver\'s Platform',
-    'a2.1.p1': 'Non-drivers are not permitted on the track. Only drivers are allowed on the track (driver\'s platform). Designated persons wearing a vest may be on the track in the role of track marshal. Spectators must stand behind the barrier.',
-    'a2.1.p2': 'A driver is defined as a member or guest rider who is actively controlling an RC car at that moment.',
-    'a2.2.title': '2.2 Jump Track',
-    'a2.2.p1': 'Only designated persons may stand around the jump ramp. Drivers always stand at the front. If a car is damaged or breaks down, it will be retrieved by a track marshal. When a track marshal gives a signal or begins to move, everyone must stop driving.',
-    'a2.3.title': '2.3 Crawler Track',
-    'a2.3.p1': 'Drivers may walk alongside the crawler course. Spectators must keep a safe distance. When a driver indicates that someone needs to move aside or step away from an obstacle, this must be respected.',
-    'a2.3.p2': 'The crawler track is primarily accessible to members and guest riders only, for safety reasons due to the rough terrain. Entering the crawler track without permission from the board is prohibited. Only crawler vehicles may participate on the crawler track. Kraton, X-Max and similar vehicles are not permitted here.',
-    'a2.4.title': '2.4 Batteries and Equipment',
-    'a2.4.p1': 'Vehicles must be in good technical working order and everything must be securely fastened. Batteries are charged outside only, not in the canteen or on the driver\'s platform. Charging equipment must be safe and fitted with a properly functioning plug and connector.',
-    'a2.5.title': '2.5 Riding on Asphalt',
-    'a2.5.p1': 'It is not permitted to ride on the asphalt outside the designated track area. Near the fence, ride carefully with safety as the top priority (only directly from the track to the work table or vice versa).',
-    'a2.6.title': '2.6 Liability',
-    'a2.6.p1': 'Entering the RC045 grounds is at your own risk. We are not liable for theft or other damage to vehicles or equipment. This also applies to damage caused between participants on and around the tracks.',
-    'a2.7.title': '2.7 Responsibility for Guests',
-    'a2.7.p1': 'Each member is responsible for the behaviour and actions of their guests and/or visitors.',
-    'a3.title': 'Guest Riders',
-    'a3.p1': 'A guest rider must always check in with a board member or key holder. The track rules must be discussed with the guest rider. Every club member must ensure that a guest rider is informed of the applicable rules. Guest riders will receive a copy of the regulations.',
-    'a4.title': 'Track Marshal',
-    'a4.p1': 'The designated track marshal is recognisable by an orange vest and has authority when on the track. This means that everything they say must be followed. Stopping a race must be complied with immediately.',
-    'a4.p2': 'There may be multiple track marshals. It is a rotating role and every member will take on this responsibility.',
-    'a5.title': 'Driving and Fuel Use',
-    'a5.p1': 'Nitro and petrol are not permitted. Only electrically powered vehicles are welcome on our grounds.',
-    'a6.title': 'Narcotics',
-    'a6.p1': 'The use of narcotics on and around the track is prohibited.',
-    'a7.title': 'Smoking and Alcohol',
-    'a7.p1': 'Smoking and drinking on the track are not permitted. Alcoholic beverages are prohibited on the entire grounds during opening hours.',
-    'a8.title': 'Tidying Up',
-    'a8.1.title': '8.1 Keeping the Grounds Tidy',
-    'a8.1.p1': 'Every member and guest rider is obliged to help clean up and keep our grounds tidy. Litter must be avoided and we all clean it up together when needed. Waste is separated into the designated bins and bags. The canteen is cleaned up by everyone.',
-    'a8.2.title': '8.2 Chemical Waste',
-    'a8.2.p1': 'Every rider is obliged to take environmentally hazardous materials home and dispose of them as chemical waste themselves (e.g. a defective battery).',
-    'a9.title': 'GDPR',
-    'a9.p1': 'By entering the RC045 grounds, you consent to the sharing of photos and videos on social media.',
-    'a10.title': 'The Board',
-    'a10.p1': 'If a dispute arises regarding the above rules, it must be discussed with the board. A decision by the board is binding and not open to discussion. Any changes will be communicated via the newsletter or at a general meeting.'
-  },
-  de: {
-    'nav.back': '← Zurück zur Website',
-    'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
-    'nav.location': 'Standort', 'nav.question': 'Contact',
-    'hero.title': 'Streckenreglement',
-    'hero.sub': 'Dieses Reglement wurde erstellt, um unser Hobby sicher ausüben zu können. Mit dem Betreten des RC045-Geländes stimmst du dem Inhalt dieses Reglements zu.',
-    'intro.bold': 'Wichtig:',
-    'intro.text': 'Über den Inhalt dieses Reglements wird nicht diskutiert. Die Nichteinhaltung dieser Regeln kann zu einer Abmahnung durch den Vorstand jeglicher Art führen (gemäß den notariell festgelegten Statuten).',
-    'a1.title': 'Öffnungszeiten der Strecke',
-    'a1.b1': 'Mittwochabend ab 18:00 Uhr bis Ende (bei ausreichend Interesse und abhängig vom Wetter)',
-    'a1.b2': 'Samstag ab 10:00 Uhr bis Ende (bei ausreichend Interesse und abhängig vom Wetter)',
-    'a1.b3': 'Sonntag ab 10:00 Uhr bis Ende',
-    'a1.p1': '"Bis Ende" bedeutet, dass das RC045-Gelände bei unzureichendem Interesse vom Schlüsselträger geschlossen wird. Die Schließung des RC045-Geländes wird auch über die WhatsApp-Gruppe von RC045 kommuniziert.',
-    'a2.title': 'Sicherheit',
-    'a2.1.title': '2.1 Fahrerpodium',
-    'a2.1.p1': 'Es ist Nicht-Fahrern verboten, sich auf der Strecke aufzuhalten. Nur Fahrer befinden sich auf der Strecke (Fahrerpodium). Ausgewiesene Personen mit einer Weste dürfen als Streckenmarschall auf der Strecke sein. Zuschauer müssen hinter der Absperrung stehen.',
-    'a2.1.p2': 'Als Fahrer gilt ein Mitglied oder Gastfahrer, der zu diesem Zeitpunkt ein RC-Auto steuert.',
-    'a2.2.title': '2.2 Sprungstrecke',
-    'a2.2.p1': 'Bei der Sprungstrecke dürfen nur ausgewiesene Personen rund um die Rampe stehen. Fahrer stehen immer an der Vorderseite. Wenn ein Auto beschädigt wird oder kaputt geht, wird es von einem Streckenmarschall abgeholt. Wenn ein Streckenmarschall ein Signal gibt oder sich bewegt, hört jeder mit dem Fahren auf.',
-    'a2.3.title': '2.3 Crawler-Strecke',
-    'a2.3.p1': 'Auf und an der Crawler-Strecke dürfen Fahrer entlang des Parcours laufen. Zuschauer halten einen angemessenen Abstand. Wenn der Fahrer angibt, dass jemand zur Seite treten oder von einem Hindernis absteigen soll, muss dem Folge geleistet werden.',
-    'a2.3.p2': 'Die Crawler-Strecke ist hauptsächlich nur für Mitglieder und Gastfahrer zugänglich. Das Betreten der Crawler-Strecke ohne Genehmigung des Vorstands ist verboten. Auf der Crawler-Strecke dürfen nur Crawler-Fahrzeuge teilnehmen. Kraton, X-Max und ähnliche sind hier nicht erlaubt.',
-    'a2.4.title': '2.4 Akkus und Ausrüstung',
-    'a2.4.p1': 'Fahrzeuge müssen technisch einwandfrei funktionieren und alles muss fest sitzen. Akkus werden nur draußen geladen, nicht in der Kantine oder auf dem Fahrerpodium. Ladegeräte sind sicher und mit einem einwandfrei funktionierenden Stecker und Steckermaterial ausgestattet.',
-    'a2.5.title': '2.5 Fahren auf Asphalt',
-    'a2.5.p1': 'Es ist nicht erlaubt, außerhalb der Strecke auf dem Asphalt zu fahren. Vor dem Zaun dosiert fahren mit Sicherheit an erster Stelle (nur direkt von der Strecke zum Werktisch oder umgekehrt).',
-    'a2.6.title': '2.6 Haftung',
-    'a2.6.p1': 'Das Betreten des RC045-Geländes erfolgt auf eigene Gefahr. Wir haften nicht für Diebstahl oder andere Schäden an z.B. Fahrzeugen oder Material. Dies gilt auch für Schäden, die gegenseitig auf und um die Strecken verursacht werden.',
-    'a2.7.title': '2.7 Verantwortung für Gäste',
-    'a2.7.p1': 'Jedes Mitglied ist verantwortlich für das Verhalten und die Handlungen seiner Gäste und/oder Besucher.',
-    'a3.title': 'Gastfahrer',
-    'a3.p1': 'Ein Gastfahrer muss sich immer bei einem Vorstandsmitglied oder Schlüsselträger anmelden. Die Streckenregeln müssen mit dem Gastfahrer besprochen werden. Jedes Vereinsmitglied muss dafür sorgen, dass ein Gastfahrer über die geltenden Regeln informiert ist. Gastfahrer erhalten das Reglement.',
-    'a4.title': 'Streckenmarschall',
-    'a4.p1': 'Der ausgewiesene Streckenmarschall ist an einer orangenen Weste erkennbar und hat die Leitung, wenn er sich auf der Strecke befindet. Das bedeutet, dass alles, was er sagt, ausgeführt werden muss. Das Stoppen eines Rennens muss sofort befolgt werden.',
-    'a4.p2': 'Es kann mehrere Streckenmarschälle geben. Es ist eine rotierende Aufgabe und jedes Mitglied wird seine Rolle darin übernehmen.',
-    'a5.title': 'Fahren und Kraftstoffnutzung',
-    'a5.p1': 'Nitro und Benzin sind nicht erlaubt. Nur elektrisch angetriebene Fahrzeuge sind auf unserem Gelände willkommen.',
-    'a6.title': 'Betäubungsmittel',
-    'a6.p1': 'Es ist verboten, auf und um die Strecke Betäubungsmittel zu verwenden.',
-    'a7.title': 'Rauchen und Alkohol',
-    'a7.p1': 'Es ist nicht erlaubt, auf der Strecke zu rauchen oder zu trinken. Alkoholische Getränke sind während der Öffnungszeiten auf dem gesamten Gelände verboten.',
-    'a8.title': 'Aufräumen',
-    'a8.1.title': '8.1 Gelände sauber halten',
-    'a8.1.p1': 'Jedes Mitglied und jeder Gastfahrer verpflichtet sich, unser Gelände aufzuräumen und sauber zu halten. Müll muss vermieden werden; wenn nötig, räumen wir ihn gemeinsam auf. Abfall wird in die dafür vorgesehenen Müllbehälter und Säcke getrennt. Die Kantine wird von allen aufgeräumt und gereinigt.',
-    'a8.2.title': '8.2 Chemischer Abfall',
-    'a8.2.p1': 'Jeder Fahrer ist verpflichtet, umweltbelastende Materialien mit nach Hause zu nehmen und selbst als Sondermüll zu entsorgen (z.B. ein defekter Akku).',
-    'a9.title': 'DSGVO',
-    'a9.p1': 'Mit dem Betreten des RC045-Geländes stimmst du der Veröffentlichung von Fotos und Videos in sozialen Medien zu.',
-    'a10.title': 'Der Vorstand',
-    'a10.p1': 'Wenn ein Streit über die oben genannten Regeln entsteht, muss dieser mit dem Vorstand besprochen werden. Eine Entscheidung des Vorstands ist bindend und nicht diskutierbar. Etwaige Änderungen werden über den Newsletter oder in einer Hauptversammlung kommuniziert.'
-  }
-};
+  const i18n = {
+    nl: {
+      'nav.back': '← Terug naar de site',
+      'title': 'Welkom bij RC045!',
+      'sub': 'Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.',
+      'stap1': 'Maak de contributie over via onderstaande gegevens. Vermeld je naam duidelijk.',
+      'stap2': 'Wacht op bevestiging van het bestuur per e-mail of WhatsApp.',
+      'stap3': 'Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!',
+      'iban.title': 'Betalingsgegevens', 'iban.name': 'T.n.v. RC045',
+      'iban.ref': 'Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 2026"',
+      'btn.home': '🏠 Naar de hoofdpagina', 'btn.location': '📍 Hoe kom ik er?'
+    },
+    en: {
+      'nav.back': '← Back to the site',
+      'title': 'Welcome to RC045!',
+      'sub': 'Your registration has been received. The board will contact you as soon as possible to confirm your membership.',
+      'stap1': 'Transfer the membership fee using the details below. Include your name clearly.',
+      'stap2': 'Wait for confirmation from the board by email or WhatsApp.',
+      'stap3': 'You are very welcome at our track once your membership is confirmed!',
+      'iban.title': 'Payment details', 'iban.name': 'In the name of RC045',
+      'iban.ref': 'Reference: first name + last name + "contributie RC045 2026"',
+      'btn.home': '🏠 Go to the homepage', 'btn.location': '📍 How to find us?'
+    },
+    de: {
+      'nav.back': '← Zurück zur Website',
+      'title': 'Willkommen bei RC045!',
+      'sub': 'Deine Anmeldung ist eingegangen. Der Vorstand wird sich so schnell wie möglich bei dir melden, um deine Mitgliedschaft zu bestätigen.',
+      'stap1': 'Überweise den Mitgliedsbeitrag mit den untenstehenden Angaben. Gib deinen Namen deutlich an.',
+      'stap2': 'Warte auf die Bestätigung des Vorstands per E-Mail oder WhatsApp.',
+      'stap3': 'Du bist herzlich willkommen auf unserer Strecke, sobald deine Mitgliedschaft bestätigt ist!',
+      'iban.title': 'Zahlungsdaten', 'iban.name': 'Auf den Namen RC045',
+      'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 2026"',
+      'btn.home': '🏠 Zur Hauptseite', 'btn.location': '📍 Wie komme ich hin?'
+    }
+  };
 
-  // ===== TAAL PERSISTENTIE TUSSEN PAGINA'S =====
+    // ===== TAAL PERSISTENTIE TUSSEN PAGINA'S =====
   function getInitialLang() {
     const urlLang = new URLSearchParams(window.location.search).get('lang');
     if (urlLang && i18n[urlLang]) return urlLang;
@@ -518,65 +246,32 @@ const i18n = {
 
   let currentLang = getInitialLang();
 
-function setLang(lang) {
-  currentLang = lang;
-  const t = i18n[lang];
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (t[key]) el.textContent = t[key];
-  });
-  document.querySelectorAll('.lang-flag').forEach(btn => { btn.classList.remove('active'); btn.setAttribute('aria-pressed', 'false'); });
-  const activeBtn = document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`);
+  function setLang(lang) {
+    currentLang = lang;
+    const t = i18n[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[key]) el.textContent = t[key];
+    });
+    document.querySelectorAll('.lang-flag').forEach(btn => { btn.classList.remove('active'); btn.setAttribute('aria-pressed', 'false'); });
+    const activeBtn = document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`);
     activeBtn.classList.add('active');
     activeBtn.setAttribute('aria-pressed', 'true');
-  document.documentElement.lang = lang;
-  localStorage.setItem('rc045_lang', lang);
-  const currentUrl = new URL(window.location.href);
-  if (lang === 'nl') currentUrl.searchParams.delete('lang');
-  else currentUrl.searchParams.set('lang', lang);
-  history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
-  updateInternalLinks(lang);
-}
+    document.documentElement.lang = lang;
+    localStorage.setItem('rc045_lang', lang);
+    updateInternalLinks(lang);
+  }
 
-document.getElementById('footer-year').textContent = new Date().getFullYear();
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-// Pas opgeslagen/URL-taal direct toe en update links bij eerste load
-if (currentLang !== 'nl') setLang(currentLang);
-else updateInternalLinks('nl');
-
-document.getElementById('hamburger').addEventListener('click', function() {
-  document.querySelector('.nav-links').classList.toggle('open');
-});
-window.addEventListener('scroll', function() {
-  document.querySelector('.nav-links').classList.remove('open');
-}, { passive: true });
-document.addEventListener('touchstart', function(e) {
-  const nav = document.getElementById('main-nav');
-  if (!nav.contains(e.target)) document.querySelector('.nav-links').classList.remove('open');
-});
-
-const heroBg = document.getElementById('hero-bg');
-window.addEventListener('scroll', function() {
-  const scrollY = window.scrollY;
-  if (scrollY < window.innerHeight * 1.2) heroBg.style.transform = `translateY(${scrollY * 0.5}px)`;
-}, { passive: true });
+  // Pas opgeslagen/URL-taal direct toe en update links bij eerste load
+  if (currentLang !== 'nl') setLang(currentLang);
+  else updateInternalLinks('nl');
   // ===== TERUG NAAR BOVEN =====
   const backToTop = document.getElementById('backToTop');
   window.addEventListener('scroll', function() {
     backToTop.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
-  // ===== IBAN KOPIEER KNOP =====
-  document.querySelectorAll('.iban-copy-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      navigator.clipboard.writeText('NL51 RABO 0367 6153 63').then(() => {
-        const orig = btn.textContent;
-        btn.textContent = '✓ Gekopieerd!';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
-      });
-    });
-  });
-
 </script>
 
 </body>
