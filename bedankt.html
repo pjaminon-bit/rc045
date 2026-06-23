@@ -68,7 +68,11 @@
     /* ===== IBAN ===== */
     .iban-card { background: var(--teal-light); border: 1.5px solid var(--teal); border-radius: var(--radius); padding: 20px 24px; margin: 28px 0; text-align: left; }
     .iban-card h4 { font-size: 13px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
-    .iban-number { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 800; color: var(--dark); letter-spacing: 0.08em; margin-bottom: 6px; }
+    .iban-number-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .iban-number { font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 800; color: var(--dark); letter-spacing: 0.08em; }
+    .iban-copy-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; border: none; background: none; color: var(--teal-dark); font-size: 15px; cursor: pointer; transition: background 0.15s, opacity 0.15s; opacity: 0.5; flex-shrink: 0; }
+    .iban-copy-btn:hover { background: rgba(58,122,119,0.12); opacity: 1; }
+    .iban-copy-btn.copied { opacity: 1; }
     .iban-detail { font-size: 13px; color: var(--teal-dark); line-height: 1.6; }
 
     /* ===== STAPPEN ===== */
@@ -86,7 +90,6 @@
     .btn-outline { background: transparent; color: var(--teal-dark); border: 1.5px solid var(--teal); }
     .btn-outline:hover { background: var(--teal-light); }
 
-
     /* ===== TERUG NAAR BOVEN ===== */
     .back-to-top { position: fixed; bottom: 24px; right: 16px; z-index: 99; width: 44px; height: 44px; border-radius: 50%; background: var(--teal); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: none; box-shadow: 0 4px 16px rgba(58,122,119,0.4); opacity: 0; transform: translateY(16px); transition: opacity 0.3s, transform 0.3s, background 0.2s; pointer-events: none; }
     .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
@@ -99,6 +102,7 @@
     @media (max-width: 600px) {
       .bedankt-card { padding: 36px 24px; }
       .bedankt-card h1 { font-size: 26px; }
+      .iban-number { font-size: 18px; }
     }
 
     /* ===== TOEGANKELIJKHEID: FOCUS STATES ===== */
@@ -161,7 +165,17 @@
 
     <div class="iban-card">
       <h4 data-i18n="iban.title">Betalingsgegevens</h4>
-      <div class="iban-number">NL51 RABO 0367 6153 63</div>
+      <div class="iban-number-row">
+        <div class="iban-number" id="iban-number">NL51 RABO 0367 6153 63</div>
+        <button class="iban-copy-btn" id="ibanCopyBtn" onclick="copyIban()" aria-label="Kopieer IBAN-nummer">
+          <span id="ibanCopyIcon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </span>
+        </button>
+      </div>
       <div class="iban-detail">
         <span data-i18n="iban.name">T.n.v. RC045</span><br>
         <span data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 2026"</span>
@@ -190,6 +204,8 @@
       'stap3': 'Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!',
       'iban.title': 'Betalingsgegevens', 'iban.name': 'T.n.v. RC045',
       'iban.ref': 'Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 2026"',
+      'iban.copy': 'Kopieer',
+      'iban.copied': 'Gekopieerd!',
       'btn.home': '🏠 Naar de hoofdpagina', 'btn.location': '📍 Hoe kom ik er?'
     },
     en: {
@@ -201,6 +217,8 @@
       'stap3': 'You are very welcome at our track once your membership is confirmed!',
       'iban.title': 'Payment details', 'iban.name': 'In the name of RC045',
       'iban.ref': 'Reference: first name + last name + "contributie RC045 2026"',
+      'iban.copy': 'Copy',
+      'iban.copied': 'Copied!',
       'btn.home': '🏠 Go to the homepage', 'btn.location': '📍 How to find us?'
     },
     de: {
@@ -212,11 +230,41 @@
       'stap3': 'Du bist herzlich willkommen auf unserer Strecke, sobald deine Mitgliedschaft bestätigt ist!',
       'iban.title': 'Zahlungsdaten', 'iban.name': 'Auf den Namen RC045',
       'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 2026"',
+      'iban.copy': 'Kopieren',
+      'iban.copied': 'Kopiert!',
       'btn.home': '🏠 Zur Hauptseite', 'btn.location': '📍 Wie komme ich hin?'
     }
   };
 
-    // ===== TAAL PERSISTENTIE TUSSEN PAGINA'S =====
+  // ===== IBAN KOPIEER FUNCTIE =====
+  function copyIban() {
+    const iban = 'NL51RABO0367615363'; // zonder spaties voor betrouwbaar kopiëren
+    const btn = document.getElementById('ibanCopyBtn');
+    const icon = document.getElementById('ibanCopyIcon');
+
+    const finish = () => {
+      btn.classList.add('copied');
+      icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        icon.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      }, 2500);
+    };
+
+    navigator.clipboard.writeText(iban).then(finish).catch(() => {
+      const el = document.createElement('textarea');
+      el.value = iban;
+      el.style.position = 'fixed';
+      el.style.opacity = '0';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      finish();
+    });
+  }
+
+  // ===== TAAL PERSISTENTIE TUSSEN PAGINA'S =====
   function getInitialLang() {
     const urlLang = new URLSearchParams(window.location.search).get('lang');
     if (urlLang && i18n[urlLang]) return urlLang;
@@ -228,7 +276,6 @@
   function updateInternalLinks(lang) {
     document.querySelectorAll('a[href]').forEach(a => {
       const href = a.getAttribute('href');
-      // Alleen lokale .html links en lokale anchors, geen externe/mailto/tel links
       if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
       if (!href.endsWith('.html') && !href.includes('.html#') && !href.includes('.html?')) return;
 
@@ -238,7 +285,6 @@
       } else {
         url.searchParams.set('lang', lang);
       }
-      // Bouw relatieve href terug op (pad + query + hash)
       const newHref = url.pathname.split('/').pop() + url.search + url.hash;
       a.setAttribute('href', newHref);
     });
@@ -264,9 +310,9 @@
 
   document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-  // Pas opgeslagen/URL-taal direct toe en update links bij eerste load
   if (currentLang !== 'nl') setLang(currentLang);
   else updateInternalLinks('nl');
+
   // ===== TERUG NAAR BOVEN =====
   const backToTop = document.getElementById('backToTop');
   window.addEventListener('scroll', function() {
