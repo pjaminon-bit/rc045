@@ -146,8 +146,9 @@
     .about-img-secondary { position: absolute; bottom: -28px; right: -28px; width: 220px; height: 160px; object-fit: cover; border-radius: var(--radius); border: 4px solid var(--white); box-shadow: var(--shadow); cursor: pointer; transition: opacity 0.2s; }
     .about-img-secondary:hover { opacity: 0.92; }
     .about-features { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 32px; }
-    .about-story-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 28px; color: var(--teal-dark); font-weight: 600; font-size: 17px; border-bottom: 1.5px solid var(--teal); padding-bottom: 2px; transition: border-color 0.2s, color 0.2s; }
+    .about-story-link { display: block; width: fit-content; margin-top: 28px; color: var(--teal-dark); font-weight: 600; font-size: 17px; border-bottom: 1.5px solid var(--teal); padding-bottom: 2px; transition: border-color 0.2s, color 0.2s; }
     .about-story-link:hover { color: var(--teal); }
+    .about-story-link + .about-story-link { margin-top: 10px; }
     .feature-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
     .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--teal-light); }
     .feature-card-icon { font-size: 24px; margin-bottom: 8px; }
@@ -534,10 +535,8 @@
             <p data-i18n="feat4.text">Vanaf 4 jaar is iedereen welkom!</p>
           </div>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 28px;">
-          <a href="ontstaan.html" class="about-story-link" data-i18n="about.storylink">Lees het ontstaansverhaal →</a>
-          <a href="media.html" class="about-story-link" data-i18n="about.medialink">RC045 in de media →</a>
-        </div>
+        <a href="ontstaan.html" class="about-story-link reveal reveal-delay-4" data-i18n="about.storylink">Lees het ontstaansverhaal →</a>
+        <a href="media.html" class="about-story-link reveal reveal-delay-4" data-i18n="about.medialink">RC045 in de media →</a>
       </div>
     </div>
     <div class="about-photos-title reveal" data-i18n="about.photos.title">Crawlerparcours</div>
