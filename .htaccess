@@ -1,2 +1,6 @@
 RewriteEngine On
+
+# Tijdelijke testregel, later weer verwijderen
+RewriteRule ^testredirect$ https://www.google.com/ [R=301,L]
+
 RewriteRule ^Over-ons/?$ /#overons [R=301,L,NC]
