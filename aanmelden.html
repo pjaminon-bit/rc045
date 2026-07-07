@@ -175,6 +175,12 @@
     .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 48px 24px 32px; }
     .footer-inner { max-width: 1200px; margin: 0 auto; }
     .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 32px; }
+    .footer-sponsors { padding-bottom: 32px; margin-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .footer-sponsors-title { font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 18px; }
+    .footer-sponsors-grid { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+    .footer-sponsor-card { background: var(--white); border-radius: 8px; padding: 8px 14px; display: flex; align-items: center; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .footer-sponsor-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
+    .footer-sponsor-logo { height: 30px; width: auto; object-fit: contain; display: block; }
     .footer-brand img { height: 44px; margin-bottom: 16px; }
     .footer-brand p { font-size: 14px; line-height: 1.7; max-width: 280px; }
     .footer-social { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
@@ -462,6 +468,16 @@
         </ul>
       </div>
     </div>
+    <div class="footer-sponsors">
+      <div class="footer-sponsors-title" data-i18n="footer.sponsors.title">Met dank aan onze sponsoren</div>
+      <div class="footer-sponsors-grid">
+        <div class="footer-sponsor-card"><img src="images/sponsors/traxxas.png" alt="Traxxas" class="footer-sponsor-logo"></div>
+        <div class="footer-sponsor-card"><img src="images/sponsors/kok-lexmond.png" alt="Kok Lexmond" class="footer-sponsor-logo"></div>
+        <div class="footer-sponsor-card"><img src="images/sponsors/toemen.png" alt="Toemen" class="footer-sponsor-logo"></div>
+        <div class="footer-sponsor-card"><img src="images/sponsors/shamrock.png" alt="Shamrock" class="footer-sponsor-logo"></div>
+        <div class="footer-sponsor-card"><img src="images/sponsors/rothy.png" alt="Rothy" class="footer-sponsor-logo"></div>
+      </div>
+    </div>
     <div class="footer-bottom">
       <span>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South</span>
       <span data-i18n="footer.made">Gemaakt met ❤️ voor onze hobby</span>
@@ -481,7 +497,7 @@
       'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.board': 'Bestuur & organisatie',
       'footer.photos': 'Foto\'s', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
       'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
-      'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'guest.tag': 'Gastrijden',
+      'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'footer.sponsors.title': 'Met dank aan onze sponsoren', 'guest.tag': 'Gastrijden',
       'hero.label': 'Lidmaatschap', 'hero.title': 'Aanmelden als lid',
       'hero.sub': 'Vul het formulier in om je aan te melden bij RC045. Na ontvangst nemen we zo snel mogelijk contact met je op.',
       'contrib.title': '🏎️ Jouw contributie 2026',
@@ -527,7 +543,7 @@
       'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.board': 'Board & organisation',
       'footer.photos': 'Photos', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
       'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
-      'footer.made': 'Made with ❤️ for our hobby', 'guest.tag': 'Guest riding',
+      'footer.made': 'Made with ❤️ for our hobby', 'footer.sponsors.title': 'With thanks to our sponsors', 'guest.tag': 'Guest riding',
       'hero.label': 'Membership', 'hero.title': 'Register as a member',
       'hero.sub': 'Fill in the form to register with RC045. We will contact you as soon as possible after receiving your registration.',
       'contrib.title': '🏎️ Your membership fee 2026',
@@ -573,7 +589,7 @@
       'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.board': 'Vorstand & Organisation',
       'footer.photos': 'Fotos', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
       'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
-      'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'guest.tag': 'Gastfahren',
+      'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'footer.sponsors.title': 'Mit Dank an unsere Sponsoren', 'guest.tag': 'Gastfahren',
       'hero.label': 'Mitgliedschaft', 'hero.title': 'Als Mitglied anmelden',
       'hero.sub': 'Fülle das Formular aus, um dich bei RC045 anzumelden. Nach Eingang melden wir uns so schnell wie möglich bei dir.',
       'contrib.title': '🏎️ Dein Mitgliedsbeitrag 2026',
