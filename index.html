@@ -1481,11 +1481,6 @@
     backToTop.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
 
-  // ===== BROWSERTAB TITEL =====
-  const defaultTitle = document.title;
-  document.addEventListener('visibilitychange', function() {
-    document.title = document.hidden ? '🏎️ Kom terug! — RC045' : defaultTitle;
-  });
 
   // ===== CAROUSEL =====
   const carousel = document.getElementById('photo-carousel');
