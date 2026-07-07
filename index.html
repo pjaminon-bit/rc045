@@ -218,7 +218,7 @@
 
     /* ===== ACTIVITEITEN ===== */
     .agenda { background: var(--bg); }
-    .agenda-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .agenda-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
     .agenda-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; opacity: 0; transform: translateY(24px); }
     .agenda-card.visible { animation: cardDrop 0.5s ease forwards; }
     .agenda-card.visible:nth-child(2) { animation-delay: 0.1s; }
@@ -762,25 +762,37 @@
       <!-- ===== ACTIVITEIT 2 — pas datum, tag, titel, omschrijving en tijd aan ===== -->
       <div class="agenda-card reveal reveal-delay-2">
         <div class="agenda-card-date">
-          <span class="agenda-card-day">26</span>
-          <span class="agenda-card-month">Jul</span>
+          <span class="agenda-card-day">23</span>
+          <span class="agenda-card-month">Aug</span>
         </div>
         <span class="agenda-card-tag leden" data-i18n="agenda.tag.leden">Ledenevenement</span>
-        <h3 data-i18n="agenda.event2.title">Zomerrijdag voor leden</h3>
-        <p data-i18n="agenda.event2.desc">Exclusief voor leden. Gezellig samen rijden gevolgd door een BBQ.</p>
+        <h3 data-i18n="agenda.event2.title">ZomerBBQ met F1 Zandvoort</h3>
+        <p data-i18n="agenda.event2.desc">Exclusief voor leden. Gezellige BBQ terwijl we de Formule 1 in Zandvoort volgen.</p>
         <div class="agenda-card-time">🕙 <span data-i18n="agenda.event2.time">10:00 - 17:00</span></div>
       </div>
 
       <!-- ===== ACTIVITEIT 3 — pas datum, tag, titel, omschrijving en tijd aan ===== -->
       <div class="agenda-card reveal reveal-delay-3">
         <div class="agenda-card-date">
-          <span class="agenda-card-day">09</span>
-          <span class="agenda-card-month">Aug</span>
+          <span class="agenda-card-day">31</span>
+          <span class="agenda-card-month">Okt</span>
         </div>
-        <span class="agenda-card-tag open-dag" data-i18n="agenda.tag.opendag">Open dag</span>
-        <h3 data-i18n="agenda.event3.title">Crawlerdag</h3>
-        <p data-i18n="agenda.event3.desc">Speciale dag voor crawler-liefhebbers. Het volledige parcours staat open voor leden en gasten.</p>
+        <span class="agenda-card-tag leden" data-i18n="agenda.tag.leden">Ledenevenement</span>
+        <h3 data-i18n="agenda.event3.title">Onderhoudsdag + Halloweenevent</h3>
+        <p data-i18n="agenda.event3.desc">Onderhoud aan de baan gecombineerd met een gezellig Halloween-evenement, exclusief voor leden.</p>
         <div class="agenda-card-time">🕙 <span data-i18n="agenda.event3.time">10:00 - 15:00</span></div>
+      </div>
+
+      <!-- ===== ACTIVITEIT 4 — pas datum, tag, titel, omschrijving en tijd aan ===== -->
+      <div class="agenda-card reveal reveal-delay-4">
+        <div class="agenda-card-date">
+          <span class="agenda-card-day">13</span>
+          <span class="agenda-card-month">Dec</span>
+        </div>
+        <span class="agenda-card-tag leden" data-i18n="agenda.tag.leden">Ledenevenement</span>
+        <h3 data-i18n="agenda.event4.title">Snert/Kerst-rit</h3>
+        <p data-i18n="agenda.event4.desc">Gezellige winterrit voor leden, afgesloten met warme snert en kerstsfeer.</p>
+        <div class="agenda-card-time">🕙 <span data-i18n="agenda.event4.time">10:00 - 15:00</span></div>
       </div>
 
     </div>
@@ -1039,8 +1051,9 @@
       'agenda.sub': 'Kijk hier wat er op de planning staat bij RC045. Check onze Facebook-pagina voor de meest actuele informatie.',
       'agenda.tag.opendag': 'Open dag', 'agenda.tag.leden': 'Ledenevenement', 'agenda.tag.wedstrijd': 'Wedstrijd',
       'agenda.event1.title': 'RC045 Clubkampioenschappen (voor leden)', 'agenda.event1.desc': 'Een besloten evenement alleen voor leden, de baan is gesloten voor gasten.', 'agenda.event1.time': '10:00 - 15:00',
-      'agenda.event2.title': 'Zomerrijdag voor leden', 'agenda.event2.desc': 'Exclusief voor leden. Gezellig samen rijden gevolgd door een BBQ.', 'agenda.event2.time': '10:00 - 17:00',
-      'agenda.event3.title': 'Crawlerdag', 'agenda.event3.desc': 'Speciale dag voor crawler-liefhebbers. Het volledige parcours staat open voor leden en gasten.', 'agenda.event3.time': '10:00 - 15:00',
+      'agenda.event2.title': 'ZomerBBQ met F1 Zandvoort', 'agenda.event2.desc': 'Exclusief voor leden. Gezellige BBQ terwijl we de Formule 1 in Zandvoort volgen.', 'agenda.event2.time': '10:00 - 17:00',
+      'agenda.event3.title': 'Onderhoudsdag + Halloweenevent', 'agenda.event3.desc': 'Onderhoud aan de baan gecombineerd met een gezellig Halloween-evenement, exclusief voor leden.', 'agenda.event3.time': '10:00 - 15:00',
+      'agenda.event4.title': 'Snert/Kerst-rit', 'agenda.event4.desc': 'Gezellige winterrit voor leden, afgesloten met warme snert en kerstsfeer.', 'agenda.event4.time': '10:00 - 15:00',
       'rules.label': 'Reglement', 'rules.title': 'Veiligheid staat voorop',
       'rules.sub': 'We hebben duidelijke regels zodat iedereen veilig en plezierig kan rijden. Hieronder de belangrijkste punten.',
       'rule1.title': 'Alleen elektrisch', 'rule1.text': 'Nitro en benzine zijn niet toegestaan op ons terrein. Alleen elektrisch aangedreven voertuigen zijn welkom.',
@@ -1108,8 +1121,9 @@
       'agenda.sub': 'Check what is planned at RC045. Follow our Facebook page for the most up-to-date information.',
       'agenda.tag.opendag': 'Open day', 'agenda.tag.leden': 'Members event', 'agenda.tag.wedstrijd': 'Race',
       'agenda.event1.title': 'RC045 Club Championships (members only)', 'agenda.event1.desc': 'A closed event for members only, the track is closed to guests.', 'agenda.event1.time': '10:00 - 15:00',
-      'agenda.event2.title': 'Summer ride day for members', 'agenda.event2.desc': 'Exclusive for members. A fun day of riding together followed by a BBQ.', 'agenda.event2.time': '10:00 - 17:00',
-      'agenda.event3.title': 'Crawler day', 'agenda.event3.desc': 'A special day for crawler enthusiasts. The full course is open for members and guests.', 'agenda.event3.time': '10:00 - 15:00',
+      'agenda.event2.title': 'Summer BBQ with F1 Zandvoort', 'agenda.event2.desc': 'Exclusive for members. A relaxed BBQ while we watch the Formula 1 race in Zandvoort.', 'agenda.event2.time': '10:00 - 17:00',
+      'agenda.event3.title': 'Maintenance day + Halloween event', 'agenda.event3.desc': 'Track maintenance combined with a fun Halloween event, exclusively for members.', 'agenda.event3.time': '10:00 - 15:00',
+      'agenda.event4.title': 'Pea Soup & Christmas Ride', 'agenda.event4.desc': 'A cosy winter ride for members, finished off with warm pea soup and Christmas cheer.', 'agenda.event4.time': '10:00 - 15:00',
       'rules.label': 'Rules', 'rules.title': 'Safety comes first',
       'rules.sub': 'We have clear rules so everyone can ride safely and enjoyably. Here are the most important points.',
       'rule1.title': 'Electric only', 'rule1.text': 'Nitro and petrol are not permitted on our grounds. Only electrically powered vehicles are welcome.',
@@ -1177,8 +1191,9 @@
       'agenda.sub': 'Schau hier, was bei RC045 geplant ist. Folge unserer Facebook-Seite für die aktuellsten Informationen.',
       'agenda.tag.opendag': 'Offener Tag', 'agenda.tag.leden': 'Mitgliederevent', 'agenda.tag.wedstrijd': 'Rennen',
       'agenda.event1.title': 'RC045 Vereinsmeisterschaften (nur für Mitglieder)', 'agenda.event1.desc': 'Eine geschlossene Veranstaltung nur für Mitglieder, die Strecke ist für Gäste geschlossen.', 'agenda.event1.time': '10:00 - 15:00',
-      'agenda.event2.title': 'Sommer-Fahrtag für Mitglieder', 'agenda.event2.desc': 'Exklusiv für Mitglieder. Ein gemütlicher Fahrtag zusammen, gefolgt von einem Grillabend.', 'agenda.event2.time': '10:00 - 17:00',
-      'agenda.event3.title': 'Crawler-Tag', 'agenda.event3.desc': 'Ein besonderer Tag für Crawler-Enthusiasten. Der gesamte Parcours steht für Mitglieder und Gäste offen.', 'agenda.event3.time': '10:00 - 15:00',
+      'agenda.event2.title': 'Sommer-BBQ mit F1 Zandvoort', 'agenda.event2.desc': 'Exklusiv für Mitglieder. Ein gemütliches BBQ, während wir die Formel 1 in Zandvoort verfolgen.', 'agenda.event2.time': '10:00 - 17:00',
+      'agenda.event3.title': 'Wartungstag + Halloween-Event', 'agenda.event3.desc': 'Streckenwartung kombiniert mit einem gemütlichen Halloween-Event, exklusiv für Mitglieder.', 'agenda.event3.time': '10:00 - 15:00',
+      'agenda.event4.title': 'Erbsensuppe & Weihnachtsfahrt', 'agenda.event4.desc': 'Eine gemütliche Winterfahrt für Mitglieder, abgeschlossen mit warmer Erbsensuppe und Weihnachtsstimmung.', 'agenda.event4.time': '10:00 - 15:00',
       'rules.label': 'Reglement', 'rules.title': 'Sicherheit geht vor',
       'rules.sub': 'Wir haben klare Regeln, damit alle sicher und angenehm fahren können. Hier sind die wichtigsten Punkte.',
       'rule1.title': 'Nur elektrisch', 'rule1.text': 'Nitro und Benzin sind auf unserem Gelände nicht erlaubt. Nur elektrisch angetriebene Fahrzeuge sind willkommen.',
