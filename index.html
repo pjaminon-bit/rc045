@@ -219,7 +219,7 @@
     /* ===== ACTIVITEITEN ===== */
     .agenda { background: var(--bg); }
     .agenda-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-    .agenda-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; opacity: 0; transform: translateY(24px); }
+    .agenda-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; opacity: 0; transform: translateY(24px); display: flex; flex-direction: column; }
     .agenda-card.visible { animation: cardDrop 0.5s ease forwards; }
     .agenda-card.visible:nth-child(2) { animation-delay: 0.1s; }
     .agenda-card.visible:nth-child(3) { animation-delay: 0.2s; }
@@ -234,7 +234,7 @@
     .agenda-card-tag.wedstrijd { background: #FEE2E2; color: #DC2626; }
     .agenda-card h3 { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
     .agenda-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
-    .agenda-card-time { font-size: 13px; font-weight: 600; color: var(--teal); margin-top: 12px; display: flex; align-items: center; gap: 4px; }
+    .agenda-card-time { font-size: 13px; font-weight: 600; color: var(--teal); margin-top: auto; padding-top: 12px; display: flex; align-items: center; gap: 4px; }
     @media (max-width: 900px) { .agenda-grid { grid-template-columns: 1fr; } }
 
     /* ===== RULES ===== */
