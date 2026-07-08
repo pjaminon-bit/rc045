@@ -80,9 +80,6 @@
     .hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
     .hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
     .hero-content { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; padding: 80px 24px; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(200,154,26,0.2); border: 1px solid rgba(200,154,26,0.5); color: #E8C76A; padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 24px; }
-    .hero-badge::before { content: ''; width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 0 3px rgba(34,197,94,0.3); animation: pulse 2s infinite; }
-    .hero-badge-closed::before { background: #EF4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.3); animation: pulse-red 2s infinite; }
     @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 0 3px rgba(239,68,68,0.3); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0.1); } }
     @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.3); } 50% { box-shadow: 0 0 0 6px rgba(34,197,94,0.1); } }
     .hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 800; color: white; margin-bottom: 20px; max-width: 700px; }
@@ -461,7 +458,6 @@
   <img src="rc045-logo.png" alt="" aria-hidden="true" style="position:absolute; right:-40px; top:50%; transform:translateY(-50%); height: 520px; width: auto; opacity: 0.13; pointer-events:none; filter: drop-shadow(0 0 40px rgba(200,154,26,0.2)); z-index:1;">
   <div class="hero-content">
     <img src="rc045-logo.png" alt="RC045" style="height: 140px; width: auto; margin-bottom: 24px; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));">
-    <div id="hero-badge" class="hero-badge"></div>
     <h1>RC045<br><span>BASHERS OF THE SOUTH</span></h1>
     <p data-i18n="hero.intro">Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners én ervaren hobbyisten. Jong én oud.</p>
     <div class="hero-buttons">
@@ -1098,7 +1094,7 @@
       'footer.photos': 'Foto\'s', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
       'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
       'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'footer.sponsors.title': 'Met dank aan onze sponsoren',
-      'status.open': 'Nu open', 'status.closed': 'Nu gesloten', 'badge.open': '🏁 Nu open!', 'badge.closed': '🏁 Vandaag gesloten'
+      'status.open': 'Nu open', 'status.closed': 'Nu gesloten'
     },
     en: {
       'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
@@ -1168,7 +1164,7 @@
       'footer.photos': 'Photos', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
       'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
       'footer.made': 'Made with ❤️ for our hobby', 'footer.sponsors.title': 'With thanks to our sponsors',
-      'status.open': 'Now open', 'status.closed': 'Now closed', 'badge.open': '🏁 Now open!', 'badge.closed': '🏁 Closed today'
+      'status.open': 'Now open', 'status.closed': 'Now closed'
     },
     de: {
       'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
@@ -1238,7 +1234,7 @@
       'footer.photos': 'Fotos', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
       'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
       'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'footer.sponsors.title': 'Mit Dank an unsere Sponsoren',
-      'status.open': 'Jetzt geöffnet', 'status.closed': 'Jetzt geschlossen', 'badge.open': '🏁 Jetzt geöffnet!', 'badge.closed': '🏁 Heute geschlossen'
+      'status.open': 'Jetzt geöffnet', 'status.closed': 'Jetzt geschlossen'
     }
   };
 
@@ -1433,13 +1429,10 @@
       (day === 6 && time >= 10 && time < 15) ||
       (day === 0 && time >= 10 && time < 15);
     const el = document.getElementById('status-indicator');
-    const badge = document.getElementById('hero-badge');
     if (isOpen) {
       el.className = 'status-open'; el.textContent = t['status.open'];
-      badge.className = 'hero-badge'; badge.textContent = t['badge.open'];
     } else {
       el.className = 'status-closed'; el.textContent = t['status.closed'];
-      badge.className = 'hero-badge hero-badge-closed'; badge.textContent = t['badge.closed'];
     }
   }
   updateStatus();
