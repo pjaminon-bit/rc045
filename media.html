@@ -69,14 +69,14 @@ img { max-width: 100%; height: auto; display: block; }
 .page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.7; }
 .main { max-width: 900px; margin: 0 auto; padding: 56px 24px 80px; }
 .intro-text { font-size: 16px; color: var(--muted); line-height: 1.8; margin-bottom: 48px; }
-.media-grid { display: flex; flex-direction: column; gap: 20px; }
-.media-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px 32px; box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: 24px; transition: transform 0.2s, box-shadow 0.2s; }
+.media-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.media-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: 16px; transition: transform 0.2s, box-shadow 0.2s; }
 .media-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
-.media-logo { flex-shrink: 0; width: 56px; height: 56px; border-radius: 10px; background: var(--teal-light); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.media-logo { flex-shrink: 0; width: 44px; height: 44px; border-radius: 10px; background: var(--teal-light); display: flex; align-items: center; justify-content: center; font-size: 20px; }
 .media-body { flex: 1; }
 .media-date { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
 .media-source { font-size: 12px; font-weight: 700; color: var(--teal-dark); margin-bottom: 8px; }
-.media-title { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+.media-title { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
 .media-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
 .media-link { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--teal-dark); border-bottom: 1.5px solid var(--teal); padding-bottom: 1px; transition: color 0.2s, border-color 0.2s; }
 .media-link:hover { color: var(--teal); border-color: var(--teal); }
@@ -114,6 +114,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-
   .nav-hamburger { display: flex; }
   .footer-top { grid-template-columns: 1fr; gap: 32px; }
   .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  .media-grid { grid-template-columns: 1fr; }
   .media-card { flex-direction: column; gap: 16px; padding: 20px; }
 }
 </style>
@@ -203,12 +204,19 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-
       <div class="media-body">
         <div class="media-date" data-i18n="media.date5">4 mei 2021</div>
         <div class="media-source">L1mburg</div>
-        <div class="media-title" data-i18n="media.title5">Route Regio: de zoektocht naar een eigen terrein</div>
-        <div class="media-desc" data-i18n="media.desc5">L1 volgde RC045 in de zoektocht naar een eigen locatie, en keerde later terug toen we die eindelijk hadden gevonden.</div>
-        <div style="display: flex; flex-wrap: wrap; gap: 8px 20px;">
-          <a href="https://www.l1.nl/nieuws/2535856/route-regio-rc-045-is-op-zoek-naar-een-nieuwe-locatie" target="_blank" rel="noopener" class="media-link" data-i18n="media.part1">Deel 1: op zoek naar een locatie →</a>
-          <a href="https://www.l1.nl/nieuws/2542087/route-regio-rc045-heeft-eindelijk-een-eigen-terrein" target="_blank" rel="noopener" class="media-link" data-i18n="media.part2">Deel 2: eigen terrein gevonden →</a>
-        </div>
+        <div class="media-title" data-i18n="media.title5">Route Regio: op zoek naar een nieuwe locatie</div>
+        <div class="media-desc" data-i18n="media.desc5">L1 volgde RC045 in de zoektocht naar een nieuwe locatie voor de club.</div>
+        <a href="https://www.l1.nl/nieuws/2535856/route-regio-rc-045-is-op-zoek-naar-een-nieuwe-locatie" target="_blank" rel="noopener" class="media-link" data-i18n="media.watchreport">Bekijk de reportage →</a>
+      </div>
+    </div>
+    <div class="media-card">
+      <div class="media-logo">📺</div>
+      <div class="media-body">
+        <div class="media-date" data-i18n="media.date6">13 februari 2024</div>
+        <div class="media-source">L1mburg</div>
+        <div class="media-title" data-i18n="media.title6">Route Regio: eindelijk een eigen terrein</div>
+        <div class="media-desc" data-i18n="media.desc6">Ruim twee jaar later keerde L1 terug: RC045 had eindelijk een eigen terrein gevonden.</div>
+        <a href="https://www.l1.nl/nieuws/2542087/route-regio-rc045-heeft-eindelijk-een-eigen-terrein" target="_blank" rel="noopener" class="media-link" data-i18n="media.watchreport">Bekijk de reportage →</a>
       </div>
     </div>
   </div>
@@ -281,10 +289,11 @@ const i18n = {
     'media.desc3': 'Omroep Landgraaf schreef een artikel over RC045 en de groeiende populariteit van onze hobby in de regio.',
     'media.date4': '29 april 2021', 'media.title4': 'Artikel ZO-NWS: Club RC-auto\'s groeit uit jasje',
     'media.desc4': 'ZO-NWS berichtte over de snelle groei van RC045 en de zoektocht naar een eigen locatie voor onze baan.',
-    'media.date5': '4 mei 2021', 'media.title5': 'Route Regio: de zoektocht naar een eigen terrein',
-    'media.desc5': 'L1 volgde RC045 in de zoektocht naar een eigen locatie, en keerde later terug toen we die eindelijk hadden gevonden.',
-    'media.watch': 'Bekijk op Facebook →', 'media.read': 'Lees het artikel →',
-    'media.part1': 'Deel 1: op zoek naar een locatie →', 'media.part2': 'Deel 2: eigen terrein gevonden →',
+    'media.date5': '4 mei 2021', 'media.title5': 'Route Regio: op zoek naar een nieuwe locatie',
+    'media.desc5': 'L1 volgde RC045 in de zoektocht naar een nieuwe locatie voor de club.',
+    'media.date6': '13 februari 2024', 'media.title6': 'Route Regio: eindelijk een eigen terrein',
+    'media.desc6': 'Ruim twee jaar later keerde L1 terug: RC045 had eindelijk een eigen terrein gevonden.',
+    'media.watch': 'Bekijk op Facebook →', 'media.read': 'Lees het artikel →', 'media.watchreport': 'Bekijk de reportage →',
     'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
     'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media',
     'footer.board': 'Bestuur & organisatie', 'footer.photos': 'Foto\'s',
@@ -308,10 +317,11 @@ const i18n = {
     'media.desc3': 'Omroep Landgraaf wrote an article about RC045 and the growing popularity of our hobby in the region.',
     'media.date4': '29 April 2021', 'media.title4': 'Article ZO-NWS: RC car club outgrows itself',
     'media.desc4': 'ZO-NWS reported on the rapid growth of RC045 and the search for a dedicated location for our track.',
-    'media.date5': '4 May 2021', 'media.title5': 'Route Regio: the search for our own site',
-    'media.desc5': 'L1 followed RC045\'s search for a location, then returned once we had finally found one.',
-    'media.watch': 'Watch on Facebook →', 'media.read': 'Read the article →',
-    'media.part1': 'Part 1: searching for a location →', 'media.part2': 'Part 2: site found →',
+    'media.date5': '4 May 2021', 'media.title5': 'Route Regio: looking for a new location',
+    'media.desc5': 'L1 followed RC045\'s search for a new location for the club.',
+    'media.date6': '13 February 2024', 'media.title6': 'Route Regio: finally our own site',
+    'media.desc6': 'Over two years later, L1 returned: RC045 had finally found its own site.',
+    'media.watch': 'Watch on Facebook →', 'media.read': 'Read the article →', 'media.watchreport': 'Watch the report →',
     'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
     'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media',
     'footer.board': 'Board & organisation', 'footer.photos': 'Photos',
@@ -335,10 +345,11 @@ const i18n = {
     'media.desc3': 'Omroep Landgraaf schrieb einen Artikel über RC045 und die wachsende Beliebtheit unseres Hobbys in der Region.',
     'media.date4': '29. April 2021', 'media.title4': 'Artikel ZO-NWS: RC-Auto-Club wächst aus den Nähten',
     'media.desc4': 'ZO-NWS berichtete über das schnelle Wachstum von RC045 und die Suche nach einem eigenen Gelände für unsere Strecke.',
-    'media.date5': '4. Mai 2021', 'media.title5': 'Route Regio: die Suche nach einem eigenen Gelände',
-    'media.desc5': 'L1 begleitete RC045 bei der Suche nach einem eigenen Gelände und kehrte später zurück, als wir es endlich gefunden hatten.',
-    'media.watch': 'Auf Facebook ansehen →', 'media.read': 'Artikel lesen →',
-    'media.part1': 'Teil 1: auf der Suche →', 'media.part2': 'Teil 2: Gelände gefunden →',
+    'media.date5': '4. Mai 2021', 'media.title5': 'Route Regio: auf der Suche nach einem neuen Gelände',
+    'media.desc5': 'L1 begleitete RC045 bei der Suche nach einem neuen Gelände für den Verein.',
+    'media.date6': '13. Februar 2024', 'media.title6': 'Route Regio: endlich ein eigenes Gelände',
+    'media.desc6': 'Über zwei Jahre später kehrte L1 zurück: RC045 hatte endlich ein eigenes Gelände gefunden.',
+    'media.watch': 'Auf Facebook ansehen →', 'media.read': 'Artikel lesen →', 'media.watchreport': 'Reportage ansehen →',
     'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
     'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien',
     'footer.board': 'Vorstand & Organisation', 'footer.photos': 'Fotos',
