@@ -931,8 +931,8 @@
           <div style="display:flex; gap:8px;">
             <select id="landcode" style="width:110px; flex-shrink:0;">
               <option value="+31">🇳🇱 +31</option>
-              <option value="+49">🇩🇪 +49</option>
               <option value="+32">🇧🇪 +32</option>
+              <option value="+49">🇩🇪 +49</option>
             </select>
             <input type="tel" id="telefoon" style="flex:1;"><input type="hidden" id="telefoon-combined" name="telefoon">
           </div>
@@ -1001,7 +1001,7 @@
           <li><a href="aanmelden.html" data-i18n="footer.become">Lid worden</a></li>
           <li><a href="#lidmaatschap" data-i18n="guest.tag">Gastrijden</a></li>
           <li><a href="baanreglement.html" data-i18n="footer.rules">Baanreglement</a></li>
-          <li><a href="https://rc045.nl/Sponsoring/" data-i18n="footer.sponsor">Sponsoring</a></li>
+          <li><a href="#contact" data-i18n="footer.sponsor">Sponsoring</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
       </div>
@@ -1238,7 +1238,7 @@
     }
   };
 
-    // ===== TAAL PERSISTENTIE TUSSEN PAGINA'S =====
+  // ===== TAAL PERSISTENTIE TUSSEN PAGINA'S =====
   function getInitialLang() {
     const urlLang = new URLSearchParams(window.location.search).get('lang');
     if (urlLang && i18n[urlLang]) return urlLang;
@@ -1253,7 +1253,6 @@
       // Alleen lokale .html links en lokale anchors, geen externe/mailto/tel links
       if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#')) return;
       if (!href.endsWith('.html') && !href.includes('.html#') && !href.includes('.html?')) return;
-
       const url = new URL(href, window.location.href);
       if (lang === 'nl') {
         url.searchParams.delete('lang');
@@ -1299,31 +1298,37 @@
   if (form) {
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
+
       // Honeypot: als dit verborgen veld is ingevuld, is het een bot. Stilletjes niets doen.
       if (document.getElementById('website').value.trim() !== '') {
         return;
       }
+
       const btn = document.getElementById('form-btn');
       const success = document.getElementById('form-success');
       const error = document.getElementById('form-error');
+
       const email = document.getElementById('email').value.trim();
       const telefoon = document.getElementById('telefoon').value.trim();
       const landcode = document.getElementById('landcode').value;
       if (telefoon) {
         document.getElementById('telefoon-combined').value = landcode + ' ' + telefoon;
       }
+
       const warning = document.getElementById('contact-warning');
       if (!email && !telefoon) {
         warning.style.display = 'block';
         return;
       }
       warning.style.display = 'none';
+
       const emailWarning = document.getElementById('email-warning');
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         emailWarning.style.display = 'block';
         return;
       }
       emailWarning.style.display = 'none';
+
       const phoneWarning = document.getElementById('phone-warning');
       const telefoonVal = telefoon.replace(/[\s\-()]/g, '');
       if (telefoon && (!/^\d+$/.test(telefoonVal) || telefoonVal.length < 9)) {
@@ -1331,10 +1336,12 @@
         return;
       }
       phoneWarning.style.display = 'none';
+
       btn.textContent = '⏳ Verzenden...';
       btn.disabled = true;
       success.style.display = 'none';
       error.style.display = 'none';
+
       try {
         const res = await fetch(form.action, {
           method: 'POST',
@@ -1359,31 +1366,26 @@
   // ===== WEER =====
   const weatherCodes = {
     0: ['☀️','Helder'], 1: ['🌤️','Vrijwel helder'], 2: ['⛅','Bewolkt'], 3: ['☁️','Zwaar bewolkt'],
-    45: ['🌫️','Mist'], 48: ['🌫️','IJsmist'], 51: ['🌦️','Lichte motregen'], 53: ['🌦️','Motregen'],
-    55: ['🌧️','Zware motregen'], 61: ['🌧️','Lichte regen'], 63: ['🌧️','Regen'], 65: ['🌧️','Zware regen'],
+    45: ['🌫️','Mist'], 48: ['🌫️','IJsmist'],
+    51: ['🌦️','Lichte motregen'], 53: ['🌦️','Motregen'], 55: ['🌧️','Zware motregen'],
+    61: ['🌧️','Lichte regen'], 63: ['🌧️','Regen'], 65: ['🌧️','Zware regen'],
     71: ['❄️','Lichte sneeuw'], 73: ['❄️','Sneeuw'], 75: ['❄️','Zware sneeuw'],
     80: ['🌦️','Buien'], 81: ['🌧️','Zware buien'], 82: ['⛈️','Hevige buien'],
     95: ['⛈️','Onweer'], 96: ['⛈️','Onweer met hagel'], 99: ['⛈️','Zwaar onweer']
   };
   const weatherCodesEN = {
-    0: 'Clear', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast',
-    45: 'Fog', 48: 'Icy fog', 51: 'Light drizzle', 53: 'Drizzle',
-    55: 'Heavy drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
-    71: 'Light snow', 73: 'Snow', 75: 'Heavy snow',
-    80: 'Showers', 81: 'Heavy showers', 82: 'Violent showers',
+    0: 'Clear', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast', 45: 'Fog', 48: 'Icy fog',
+    51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain',
+    71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 80: 'Showers', 81: 'Heavy showers', 82: 'Violent showers',
     95: 'Thunderstorm', 96: 'Thunderstorm with hail', 99: 'Heavy thunderstorm'
   };
   const weatherCodesDE = {
-    0: 'Klar', 1: 'Meist klar', 2: 'Teilweise bewölkt', 3: 'Bedeckt',
-    45: 'Nebel', 48: 'Eisnebel', 51: 'Leichter Nieselregen', 53: 'Nieselregen',
-    55: 'Starker Nieselregen', 61: 'Leichter Regen', 63: 'Regen', 65: 'Starker Regen',
-    71: 'Leichter Schnee', 73: 'Schnee', 75: 'Starker Schnee',
-    80: 'Schauer', 81: 'Starke Schauer', 82: 'Heftige Schauer',
+    0: 'Klar', 1: 'Meist klar', 2: 'Teilweise bewölkt', 3: 'Bedeckt', 45: 'Nebel', 48: 'Eisnebel',
+    51: 'Leichter Nieselregen', 53: 'Nieselregen', 55: 'Starker Nieselregen', 61: 'Leichter Regen', 63: 'Regen', 65: 'Starker Regen',
+    71: 'Leichter Schnee', 73: 'Schnee', 75: 'Starker Schnee', 80: 'Schauer', 81: 'Starke Schauer', 82: 'Heftige Schauer',
     95: 'Gewitter', 96: 'Gewitter mit Hagel', 99: 'Schweres Gewitter'
   };
-
   let weatherData = null;
-
   async function fetchWeather() {
     try {
       const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=50.889&longitude=6.072&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m&wind_speed_unit=kmh&timezone=Europe/Amsterdam');
@@ -1394,7 +1396,6 @@
       document.getElementById('weather-desc').textContent = '—';
     }
   }
-
   function updateWeatherDisplay() {
     if (!weatherData) return;
     const code = weatherData.weathercode;
@@ -1412,7 +1413,6 @@
     if (windEl) windEl.textContent = wind + ' km/h';
     if (humidEl) humidEl.textContent = Math.round(weatherData.relativehumidity_2m) + '%';
   }
-
   fetchWeather();
   setInterval(fetchWeather, 600000);
 
@@ -1424,15 +1424,14 @@
     const hour = now.getHours();
     const minute = now.getMinutes();
     const time = hour + minute / 60;
-    const isOpen =
-      (day === 3 && time >= 19 && time < 22) ||
-      (day === 6 && time >= 10 && time < 15) ||
-      (day === 0 && time >= 10 && time < 15);
+    const isOpen = (day === 3 && time >= 19 && time < 22) || (day === 6 && time >= 10 && time < 15) || (day === 0 && time >= 10 && time < 15);
     const el = document.getElementById('status-indicator');
     if (isOpen) {
-      el.className = 'status-open'; el.textContent = t['status.open'];
+      el.className = 'status-open';
+      el.textContent = t['status.open'];
     } else {
-      el.className = 'status-closed'; el.textContent = t['status.closed'];
+      el.className = 'status-closed';
+      el.textContent = t['status.closed'];
     }
   }
   updateStatus();
@@ -1444,7 +1443,6 @@
   // Pas opgeslagen/URL-taal direct toe en update links bij eerste load
   if (currentLang !== 'nl') setLang(currentLang);
   else updateInternalLinks('nl');
-
 
   // ===== HAMBURGER =====
   document.getElementById('hamburger').addEventListener('click', function() {
@@ -1473,7 +1471,10 @@
   // ===== SCROLL REVEAL =====
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
     });
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
@@ -1504,7 +1505,6 @@
     backToTop.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
 
-
   // ===== CAROUSEL =====
   const carousel = document.getElementById('photo-carousel');
   if (carousel) {
@@ -1512,13 +1512,11 @@
     const carDots = carousel.querySelectorAll('.carousel-dot');
     let carIndex = 0;
     let carInterval;
-
     function showSlide(i) {
       carIndex = (i + carImages.length) % carImages.length;
       carImages.forEach((img, n) => img.classList.toggle('active', n === carIndex));
       carDots.forEach((dot, n) => dot.classList.toggle('active', n === carIndex));
     }
-
     function startAutoplay() {
       carInterval = setInterval(() => showSlide(carIndex + 1), 5000);
     }
@@ -1526,11 +1524,9 @@
       clearInterval(carInterval);
       startAutoplay();
     }
-
     carousel.querySelector('.carousel-prev').addEventListener('click', () => { showSlide(carIndex - 1); resetAutoplay(); });
     carousel.querySelector('.carousel-next').addEventListener('click', () => { showSlide(carIndex + 1); resetAutoplay(); });
     carDots.forEach(dot => dot.addEventListener('click', () => { showSlide(parseInt(dot.dataset.index)); resetAutoplay(); }));
-
     startAutoplay();
   }
 
