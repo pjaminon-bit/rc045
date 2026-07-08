@@ -103,7 +103,7 @@
     .form-group.full { grid-column: 1 / -1; }
     .form-group label { font-size: 13px; font-weight: 600; color: var(--text); }
     .hp-field { position: absolute; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden; }
-    .form-group label span { color: var(--teal); } 
+    .form-group label span { color: var(--teal); }
     .form-group input, .form-group select { padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--text); background: var(--bg); transition: border-color 0.2s, box-shadow 0.2s; outline: none; width: 100%; }
     .form-group input:focus, .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,122,119,0.12); }
     .phone-row { display: flex; gap: 8px; }
@@ -272,7 +272,7 @@
 
   <!-- Contributie berekening -->
   <div class="contributie-card" id="contributie-card">
-    <h3 data-i18n="contrib.title">🏎️ Jouw contributie 2026</h3>
+    <h3 data-i18n="contrib.title">Jouw contributie 2026</h3>
     <div id="contributie-content">
       <p class="contributie-placeholder" data-i18n="contrib.placeholder">Vul je geboortedatum in om de contributie te berekenen.</p>
     </div>
@@ -414,7 +414,7 @@
 
     <div class="faq-item">
       <div class="faq-question" data-i18n="faq.q3">Wat als ik later in het jaar lid word?</div>
-      <div class="faq-answer" data-i18n="faq.a3">Dan betaal je een pro-rata bedrag voor de resterende maanden. Schrijf je in december in? Dan betaal je meteen de volledige contributie voor het volgende jaar.</div>
+      <div class="faq-answer" data-i18n="faq.a3">Dan betaal je een pro-rata bedrag voor de resterende maanden. Schrijf je in december in? Dan betaal je alleen de eenmalige inschrijfkosten van €10; de volledige contributie voor het volgende jaar hoeft dan nog niet te worden overgemaakt.</div>
     </div>
 
     <div class="faq-item">
@@ -499,7 +499,7 @@
       'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'footer.sponsors.title': 'Met dank aan onze sponsoren', 'guest.tag': 'Gastrijden',
       'hero.label': 'Lidmaatschap', 'hero.title': 'Aanmelden als lid',
       'hero.sub': 'Vul het formulier in om je aan te melden bij RC045. Na ontvangst nemen we zo snel mogelijk contact met je op.',
-      'contrib.title': '🏎️ Jouw contributie 2026',
+      'contrib.title': 'Jouw contributie 2026',
       'contrib.placeholder': 'Vul je geboortedatum in om de contributie te berekenen.',
       'form.personal': 'Persoonsgegevens', 'form.address': 'Adresgegevens',
       'form.contact': 'Contactgegevens', 'form.agreement': 'Akkoordverklaring',
@@ -516,7 +516,7 @@
       'faq.title': 'Veelgestelde vragen',
       'faq.q1': 'Wanneer ben ik officieel lid?', 'faq.a1': 'Je bent officieel lid zodra je aanmelding is bevestigd door het bestuur én de contributie is ontvangen op onze bankrekening. Je ontvangt dan een bevestiging per e-mail of via de WhatsApp groep.',
       'faq.q2': 'Hoe bereken ik mijn contributie?', 'faq.a2': 'De contributie wordt berekend op basis van de maand waarin je je aanmeldt. Je betaalt voor de resterende maanden van het jaar. De exacte berekening zie je automatisch zodra je je geboortedatum invult.',
-      'faq.q3': 'Wat als ik later in het jaar lid word?', 'faq.a3': 'Dan betaal je een pro-rata bedrag voor de resterende maanden. Schrijf je in december in? Dan betaal je meteen de volledige contributie voor het volgende jaar.',
+      'faq.q3': 'Wat als ik later in het jaar lid word?', 'faq.a3': 'Dan betaal je een pro-rata bedrag voor de resterende maanden. Schrijf je in december in? Dan betaal je alleen de eenmalige inschrijfkosten van €10; de volledige contributie voor het volgende jaar hoeft dan nog niet te worden overgemaakt.',
       'faq.q4': 'Moet ik elk jaar opnieuw betalen?', 'faq.a4': 'Ja, de contributie wordt jaarlijks geïnd. Je ontvangt hierover tijdig bericht via de WhatsApp groep of nieuwsbrief.',
       'faq.q5': 'Kan ik eerst komen kijken voor ik lid word?', 'faq.a5': 'Ja, je kunt altijd eerst als gastrijder langskomen. Volwassenen betalen €10, jeugd t/m 15 jaar betaalt €5 per dag. Meld je bij aankomst bij een bestuurslid.',
       'form.submit': 'Aanmelden bij RC045 →',
@@ -530,9 +530,10 @@
       'success.sub': 'Vergeet niet de contributie over te maken via de betalingsinstructies hierboven.',
       'jeugd.badge': '🎯 Jeugdlid (t/m 15 jaar)', 'senior.badge': '✓ Seniorlid (16+)',
       'contrib.jeugd': 'Jeugdlid', 'contrib.senior': 'Seniorlid',
-      'contrib.inschrijving': 'inschrijving in', 'contrib.prorata': 'pro-rata vanaf',
+      'contrib.inschrijving': 'inschrijving in', 'contrib.prorata': 'je betaalt vanaf',
       'contrib.inschrijfkosten': 'Eenmalige inschrijfkosten', 'contrib.totaal': 'Totaal over te maken',
-      'contrib.volledig': 'Volledige contributie 2027', 'contrib.december': 'Bij inschrijving in december betaal je de volledige contributie voor 2027. + €10 eenmalige inschrijfkosten.',
+      'contrib.volledig': 'Contributie 2027', 'contrib.niet_overmaken': 'nog niet over te maken',
+      'contrib.december': 'Bij inschrijving in december betaal je nu alleen de €10 eenmalige inschrijfkosten. De contributie voor 2027 hoeft nog niet te worden overgemaakt.',
     },
     en: {
       'nav.back': '← Back to the site',
@@ -545,7 +546,7 @@
       'footer.made': 'Made with ❤️ for our hobby', 'footer.sponsors.title': 'With thanks to our sponsors', 'guest.tag': 'Guest riding',
       'hero.label': 'Membership', 'hero.title': 'Register as a member',
       'hero.sub': 'Fill in the form to register with RC045. We will contact you as soon as possible after receiving your registration.',
-      'contrib.title': '🏎️ Your membership fee 2026',
+      'contrib.title': 'Your membership fee 2026',
       'contrib.placeholder': 'Enter your date of birth to calculate the membership fee.',
       'form.personal': 'Personal details', 'form.address': 'Address details',
       'form.contact': 'Contact details', 'form.agreement': 'Declaration of agreement',
@@ -562,7 +563,7 @@
       'faq.title': 'Frequently asked questions',
       'faq.q1': 'When am I officially a member?', 'faq.a1': 'You are officially a member once your registration has been confirmed by the board and the membership fee has been received in our bank account. You will then receive a confirmation by email or via the WhatsApp group.',
       'faq.q2': 'How is my membership fee calculated?', 'faq.a2': 'The fee is calculated based on the month you register. You pay for the remaining months of the year. The exact amount is shown automatically once you enter your date of birth.',
-      'faq.q3': 'What if I join later in the year?', 'faq.a3': 'You pay a pro-rata amount for the remaining months. Joining in December? Then you pay the full membership fee for the following year.',
+      'faq.q3': 'What if I join later in the year?', 'faq.a3': 'You pay a pro-rata amount for the remaining months. Joining in December? Then you only pay the one-time registration fee of €10; the full membership fee for the following year does not need to be transferred yet.',
       'faq.q4': 'Do I need to pay every year?', 'faq.a4': 'Yes, membership fees are collected annually. You will be notified in time via the WhatsApp group or newsletter.',
       'faq.q5': 'Can I come and have a look before joining?', 'faq.a5': 'Yes, you can always come as a guest rider first. Adults pay €10, youth up to 15 years pay €5 per day. Check in with a board member on arrival.',
       'form.submit': 'Register with RC045 →',
@@ -576,9 +577,10 @@
       'success.sub': 'Don\'t forget to transfer the membership fee using the payment instructions above.',
       'jeugd.badge': '🎯 Youth member (up to 15)', 'senior.badge': '✓ Senior member (16+)',
       'contrib.jeugd': 'Youth member', 'contrib.senior': 'Senior member',
-      'contrib.inschrijving': 'registration in', 'contrib.prorata': 'pro-rata from',
+      'contrib.inschrijving': 'registration in', 'contrib.prorata': 'you pay from',
       'contrib.inschrijfkosten': 'One-time registration fee', 'contrib.totaal': 'Total to transfer',
-      'contrib.volledig': 'Full membership fee 2027', 'contrib.december': 'Registering in December means you pay the full membership fee for 2027. + €10 one-time registration fee.',
+      'contrib.volledig': 'Membership fee 2027', 'contrib.niet_overmaken': 'not due yet',
+      'contrib.december': 'If you register in December, you only pay the €10 one-time registration fee now. The membership fee for 2027 does not need to be transferred yet.',
     },
     de: {
       'nav.back': '← Zurück zur Website',
@@ -591,7 +593,7 @@
       'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'footer.sponsors.title': 'Mit Dank an unsere Sponsoren', 'guest.tag': 'Gastfahren',
       'hero.label': 'Mitgliedschaft', 'hero.title': 'Als Mitglied anmelden',
       'hero.sub': 'Fülle das Formular aus, um dich bei RC045 anzumelden. Nach Eingang melden wir uns so schnell wie möglich bei dir.',
-      'contrib.title': '🏎️ Dein Mitgliedsbeitrag 2026',
+      'contrib.title': 'Dein Mitgliedsbeitrag 2026',
       'contrib.placeholder': 'Gib dein Geburtsdatum ein, um den Mitgliedsbeitrag zu berechnen.',
       'form.personal': 'Persönliche Daten', 'form.address': 'Adressdaten',
       'form.contact': 'Kontaktdaten', 'form.agreement': 'Einverständniserklärung',
@@ -608,7 +610,7 @@
       'faq.title': 'Häufig gestellte Fragen',
       'faq.q1': 'Wann bin ich offiziell Mitglied?', 'faq.a1': 'Du bist offiziell Mitglied, sobald deine Anmeldung vom Vorstand bestätigt wurde und der Mitgliedsbeitrag auf unserem Konto eingegangen ist. Du erhältst dann eine Bestätigung per E-Mail oder über die WhatsApp-Gruppe.',
       'faq.q2': 'Wie wird mein Mitgliedsbeitrag berechnet?', 'faq.a2': 'Der Beitrag wird anhand des Monats berechnet, in dem du dich anmeldest. Du zahlst für die verbleibenden Monate des Jahres. Den genauen Betrag siehst du automatisch, sobald du dein Geburtsdatum eingibst.',
-      'faq.q3': 'Was ist, wenn ich erst später im Jahr beitrete?', 'faq.a3': 'Du zahlst dann einen anteiligen Betrag für die verbleibenden Monate. Wenn du im Dezember beitrittst, zahlst du direkt den vollen Mitgliedsbeitrag für das nächste Jahr.',
+      'faq.q3': 'Was ist, wenn ich erst später im Jahr beitrete?', 'faq.a3': 'Du zahlst dann einen anteiligen Betrag für die verbleibenden Monate. Wenn du im Dezember beitrittst, zahlst du nur die einmalige Anmeldegebühr von €10; der volle Mitgliedsbeitrag für das nächste Jahr muss dann noch nicht überwiesen werden.',
       'faq.q4': 'Muss ich jedes Jahr erneut zahlen?', 'faq.a4': 'Ja, der Mitgliedsbeitrag wird jährlich erhoben. Du wirst rechtzeitig über die WhatsApp-Gruppe oder den Newsletter informiert.',
       'faq.q5': 'Kann ich erst vorbeischauen, bevor ich Mitglied werde?', 'faq.a5': 'Ja, du kannst jederzeit als Gastfahrer vorbeikommen. Erwachsene zahlen €10, Jugendliche bis 15 Jahre zahlen €5 pro Tag. Melde dich bei einem Vorstandsmitglied.',
       'form.submit': 'Bei RC045 anmelden →',
@@ -622,9 +624,10 @@
       'success.sub': 'Vergiss nicht, den Mitgliedsbeitrag gemäß den obigen Zahlungsanweisungen zu überweisen.',
       'jeugd.badge': '🎯 Jugendmitglied (bis 15 Jahre)', 'senior.badge': '✓ Seniorenmitglied (16+)',
       'contrib.jeugd': 'Jugendmitglied', 'contrib.senior': 'Seniorenmitglied',
-      'contrib.inschrijving': 'Anmeldung im', 'contrib.prorata': 'anteilig ab',
+      'contrib.inschrijving': 'Anmeldung im', 'contrib.prorata': 'du zahlst ab',
       'contrib.inschrijfkosten': 'Einmalige Anmeldegebühr', 'contrib.totaal': 'Gesamt zu überweisen',
-      'contrib.volledig': 'Voller Mitgliedsbeitrag 2027', 'contrib.december': 'Bei Anmeldung im Dezember zahlst du den vollen Mitgliedsbeitrag für 2027. + €10 einmalige Anmeldegebühr.',
+      'contrib.volledig': 'Mitgliedsbeitrag 2027', 'contrib.niet_overmaken': 'noch nicht fällig',
+      'contrib.december': 'Bei Anmeldung im Dezember zahlst du jetzt nur die einmalige Anmeldegebühr von €10. Der Mitgliedsbeitrag für 2027 muss noch nicht überwiesen werden.',
     }
   };
 
@@ -722,6 +725,8 @@
     1: 46, 2: 42, 3: 38, 4: 33, 5: 29, 6: 25,
     7: 21, 8: 17, 9: 13, 10: 8, 11: 4.16, 12: null
   };
+  const volledigeContributieSenior = 100;
+  const volledigeContributieJeugd = 50;
 
   function berekenContributie() {
     const t = i18n[currentLang];
@@ -758,17 +763,24 @@
     document.getElementById('jeugdlid-hidden').value = isJeugd ? 'Ja' : 'Nee';
 
     if (contributie === null) {
+      const volledigeContributie = isJeugd ? volledigeContributieJeugd : volledigeContributieSenior;
+      document.getElementById('contributiebedrag-hidden').value = `€10 (${t['contrib.inschrijfkosten']}, nu) + €${volledigeContributie} (${t['contrib.volledig']}, ${t['contrib.niet_overmaken']})`;
+
       contentEl.innerHTML = `
-        <div class="contributie-bedrag">${t['contrib.volledig']}</div>
+        <div class="contributie-bedrag">€10,-</div>
         <div class="contributie-sub">${isJeugd ? t['contrib.jeugd'] : t['contrib.senior']} · ${t['contrib.inschrijving']} december</div>
-        <div class="contributie-breakdown">${t['contrib.december']}</div>
+        <div class="contributie-breakdown">
+          ${t['contrib.inschrijfkosten']}: €10<br>
+          <strong style="font-size:16px;">${t['contrib.totaal']}: €10</strong><br><br>
+          ${t['contrib.volledig']}: €${volledigeContributie} (${t['contrib.niet_overmaken']})
+        </div>
       `;
-      document.getElementById('contributiebedrag-hidden').value = t['contrib.volledig'] + ' + €10';
       return;
     }
 
     const totaal = contributie + 10;
-    document.getElementById('contributiebedrag-hidden').value = `€${contributie} + €10 = €${totaal}`;
+    const volledigeContributie = isJeugd ? volledigeContributieJeugd : volledigeContributieSenior;
+    document.getElementById('contributiebedrag-hidden').value = `€${contributie} + €10 = €${totaal} (${t['contrib.totaal']}) + €${volledigeContributie} (${t['contrib.volledig']}, ${t['contrib.niet_overmaken']})`;
 
     contentEl.innerHTML = `
       <div class="contributie-bedrag">€${totaal},-</div>
@@ -776,7 +788,8 @@
       <div class="contributie-breakdown">
         Contributie: €${contributie} (${t['contrib.prorata']} ${maandNamen[maand] || maandNamen[0]})<br>
         ${t['contrib.inschrijfkosten']}: €10<br>
-        <strong>${t['contrib.totaal']}: €${totaal}</strong>
+        <strong style="font-size:16px;">${t['contrib.totaal']}: €${totaal}</strong><br><br>
+        ${t['contrib.volledig']}: €${volledigeContributie} (${t['contrib.niet_overmaken']})
       </div>
     `;
   }
