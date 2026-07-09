@@ -57,6 +57,9 @@
 
     /* ===== NAVIGATION ===== */
     .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    .announce-bar { background: var(--dark); color: rgba(255,255,255,0.92); text-align: center; padding: 10px 20px; font-size: 14px; font-weight: 500; line-height: 1.5; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .announce-bar-icon { flex-shrink: 0; }
+    @media (max-width: 700px) { .announce-bar { font-size: 13px; padding: 8px 16px; } }
     .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
     .nav-logo { display: flex; align-items: center; gap: 12px; }
     .nav-logo img { height: 48px; width: auto; }
@@ -86,8 +89,6 @@
     .hero h1 span { color: #E8C76A; }
     .hero p { font-size: 18px; color: rgba(255,255,255,0.75); max-width: 540px; margin-bottom: 36px; line-height: 1.7; }
     .hero-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
-    .hero-notice { display: inline-flex; align-items: flex-start; gap: 10px; background: rgba(200,154,26,0.16); border: 1px solid rgba(232,199,106,0.4); color: rgba(255,255,255,0.92); padding: 12px 18px; border-radius: 10px; font-size: 14px; line-height: 1.5; max-width: 540px; margin-bottom: 24px; }
-    .hero-notice-icon { flex-shrink: 0; font-size: 16px; }
 
     /* ===== BUTTONS ===== */
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; border: none; }
@@ -425,6 +426,12 @@
 <!-- ===== TERUG NAAR BOVEN ===== -->
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Terug naar boven">↑</button>
 
+<!-- ===== MEDEDELING (pas tekst hieronder aan of zet style="display:none" om te verbergen) ===== -->
+<div class="announce-bar" id="announce-bar">
+  <span class="announce-bar-icon" aria-hidden="true">🔧</span>
+  <span data-i18n="announce.text">Let op: zaterdag 11 juli is de baan gesloten in verband met onderhoud. Zondag 12 juli zijn we weer gewoon open.</span>
+</div>
+
 <!-- ===== NAVIGATION ===== -->
 <nav class="nav" id="main-nav">
   <div class="nav-inner">
@@ -462,10 +469,6 @@
     <img src="rc045-logo.png" alt="RC045" style="height: 140px; width: auto; margin-bottom: 24px; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));">
     <h1>RC045<br><span>BASHERS OF THE SOUTH</span></h1>
     <p data-i18n="hero.intro">Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners én ervaren hobbyisten. Jong én oud.</p>
-    <div class="hero-notice">
-      <span class="hero-notice-icon" aria-hidden="true">🔧</span>
-      <span data-i18n="hero.notice">Let op: zaterdag 11 juli is de baan gesloten in verband met onderhoud. Zondag 12 juli zijn we weer gewoon open.</span>
-    </div>
     <div class="hero-buttons">
       <a href="aanmelden.html" class="btn btn-primary" data-i18n="hero.btn.member">Lid worden!</a>
       <a href="#over-ons" class="btn btn-outline" data-i18n="hero.btn.more">Meer over ons</a>
@@ -1037,7 +1040,7 @@
       'nav.location': 'Locatie', 'nav.question': 'Contact', 'nav.join': 'Lid worden', 'nav.story': 'Het ontstaan',
       'hero.intro': 'Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners én ervaren hobbyisten. Jong én oud.',
       'hero.btn.member': 'Lid worden!', 'hero.btn.more': 'Meer over ons',
-      'hero.notice': 'Let op: zaterdag 11 juli is de baan gesloten in verband met onderhoud. Zondag 12 juli zijn we weer gewoon open.',
+      'announce.text': 'Let op: zaterdag 11 juli is de baan gesloten in verband met onderhoud. Zondag 12 juli zijn we weer gewoon open.',
       'info.hours': 'Openingstijden', 'info.sat': 'Zaterdag 10:00–15:00', 'info.sun': 'Zondag 10:00–15:00',
       'info.location': 'Locatie', 'info.membership': 'Lidmaatschap', 'info.from': 'Vanaf €50/jaar', 'info.weather': 'Weer in Eygelshoven',
       'about.label': 'Wie zijn wij', 'about.title': 'Dé RC-vereniging van Zuid-Limburg',
@@ -1108,7 +1111,7 @@
       'nav.location': 'Location', 'nav.question': 'Contact', 'nav.join': 'Become a member', 'nav.story': 'Our history',
       'hero.intro': 'We are a friendly club from the south of Limburg for enthusiasts of electrically powered, radio-controlled cars. For beginners and experienced hobbyists alike. Young and old.',
       'hero.btn.member': 'Become a member!', 'hero.btn.more': 'More about us',
-      'hero.notice': 'Please note: the track is closed on Saturday 11 July for maintenance. We are open as usual again on Sunday 12 July.',
+      'announce.text': 'Please note: the track is closed on Saturday 11 July for maintenance. We are open as usual again on Sunday 12 July.',
       'info.hours': 'Opening hours', 'info.sat': 'Saturday 10:00–15:00', 'info.sun': 'Sunday 10:00–15:00',
       'info.location': 'Location', 'info.membership': 'Membership', 'info.from': 'From €50/year', 'info.weather': 'Weather in Eygelshoven',
       'about.label': 'Who we are', 'about.title': 'The RC club of South Limburg',
@@ -1179,7 +1182,7 @@
       'nav.location': 'Standort', 'nav.question': 'Contact', 'nav.join': 'Mitglied werden', 'nav.story': 'Unsere Geschichte',
       'hero.intro': 'Wir sind ein freundlicher Verein aus dem Süden von Limburg für Liebhaber von elektrisch angetriebenen, ferngesteuerten Autos. Für Anfänger und erfahrene Hobbyisten. Jung und Alt.',
       'hero.btn.member': 'Mitglied werden!', 'hero.btn.more': 'Mehr über uns',
-      'hero.notice': 'Achtung: Die Bahn ist am Samstag, den 11. Juli wegen Wartungsarbeiten geschlossen. Am Sonntag, den 12. Juli sind wir wieder wie gewohnt geöffnet.',
+      'announce.text': 'Achtung: Die Bahn ist am Samstag, den 11. Juli wegen Wartungsarbeiten geschlossen. Am Sonntag, den 12. Juli sind wir wieder wie gewohnt geöffnet.',
       'info.hours': 'Öffnungszeiten', 'info.sat': 'Samstag 10:00–15:00', 'info.sun': 'Sonntag 10:00–15:00',
       'info.location': 'Standort', 'info.membership': 'Mitgliedschaft', 'info.from': 'Ab €50/Jahr', 'info.weather': 'Wetter in Eygelshoven',
       'about.label': 'Wer wir sind', 'about.title': 'Der RC-Verein in Südlimburg',
