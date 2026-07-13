@@ -293,11 +293,27 @@ while (count($faqData) < 8) {
     .taal-groep:first-of-type { padding-top: 0; margin-top: 0; border-top: none; }
     .taal-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
     .taal-label .optioneel { font-weight: 400; text-transform: none; letter-spacing: normal; }
+    .menu { position: sticky; top: 8px; z-index: 10; display: flex; gap: 8px; flex-wrap: wrap; background: var(--bg); padding: 4px 0 4px; }
+    .menu-item { background: var(--white); border: 1.5px solid var(--border); border-radius: 999px; padding: 9px 16px; font-size: 14px; font-weight: 700; color: var(--muted); cursor: pointer; }
+    .menu-item:hover { border-color: var(--teal); }
+    .menu-item.actief { background: var(--teal); border-color: var(--teal); color: white; }
+    .tab-paneel { display: none; flex-direction: column; gap: 16px; }
+    #tab-mededeling { display: flex; }
   </style>
 </head>
 <body>
   <div class="wrap">
 
+  <nav class="menu">
+    <button type="button" class="menu-item" data-tab="mededeling">Mededeling</button>
+    <?php if ($configOk): ?>
+    <button type="button" class="menu-item" data-tab="agenda">Agenda</button>
+    <button type="button" class="menu-item" data-tab="faq">Vragen</button>
+    <?php endif; ?>
+    <button type="button" class="menu-item" data-tab="rekentabel">Rekentabel</button>
+  </nav>
+
+  <div class="tab-paneel" id="tab-mededeling">
   <!-- ===== ACTUELE MEDEDELING ===== -->
   <div class="kaart">
     <h1>Actuele mededeling</h1>
@@ -333,11 +349,13 @@ while (count($faqData) < 8) {
 
     <?php endif; ?>
   </div>
+  </div>
 
   <?php if ($configOk): ?>
 
+  <div class="tab-paneel" id="tab-agenda">
   <!-- ===== AGENDA ===== -->
-  <div class="kaart" id="agenda">
+  <div class="kaart">
     <h1>Agenda homepage</h1>
     <p class="sub">De vier evenementenkaarten op de homepage. Laat een titel leeg om die kaart te verbergen.</p>
 
@@ -391,9 +409,11 @@ while (count($faqData) < 8) {
       <button type="submit">Agenda opslaan</button>
     </form>
   </div>
+  </div>
 
-  <!-- ===== EXTRA FAQ ===== -->
-  <div class="kaart" id="faq">
+  <div class="tab-paneel" id="tab-faq">
+  <!-- ===== VEELGESTELDE VRAGEN ===== -->
+  <div class="kaart">
     <h1>Veelgestelde vragen</h1>
     <p class="sub">De volledige vragenlijst op de aanmeldpagina, inclusief de bestaande vragen. Laat een vraag leeg om die niet te tonen.</p>
 
@@ -457,11 +477,11 @@ while (count($faqData) < 8) {
       <button type="submit">Vragen opslaan</button>
     </form>
   </div>
+  </div>
 
   <?php endif; ?>
 
-  <a class="terug" href="index.html">Naar de website</a>
-
+  <div class="tab-paneel" id="tab-rekentabel">
   <!-- ===== REKENTABEL (alleen ter referentie, niet bewerkbaar) ===== -->
   <div class="kaart">
     <h1>Rekentabel contributie</h1>
@@ -486,7 +506,39 @@ while (count($faqData) < 8) {
     </table>
     <p class="reken-noot">Bedragen zijn pro-rata contributie voor de resterende maanden plus <?php echo euro($inschrijfkosten); ?> eenmalige inschrijfkosten. Volledige jaarcontributie: jeugd €50, senior €100. Deze tabel wordt niet via dit paneel bewerkt; de bedragen staan vast in de code van beheer.php en aanmelden.html.</p>
   </div>
+  </div>
+
+  <a class="terug" href="index.html">Naar de website</a>
 
   </div>
+
+  <script>
+    (function() {
+      var tabs = ['mededeling'<?php if ($configOk): ?>, 'agenda', 'faq'<?php endif; ?>, 'rekentabel'];
+      var menuItems = document.querySelectorAll('.menu-item');
+
+      function toonTab(naam) {
+        if (tabs.indexOf(naam) === -1) naam = tabs[0];
+        tabs.forEach(function(t) {
+          var paneel = document.getElementById('tab-' + t);
+          if (paneel) paneel.style.display = (t === naam) ? 'flex' : 'none';
+        });
+        menuItems.forEach(function(btn) {
+          btn.classList.toggle('actief', btn.getAttribute('data-tab') === naam);
+        });
+      }
+
+      menuItems.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var naam = btn.getAttribute('data-tab');
+          history.replaceState(null, '', '#' + naam);
+          toonTab(naam);
+          btn.scrollIntoView({ block: 'nearest', inline: 'center' });
+        });
+      });
+
+      toonTab((location.hash || '').replace('#', ''));
+    })();
+  </script>
 </body>
 </html>
