@@ -99,11 +99,8 @@
     .btn-white { background: white; color: var(--teal-dark); }
     .btn-white:hover { background: var(--teal-light); transform: translateY(-1px); }
 
-    /* ===== ACTUELE UPDATE STROOK ===== */
-    .fb-update-bar { display: none; background: var(--gold-light); border-bottom: 1px solid rgba(200,154,26,0.35); padding: 10px 24px; }
-    .fb-update-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: baseline; gap: 8px; font-size: 14px; color: var(--dark); }
-    .fb-update-label { font-weight: 700; color: var(--rust); flex-shrink: 0; }
-    .fb-update-text { color: var(--text); white-space: pre-line; }
+    /* ===== ACTUELE UPDATE (announce-bar en openingstijdenkaart) ===== */
+    #announce-text { white-space: pre-line; }
     .actueel-hours { display: none; background: var(--gold-light); border: 1px solid rgba(200,154,26,0.35); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 14px; line-height: 1.6; }
     .actueel-hours strong { color: var(--rust); }
     .actueel-hours-text { white-space: pre-line; }
@@ -435,10 +432,10 @@
 <!-- ===== TERUG NAAR BOVEN ===== -->
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Terug naar boven">↑</button>
 
-<!-- ===== MEDEDELING (pas tekst hieronder aan of zet style="display:none" om te verbergen) ===== -->
-<div class="announce-bar" id="announce-bar">
-  <span class="announce-bar-icon" aria-hidden="true">🔧</span>
-  <span data-i18n="announce.text">Let op: zaterdag 11 juli is de baan gesloten in verband met onderhoud. Zondag 12 juli zijn we weer gewoon open.</span>
+<!-- ===== MEDEDELING (inhoud komt uit data/actueel.json, bijwerken via beheer.php) ===== -->
+<div class="announce-bar" id="announce-bar" style="display:none;">
+  <span class="announce-bar-icon" aria-hidden="true">📣</span>
+  <span id="announce-text"></span>
 </div>
 
 <!-- ===== NAVIGATION ===== -->
@@ -469,13 +466,6 @@
   </div>
 </nav>
 
-<!-- ===== ACTUELE UPDATE STROOK (inhoud komt uit data/actueel.json, bijwerken via beheer.php) ===== -->
-<div class="fb-update-bar" id="fb-update-bar">
-  <div class="fb-update-inner">
-    <span class="fb-update-label" data-i18n="update.label">📣 Actueel:</span>
-    <span class="fb-update-text" id="fb-update-text"></span>
-  </div>
-</div>
 
 <!-- ===== HERO ===== -->
 <section class="hero" id="main-content">
@@ -1060,7 +1050,6 @@
       'nav.location': 'Locatie', 'nav.question': 'Contact', 'nav.join': 'Lid worden', 'nav.story': 'Het ontstaan',
       'hero.intro': 'Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners én ervaren hobbyisten. Jong én oud.',
       'hero.btn.member': 'Lid worden!', 'hero.btn.more': 'Meer over ons',
-      'announce.text': 'Let op: zaterdag 11 juli is de baan gesloten in verband met onderhoud. Zondag 12 juli zijn we weer gewoon open.',
       'update.label': '📣 Actueel:', 'info.hours': 'Openingstijden', 'info.sat': 'Zaterdag 10:00–15:00', 'info.sun': 'Zondag 10:00–15:00',
       'info.location': 'Locatie', 'info.membership': 'Lidmaatschap', 'info.from': 'Vanaf €50/jaar', 'info.weather': 'Weer in Eygelshoven',
       'about.label': 'Wie zijn wij', 'about.title': 'Dé RC-vereniging van Zuid-Limburg',
@@ -1131,7 +1120,6 @@
       'nav.location': 'Location', 'nav.question': 'Contact', 'nav.join': 'Become a member', 'nav.story': 'Our history',
       'hero.intro': 'We are a friendly club from the south of Limburg for enthusiasts of electrically powered, radio-controlled cars. For beginners and experienced hobbyists alike. Young and old.',
       'hero.btn.member': 'Become a member!', 'hero.btn.more': 'More about us',
-      'announce.text': 'Please note: the track is closed on Saturday 11 July for maintenance. We are open as usual again on Sunday 12 July.',
       'update.label': '📣 Update:', 'info.hours': 'Opening hours', 'info.sat': 'Saturday 10:00–15:00', 'info.sun': 'Sunday 10:00–15:00',
       'info.location': 'Location', 'info.membership': 'Membership', 'info.from': 'From €50/year', 'info.weather': 'Weather in Eygelshoven',
       'about.label': 'Who we are', 'about.title': 'The RC club of South Limburg',
@@ -1202,7 +1190,6 @@
       'nav.location': 'Standort', 'nav.question': 'Contact', 'nav.join': 'Mitglied werden', 'nav.story': 'Unsere Geschichte',
       'hero.intro': 'Wir sind ein freundlicher Verein aus dem Süden von Limburg für Liebhaber von elektrisch angetriebenen, ferngesteuerten Autos. Für Anfänger und erfahrene Hobbyisten. Jung und Alt.',
       'hero.btn.member': 'Mitglied werden!', 'hero.btn.more': 'Mehr über uns',
-      'announce.text': 'Achtung: Die Bahn ist am Samstag, den 11. Juli wegen Wartungsarbeiten geschlossen. Am Sonntag, den 12. Juli sind wir wieder wie gewohnt geöffnet.',
       'update.label': '📣 Aktuell:', 'info.hours': 'Öffnungszeiten', 'info.sat': 'Samstag 10:00–15:00', 'info.sun': 'Sonntag 10:00–15:00',
       'info.location': 'Standort', 'info.membership': 'Mitgliedschaft', 'info.from': 'Ab €50/Jahr', 'info.weather': 'Wetter in Eygelshoven',
       'about.label': 'Wer wir sind', 'about.title': 'Der RC-Verein in Südlimburg',
@@ -1582,8 +1569,8 @@
     .then(function(d) {
       if (!d || !d.text || !d.text.trim()) return;
       var tekst = d.text.trim();
-      document.getElementById('fb-update-text').textContent = tekst;
-      document.getElementById('fb-update-bar').style.display = 'block';
+      document.getElementById('announce-text').textContent = tekst;
+      document.getElementById('announce-bar').style.display = 'flex';
       document.getElementById('actueel-hours-text').textContent = tekst;
       document.getElementById('actueel-hours').style.display = 'block';
     })
