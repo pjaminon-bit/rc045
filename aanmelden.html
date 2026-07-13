@@ -157,7 +157,7 @@
     .faq-question::after { content: '+'; font-size: 20px; color: var(--teal); flex-shrink: 0; transition: transform 0.2s; }
     .faq-item.open .faq-question::after { transform: rotate(45deg); }
     .faq-answer { font-size: 14px; color: var(--muted); line-height: 1.7; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; }
-    .faq-item.open .faq-answer { max-height: 200px; padding-top: 12px; }
+    .faq-item.open .faq-answer { max-height: 600px; padding-top: 12px; }
 
     /* ===== SUBMIT ===== */
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; border: none; }
@@ -399,7 +399,7 @@
     </form>
   </div>
 
-  <div class="faq-card">
+  <div class="faq-card" id="faq-card">
     <div class="faq-title" data-i18n="faq.title">Veelgestelde vragen</div>
 
     <div class="faq-item">
@@ -914,12 +914,36 @@
       btn.disabled = false;
     }
   });
-  // ===== FAQ =====
-  document.querySelectorAll('.faq-item').forEach(item => {
-    item.querySelector('.faq-question').addEventListener('click', function() {
-      item.classList.toggle('open');
-    });
+  // ===== FAQ (openklappen, werkt ook voor dynamisch toegevoegde vragen) =====
+  document.getElementById('faq-card').addEventListener('click', function(e) {
+    var vraag = e.target.closest('.faq-question');
+    if (!vraag) return;
+    vraag.closest('.faq-item').classList.toggle('open');
   });
+
+  // ===== EXTRA FAQ (data/faq-extra.json, bijwerken via beheer.php) =====
+  // Let op: deze vragen komen exact zo van het bestuur en worden niet vertaald.
+  fetch('data/faq-extra.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : []; })
+    .then(function(items) {
+      if (!Array.isArray(items) || items.length === 0) return;
+      var kaart = document.getElementById('faq-card');
+      items.forEach(function(item) {
+        if (!item || !item.q || !String(item.q).trim()) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'faq-item';
+        var vraag = document.createElement('div');
+        vraag.className = 'faq-question';
+        vraag.textContent = item.q;
+        var antwoord = document.createElement('div');
+        antwoord.className = 'faq-answer';
+        antwoord.textContent = item.a || '';
+        wrap.appendChild(vraag);
+        wrap.appendChild(antwoord);
+        kaart.appendChild(wrap);
+      });
+    })
+    .catch(function() {});
 
   // ===== INPUT ERROR STYLING =====
   function setInputError(id, hasError) {
