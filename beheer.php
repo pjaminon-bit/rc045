@@ -14,6 +14,20 @@ $configPad  = __DIR__ . '/beheer-config.php';
 $dataMap    = __DIR__ . '/data';
 $dataBestand = $dataMap . '/actueel.json';
 
+// Rekentabel contributie (zelfde bedragen als op aanmelden.html;
+// wijzigen de prijzen, pas ze dan op BEIDE plekken aan)
+$inschrijfkosten = 10;
+$tabelJeugd  = [1 => 46, 2 => 42, 3 => 38, 4 => 33, 5 => 29, 6 => 25, 7 => 21, 8 => 17, 9 => 13, 10 => 8, 11 => 4.16, 12 => null];
+$tabelSenior = [1 => 92, 2 => 83, 3 => 75, 4 => 67, 5 => 58, 6 => 50, 7 => 42, 8 => 33, 9 => 25, 10 => 17, 11 => 8, 12 => null];
+$maandNamen = [1 => 'Januari', 2 => 'Februari', 3 => 'Maart', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Augustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'December'];
+$huidigeMaand = (int) date('n');
+
+function euro($bedrag) {
+  $s = number_format($bedrag, 2, ',', '.');
+  if (substr($s, -3) === ',00') $s = substr($s, 0, -3);
+  return '€' . $s;
+}
+
 $configOk = file_exists($configPad);
 if ($configOk) {
   require $configPad; // definieert $BEHEER_WACHTWOORD
@@ -100,6 +114,13 @@ if (file_exists($dataBestand)) {
     .melding.fout { background: #FDECEA; border: 1px solid #F5B7B1; color: #7B241C; }
     .laatst { font-size: 13px; color: var(--muted); margin-top: 16px; text-align: center; }
     .terug { display: block; text-align: center; margin-top: 12px; font-size: 14px; color: var(--teal-dark); }
+    table.reken { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 4px; }
+    table.reken th { text-align: left; font-size: 13px; color: var(--muted); font-weight: 700; padding: 8px 6px; border-bottom: 2px solid var(--border); }
+    table.reken td { padding: 8px 6px; border-bottom: 1px solid var(--border); }
+    table.reken tr.nu td { background: var(--gold-light); font-weight: 700; }
+    table.reken tr.nu td:first-child { border-radius: 6px 0 0 6px; }
+    table.reken tr.nu td:last-child { border-radius: 0 6px 6px 0; }
+    .reken-noot { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.6; }
   </style>
 </head>
 <body>
@@ -137,6 +158,30 @@ if (file_exists($dataBestand)) {
     <?php endif; ?>
 
     <a class="terug" href="index.html">Naar de website</a>
+  </div>
+
+  <div class="kaart" style="margin-top:16px;">
+    <h1>Rekentabel contributie</h1>
+    <p class="sub">Wat betaalt een nieuw lid, per maand van aanmelding (inclusief <?php echo euro($inschrijfkosten); ?> inschrijfkosten)</p>
+    <table class="reken">
+      <tr>
+        <th>Maand</th>
+        <th>Jeugd t/m 15</th>
+        <th>Senior 16+</th>
+      </tr>
+      <?php foreach ($maandNamen as $m => $naam): ?>
+      <tr<?php if ($m === $huidigeMaand) echo ' class="nu"'; ?>>
+        <td><?php echo $naam; ?><?php if ($m === $huidigeMaand) echo ' ◀'; ?></td>
+        <?php if ($tabelJeugd[$m] === null): ?>
+          <td colspan="2"><?php echo euro($inschrijfkosten); ?> (alleen inschrijfkosten, contributie volgend jaar later overmaken)</td>
+        <?php else: ?>
+          <td><?php echo euro($tabelJeugd[$m] + $inschrijfkosten); ?></td>
+          <td><?php echo euro($tabelSenior[$m] + $inschrijfkosten); ?></td>
+        <?php endif; ?>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+    <p class="reken-noot">Bedragen zijn pro-rata contributie voor de resterende maanden plus <?php echo euro($inschrijfkosten); ?> eenmalige inschrijfkosten. Volledige jaarcontributie: jeugd €50, senior €100. Jeugd of senior wordt bepaald door de leeftijd op het moment van aanmelden (t/m 15 jaar is jeugd).</p>
   </div>
 </body>
 </html>
