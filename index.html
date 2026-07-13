@@ -57,9 +57,9 @@
 
     /* ===== NAVIGATION ===== */
     .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
-    .announce-bar { background: var(--dark); color: rgba(255,255,255,0.92); text-align: center; padding: 10px 20px; font-size: 14px; font-weight: 500; line-height: 1.5; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .announce-bar-icon { flex-shrink: 0; }
-    @media (max-width: 700px) { .announce-bar { font-size: 13px; padding: 8px 16px; } }
+    .announce-bar { background: var(--gold); color: var(--dark); text-align: center; padding: 13px 20px; font-size: 15px; font-weight: 600; line-height: 1.5; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid rgba(0,0,0,0.12); }
+    .announce-bar-icon { flex-shrink: 0; font-size: 17px; }
+    @media (max-width: 700px) { .announce-bar { font-size: 14px; padding: 10px 16px; } }
     .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 72px; }
     .nav-logo { display: flex; align-items: center; gap: 12px; }
     .nav-logo img { height: 48px; width: auto; }
@@ -432,12 +432,6 @@
 <!-- ===== TERUG NAAR BOVEN ===== -->
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Terug naar boven">↑</button>
 
-<!-- ===== MEDEDELING (inhoud komt uit data/actueel.json, bijwerken via beheer.php) ===== -->
-<div class="announce-bar" id="announce-bar" style="display:none;">
-  <span class="announce-bar-icon" aria-hidden="true">📣</span>
-  <span id="announce-text"></span>
-</div>
-
 <!-- ===== NAVIGATION ===== -->
 <nav class="nav" id="main-nav">
   <div class="nav-inner">
@@ -465,6 +459,13 @@
     </button>
   </div>
 </nav>
+
+<!-- ===== MEDEDELING (inhoud komt uit data/actueel.json, bijwerken via beheer.php) ===== -->
+<div class="announce-bar" id="announce-bar" style="display:none;">
+  <span class="announce-bar-icon" aria-hidden="true">📣</span>
+  <span id="announce-text"></span>
+</div>
+
 
 
 <!-- ===== HERO ===== -->
