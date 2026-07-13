@@ -19,7 +19,7 @@ $dataMap   = __DIR__ . '/data';
 
 $actueelBestand = $dataMap . '/actueel.json';
 $agendaBestand  = $dataMap . '/agenda.json';
-$faqBestand     = $dataMap . '/faq-extra.json';
+$faqBestand     = $dataMap . '/faq.json';
 
 // Rekentabel contributie (zelfde bedragen als op aanmelden.html;
 // wijzigen de prijzen, pas ze dan op BEIDE plekken aan)
@@ -41,6 +41,17 @@ $agendaStandaard = [
   ['date' => '2026-08-23', 'tag' => 'leden', 'title' => 'ZomerBBQ met F1 Zandvoort', 'desc' => 'Exclusief voor leden. Gezellige BBQ terwijl we de Formule 1 in Zandvoort volgen.', 'time' => '10:00 - 17:00'],
   ['date' => '2026-10-31', 'tag' => 'leden', 'title' => 'Onderhoudsdag + Halloweenevent', 'desc' => 'Onderhoud aan de baan gecombineerd met een gezellig Halloween-evenement, exclusief voor leden.', 'time' => '10:00 - 15:00'],
   ['date' => '2026-12-13', 'tag' => 'leden', 'title' => 'Snert/Kerst-rit', 'desc' => 'Gezellige winterrit voor leden, afgesloten met warme snert en kerstsfeer.', 'time' => '10:00 - 15:00'],
+];
+
+// Standaardinhoud voor de FAQ, alleen gebruikt zolang data/faq.json nog niet
+// bestaat. Dit zijn de vijf vragen die nu al op aanmelden.html staan, zodat
+// het formulier meteen goed gevuld is en opslaan geen zichtbare wijziging geeft.
+$faqStandaard = [
+  ['q' => 'Wanneer ben ik officieel lid?', 'a' => 'Je bent officieel lid zodra je aanmelding is bevestigd door het bestuur én de contributie is ontvangen op onze bankrekening. Je ontvangt dan een bevestiging per e-mail of via de WhatsApp groep.'],
+  ['q' => 'Hoe bereken ik mijn contributie?', 'a' => 'De contributie wordt berekend op basis van de maand waarin je je aanmeldt. Je betaalt voor de resterende maanden van het jaar. De exacte berekening zie je automatisch zodra je je geboortedatum invult.'],
+  ['q' => 'Wat als ik later in het jaar lid word?', 'a' => 'Dan betaal je een pro-rata bedrag voor de resterende maanden. Schrijf je in december in? Dan betaal je alleen de eenmalige inschrijfkosten van €10; de volledige contributie voor het volgende jaar hoeft dan nog niet te worden overgemaakt.'],
+  ['q' => 'Moet ik elk jaar opnieuw betalen?', 'a' => 'Ja, de contributie wordt jaarlijks geïnd. Je ontvangt hierover tijdig bericht via de WhatsApp groep of nieuwsbrief.'],
+  ['q' => 'Kan ik eerst komen kijken voor ik lid word?', 'a' => 'Ja, je kunt altijd eerst als gastrijder langskomen. Volwassenen betalen €10, jeugd t/m 15 jaar betaalt €5 per dag. Meld je bij aankomst bij een bestuurslid.'],
 ];
 
 function euro($bedrag) {
@@ -126,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $configOk) {
       $items[] = ['q' => $vraag, 'a' => kort($rij['a'] ?? '', 600)];
     }
     if (schrijfJson($faqBestand, $items)) {
-      $melding['faq'] = 'Opgeslagen. De extra vragen staan nu op de aanmeldpagina.';
+      $melding['faq'] = 'Opgeslagen. De vragenlijst op de aanmeldpagina is bijgewerkt.';
       $meldingType['faq'] = 'ok';
     } else {
       $melding['faq'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
@@ -157,12 +168,12 @@ while (count($agendaData) < 4) {
   $agendaData[] = ['date' => '', 'tag' => 'leden', 'title' => '', 'desc' => '', 'time' => ''];
 }
 
-$faqData = [];
+$faqData = $faqStandaard;
 if (file_exists($faqBestand)) {
   $json = json_decode(file_get_contents($faqBestand), true);
   if (is_array($json)) $faqData = $json;
 }
-while (count($faqData) < 3) {
+while (count($faqData) < 8) {
   $faqData[] = ['q' => '', 'a' => ''];
 }
 ?>
@@ -315,15 +326,15 @@ while (count($faqData) < 3) {
 
   <!-- ===== EXTRA FAQ ===== -->
   <div class="kaart" id="faq">
-    <h1>Extra veelgestelde vragen</h1>
-    <p class="sub">Worden toegevoegd onderaan de vaste vragenlijst op de aanmeldpagina. Laat een vraag leeg om die niet te tonen.</p>
+    <h1>Veelgestelde vragen</h1>
+    <p class="sub">De volledige vragenlijst op de aanmeldpagina, inclusief de bestaande vragen. Laat een vraag leeg om die niet te tonen.</p>
 
     <?php if (isset($melding['faq'])): ?>
       <div class="melding <?php echo $meldingType['faq']; ?>"><?php echo htmlspecialchars($melding['faq']); ?></div>
     <?php endif; ?>
 
     <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
-      Let op: ook deze vragen verschijnen in alle drie de talen precies zoals je ze hier typt.
+      Let op: deze vragen verschijnen in alle drie de talen precies zoals je ze hier typt, ook de eerste vijf. Er wordt niet automatisch vertaald.
     </div>
 
     <form method="post" action="beheer.php#faq">
