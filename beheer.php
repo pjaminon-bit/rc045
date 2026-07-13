@@ -44,14 +44,50 @@ $agendaStandaard = [
 ];
 
 // Standaardinhoud voor de FAQ, alleen gebruikt zolang data/faq.json nog niet
-// bestaat. Dit zijn de vijf vragen die nu al op aanmelden.html staan, zodat
-// het formulier meteen goed gevuld is en opslaan geen zichtbare wijziging geeft.
+// bestaat. Dit zijn de vijf vragen die nu al op aanmelden.html staan, inclusief
+// de originele Engelse en Duitse vertaling, zodat het formulier meteen goed
+// gevuld is en opslaan geen zichtbare wijziging geeft.
 $faqStandaard = [
-  ['q' => 'Wanneer ben ik officieel lid?', 'a' => 'Je bent officieel lid zodra je aanmelding is bevestigd door het bestuur én de contributie is ontvangen op onze bankrekening. Je ontvangt dan een bevestiging per e-mail of via de WhatsApp groep.'],
-  ['q' => 'Hoe bereken ik mijn contributie?', 'a' => 'De contributie wordt berekend op basis van de maand waarin je je aanmeldt. Je betaalt voor de resterende maanden van het jaar. De exacte berekening zie je automatisch zodra je je geboortedatum invult.'],
-  ['q' => 'Wat als ik later in het jaar lid word?', 'a' => 'Dan betaal je een pro-rata bedrag voor de resterende maanden. Schrijf je in december in? Dan betaal je alleen de eenmalige inschrijfkosten van €10; de volledige contributie voor het volgende jaar hoeft dan nog niet te worden overgemaakt.'],
-  ['q' => 'Moet ik elk jaar opnieuw betalen?', 'a' => 'Ja, de contributie wordt jaarlijks geïnd. Je ontvangt hierover tijdig bericht via de WhatsApp groep of nieuwsbrief.'],
-  ['q' => 'Kan ik eerst komen kijken voor ik lid word?', 'a' => 'Ja, je kunt altijd eerst als gastrijder langskomen. Volwassenen betalen €10, jeugd t/m 15 jaar betaalt €5 per dag. Meld je bij aankomst bij een bestuurslid.'],
+  [
+    'q' => ['nl' => 'Wanneer ben ik officieel lid?', 'en' => 'When am I officially a member?', 'de' => 'Wann bin ich offiziell Mitglied?'],
+    'a' => [
+      'nl' => 'Je bent officieel lid zodra je aanmelding is bevestigd door het bestuur én de contributie is ontvangen op onze bankrekening. Je ontvangt dan een bevestiging per e-mail of via de WhatsApp groep.',
+      'en' => 'You are officially a member once your registration has been confirmed by the board and the membership fee has been received in our bank account. You will then receive a confirmation by email or via the WhatsApp group.',
+      'de' => 'Du bist offiziell Mitglied, sobald deine Anmeldung vom Vorstand bestätigt wurde und der Mitgliedsbeitrag auf unserem Konto eingegangen ist. Du erhältst dann eine Bestätigung per E-Mail oder über die WhatsApp-Gruppe.',
+    ],
+  ],
+  [
+    'q' => ['nl' => 'Hoe bereken ik mijn contributie?', 'en' => 'How is my membership fee calculated?', 'de' => 'Wie wird mein Mitgliedsbeitrag berechnet?'],
+    'a' => [
+      'nl' => 'De contributie wordt berekend op basis van de maand waarin je je aanmeldt. Je betaalt voor de resterende maanden van het jaar. De exacte berekening zie je automatisch zodra je je geboortedatum invult.',
+      'en' => 'The fee is calculated based on the month you register. You pay for the remaining months of the year. The exact amount is shown automatically once you enter your date of birth.',
+      'de' => 'Der Beitrag wird anhand des Monats berechnet, in dem du dich anmeldest. Du zahlst für die verbleibenden Monate des Jahres. Den genauen Betrag siehst du automatisch, sobald du dein Geburtsdatum eingibst.',
+    ],
+  ],
+  [
+    'q' => ['nl' => 'Wat als ik later in het jaar lid word?', 'en' => 'What if I join later in the year?', 'de' => 'Was ist, wenn ich erst später im Jahr beitrete?'],
+    'a' => [
+      'nl' => 'Dan betaal je een pro-rata bedrag voor de resterende maanden. Schrijf je in december in? Dan betaal je alleen de eenmalige inschrijfkosten van €10; de volledige contributie voor het volgende jaar hoeft dan nog niet te worden overgemaakt.',
+      'en' => 'You pay a pro-rata amount for the remaining months. Joining in December? Then you only pay the one-time registration fee of €10; the full membership fee for the following year does not need to be transferred yet.',
+      'de' => 'Du zahlst dann einen anteiligen Betrag für die verbleibenden Monate. Wenn du im Dezember beitrittst, zahlst du nur die einmalige Anmeldegebühr von €10; der volle Mitgliedsbeitrag für das nächste Jahr muss dann noch nicht überwiesen werden.',
+    ],
+  ],
+  [
+    'q' => ['nl' => 'Moet ik elk jaar opnieuw betalen?', 'en' => 'Do I need to pay every year?', 'de' => 'Muss ich jedes Jahr erneut zahlen?'],
+    'a' => [
+      'nl' => 'Ja, de contributie wordt jaarlijks geïnd. Je ontvangt hierover tijdig bericht via de WhatsApp groep of nieuwsbrief.',
+      'en' => 'Yes, membership fees are collected annually. You will be notified in time via the WhatsApp group or newsletter.',
+      'de' => 'Ja, der Mitgliedsbeitrag wird jährlich erhoben. Du wirst rechtzeitig über die WhatsApp-Gruppe oder den Newsletter informiert.',
+    ],
+  ],
+  [
+    'q' => ['nl' => 'Kan ik eerst komen kijken voor ik lid word?', 'en' => 'Can I come and have a look before joining?', 'de' => 'Kann ich erst vorbeischauen, bevor ich Mitglied werde?'],
+    'a' => [
+      'nl' => 'Ja, je kunt altijd eerst als gastrijder langskomen. Volwassenen betalen €10, jeugd t/m 15 jaar betaalt €5 per dag. Meld je bij aankomst bij een bestuurslid.',
+      'en' => 'Yes, you can always come as a guest rider first. Adults pay €10, youth up to 15 years pay €5 per day. Check in with a board member on arrival.',
+      'de' => 'Ja, du kannst jederzeit als Gastfahrer vorbeikommen. Erwachsene zahlen €10, Jugendliche bis 15 Jahre zahlen €5 pro Tag. Melde dich bei einem Vorstandsmitglied.',
+    ],
+  ],
 ];
 
 function euro($bedrag) {
@@ -132,9 +168,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $configOk) {
   } elseif ($formulier === 'faq') {
     $items = [];
     foreach (($_POST['faq'] ?? []) as $rij) {
-      $vraag = kort($rij['q'] ?? '', 150);
-      if ($vraag === '') continue; // lege vraag = wordt niet getoond
-      $items[] = ['q' => $vraag, 'a' => kort($rij['a'] ?? '', 600)];
+      $vraagNl = kort($rij['q_nl'] ?? '', 150);
+      if ($vraagNl === '') continue; // Nederlandse vraag is verplicht, anders wordt de kaart niet getoond
+      $items[] = [
+        'q' => [
+          'nl' => $vraagNl,
+          'en' => kort($rij['q_en'] ?? '', 150),
+          'de' => kort($rij['q_de'] ?? '', 150),
+        ],
+        'a' => [
+          'nl' => kort($rij['a_nl'] ?? '', 600),
+          'en' => kort($rij['a_en'] ?? '', 600),
+          'de' => kort($rij['a_de'] ?? '', 600),
+        ],
+      ];
     }
     if (schrijfJson($faqBestand, $items)) {
       $melding['faq'] = 'Opgeslagen. De vragenlijst op de aanmeldpagina is bijgewerkt.';
@@ -171,10 +218,27 @@ while (count($agendaData) < 4) {
 $faqData = $faqStandaard;
 if (file_exists($faqBestand)) {
   $json = json_decode(file_get_contents($faqBestand), true);
-  if (is_array($json)) $faqData = $json;
+  if (is_array($json) && count($json) > 0) {
+    // Herkent en converteert automatisch het oude platte formaat
+    // ({"q": "tekst", "a": "tekst"}, van vóór de talenvelden) naar het
+    // huidige genestte formaat. Zo gaat er nooit tekst verloren, ongeacht
+    // welke versie van beheer.php het bestand voor het laatst heeft geschreven.
+    $faqData = array_map(function($item) {
+      if (isset($item['q']) && is_string($item['q'])) {
+        return [
+          'q' => ['nl' => $item['q'], 'en' => '', 'de' => ''],
+          'a' => ['nl' => is_string($item['a'] ?? null) ? $item['a'] : '', 'en' => '', 'de' => ''],
+        ];
+      }
+      return [
+        'q' => ['nl' => $item['q']['nl'] ?? '', 'en' => $item['q']['en'] ?? '', 'de' => $item['q']['de'] ?? ''],
+        'a' => ['nl' => $item['a']['nl'] ?? '', 'en' => $item['a']['en'] ?? '', 'de' => $item['a']['de'] ?? ''],
+      ];
+    }, $json);
+  }
 }
 while (count($faqData) < 8) {
-  $faqData[] = ['q' => '', 'a' => ''];
+  $faqData[] = ['q' => ['nl' => '', 'en' => '', 'de' => ''], 'a' => ['nl' => '', 'en' => '', 'de' => '']];
 }
 ?>
 <!DOCTYPE html>
@@ -225,6 +289,10 @@ while (count($faqData) < 8) {
     .rij-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 480px) { .rij-2 { grid-template-columns: 1fr; } }
     .item-blok .veld:last-child { margin-bottom: 0; }
+    .taal-groep { padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--border); }
+    .taal-groep:first-of-type { padding-top: 0; margin-top: 0; border-top: none; }
+    .taal-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
+    .taal-label .optioneel { font-weight: 400; text-transform: none; letter-spacing: normal; }
   </style>
 </head>
 <body>
@@ -334,7 +402,7 @@ while (count($faqData) < 8) {
     <?php endif; ?>
 
     <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
-      Let op: deze vragen verschijnen in alle drie de talen precies zoals je ze hier typt, ook de eerste vijf. Er wordt niet automatisch vertaald.
+      Nederlands is verplicht per vraag. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
     </div>
 
     <form method="post" action="beheer.php#faq">
@@ -343,13 +411,41 @@ while (count($faqData) < 8) {
       <?php foreach ($faqData as $i => $item): ?>
         <div class="item-blok">
           <div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div>
-          <div class="veld">
-            <label for="faq-q-<?php echo $i; ?>">Vraag</label>
-            <input type="text" id="faq-q-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q]" maxlength="150" value="<?php echo htmlspecialchars($item['q'] ?? ''); ?>" placeholder="Bijv.: Mag ik met een verbrandingsmotor rijden?">
+
+          <div class="taal-groep">
+            <div class="taal-label">🇳🇱 Nederlands</div>
+            <div class="veld">
+              <label for="faq-q-nl-<?php echo $i; ?>">Vraag</label>
+              <input type="text" id="faq-q-nl-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q_nl]" maxlength="150" value="<?php echo htmlspecialchars($item['q']['nl'] ?? ''); ?>" placeholder="Bijv.: Mag ik met een verbrandingsmotor rijden?">
+            </div>
+            <div class="veld">
+              <label for="faq-a-nl-<?php echo $i; ?>">Antwoord</label>
+              <textarea id="faq-a-nl-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_nl]" maxlength="600"><?php echo htmlspecialchars($item['a']['nl'] ?? ''); ?></textarea>
+            </div>
           </div>
-          <div class="veld">
-            <label for="faq-a-<?php echo $i; ?>">Antwoord</label>
-            <textarea id="faq-a-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a]" maxlength="600"><?php echo htmlspecialchars($item['a'] ?? ''); ?></textarea>
+
+          <div class="taal-groep">
+            <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
+            <div class="veld">
+              <label for="faq-q-en-<?php echo $i; ?>">Question</label>
+              <input type="text" id="faq-q-en-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q_en]" maxlength="150" value="<?php echo htmlspecialchars($item['q']['en'] ?? ''); ?>">
+            </div>
+            <div class="veld">
+              <label for="faq-a-en-<?php echo $i; ?>">Answer</label>
+              <textarea id="faq-a-en-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_en]" maxlength="600"><?php echo htmlspecialchars($item['a']['en'] ?? ''); ?></textarea>
+            </div>
+          </div>
+
+          <div class="taal-groep">
+            <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
+            <div class="veld">
+              <label for="faq-q-de-<?php echo $i; ?>">Frage</label>
+              <input type="text" id="faq-q-de-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q_de]" maxlength="150" value="<?php echo htmlspecialchars($item['q']['de'] ?? ''); ?>">
+            </div>
+            <div class="veld">
+              <label for="faq-a-de-<?php echo $i; ?>">Antwort</label>
+              <textarea id="faq-a-de-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_de]" maxlength="600"><?php echo htmlspecialchars($item['a']['de'] ?? ''); ?></textarea>
+            </div>
           </div>
         </div>
       <?php endforeach; ?>
