@@ -387,12 +387,8 @@
     </div>
     <div class="footer-sponsors">
       <div class="footer-sponsors-title" data-i18n="footer.sponsors.title">Met dank aan onze sponsoren</div>
-      <div class="footer-sponsors-grid">
-        <div class="footer-sponsor-card"><img src="images/sponsors/traxxas.png" alt="Traxxas" class="footer-sponsor-logo"></div>
-        <div class="footer-sponsor-card"><img src="images/sponsors/kok-lexmond.png" alt="Kok Lexmond" class="footer-sponsor-logo"></div>
-        <div class="footer-sponsor-card"><img src="images/sponsors/toemen.png" alt="Toemen" class="footer-sponsor-logo"></div>
-        <div class="footer-sponsor-card"><img src="images/sponsors/shamrock.png" alt="Shamrock" class="footer-sponsor-logo"></div>
-        <div class="footer-sponsor-card"><img src="images/sponsors/rothy.png" alt="Rothy" class="footer-sponsor-logo"></div>
+      <div class="footer-sponsors-grid" id="sponsors-grid">
+        <!-- Sponsors worden hier ingevuld vanuit data/sponsors.json, bij te werken via beheer.php -->
       </div>
     </div>
     <div class="footer-bottom">
@@ -652,6 +648,42 @@ window.addEventListener('scroll', function() {
   window.addEventListener('scroll', function() {
     backToTop.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
+
+  // ===== SPONSORS (data/sponsors.json, bijwerken via beheer.php) =====
+  fetch('data/sponsors.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      if (!d || !Array.isArray(d.items) || d.items.length === 0) return;
+      var grid = document.getElementById('sponsors-grid');
+      if (!grid) return;
+      var versie = d.updated ? ('?v=' + encodeURIComponent(d.updated)) : '';
+
+      d.items.forEach(function(sp) {
+        if (!sp || !sp.name || !sp.logo) return;
+
+        var img = document.createElement('img');
+        img.src = 'images/sponsors/' + encodeURIComponent(sp.logo) + versie;
+        img.alt = sp.name;
+        img.className = 'footer-sponsor-logo';
+
+        var kaart = document.createElement('div');
+        kaart.className = 'footer-sponsor-card';
+        kaart.appendChild(img);
+
+        if (sp.url && /^https?:\/\//i.test(sp.url)) {
+          var link = document.createElement('a');
+          link.href = sp.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.style.display = 'contents';
+          link.appendChild(kaart);
+          grid.appendChild(link);
+        } else {
+          grid.appendChild(kaart);
+        }
+      });
+    })
+    .catch(function() {});
 </script>
 
 </body>
