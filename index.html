@@ -980,12 +980,8 @@
     </div>
     <div class="footer-sponsors">
       <div class="footer-sponsors-title" data-i18n="footer.sponsors.title">Met dank aan onze sponsoren</div>
-      <div class="footer-sponsors-grid">
-        <div class="footer-sponsor-card"><img src="images/sponsors/traxxas.png" alt="Traxxas" class="footer-sponsor-logo"></div>
-        <div class="footer-sponsor-card"><img src="images/sponsors/kok-lexmond.png" alt="Kok Lexmond" class="footer-sponsor-logo"></div>
-        <div class="footer-sponsor-card"><img src="images/sponsors/toemen.png" alt="Toemen" class="footer-sponsor-logo"></div>
-        <div class="footer-sponsor-card"><img src="images/sponsors/shamrock.png" alt="Shamrock" class="footer-sponsor-logo"></div>
-        <div class="footer-sponsor-card"><img src="images/sponsors/rothy.png" alt="Rothy" class="footer-sponsor-logo"></div>
+      <div class="footer-sponsors-grid" id="sponsors-grid">
+        <!-- Sponsors worden hier ingevuld vanuit data/sponsors.json, bij te werken via beheer.php -->
       </div>
     </div>
     <div class="footer-bottom">
@@ -1251,6 +1247,7 @@
     updateInternalLinks(lang);
     updateWeatherDisplay();
     updateStatus();
+    renderAgenda();
   }
 
   // ===== CONTACTFORMULIER =====
@@ -1518,67 +1515,128 @@
     .catch(function() {});
 
   // ===== AGENDA (data/agenda.json, bijwerken via beheer.php) =====
-  // Let op: titel/omschrijving/tijd komen exact zo van het bestuur en worden
-  // NIET vertaald, alleen het gekleurde label (data-i18n) volgt de taalkeuze.
+  // Nederlands is verplicht per kaart; Engels/Duits vallen terug op
+  // Nederlands als het bestuur die niet heeft ingevuld. renderAgenda()
+  // tekent opnieuw bij elke taalwissel (aangeroepen vanuit setLang).
   var agendaMaanden = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
   var agendaTagInfo = {
     opendag:   { klasse: 'open-dag', key: 'agenda.tag.opendag' },
     leden:     { klasse: 'leden',    key: 'agenda.tag.leden' },
     wedstrijd: { klasse: 'wedstrijd', key: 'agenda.tag.wedstrijd' }
   };
+  var agendaData = null;
+
+  function renderAgenda() {
+    if (!agendaData) return;
+    var grid = document.getElementById('agenda-grid');
+    grid.innerHTML = ''; // eigen container, alleen door onszelf gevuld
+    var t = i18n[currentLang];
+
+    agendaData.forEach(function(ev, i) {
+      if (!ev) return;
+
+      // Ondersteunt zowel het oude platte formaat (title/desc als tekst,
+      // van vóór de talenvelden) als het huidige formaat ({nl,en,de}), zodat
+      // er nooit "undefined" verschijnt als data/agenda.json nog niet
+      // opnieuw is opgeslagen.
+      var titelIsTekst = typeof ev.title === 'string';
+      var titelNl = titelIsTekst ? ev.title : ((ev.title && ev.title.nl) || '');
+      if (!titelNl || !String(titelNl).trim()) return;
+
+      var titelTekst = titelNl;
+      var omschrijvingTekst = titelIsTekst ? (ev.desc || '') : '';
+      if (!titelIsTekst) {
+        titelTekst = (ev.title[currentLang] && String(ev.title[currentLang]).trim()) ? ev.title[currentLang] : titelNl;
+        var descBron = (typeof ev.desc === 'object' && ev.desc) ? ev.desc : { nl: ev.desc || '' };
+        omschrijvingTekst = (descBron[currentLang] && String(descBron[currentLang]).trim()) ? descBron[currentLang] : (descBron.nl || '');
+      }
+
+      var info = agendaTagInfo[ev.tag] || agendaTagInfo.leden;
+      var dagTekst = '', maandTekst = '';
+      if (ev.date && /^\d{4}-\d{2}-\d{2}$/.test(ev.date)) {
+        var delen = ev.date.split('-');
+        dagTekst = String(parseInt(delen[2], 10));
+        maandTekst = agendaMaanden[parseInt(delen[1], 10) - 1] || '';
+      }
+
+      var card = document.createElement('div');
+      card.className = 'agenda-card reveal reveal-delay-' + (((i % 4) + 1));
+
+      var dateBox = document.createElement('div');
+      dateBox.className = 'agenda-card-date';
+      var daySpan = document.createElement('span');
+      daySpan.className = 'agenda-card-day'; daySpan.textContent = dagTekst;
+      var monthSpan = document.createElement('span');
+      monthSpan.className = 'agenda-card-month'; monthSpan.textContent = maandTekst;
+      dateBox.appendChild(daySpan); dateBox.appendChild(monthSpan);
+
+      var tagSpan = document.createElement('span');
+      tagSpan.className = 'agenda-card-tag ' + info.klasse;
+      tagSpan.setAttribute('data-i18n', info.key);
+      tagSpan.textContent = t[info.key] || '';
+
+      var h3 = document.createElement('h3');
+      h3.textContent = titelTekst;
+
+      var p = document.createElement('p');
+      p.textContent = omschrijvingTekst;
+
+      var timeBox = document.createElement('div');
+      timeBox.className = 'agenda-card-time';
+      timeBox.textContent = ev.time ? ('🕙 ' + ev.time) : '';
+
+      card.appendChild(dateBox);
+      card.appendChild(tagSpan);
+      card.appendChild(h3);
+      card.appendChild(p);
+      card.appendChild(timeBox);
+      grid.appendChild(card);
+
+      agendaObserver.observe(card);
+      revealObserver.observe(card);
+    });
+  }
+
   fetch('data/agenda.json', { cache: 'no-store' })
     .then(function(r) { return r.ok ? r.json() : []; })
     .then(function(events) {
-      if (!Array.isArray(events) || events.length === 0) return;
-      var grid = document.getElementById('agenda-grid');
-      var t = i18n[currentLang];
+      agendaData = Array.isArray(events) ? events : [];
+      renderAgenda();
+    })
+    .catch(function() { agendaData = []; });
 
-      events.forEach(function(ev, i) {
-        if (!ev || !ev.title || !String(ev.title).trim()) return;
+  // ===== SPONSORS (data/sponsors.json, bijwerken via beheer.php) =====
+  fetch('data/sponsors.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      if (!d || !Array.isArray(d.items) || d.items.length === 0) return;
+      var grid = document.getElementById('sponsors-grid');
+      if (!grid) return;
+      var versie = d.updated ? ('?v=' + encodeURIComponent(d.updated)) : '';
 
-        var info = agendaTagInfo[ev.tag] || agendaTagInfo.leden;
-        var dagTekst = '', maandTekst = '';
-        if (ev.date && /^\d{4}-\d{2}-\d{2}$/.test(ev.date)) {
-          var delen = ev.date.split('-');
-          dagTekst = String(parseInt(delen[2], 10));
-          maandTekst = agendaMaanden[parseInt(delen[1], 10) - 1] || '';
+      d.items.forEach(function(sp) {
+        if (!sp || !sp.name || !sp.logo) return;
+
+        var img = document.createElement('img');
+        img.src = 'images/sponsors/' + encodeURIComponent(sp.logo) + versie;
+        img.alt = sp.name;
+        img.className = 'footer-sponsor-logo';
+
+        var kaart = document.createElement('div');
+        kaart.className = 'footer-sponsor-card';
+        kaart.appendChild(img);
+
+        if (sp.url && /^https?:\/\//i.test(sp.url)) {
+          var link = document.createElement('a');
+          link.href = sp.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.style.display = 'contents';
+          link.appendChild(kaart);
+          grid.appendChild(link);
+        } else {
+          grid.appendChild(kaart);
         }
-
-        var card = document.createElement('div');
-        card.className = 'agenda-card reveal reveal-delay-' + (((i % 4) + 1));
-
-        var dateBox = document.createElement('div');
-        dateBox.className = 'agenda-card-date';
-        var daySpan = document.createElement('span');
-        daySpan.className = 'agenda-card-day'; daySpan.textContent = dagTekst;
-        var monthSpan = document.createElement('span');
-        monthSpan.className = 'agenda-card-month'; monthSpan.textContent = maandTekst;
-        dateBox.appendChild(daySpan); dateBox.appendChild(monthSpan);
-
-        var tagSpan = document.createElement('span');
-        tagSpan.className = 'agenda-card-tag ' + info.klasse;
-        tagSpan.setAttribute('data-i18n', info.key);
-        tagSpan.textContent = t[info.key] || '';
-
-        var h3 = document.createElement('h3');
-        h3.textContent = ev.title;
-
-        var p = document.createElement('p');
-        p.textContent = ev.desc || '';
-
-        var timeBox = document.createElement('div');
-        timeBox.className = 'agenda-card-time';
-        timeBox.textContent = ev.time ? ('🕙 ' + ev.time) : '';
-
-        card.appendChild(dateBox);
-        card.appendChild(tagSpan);
-        card.appendChild(h3);
-        card.appendChild(p);
-        card.appendChild(timeBox);
-        grid.appendChild(card);
-
-        agendaObserver.observe(card);
-        revealObserver.observe(card);
       });
     })
     .catch(function() {});
