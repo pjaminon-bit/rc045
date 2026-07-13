@@ -1,22 +1,41 @@
 <?php
 // ============================================================
 // RC045 beheerpagina
-// Vier onderdelen, elk met een eigen formulier en eigen JSON-
-// bestand in data/, die door de website worden uitgelezen:
+// Login met gebruikersnaam + wachtwoord, of met het beheerderswachtwoord
+// voor gebruikersbeheer en het logboek. Vier inhoudelijke onderdelen,
+// elk met een eigen formulier en eigen JSON-bestand in data/, die door
+// de website worden uitgelezen:
 //   - Actuele mededeling  -> data/actueel.json
 //   - Agenda (4 kaarten)  -> data/agenda.json
 //   - Veelgestelde vragen -> data/faq.json
 //   - Sponsors (logo's)   -> data/sponsors.json, bestanden in images/sponsors/
-// Wachtwoord staat in beheer-config.php, dat NIET in GitHub
-// staat en eenmalig handmatig via FTP is geupload.
+// Beheerderswachtwoord staat in beheer-config.php (eenmalig handmatig
+// via FTP geupload). Gebruikers en het logboek staan in beheer-users.json
+// en beheer-log.json, die deze pagina zelf aanmaakt. Geen van deze drie
+// staat in GitHub, en alle drie moeten in .htaccess zijn afgeschermd
+// tegen rechtstreeks bezoeken.
 // ============================================================
 
 date_default_timezone_set('Europe/Amsterdam');
 header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store');
 
-$configPad = __DIR__ . '/beheer-config.php';
-$dataMap   = __DIR__ . '/data';
+// ===== Sessie: een week ingelogd blijven, niet halverwege een lang formulier uitloggen =====
+$sessieduur = 60 * 60 * 24 * 7;
+ini_set('session.gc_maxlifetime', (string) $sessieduur);
+session_set_cookie_params([
+  'lifetime' => $sessieduur,
+  'path' => '/',
+  'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+  'httponly' => true,
+  'samesite' => 'Lax',
+]);
+session_start();
+
+$configPad    = __DIR__ . '/beheer-config.php';
+$usersBestand = __DIR__ . '/beheer-users.json';
+$logBestand   = __DIR__ . '/beheer-log.json';
+$dataMap      = __DIR__ . '/data';
 
 $actueelBestand = $dataMap . '/actueel.json';
 $agendaBestand  = $dataMap . '/agenda.json';
@@ -110,6 +129,16 @@ $faqStandaard = [
   ],
 ];
 
+// Standaardinhoud voor de sponsors, alleen gebruikt zolang data/sponsors.json
+// nog niet bestaat. Dit zijn de vijf sponsors die nu al op de site staan.
+$sponsorStandaard = [
+  ['name' => 'Traxxas', 'url' => '', 'logo' => 'traxxas.png'],
+  ['name' => 'Kok Lexmond', 'url' => '', 'logo' => 'kok-lexmond.png'],
+  ['name' => 'Toemen', 'url' => '', 'logo' => 'toemen.png'],
+  ['name' => 'Shamrock', 'url' => '', 'logo' => 'shamrock.png'],
+  ['name' => 'Rothy', 'url' => '', 'logo' => 'rothy.png'],
+];
+
 function euro($bedrag) {
   $s = number_format($bedrag, 2, ',', '.');
   if (substr($s, -3) === ',00') $s = substr($s, 0, -3);
@@ -121,20 +150,10 @@ function kort($tekst, $max) {
   return function_exists('mb_substr') ? mb_substr($tekst, 0, $max) : substr($tekst, 0, $max);
 }
 
-// Standaardinhoud voor de sponsors, alleen gebruikt zolang data/sponsors.json
-// nog niet bestaat. Dit zijn de vijf sponsors die nu al op de site staan.
-$sponsorStandaard = [
-  ['name' => 'Traxxas', 'url' => '', 'logo' => 'traxxas.png'],
-  ['name' => 'Kok Lexmond', 'url' => '', 'logo' => 'kok-lexmond.png'],
-  ['name' => 'Toemen', 'url' => '', 'logo' => 'toemen.png'],
-  ['name' => 'Shamrock', 'url' => '', 'logo' => 'shamrock.png'],
-  ['name' => 'Rothy', 'url' => '', 'logo' => 'rothy.png'],
-];
-
 function schrijfJson($pad, $data) {
-  global $dataMap;
-  if (!is_dir($dataMap)) {
-    mkdir($dataMap, 0755, true);
+  $map = dirname($pad);
+  if (!is_dir($map)) {
+    mkdir($map, 0755, true);
   }
   $inhoud = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
   return file_put_contents($pad, $inhoud, LOCK_EX) !== false;
@@ -181,31 +200,99 @@ function verwerkSponsorLogo($bestandVeld, $slotIndex, $huidig) {
   return ['ok' => true, 'logo' => $bestandsnaam];
 }
 
+// ===== Gebruikers en logboek =====
+function laadGebruikers($pad) {
+  if (!file_exists($pad)) return [];
+  $json = json_decode(file_get_contents($pad), true);
+  return is_array($json) ? $json : [];
+}
+
+function schrijfGebruikers($pad, $gebruikers) {
+  return file_put_contents($pad, json_encode($gebruikers, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX) !== false;
+}
+
+function schrijfLog($pad, $gebruiker, $actie, $details = '') {
+  $log = [];
+  if (file_exists($pad)) {
+    $json = json_decode(file_get_contents($pad), true);
+    if (is_array($json)) $log = $json;
+  }
+  $log[] = ['tijd' => date('c'), 'gebruiker' => $gebruiker, 'actie' => $actie, 'details' => $details];
+  if (count($log) > 300) {
+    $log = array_slice($log, -300); // logboek niet onbeperkt laten groeien
+  }
+  file_put_contents($pad, json_encode($log, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
+}
+
 $configOk = file_exists($configPad);
 if ($configOk) {
   require $configPad; // definieert $BEHEER_WACHTWOORD
   $configOk = isset($BEHEER_WACHTWOORD) && $BEHEER_WACHTWOORD !== '' && $BEHEER_WACHTWOORD !== 'VeranderDitWachtwoord';
 }
 
-$melding = [];         // formulier-sleutel => tekst
-$meldingType = [];     // formulier-sleutel => 'ok' of 'fout'
+// ===== Uitloggen =====
+if (isset($_GET['uitloggen'])) {
+  $_SESSION = [];
+  session_destroy();
+  header('Location: beheer.php');
+  exit;
+}
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $configOk) {
+$melding = [];
+$meldingType = [];
+$inlogFout = '';
+
+// ===== Inloggen =====
+// Gebruikersnaam leeg + het beheerderswachtwoord -> ingelogd als "beheerder",
+// met toegang tot gebruikersbeheer en het logboek. Een bekende gebruikersnaam
+// + bijbehorend wachtwoord -> gewone toegang tot de inhoud.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'inloggen' && $configOk) {
+  $gebruikersnaamInvoer = trim($_POST['gebruikersnaam'] ?? '');
+  $wachtwoordInvoer = $_POST['wachtwoord'] ?? '';
+
+  if ($gebruikersnaamInvoer === '' && hash_equals($BEHEER_WACHTWOORD, $wachtwoordInvoer)) {
+    $_SESSION['gebruiker'] = 'beheerder';
+    $_SESSION['is_master'] = true;
+    schrijfLog($logBestand, 'beheerder', 'login', '');
+    header('Location: beheer.php');
+    exit;
+  }
+
+  $gevondenGebruiker = null;
+  foreach (laadGebruikers($usersBestand) as $g) {
+    if (isset($g['gebruikersnaam']) && strcasecmp($g['gebruikersnaam'], $gebruikersnaamInvoer) === 0) {
+      $gevondenGebruiker = $g;
+      break;
+    }
+  }
+  if ($gevondenGebruiker && isset($gevondenGebruiker['hash']) && password_verify($wachtwoordInvoer, $gevondenGebruiker['hash'])) {
+    $_SESSION['gebruiker'] = $gevondenGebruiker['gebruikersnaam'];
+    $_SESSION['is_master'] = false;
+    schrijfLog($logBestand, $gevondenGebruiker['gebruikersnaam'], 'login', '');
+    header('Location: beheer.php');
+    exit;
+  }
+
+  sleep(2); // remt gokpogingen af
+  $inlogFout = 'Gebruikersnaam of wachtwoord onjuist.';
+}
+
+$ingelogd = $configOk && isset($_SESSION['gebruiker']);
+$huidigeGebruiker = $_SESSION['gebruiker'] ?? '';
+$isMaster = $ingelogd && !empty($_SESSION['is_master']);
+
+// ===== Inhoud opslaan (mededeling / agenda / faq / sponsors / gebruikers) =====
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
   $formulier = $_POST['formulier'] ?? '';
-  $wachtwoord = $_POST['wachtwoord'] ?? '';
 
-  if (!hash_equals($BEHEER_WACHTWOORD, $wachtwoord)) {
-    sleep(2); // remt gokpogingen af
-    $melding[$formulier] = 'Wachtwoord onjuist.';
-    $meldingType[$formulier] = 'fout';
-
-  } elseif ($formulier === 'actueel') {
+  if ($formulier === 'actueel') {
     $tekst = kort($_POST['tekst'] ?? '', 500);
     if (schrijfJson($actueelBestand, ['text' => $tekst, 'updated' => date('c')])) {
       $melding['actueel'] = $tekst === ''
         ? 'Opgeslagen. De strook is nu verborgen op de website.'
         : 'Opgeslagen. De nieuwe tekst staat nu op de website.';
       $meldingType['actueel'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'mededeling', $tekst === '' ? 'strook verborgen' : 'tekst bijgewerkt');
     } else {
       $melding['actueel'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['actueel'] = 'fout';
@@ -239,6 +326,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $configOk) {
     if (schrijfJson($agendaBestand, $events)) {
       $melding['agenda'] = 'Opgeslagen. De agenda op de homepage is bijgewerkt.';
       $meldingType['agenda'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'agenda', count($events) . ' kaart(en) opgeslagen');
     } else {
       $melding['agenda'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['agenda'] = 'fout';
@@ -265,6 +353,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $configOk) {
     if (schrijfJson($faqBestand, $items)) {
       $melding['faq'] = 'Opgeslagen. De vragenlijst op de aanmeldpagina is bijgewerkt.';
       $meldingType['faq'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'faq', count($items) . ' vraag/vragen opgeslagen');
     } else {
       $melding['faq'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['faq'] = 'fout';
@@ -311,9 +400,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $configOk) {
     } elseif (schrijfJson($sponsorBestand, ['updated' => date('c'), 'items' => $items])) {
       $melding['sponsors'] = 'Opgeslagen. De sponsoren op de website zijn bijgewerkt.';
       $meldingType['sponsors'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'sponsors', count($items) . ' sponsor(s) opgeslagen');
     } else {
       $melding['sponsors'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['sponsors'] = 'fout';
+    }
+
+  } elseif ($formulier === 'gebruiker_toevoegen' && $isMaster) {
+    $nieuweNaam = trim($_POST['nieuwe_gebruikersnaam'] ?? '');
+    $nieuwWachtwoord = $_POST['nieuw_wachtwoord'] ?? '';
+    $nieuwWachtwoordHerhaald = $_POST['nieuw_wachtwoord_herhaald'] ?? '';
+
+    if ($nieuweNaam === '' || !preg_match('/^[a-zA-Z0-9._-]{2,30}$/', $nieuweNaam)) {
+      $melding['gebruikers'] = 'Gebruikersnaam moet 2 tot 30 tekens zijn: letters, cijfers, punt, streepje of underscore.';
+      $meldingType['gebruikers'] = 'fout';
+    } elseif (strcasecmp($nieuweNaam, 'beheerder') === 0) {
+      $melding['gebruikers'] = '"beheerder" is gereserveerd voor het beheerderswachtwoord, kies een andere gebruikersnaam.';
+      $meldingType['gebruikers'] = 'fout';
+    } elseif (strlen($nieuwWachtwoord) < 8) {
+      $melding['gebruikers'] = 'Wachtwoord moet minstens 8 tekens zijn.';
+      $meldingType['gebruikers'] = 'fout';
+    } elseif ($nieuwWachtwoord !== $nieuwWachtwoordHerhaald) {
+      $melding['gebruikers'] = 'De twee wachtwoorden komen niet overeen.';
+      $meldingType['gebruikers'] = 'fout';
+    } else {
+      $gebruikers = laadGebruikers($usersBestand);
+      $bestondAl = false;
+      foreach ($gebruikers as &$g) {
+        if (strcasecmp($g['gebruikersnaam'], $nieuweNaam) === 0) {
+          $g['hash'] = password_hash($nieuwWachtwoord, PASSWORD_DEFAULT);
+          $bestondAl = true;
+          break;
+        }
+      }
+      unset($g);
+      if (!$bestondAl) {
+        $gebruikers[] = ['gebruikersnaam' => $nieuweNaam, 'hash' => password_hash($nieuwWachtwoord, PASSWORD_DEFAULT), 'aangemaakt' => date('c')];
+      }
+      if (schrijfGebruikers($usersBestand, $gebruikers)) {
+        $melding['gebruikers'] = $bestondAl ? ('Wachtwoord van "' . $nieuweNaam . '" is bijgewerkt.') : ('Gebruiker "' . $nieuweNaam . '" is aangemaakt.');
+        $meldingType['gebruikers'] = 'ok';
+        schrijfLog($logBestand, $huidigeGebruiker, $bestondAl ? 'wachtwoord_reset' : 'gebruiker_aangemaakt', $nieuweNaam);
+      } else {
+        $melding['gebruikers'] = 'Opslaan mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+        $meldingType['gebruikers'] = 'fout';
+      }
+    }
+
+  } elseif ($formulier === 'gebruiker_verwijderen' && $isMaster) {
+    $teVerwijderen = trim($_POST['gebruikersnaam'] ?? '');
+    $gebruikers = laadGebruikers($usersBestand);
+    $nieuweLijst = array_values(array_filter($gebruikers, function($g) use ($teVerwijderen) {
+      return !isset($g['gebruikersnaam']) || strcasecmp($g['gebruikersnaam'], $teVerwijderen) !== 0;
+    }));
+    if (count($nieuweLijst) === count($gebruikers)) {
+      $melding['gebruikers'] = 'Gebruiker niet gevonden.';
+      $meldingType['gebruikers'] = 'fout';
+    } elseif (schrijfGebruikers($usersBestand, $nieuweLijst)) {
+      $melding['gebruikers'] = 'Gebruiker "' . $teVerwijderen . '" is verwijderd.';
+      $meldingType['gebruikers'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'gebruiker_verwijderd', $teVerwijderen);
+    } else {
+      $melding['gebruikers'] = 'Verwijderen mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+      $meldingType['gebruikers'] = 'fout';
     }
   }
 }
@@ -399,6 +548,13 @@ if (file_exists($sponsorBestand)) {
 while (count($sponsorData) < 8) {
   $sponsorData[] = ['name' => '', 'url' => '', 'logo' => ''];
 }
+
+$gebruikersLijst = $isMaster ? laadGebruikers($usersBestand) : [];
+$logRegels = [];
+if ($isMaster && file_exists($logBestand)) {
+  $json = json_decode(file_get_contents($logBestand), true);
+  if (is_array($json)) $logRegels = array_reverse($json);
+}
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -458,32 +614,78 @@ while (count($sponsorData) < 8) {
     .menu-item.actief { color: var(--teal-dark); font-weight: 700; border-bottom-color: var(--teal); }
     .tab-paneel { display: none; flex-direction: column; gap: 16px; }
     #tab-mededeling { display: flex; }
+    .ingelogd-balk { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); }
+    .ingelogd-balk a { color: var(--teal-dark); font-weight: 600; text-decoration: none; }
+    .ingelogd-balk a:hover { text-decoration: underline; }
+    .gebruiker-rij { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+    .gebruiker-rij:last-child { border-bottom: none; }
+    .gebruiker-rij form { margin: 0; }
+    .gebruiker-sinds { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+    .knop-klein { width: auto; background: none; border: 1px solid var(--border); color: var(--rust); font-size: 13px; font-weight: 600; padding: 6px 12px; white-space: nowrap; }
+    .knop-klein:hover { background: #FDECEA; border-color: #F5B7B1; }
   </style>
 </head>
 <body>
   <div class="wrap">
 
-  <nav class="menu">
-    <button type="button" class="menu-item" data-tab="mededeling">Mededeling</button>
-    <?php if ($configOk): ?>
-    <button type="button" class="menu-item" data-tab="agenda">Agenda</button>
-    <button type="button" class="menu-item" data-tab="faq">Vragen</button>
-    <button type="button" class="menu-item" data-tab="sponsors">Sponsors</button>
-    <?php endif; ?>
-    <button type="button" class="menu-item" data-tab="rekentabel">Rekentabel</button>
-  </nav>
+  <?php if (!$configOk): ?>
 
-  <div class="tab-paneel" id="tab-mededeling">
-  <!-- ===== ACTUELE MEDEDELING ===== -->
-  <div class="kaart">
-    <h1>Actuele mededeling</h1>
-    <p class="sub">Verschijnt bovenaan de homepage en bij de openingstijden</p>
-
-    <?php if (!$configOk): ?>
+    <div class="kaart">
+      <h1>Beheer</h1>
       <div class="melding fout">
         Configuratie ontbreekt. Upload eenmalig het bestand <strong>beheer-config.php</strong> via FTP naar dezelfde map als deze pagina en stel daarin een eigen wachtwoord in.
       </div>
-    <?php else: ?>
+    </div>
+
+  <?php elseif (!$ingelogd): ?>
+
+    <div class="kaart">
+      <h1>Inloggen</h1>
+      <p class="sub">RC045 beheer</p>
+
+      <?php if ($inlogFout !== ''): ?>
+        <div class="melding fout"><?php echo htmlspecialchars($inlogFout); ?></div>
+      <?php endif; ?>
+
+      <form method="post" action="beheer.php">
+        <input type="hidden" name="formulier" value="inloggen">
+        <div class="veld">
+          <label for="login-gebruikersnaam">Gebruikersnaam</label>
+          <input type="text" id="login-gebruikersnaam" name="gebruikersnaam" autocomplete="username" autocapitalize="off">
+        </div>
+        <div class="veld">
+          <label for="login-wachtwoord">Wachtwoord</label>
+          <input type="password" id="login-wachtwoord" name="wachtwoord" autocomplete="current-password" required>
+        </div>
+        <button type="submit">Inloggen</button>
+        <p class="hint">Beheerderswachtwoord om gebruikers te beheren? Laat gebruikersnaam leeg.</p>
+      </form>
+    </div>
+
+  <?php else: ?>
+
+    <div class="ingelogd-balk">
+      <span>Ingelogd als <strong><?php echo htmlspecialchars($huidigeGebruiker); ?></strong></span>
+      <a href="beheer.php?uitloggen=1">Uitloggen</a>
+    </div>
+
+    <nav class="menu">
+      <button type="button" class="menu-item" data-tab="mededeling">Mededeling</button>
+      <button type="button" class="menu-item" data-tab="agenda">Agenda</button>
+      <button type="button" class="menu-item" data-tab="faq">Vragen</button>
+      <button type="button" class="menu-item" data-tab="sponsors">Sponsors</button>
+      <?php if ($isMaster): ?>
+      <button type="button" class="menu-item" data-tab="gebruikers">Gebruikers</button>
+      <button type="button" class="menu-item" data-tab="log">Log</button>
+      <?php endif; ?>
+      <button type="button" class="menu-item" data-tab="rekentabel">Rekentabel</button>
+    </nav>
+
+    <div class="tab-paneel" id="tab-mededeling">
+    <!-- ===== ACTUELE MEDEDELING ===== -->
+    <div class="kaart">
+      <h1>Actuele mededeling</h1>
+      <p class="sub">Verschijnt bovenaan de homepage en bij de openingstijden</p>
 
       <?php if (isset($melding['actueel'])): ?>
         <div class="melding <?php echo $meldingType['actueel']; ?>"><?php echo htmlspecialchars($melding['actueel']); ?></div>
@@ -496,258 +698,324 @@ while (count($sponsorData) < 8) {
           <textarea id="tekst" name="tekst" maxlength="500" placeholder="Bijv.: Zaterdag geopend van 10:00 tot 15:00, zondag gesloten wegens regen."><?php echo htmlspecialchars($huidigeTekst); ?></textarea>
           <p class="hint">Veld leegmaken en opslaan verbergt de strook.</p>
         </div>
-        <div class="veld">
-          <label for="wachtwoord">Wachtwoord</label>
-          <input type="password" id="wachtwoord" name="wachtwoord" autocomplete="current-password" required>
-        </div>
         <button type="submit">Opslaan</button>
       </form>
 
       <?php if ($laatstBijgewerkt): ?>
         <p class="laatst">Laatst bijgewerkt: <?php echo htmlspecialchars(date('d-m-Y H:i', strtotime($laatstBijgewerkt))); ?></p>
       <?php endif; ?>
-
-    <?php endif; ?>
-  </div>
-  </div>
-
-  <?php if ($configOk): ?>
-
-  <div class="tab-paneel" id="tab-agenda">
-  <!-- ===== AGENDA ===== -->
-  <div class="kaart">
-    <h1>Agenda homepage</h1>
-    <p class="sub">De vier evenementenkaarten op de homepage. Laat de Nederlandse titel leeg om die kaart te verbergen.</p>
-
-    <?php if (isset($melding['agenda'])): ?>
-      <div class="melding <?php echo $meldingType['agenda']; ?>"><?php echo htmlspecialchars($melding['agenda']); ?></div>
-    <?php endif; ?>
-
-    <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
-      Nederlands is verplicht per kaart. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+    </div>
     </div>
 
-    <form method="post" action="beheer.php#agenda">
-      <input type="hidden" name="formulier" value="agenda">
+    <div class="tab-paneel" id="tab-agenda">
+    <!-- ===== AGENDA ===== -->
+    <div class="kaart">
+      <h1>Agenda homepage</h1>
+      <p class="sub">De vier evenementenkaarten op de homepage. Laat de Nederlandse titel leeg om die kaart te verbergen.</p>
 
-      <?php foreach ($agendaData as $i => $ev): ?>
-        <div class="item-blok">
-          <div class="item-blok-nr">Kaart <?php echo $i + 1; ?></div>
-          <div class="rij-2">
-            <div class="veld">
-              <label for="agenda-date-<?php echo $i; ?>">Datum</label>
-              <input type="date" id="agenda-date-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][date]" value="<?php echo htmlspecialchars($ev['date'] ?? ''); ?>">
-            </div>
-            <div class="veld">
-              <label for="agenda-tag-<?php echo $i; ?>">Type</label>
-              <select id="agenda-tag-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][tag]">
-                <?php foreach ($agendaTags as $key => $label): ?>
-                  <option value="<?php echo $key; ?>" <?php if (($ev['tag'] ?? '') === $key) echo 'selected'; ?>><?php echo $label; ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-          </div>
-          <div class="veld">
-            <label for="agenda-time-<?php echo $i; ?>">Tijd</label>
-            <input type="text" id="agenda-time-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][time]" maxlength="40" value="<?php echo htmlspecialchars($ev['time'] ?? ''); ?>" placeholder="Bijv.: 10:00 - 15:00">
-            <p class="hint">Tijd wordt niet vertaald, cijfers zijn in elke taal duidelijk.</p>
-          </div>
+      <?php if (isset($melding['agenda'])): ?>
+        <div class="melding <?php echo $meldingType['agenda']; ?>"><?php echo htmlspecialchars($melding['agenda']); ?></div>
+      <?php endif; ?>
 
-          <div class="taal-groep">
-            <div class="taal-label">🇳🇱 Nederlands</div>
-            <div class="veld">
-              <label for="agenda-title-nl-<?php echo $i; ?>">Titel</label>
-              <input type="text" id="agenda-title-nl-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][title_nl]" maxlength="80" value="<?php echo htmlspecialchars($ev['title']['nl'] ?? ''); ?>" placeholder="Bijv.: Zomerrit met BBQ">
-            </div>
-            <div class="veld">
-              <label for="agenda-desc-nl-<?php echo $i; ?>">Omschrijving</label>
-              <textarea id="agenda-desc-nl-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][desc_nl]" maxlength="200" style="min-height:60px;"><?php echo htmlspecialchars($ev['desc']['nl'] ?? ''); ?></textarea>
-            </div>
-          </div>
-
-          <div class="taal-groep">
-            <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
-            <div class="veld">
-              <label for="agenda-title-en-<?php echo $i; ?>">Title</label>
-              <input type="text" id="agenda-title-en-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][title_en]" maxlength="80" value="<?php echo htmlspecialchars($ev['title']['en'] ?? ''); ?>">
-            </div>
-            <div class="veld">
-              <label for="agenda-desc-en-<?php echo $i; ?>">Description</label>
-              <textarea id="agenda-desc-en-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][desc_en]" maxlength="200" style="min-height:60px;"><?php echo htmlspecialchars($ev['desc']['en'] ?? ''); ?></textarea>
-            </div>
-          </div>
-
-          <div class="taal-groep">
-            <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
-            <div class="veld">
-              <label for="agenda-title-de-<?php echo $i; ?>">Titel</label>
-              <input type="text" id="agenda-title-de-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][title_de]" maxlength="80" value="<?php echo htmlspecialchars($ev['title']['de'] ?? ''); ?>">
-            </div>
-            <div class="veld">
-              <label for="agenda-desc-de-<?php echo $i; ?>">Beschreibung</label>
-              <textarea id="agenda-desc-de-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][desc_de]" maxlength="200" style="min-height:60px;"><?php echo htmlspecialchars($ev['desc']['de'] ?? ''); ?></textarea>
-            </div>
-          </div>
-        </div>
-      <?php endforeach; ?>
-
-      <div class="veld">
-        <label for="wachtwoord-agenda">Wachtwoord</label>
-        <input type="password" id="wachtwoord-agenda" name="wachtwoord" autocomplete="current-password" required>
+      <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
+        Nederlands is verplicht per kaart. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
       </div>
-      <button type="submit">Agenda opslaan</button>
-    </form>
-  </div>
-  </div>
 
-  <div class="tab-paneel" id="tab-faq">
-  <!-- ===== VEELGESTELDE VRAGEN ===== -->
-  <div class="kaart">
-    <h1>Veelgestelde vragen</h1>
-    <p class="sub">De volledige vragenlijst op de aanmeldpagina, inclusief de bestaande vragen. Laat een vraag leeg om die niet te tonen.</p>
+      <form method="post" action="beheer.php#agenda">
+        <input type="hidden" name="formulier" value="agenda">
 
-    <?php if (isset($melding['faq'])): ?>
-      <div class="melding <?php echo $meldingType['faq']; ?>"><?php echo htmlspecialchars($melding['faq']); ?></div>
-    <?php endif; ?>
+        <?php foreach ($agendaData as $i => $ev): ?>
+          <div class="item-blok">
+            <div class="item-blok-nr">Kaart <?php echo $i + 1; ?></div>
+            <div class="rij-2">
+              <div class="veld">
+                <label for="agenda-date-<?php echo $i; ?>">Datum</label>
+                <input type="date" id="agenda-date-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][date]" value="<?php echo htmlspecialchars($ev['date'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="agenda-tag-<?php echo $i; ?>">Type</label>
+                <select id="agenda-tag-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][tag]">
+                  <?php foreach ($agendaTags as $key => $label): ?>
+                    <option value="<?php echo $key; ?>" <?php if (($ev['tag'] ?? '') === $key) echo 'selected'; ?>><?php echo $label; ?></option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+            </div>
+            <div class="veld">
+              <label for="agenda-time-<?php echo $i; ?>">Tijd</label>
+              <input type="text" id="agenda-time-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][time]" maxlength="40" value="<?php echo htmlspecialchars($ev['time'] ?? ''); ?>" placeholder="Bijv.: 10:00 - 15:00">
+              <p class="hint">Tijd wordt niet vertaald, cijfers zijn in elke taal duidelijk.</p>
+            </div>
 
-    <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
-      Nederlands is verplicht per vraag. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+            <div class="taal-groep">
+              <div class="taal-label">🇳🇱 Nederlands</div>
+              <div class="veld">
+                <label for="agenda-title-nl-<?php echo $i; ?>">Titel</label>
+                <input type="text" id="agenda-title-nl-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][title_nl]" maxlength="80" value="<?php echo htmlspecialchars($ev['title']['nl'] ?? ''); ?>" placeholder="Bijv.: Zomerrit met BBQ">
+              </div>
+              <div class="veld">
+                <label for="agenda-desc-nl-<?php echo $i; ?>">Omschrijving</label>
+                <textarea id="agenda-desc-nl-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][desc_nl]" maxlength="200" style="min-height:60px;"><?php echo htmlspecialchars($ev['desc']['nl'] ?? ''); ?></textarea>
+              </div>
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
+              <div class="veld">
+                <label for="agenda-title-en-<?php echo $i; ?>">Title</label>
+                <input type="text" id="agenda-title-en-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][title_en]" maxlength="80" value="<?php echo htmlspecialchars($ev['title']['en'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="agenda-desc-en-<?php echo $i; ?>">Description</label>
+                <textarea id="agenda-desc-en-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][desc_en]" maxlength="200" style="min-height:60px;"><?php echo htmlspecialchars($ev['desc']['en'] ?? ''); ?></textarea>
+              </div>
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
+              <div class="veld">
+                <label for="agenda-title-de-<?php echo $i; ?>">Titel</label>
+                <input type="text" id="agenda-title-de-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][title_de]" maxlength="80" value="<?php echo htmlspecialchars($ev['title']['de'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="agenda-desc-de-<?php echo $i; ?>">Beschreibung</label>
+                <textarea id="agenda-desc-de-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][desc_de]" maxlength="200" style="min-height:60px;"><?php echo htmlspecialchars($ev['desc']['de'] ?? ''); ?></textarea>
+              </div>
+            </div>
+          </div>
+        <?php endforeach; ?>
+
+        <button type="submit">Agenda opslaan</button>
+      </form>
+    </div>
     </div>
 
-    <form method="post" action="beheer.php#faq">
-      <input type="hidden" name="formulier" value="faq">
+    <div class="tab-paneel" id="tab-faq">
+    <!-- ===== VEELGESTELDE VRAGEN ===== -->
+    <div class="kaart">
+      <h1>Veelgestelde vragen</h1>
+      <p class="sub">De volledige vragenlijst op de aanmeldpagina, inclusief de bestaande vragen. Laat een vraag leeg om die niet te tonen.</p>
 
-      <?php foreach ($faqData as $i => $item): ?>
-        <div class="item-blok">
-          <div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div>
+      <?php if (isset($melding['faq'])): ?>
+        <div class="melding <?php echo $meldingType['faq']; ?>"><?php echo htmlspecialchars($melding['faq']); ?></div>
+      <?php endif; ?>
 
-          <div class="taal-groep">
-            <div class="taal-label">🇳🇱 Nederlands</div>
-            <div class="veld">
-              <label for="faq-q-nl-<?php echo $i; ?>">Vraag</label>
-              <input type="text" id="faq-q-nl-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q_nl]" maxlength="150" value="<?php echo htmlspecialchars($item['q']['nl'] ?? ''); ?>" placeholder="Bijv.: Mag ik met een verbrandingsmotor rijden?">
-            </div>
-            <div class="veld">
-              <label for="faq-a-nl-<?php echo $i; ?>">Antwoord</label>
-              <textarea id="faq-a-nl-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_nl]" maxlength="600"><?php echo htmlspecialchars($item['a']['nl'] ?? ''); ?></textarea>
-            </div>
-          </div>
-
-          <div class="taal-groep">
-            <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
-            <div class="veld">
-              <label for="faq-q-en-<?php echo $i; ?>">Question</label>
-              <input type="text" id="faq-q-en-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q_en]" maxlength="150" value="<?php echo htmlspecialchars($item['q']['en'] ?? ''); ?>">
-            </div>
-            <div class="veld">
-              <label for="faq-a-en-<?php echo $i; ?>">Answer</label>
-              <textarea id="faq-a-en-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_en]" maxlength="600"><?php echo htmlspecialchars($item['a']['en'] ?? ''); ?></textarea>
-            </div>
-          </div>
-
-          <div class="taal-groep">
-            <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
-            <div class="veld">
-              <label for="faq-q-de-<?php echo $i; ?>">Frage</label>
-              <input type="text" id="faq-q-de-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q_de]" maxlength="150" value="<?php echo htmlspecialchars($item['q']['de'] ?? ''); ?>">
-            </div>
-            <div class="veld">
-              <label for="faq-a-de-<?php echo $i; ?>">Antwort</label>
-              <textarea id="faq-a-de-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_de]" maxlength="600"><?php echo htmlspecialchars($item['a']['de'] ?? ''); ?></textarea>
-            </div>
-          </div>
-        </div>
-      <?php endforeach; ?>
-
-      <div class="veld">
-        <label for="wachtwoord-faq">Wachtwoord</label>
-        <input type="password" id="wachtwoord-faq" name="wachtwoord" autocomplete="current-password" required>
+      <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
+        Nederlands is verplicht per vraag. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
       </div>
-      <button type="submit">Vragen opslaan</button>
-    </form>
-  </div>
-  </div>
 
-  <div class="tab-paneel" id="tab-sponsors">
-  <!-- ===== SPONSORS ===== -->
-  <div class="kaart">
-    <h1>Sponsors</h1>
-    <p class="sub">De sponsorlogo's onderaan elke pagina. Laat een naam leeg om die sponsor te verbergen.</p>
+      <form method="post" action="beheer.php#faq">
+        <input type="hidden" name="formulier" value="faq">
 
-    <?php if (isset($melding['sponsors'])): ?>
-      <div class="melding <?php echo $meldingType['sponsors']; ?>"><?php echo htmlspecialchars($melding['sponsors']); ?></div>
+        <?php foreach ($faqData as $i => $item): ?>
+          <div class="item-blok">
+            <div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇳🇱 Nederlands</div>
+              <div class="veld">
+                <label for="faq-q-nl-<?php echo $i; ?>">Vraag</label>
+                <input type="text" id="faq-q-nl-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q_nl]" maxlength="150" value="<?php echo htmlspecialchars($item['q']['nl'] ?? ''); ?>" placeholder="Bijv.: Mag ik met een verbrandingsmotor rijden?">
+              </div>
+              <div class="veld">
+                <label for="faq-a-nl-<?php echo $i; ?>">Antwoord</label>
+                <textarea id="faq-a-nl-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_nl]" maxlength="600"><?php echo htmlspecialchars($item['a']['nl'] ?? ''); ?></textarea>
+              </div>
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
+              <div class="veld">
+                <label for="faq-q-en-<?php echo $i; ?>">Question</label>
+                <input type="text" id="faq-q-en-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q_en]" maxlength="150" value="<?php echo htmlspecialchars($item['q']['en'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="faq-a-en-<?php echo $i; ?>">Answer</label>
+                <textarea id="faq-a-en-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_en]" maxlength="600"><?php echo htmlspecialchars($item['a']['en'] ?? ''); ?></textarea>
+              </div>
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
+              <div class="veld">
+                <label for="faq-q-de-<?php echo $i; ?>">Frage</label>
+                <input type="text" id="faq-q-de-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][q_de]" maxlength="150" value="<?php echo htmlspecialchars($item['q']['de'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="faq-a-de-<?php echo $i; ?>">Antwort</label>
+                <textarea id="faq-a-de-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_de]" maxlength="600"><?php echo htmlspecialchars($item['a']['de'] ?? ''); ?></textarea>
+              </div>
+            </div>
+          </div>
+        <?php endforeach; ?>
+
+        <button type="submit">Vragen opslaan</button>
+      </form>
+    </div>
+    </div>
+
+    <div class="tab-paneel" id="tab-sponsors">
+    <!-- ===== SPONSORS ===== -->
+    <div class="kaart">
+      <h1>Sponsors</h1>
+      <p class="sub">De sponsorlogo's onderaan elke pagina. Laat een naam leeg om die sponsor te verbergen.</p>
+
+      <?php if (isset($melding['sponsors'])): ?>
+        <div class="melding <?php echo $meldingType['sponsors']; ?>"><?php echo htmlspecialchars($melding['sponsors']); ?></div>
+      <?php endif; ?>
+
+      <form method="post" action="beheer.php#sponsors" enctype="multipart/form-data">
+        <input type="hidden" name="formulier" value="sponsors">
+
+        <?php foreach ($sponsorData as $i => $sp): ?>
+          <div class="item-blok">
+            <div class="item-blok-nr">Sponsor <?php echo $i + 1; ?></div>
+            <?php if (!empty($sp['logo'])): ?>
+              <img src="images/sponsors/<?php echo htmlspecialchars($sp['logo']); ?>" alt="" style="display:block; height:32px; max-width:160px; object-fit:contain; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:6px 10px; margin-bottom:12px;">
+            <?php endif; ?>
+            <div class="veld">
+              <label for="sponsor-name-<?php echo $i; ?>">Naam</label>
+              <input type="text" id="sponsor-name-<?php echo $i; ?>" name="sponsor[<?php echo $i; ?>][name]" maxlength="60" value="<?php echo htmlspecialchars($sp['name'] ?? ''); ?>" placeholder="Bijv.: Traxxas">
+            </div>
+            <div class="veld">
+              <label for="sponsor-url-<?php echo $i; ?>">Website (optioneel)</label>
+              <input type="text" id="sponsor-url-<?php echo $i; ?>" name="sponsor[<?php echo $i; ?>][url]" maxlength="200" value="<?php echo htmlspecialchars($sp['url'] ?? ''); ?>" placeholder="https://...">
+            </div>
+            <div class="veld">
+              <label for="sponsor-logo-<?php echo $i; ?>">Logo<?php echo !empty($sp['logo']) ? ' (laat leeg om het huidige logo te behouden)' : ''; ?></label>
+              <input type="file" id="sponsor-logo-<?php echo $i; ?>" name="sponsor_logo_<?php echo $i; ?>" accept="image/png,image/jpeg,image/webp">
+              <p class="hint">PNG, JPG of WEBP, max 1 MB.</p>
+            </div>
+          </div>
+        <?php endforeach; ?>
+
+        <button type="submit">Sponsors opslaan</button>
+      </form>
+    </div>
+    </div>
+
+    <?php if ($isMaster): ?>
+
+    <div class="tab-paneel" id="tab-gebruikers">
+    <!-- ===== GEBRUIKERS ===== -->
+    <div class="kaart">
+      <h1>Gebruikers</h1>
+      <p class="sub">Bestuursleden die kunnen inloggen om de website bij te werken.</p>
+
+      <?php if (isset($melding['gebruikers'])): ?>
+        <div class="melding <?php echo $meldingType['gebruikers']; ?>"><?php echo htmlspecialchars($melding['gebruikers']); ?></div>
+      <?php endif; ?>
+
+      <?php if (count($gebruikersLijst) === 0): ?>
+        <p class="hint">Nog geen gebruikers aangemaakt.</p>
+      <?php else: ?>
+        <?php foreach ($gebruikersLijst as $g): ?>
+          <div class="gebruiker-rij">
+            <div>
+              <strong><?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?></strong>
+              <?php if (!empty($g['aangemaakt'])): ?>
+                <span class="gebruiker-sinds">sinds <?php echo htmlspecialchars(date('d-m-Y', strtotime($g['aangemaakt']))); ?></span>
+              <?php endif; ?>
+            </div>
+            <form method="post" action="beheer.php#gebruikers" onsubmit="return confirm('Gebruiker &quot;<?php echo htmlspecialchars($g['gebruikersnaam'] ?? '', ENT_QUOTES); ?>&quot; verwijderen?');">
+              <input type="hidden" name="formulier" value="gebruiker_verwijderen">
+              <input type="hidden" name="gebruikersnaam" value="<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>">
+              <button type="submit" class="knop-klein">Verwijderen</button>
+            </form>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </div>
+
+    <div class="kaart">
+      <h1>Nieuwe gebruiker</h1>
+      <p class="sub">Bestaat de gebruikersnaam al, dan wordt alleen het wachtwoord bijgewerkt.</p>
+      <form method="post" action="beheer.php#gebruikers">
+        <input type="hidden" name="formulier" value="gebruiker_toevoegen">
+        <div class="veld">
+          <label for="nieuwe-gebruikersnaam">Gebruikersnaam</label>
+          <input type="text" id="nieuwe-gebruikersnaam" name="nieuwe_gebruikersnaam" maxlength="30" placeholder="Bijv.: jan" autocapitalize="off" required>
+        </div>
+        <div class="veld">
+          <label for="nieuw-wachtwoord">Wachtwoord</label>
+          <input type="password" id="nieuw-wachtwoord" name="nieuw_wachtwoord" autocomplete="new-password" required>
+          <p class="hint">Minstens 8 tekens.</p>
+        </div>
+        <div class="veld">
+          <label for="nieuw-wachtwoord-herhaald">Wachtwoord herhalen</label>
+          <input type="password" id="nieuw-wachtwoord-herhaald" name="nieuw_wachtwoord_herhaald" autocomplete="new-password" required>
+        </div>
+        <button type="submit">Gebruiker opslaan</button>
+      </form>
+    </div>
+    </div>
+
+    <div class="tab-paneel" id="tab-log">
+    <!-- ===== LOGBOEK ===== -->
+    <div class="kaart">
+      <h1>Logboek</h1>
+      <p class="sub">De laatste wijzigingen, nieuwste bovenaan.</p>
+
+      <?php if (count($logRegels) === 0): ?>
+        <p class="hint">Nog geen activiteit gelogd.</p>
+      <?php else: ?>
+        <table class="reken">
+          <tr>
+            <th>Tijd</th>
+            <th>Gebruiker</th>
+            <th>Actie</th>
+          </tr>
+          <?php foreach (array_slice($logRegels, 0, 100) as $regel): ?>
+            <tr>
+              <td><?php echo htmlspecialchars(date('d-m-Y H:i', strtotime($regel['tijd'] ?? ''))); ?></td>
+              <td><?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?></td>
+              <td><?php echo htmlspecialchars($regel['actie'] ?? ''); ?><?php echo !empty($regel['details']) ? ': ' . htmlspecialchars($regel['details']) : ''; ?></td>
+            </tr>
+          <?php endforeach; ?>
+        </table>
+      <?php endif; ?>
+    </div>
+    </div>
+
     <?php endif; ?>
 
-    <form method="post" action="beheer.php#sponsors" enctype="multipart/form-data">
-      <input type="hidden" name="formulier" value="sponsors">
-
-      <?php foreach ($sponsorData as $i => $sp): ?>
-        <div class="item-blok">
-          <div class="item-blok-nr">Sponsor <?php echo $i + 1; ?></div>
-          <?php if (!empty($sp['logo'])): ?>
-            <img src="images/sponsors/<?php echo htmlspecialchars($sp['logo']); ?>" alt="" style="display:block; height:32px; max-width:160px; object-fit:contain; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:6px 10px; margin-bottom:12px;">
+    <div class="tab-paneel" id="tab-rekentabel">
+    <!-- ===== REKENTABEL (alleen ter referentie, niet bewerkbaar) ===== -->
+    <div class="kaart">
+      <h1>Rekentabel contributie</h1>
+      <p class="sub">Wat betaalt een nieuw lid, per maand van aanmelding (inclusief <?php echo euro($inschrijfkosten); ?> inschrijfkosten)</p>
+      <table class="reken">
+        <tr>
+          <th>Maand</th>
+          <th>Jeugd t/m 15</th>
+          <th>Senior 16+</th>
+        </tr>
+        <?php foreach ($maandNamen as $m => $naam): ?>
+        <tr<?php if ($m === $huidigeMaand) echo ' class="nu"'; ?>>
+          <td><?php echo $naam; ?><?php if ($m === $huidigeMaand) echo ' ◀'; ?></td>
+          <?php if ($tabelJeugd[$m] === null): ?>
+            <td colspan="2"><?php echo euro($inschrijfkosten); ?> (alleen inschrijfkosten, contributie volgend jaar later overmaken)</td>
+          <?php else: ?>
+            <td><?php echo euro($tabelJeugd[$m] + $inschrijfkosten); ?></td>
+            <td><?php echo euro($tabelSenior[$m] + $inschrijfkosten); ?></td>
           <?php endif; ?>
-          <div class="veld">
-            <label for="sponsor-name-<?php echo $i; ?>">Naam</label>
-            <input type="text" id="sponsor-name-<?php echo $i; ?>" name="sponsor[<?php echo $i; ?>][name]" maxlength="60" value="<?php echo htmlspecialchars($sp['name'] ?? ''); ?>" placeholder="Bijv.: Traxxas">
-          </div>
-          <div class="veld">
-            <label for="sponsor-url-<?php echo $i; ?>">Website (optioneel)</label>
-            <input type="text" id="sponsor-url-<?php echo $i; ?>" name="sponsor[<?php echo $i; ?>][url]" maxlength="200" value="<?php echo htmlspecialchars($sp['url'] ?? ''); ?>" placeholder="https://...">
-          </div>
-          <div class="veld">
-            <label for="sponsor-logo-<?php echo $i; ?>">Logo<?php echo !empty($sp['logo']) ? ' (laat leeg om het huidige logo te behouden)' : ''; ?></label>
-            <input type="file" id="sponsor-logo-<?php echo $i; ?>" name="sponsor_logo_<?php echo $i; ?>" accept="image/png,image/jpeg,image/webp">
-            <p class="hint">PNG, JPG of WEBP, max 1 MB.</p>
-          </div>
-        </div>
-      <?php endforeach; ?>
+        </tr>
+        <?php endforeach; ?>
+      </table>
+      <p class="reken-noot">Bedragen zijn pro-rata contributie voor de resterende maanden plus <?php echo euro($inschrijfkosten); ?> eenmalige inschrijfkosten. Volledige jaarcontributie: jeugd €50, senior €100. Deze tabel wordt niet via dit paneel bewerkt; de bedragen staan vast in de code van beheer.php en aanmelden.html.</p>
+    </div>
+    </div>
 
-      <div class="veld">
-        <label for="wachtwoord-sponsors">Wachtwoord</label>
-        <input type="password" id="wachtwoord-sponsors" name="wachtwoord" autocomplete="current-password" required>
-      </div>
-      <button type="submit">Sponsors opslaan</button>
-    </form>
-  </div>
-  </div>
+    <a class="terug" href="index.html">Naar de website</a>
 
   <?php endif; ?>
 
-  <div class="tab-paneel" id="tab-rekentabel">
-  <!-- ===== REKENTABEL (alleen ter referentie, niet bewerkbaar) ===== -->
-  <div class="kaart">
-    <h1>Rekentabel contributie</h1>
-    <p class="sub">Wat betaalt een nieuw lid, per maand van aanmelding (inclusief <?php echo euro($inschrijfkosten); ?> inschrijfkosten)</p>
-    <table class="reken">
-      <tr>
-        <th>Maand</th>
-        <th>Jeugd t/m 15</th>
-        <th>Senior 16+</th>
-      </tr>
-      <?php foreach ($maandNamen as $m => $naam): ?>
-      <tr<?php if ($m === $huidigeMaand) echo ' class="nu"'; ?>>
-        <td><?php echo $naam; ?><?php if ($m === $huidigeMaand) echo ' ◀'; ?></td>
-        <?php if ($tabelJeugd[$m] === null): ?>
-          <td colspan="2"><?php echo euro($inschrijfkosten); ?> (alleen inschrijfkosten, contributie volgend jaar later overmaken)</td>
-        <?php else: ?>
-          <td><?php echo euro($tabelJeugd[$m] + $inschrijfkosten); ?></td>
-          <td><?php echo euro($tabelSenior[$m] + $inschrijfkosten); ?></td>
-        <?php endif; ?>
-      </tr>
-      <?php endforeach; ?>
-    </table>
-    <p class="reken-noot">Bedragen zijn pro-rata contributie voor de resterende maanden plus <?php echo euro($inschrijfkosten); ?> eenmalige inschrijfkosten. Volledige jaarcontributie: jeugd €50, senior €100. Deze tabel wordt niet via dit paneel bewerkt; de bedragen staan vast in de code van beheer.php en aanmelden.html.</p>
-  </div>
   </div>
 
-  <a class="terug" href="index.html">Naar de website</a>
-
-  </div>
-
+  <?php if ($ingelogd): ?>
   <script>
     (function() {
-      var tabs = ['mededeling'<?php if ($configOk): ?>, 'agenda', 'faq', 'sponsors'<?php endif; ?>, 'rekentabel'];
+      var tabs = ['mededeling', 'agenda', 'faq', 'sponsors'<?php if ($isMaster): ?>, 'gebruikers', 'log'<?php endif; ?>, 'rekentabel'];
       var menuItems = document.querySelectorAll('.menu-item');
 
       function toonTab(naam) {
@@ -773,5 +1041,6 @@ while (count($sponsorData) < 8) {
       toonTab((location.hash || '').replace('#', ''));
     })();
   </script>
+  <?php endif; ?>
 </body>
 </html>
