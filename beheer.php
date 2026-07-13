@@ -98,7 +98,8 @@ if (file_exists($dataBestand)) {
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; }
-    .kaart { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 520px; width: 100%; padding: 28px; margin-top: 24px; }
+    .wrap { width: 100%; max-width: 560px; margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .kaart { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; padding: 28px; }
     h1 { font-size: 20px; color: var(--dark); margin-bottom: 4px; }
     .sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
     label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--dark); }
@@ -124,6 +125,7 @@ if (file_exists($dataBestand)) {
   </style>
 </head>
 <body>
+  <div class="wrap">
   <div class="kaart">
     <h1>RC045 beheer</h1>
     <p class="sub">Actuele openingstijden op de website bijwerken</p>
@@ -160,7 +162,7 @@ if (file_exists($dataBestand)) {
     <a class="terug" href="index.html">Naar de website</a>
   </div>
 
-  <div class="kaart" style="margin-top:16px;">
+  <div class="kaart">
     <h1>Rekentabel contributie</h1>
     <p class="sub">Wat betaalt een nieuw lid, per maand van aanmelding (inclusief <?php echo euro($inschrijfkosten); ?> inschrijfkosten)</p>
     <table class="reken">
@@ -182,6 +184,7 @@ if (file_exists($dataBestand)) {
       <?php endforeach; ?>
     </table>
     <p class="reken-noot">Bedragen zijn pro-rata contributie voor de resterende maanden plus <?php echo euro($inschrijfkosten); ?> eenmalige inschrijfkosten. Volledige jaarcontributie: jeugd €50, senior €100. Jeugd of senior wordt bepaald door de leeftijd op het moment van aanmelden (t/m 15 jaar is jeugd).</p>
+  </div>
   </div>
 </body>
 </html>
