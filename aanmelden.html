@@ -401,7 +401,9 @@
 
   <div class="faq-card" id="faq-card">
     <div class="faq-title" data-i18n="faq.title">Veelgestelde vragen</div>
-    <!-- Vragen worden hier ingevuld vanuit data/faq.json, bij te werken via beheer.php -->
+    <div id="faq-items">
+      <!-- Vragen worden hier ingevuld vanuit data/faq.json, bij te werken via beheer.php -->
+    </div>
   </div>
 
 </main>
@@ -647,6 +649,7 @@
     history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
     updateInternalLinks(lang);
     berekenContributie();
+    renderFaq();
   }
 
   document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -882,28 +885,55 @@
   });
 
   // ===== VEELGESTELDE VRAGEN (data/faq.json, bijwerken via beheer.php) =====
-  // Let op: deze vragen komen exact zo van het bestuur en worden niet vertaald.
+  // Nederlands is verplicht per vraag; Engels/Duits vallen terug op Nederlands
+  // als het bestuur die niet heeft ingevuld. renderFaq() tekent opnieuw bij
+  // elke taalwissel (aangeroepen vanuit setLang), met de dan geldende taal.
+  var faqData = null;
+
+  function renderFaq() {
+    if (!faqData) return;
+    var container = document.getElementById('faq-items');
+    container.innerHTML = ''; // eigen container, alleen door onszelf gevuld
+    faqData.forEach(function(item) {
+      if (!item || !item.q) return;
+
+      // Ondersteunt zowel het oude platte formaat (q/a als tekst, van vóór
+      // de talenvelden) als het huidige formaat ({nl,en,de}), zodat er nooit
+      // "undefined" verschijnt als data/faq.json nog niet opnieuw is opgeslagen.
+      var qIsTekst = typeof item.q === 'string';
+      var vraagNl = qIsTekst ? item.q : (item.q.nl || '');
+      if (!vraagNl || !String(vraagNl).trim()) return;
+
+      var vraagTekst = vraagNl;
+      var antwoordTekst = qIsTekst ? (item.a || '') : '';
+
+      if (!qIsTekst) {
+        vraagTekst = (item.q[currentLang] && String(item.q[currentLang]).trim()) ? item.q[currentLang] : vraagNl;
+        var antwoordBron = (typeof item.a === 'object' && item.a) ? item.a : { nl: item.a || '' };
+        antwoordTekst = (antwoordBron[currentLang] && String(antwoordBron[currentLang]).trim()) ? antwoordBron[currentLang] : (antwoordBron.nl || '');
+      }
+
+      var wrap = document.createElement('div');
+      wrap.className = 'faq-item';
+      var vraag = document.createElement('div');
+      vraag.className = 'faq-question';
+      vraag.textContent = vraagTekst;
+      var antwoord = document.createElement('div');
+      antwoord.className = 'faq-answer';
+      antwoord.textContent = antwoordTekst;
+      wrap.appendChild(vraag);
+      wrap.appendChild(antwoord);
+      container.appendChild(wrap);
+    });
+  }
+
   fetch('data/faq.json', { cache: 'no-store' })
     .then(function(r) { return r.ok ? r.json() : []; })
     .then(function(items) {
-      if (!Array.isArray(items) || items.length === 0) return;
-      var kaart = document.getElementById('faq-card');
-      items.forEach(function(item) {
-        if (!item || !item.q || !String(item.q).trim()) return;
-        var wrap = document.createElement('div');
-        wrap.className = 'faq-item';
-        var vraag = document.createElement('div');
-        vraag.className = 'faq-question';
-        vraag.textContent = item.q;
-        var antwoord = document.createElement('div');
-        antwoord.className = 'faq-answer';
-        antwoord.textContent = item.a || '';
-        wrap.appendChild(vraag);
-        wrap.appendChild(antwoord);
-        kaart.appendChild(wrap);
-      });
+      faqData = Array.isArray(items) ? items : [];
+      renderFaq();
     })
-    .catch(function() {});
+    .catch(function() { faqData = []; });
 
   // ===== INPUT ERROR STYLING =====
   function setInputError(id, hasError) {
