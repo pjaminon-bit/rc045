@@ -1388,6 +1388,15 @@
   setInterval(fetchWeather, 600000);
 
   // ===== STATUS =====
+  // Zaterdag/zondag komen uit data/contact.json (van/tot, bijgewerkt via beheer.php).
+  // Woensdag blijft een vaste tijd (19:00-22:00) omdat dat veld in beheer.php vrije
+  // tekst is ("Woensdagavond bij voldoende animo") zonder vaste begin/eindtijd.
+  function vanTotUren(vanTot) {
+    if (!vanTot || !vanTot.van || !vanTot.tot) return null;
+    var van = vanTot.van.split(':');
+    var tot = vanTot.tot.split(':');
+    return { van: parseInt(van[0], 10) + parseInt(van[1], 10) / 60, tot: parseInt(tot[0], 10) + parseInt(tot[1], 10) / 60 };
+  }
   function updateStatus() {
     const t = i18n[currentLang];
     const now = new Date();
@@ -1395,7 +1404,10 @@
     const hour = now.getHours();
     const minute = now.getMinutes();
     const time = hour + minute / 60;
-    const isOpen = (day === 3 && time >= 19 && time < 22) || (day === 6 && time >= 10 && time < 15) || (day === 0 && time >= 10 && time < 15);
+    const oh = (contactData && contactData.openingstijden) || {};
+    const zaterdag = vanTotUren(oh.zaterdag) || { van: 10, tot: 15 };
+    const zondag = vanTotUren(oh.zondag) || { van: 10, tot: 15 };
+    const isOpen = (day === 3 && time >= 19 && time < 22) || (day === 6 && time >= zaterdag.van && time < zaterdag.tot) || (day === 0 && time >= zondag.van && time < zondag.tot);
     const el = document.getElementById('status-indicator');
     if (isOpen) {
       el.className = 'status-open';
@@ -1732,6 +1744,7 @@
       if (!d) return;
       contactData = d;
       renderContact();
+      updateStatus();
     })
     .catch(function() {});
 </script>
