@@ -694,7 +694,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           'de' => kort($rij['caption_de'] ?? '', 150),
         ];
 
-        if (!empty($rij['watermerk_toevoegen']) && empty($bestaandeFoto['watermerk'])) {
+        // Let op: hier NIET controleren of $bestaandeFoto['watermerk'] al true is.
+        // Dat vlaggetje kan stiekem niet meer kloppen met het echte bestand (bijv.
+        // nadat een bestand buiten beheer.php om is teruggezet), dus een vinkje
+        // hier moet altijd echt opnieuw het watermerk zetten, ongeacht de huidige vlag.
+        if (!empty($rij['watermerk_toevoegen'])) {
           if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $bestand, $logoPad)) {
             $bestaandeFoto['watermerk'] = true;
             $watermerkToegevoegdTeller++;
@@ -764,15 +768,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $album['cover'] = $album['photos'][0]['file'] ?? '';
       }
 
-      // Watermerk in één keer voor het hele album: alle foto's zonder watermerk
-      // (inclusief foto's die net in dit verzoek zijn geüpload zonder dat vinkje).
+      // Watermerk in één keer voor het hele album: verwerkt ALLE foto's, ook
+      // de foto's die al als "watermerk: true" te boek staan. Dat is bewust:
+      // dat vlaggetje zegt alleen wat er de vorige keer is opgeslagen, niet of
+      // het bestand op schijf nu nog echt een watermerk heeft (dat kan uit de
+      // pas zijn na een externe overschrijving), dus dit vinkje mag nooit een
+      // foto overslaan.
       if (!empty($_POST['album_watermerk_alle'])) {
         foreach ($album['photos'] as &$foto) {
-          if (empty($foto['watermerk'])) {
-            if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $foto['file'], $logoPad)) {
-              $foto['watermerk'] = true;
-              $watermerkToegevoegdTeller++;
-            }
+          if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $foto['file'], $logoPad)) {
+            $foto['watermerk'] = true;
+            $watermerkToegevoegdTeller++;
           }
         }
         unset($foto);
@@ -1431,8 +1437,9 @@ if ($isMaster && file_exists($logBestand)) {
               <p class="hint" style="margin-top:-4px; margin-bottom:12px;">Met de pijltjes verplaats je een foto, de volgorde hier is ook de volgorde op de website. Watermerk toevoegen kan niet ongedaan gemaakt worden, het origineel zonder watermerk wordt niet bewaard.</p>
               <label class="fotoboek-check" style="margin-bottom:12px;">
                 <input type="checkbox" name="album_watermerk_alle" value="1">
-                Watermerk toevoegen aan alle foto's in dit album die er nog geen hebben
+                Watermerk (opnieuw) toevoegen aan alle foto's in dit album
               </label>
+              <p class="hint" style="margin-top:-8px; margin-bottom:12px;">Verwerkt alle foto's in dit album, ook de foto's die al een watermerk-vinkje hebben. Handig als foto's op de server ooit buiten beheer.php om zijn overschreven.</p>
               <div class="fotoboek-foto-lijst">
               <?php foreach ($album['photos'] as $i => $foto): ?>
                 <div class="fotoboek-foto-blok">
@@ -1454,12 +1461,11 @@ if ($isMaster && file_exists($logBestand)) {
                       </label>
                       <?php if (!empty($foto['watermerk'])): ?>
                         <span class="fotoboek-cover-badge" style="background:var(--gold-light); color:var(--rust);">✓ watermerk</span>
-                      <?php else: ?>
-                        <label class="fotoboek-check">
-                          <input type="checkbox" name="foto[<?php echo $i; ?>][watermerk_toevoegen]" value="1">
-                          watermerk toevoegen
-                        </label>
                       <?php endif; ?>
+                      <label class="fotoboek-check">
+                        <input type="checkbox" name="foto[<?php echo $i; ?>][watermerk_toevoegen]" value="1">
+                        <?php echo !empty($foto['watermerk']) ? 'watermerk opnieuw toepassen' : 'watermerk toevoegen'; ?>
+                      </label>
                       <label class="fotoboek-check">
                         <input type="checkbox" name="foto[<?php echo $i; ?>][verwijderen]" value="1">
                         verwijderen
