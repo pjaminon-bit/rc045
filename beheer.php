@@ -2,13 +2,14 @@
 // ============================================================
 // RC045 beheerpagina
 // Login met gebruikersnaam + wachtwoord, of met het beheerderswachtwoord
-// voor gebruikersbeheer en het logboek. Vier inhoudelijke onderdelen,
+// voor gebruikersbeheer en het logboek. Vijf inhoudelijke onderdelen,
 // elk met een eigen formulier en eigen JSON-bestand in data/, die door
 // de website worden uitgelezen:
 //   - Actuele mededeling  -> data/actueel.json
 //   - Agenda (4 kaarten)  -> data/agenda.json
 //   - Veelgestelde vragen -> data/faq.json
 //   - Sponsors (logo's)   -> data/sponsors.json, bestanden in images/sponsors/
+//   - Fotoboek (albums)   -> data/fotoboek.json, bestanden in images/fotoboek/<slug>/
 // Beheerderswachtwoord staat in beheer-config.php (eenmalig handmatig
 // via FTP geupload). Gebruikers en het logboek staan in beheer-users.json
 // en beheer-log.json, die deze pagina zelf aanmaakt. Geen van deze drie
@@ -42,6 +43,15 @@ $agendaBestand  = $dataMap . '/agenda.json';
 $faqBestand     = $dataMap . '/faq.json';
 $sponsorBestand = $dataMap . '/sponsors.json';
 $sponsorMap     = __DIR__ . '/images/sponsors';
+$fotoboekBestand = $dataMap . '/fotoboek.json';
+$fotoboekMap     = __DIR__ . '/images/fotoboek';
+$logoPad         = __DIR__ . '/rc045-logo.png';
+
+// Formaten voor het fotoboek: volledige (web) versie max 1600px breed,
+// thumbnail voor de albumgrid max 400px breed. Alleen verkleinen, nooit
+// vergroten. Watermerk wordt alleen op de volledige versie gezet.
+$fotoboekMaxVolledig = 1600;
+$fotoboekMaxThumb    = 400;
 
 // Rekentabel contributie (zelfde bedragen als op aanmelden.html;
 // wijzigen de prijzen, pas ze dan op BEIDE plekken aan)
@@ -198,6 +208,167 @@ function verwerkSponsorLogo($bestandVeld, $slotIndex, $huidig) {
     return ['ok' => false, 'fout' => 'opslaan van het logo op de server is mislukt.'];
   }
   return ['ok' => true, 'logo' => $bestandsnaam];
+}
+
+// ===== Fotoboek: albums en foto's =====
+
+// Maakt van een titel een URL-veilige mapnaam, bijv. "ZomerBBQ 2026" -> "zomerbbq-2026".
+function maakSlug($tekst) {
+  $tekst = trim($tekst);
+  if (function_exists('iconv')) {
+    $vertaald = @iconv('UTF-8', 'ASCII//TRANSLIT', $tekst);
+    if ($vertaald !== false) $tekst = $vertaald;
+  }
+  $tekst = strtolower($tekst);
+  $tekst = preg_replace('/[^a-z0-9]+/', '-', $tekst);
+  $tekst = trim($tekst, '-');
+  return $tekst === '' ? 'album' : $tekst;
+}
+
+// Zorgt dat een slug uniek is tussen de al bestaande albums (voegt -2, -3, enz. toe).
+function uniekeSlug($basisSlug, $bestaandeSlugs) {
+  $slug = $basisSlug;
+  $i = 2;
+  while (in_array($slug, $bestaandeSlugs, true)) {
+    $slug = $basisSlug . '-' . $i;
+    $i++;
+  }
+  return $slug;
+}
+
+// Verkleint een GD-afbeelding naar max $maxBreedte, alleen indien nodig (nooit vergroten).
+function fotoboekSchaalAf($bron, $breedte, $hoogte, $maxBreedte) {
+  if ($breedte <= $maxBreedte) {
+    $nieuw = imagecreatetruecolor($breedte, $hoogte);
+    imagecopy($nieuw, $bron, 0, 0, 0, 0, $breedte, $hoogte);
+    return $nieuw;
+  }
+  $factor = $maxBreedte / $breedte;
+  $nieuweBreedte = $maxBreedte;
+  $nieuweHoogte = (int) round($hoogte * $factor);
+  $nieuw = imagecreatetruecolor($nieuweBreedte, $nieuweHoogte);
+  imagecopyresampled($nieuw, $bron, 0, 0, 0, 0, $nieuweBreedte, $nieuweHoogte, $breedte, $hoogte);
+  return $nieuw;
+}
+
+// Zet een klein, semi-transparant watermerk (RC045-logo + "rc045.nl") rechtsonder
+// in de afbeelding. Alleen bedoeld voor de volledige (web) versie, niet de thumbnail.
+function fotoboekZetWatermerk($afbeelding, $logoPad) {
+  $breedte = imagesx($afbeelding);
+  $hoogte  = imagesy($afbeelding);
+
+  $logoHoogte = (int) max(18, min(36, round($hoogte * 0.035)));
+  $padding    = (int) round($logoHoogte * 0.45);
+
+  $logo = null;
+  if ($logoPad && file_exists($logoPad)) {
+    $logoBron = @imagecreatefrompng($logoPad);
+    if ($logoBron) {
+      $logoBreedteOrig = imagesx($logoBron);
+      $logoHoogteOrig  = imagesy($logoBron);
+      if ($logoHoogteOrig > 0) {
+        $logoBreedte = (int) round($logoHoogte * ($logoBreedteOrig / $logoHoogteOrig));
+        $logo = imagecreatetruecolor($logoBreedte, $logoHoogte);
+        imagealphablending($logo, false);
+        imagesavealpha($logo, true);
+        $transparant = imagecolorallocatealpha($logo, 0, 0, 0, 127);
+        imagefilledrectangle($logo, 0, 0, $logoBreedte, $logoHoogte, $transparant);
+        imagealphablending($logo, true);
+        imagecopyresampled($logo, $logoBron, 0, 0, 0, 0, $logoBreedte, $logoHoogte, $logoBreedteOrig, $logoHoogteOrig);
+      }
+      imagedestroy($logoBron);
+    }
+  }
+
+  $tekst = 'rc045.nl';
+  $lettergrootte = 3; // ingebouwd GD-lettertype, 1 t/m 5; 3 is klein en leesbaar
+  $tekstBreedte = imagefontwidth($lettergrootte) * strlen($tekst);
+  $tekstHoogte  = imagefontheight($lettergrootte);
+
+  $logoBreedte = $logo ? imagesx($logo) : 0;
+  $tussenruimte = $logo ? (int) round($padding * 0.6) : 0;
+  $vlakBreedte = $logoBreedte + $tussenruimte + $tekstBreedte + $padding * 2;
+  $vlakHoogte  = max($logoHoogte, $tekstHoogte) + $padding;
+
+  $x2 = $breedte - $padding;
+  $y2 = $hoogte - $padding;
+  $x1 = (int) round($x2 - $vlakBreedte);
+  $y1 = (int) round($y2 - $vlakHoogte);
+
+  // subtiel donker vlak achter het watermerk, zodat het op elke foto leesbaar blijft
+  imagealphablending($afbeelding, true);
+  $vlakKleur = imagecolorallocatealpha($afbeelding, 20, 24, 15, 55);
+  imagefilledrectangle($afbeelding, $x1, $y1, $x2, $y2, $vlakKleur);
+
+  $middenY = (int) round(($y1 + $y2) / 2);
+  $huidigeX = $x1 + $padding;
+
+  if ($logo) {
+    imagecopy($afbeelding, $logo, $huidigeX, $middenY - (int) round(imagesy($logo) / 2), 0, 0, imagesx($logo), imagesy($logo));
+    $huidigeX += imagesx($logo) + $tussenruimte;
+    imagedestroy($logo);
+  }
+
+  $wit = imagecolorallocate($afbeelding, 255, 255, 255);
+  imagestring($afbeelding, $lettergrootte, $huidigeX, $middenY - (int) round($tekstHoogte / 2), $tekst, $wit);
+}
+
+// Verwerkt een geuploade foto: EXIF-rotatie corrigeren, verkleinen naar een
+// volledige (web) versie en een thumbnail, optioneel watermerk toevoegen.
+// Slaat beide versies op en geeft de opgeslagen breedte/hoogte terug (nodig
+// voor de lightbox op de website).
+function verwerkFotoboekFoto($tmpPad, $volledigPad, $thumbPad, $watermerkAan, $logoPad, $maxVolledig, $maxThumb) {
+  $info = @getimagesize($tmpPad);
+  if ($info === false) return ['ok' => false, 'fout' => 'bestand is geen geldige afbeelding.'];
+
+  switch ($info[2]) {
+    case IMAGETYPE_JPEG: $bron = @imagecreatefromjpeg($tmpPad); break;
+    case IMAGETYPE_PNG:  $bron = @imagecreatefrompng($tmpPad); break;
+    case IMAGETYPE_WEBP: $bron = function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($tmpPad) : false; break;
+    default: $bron = false;
+  }
+  if (!$bron) return ['ok' => false, 'fout' => 'alleen JPG, PNG of WEBP toegestaan, of bestand kon niet worden geopend.'];
+
+  // EXIF-rotatie corrigeren (mobiele foto's staan vaak "verkeerd om" in de bestandsdata).
+  // Niet elke server heeft de exif-extensie aan staan, vandaar de function_exists-check.
+  if ($info[2] === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
+    $exif = @exif_read_data($tmpPad);
+    if ($exif && !empty($exif['Orientation'])) {
+      if ($exif['Orientation'] === 3) { $gedraaid = imagerotate($bron, 180, 0); imagedestroy($bron); $bron = $gedraaid; }
+      elseif ($exif['Orientation'] === 6) { $gedraaid = imagerotate($bron, -90, 0); imagedestroy($bron); $bron = $gedraaid; }
+      elseif ($exif['Orientation'] === 8) { $gedraaid = imagerotate($bron, 90, 0); imagedestroy($bron); $bron = $gedraaid; }
+    }
+  }
+
+  $breedte = imagesx($bron);
+  $hoogte  = imagesy($bron);
+
+  $volledig = fotoboekSchaalAf($bron, $breedte, $hoogte, $maxVolledig);
+  if ($watermerkAan) fotoboekZetWatermerk($volledig, $logoPad);
+  imagejpeg($volledig, $volledigPad, 82);
+  $opgeslagenBreedte = imagesx($volledig);
+  $opgeslagenHoogte  = imagesy($volledig);
+  imagedestroy($volledig);
+
+  $thumb = fotoboekSchaalAf($bron, $breedte, $hoogte, $maxThumb);
+  imagejpeg($thumb, $thumbPad, 78);
+  imagedestroy($thumb);
+
+  imagedestroy($bron);
+
+  return ['ok' => true, 'width' => $opgeslagenBreedte, 'height' => $opgeslagenHoogte];
+}
+
+// Verwijdert een map met alle inhoud (album verwijderen inclusief foto's en thumbnails).
+function verwijderMapRecursief($pad) {
+  if (!is_dir($pad)) return;
+  foreach (scandir($pad) as $item) {
+    if ($item === '.' || $item === '..') continue;
+    $volledig = $pad . '/' . $item;
+    if (is_dir($volledig)) verwijderMapRecursief($volledig);
+    else @unlink($volledig);
+  }
+  @rmdir($pad);
 }
 
 // ===== Gebruikers en logboek =====
@@ -406,6 +577,180 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $meldingType['sponsors'] = 'fout';
     }
 
+  } elseif ($formulier === 'fotoboek_album_aanmaken') {
+    $titelNl = kort($_POST['titel_nl'] ?? '', 60);
+    if ($titelNl === '') {
+      $melding['fotoboek'] = 'Vul een Nederlandse titel in voor het nieuwe album.';
+      $meldingType['fotoboek'] = 'fout';
+    } else {
+      $fotoboekData = ['albums' => []];
+      if (file_exists($fotoboekBestand)) {
+        $json = json_decode(file_get_contents($fotoboekBestand), true);
+        if (is_array($json) && isset($json['albums'])) $fotoboekData = $json;
+      }
+      $bestaandeSlugs = array_map(function($a) { return $a['slug']; }, $fotoboekData['albums']);
+      $slug = uniekeSlug(maakSlug($titelNl), $bestaandeSlugs);
+
+      if (!is_dir($fotoboekMap . '/' . $slug . '/thumbs') && !mkdir($fotoboekMap . '/' . $slug . '/thumbs', 0755, true)) {
+        $melding['fotoboek'] = 'Aanmaken mislukt. Controleer de schrijfrechten van de map images op de server.';
+        $meldingType['fotoboek'] = 'fout';
+      } else {
+        $fotoboekData['albums'][] = [
+          'slug' => $slug,
+          'title' => ['nl' => $titelNl, 'en' => kort($_POST['titel_en'] ?? '', 60), 'de' => kort($_POST['titel_de'] ?? '', 60)],
+          'date' => date('Y-m-d'),
+          'volgorde' => count($fotoboekData['albums']),
+          'cover' => '',
+          'photos' => [],
+        ];
+        if (schrijfJson($fotoboekBestand, $fotoboekData)) {
+          $melding['fotoboek'] = 'Album "' . $titelNl . '" is aangemaakt. Voeg hieronder foto\'s toe.';
+          $meldingType['fotoboek'] = 'ok';
+          schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_aangemaakt', $titelNl);
+        } else {
+          $melding['fotoboek'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+          $meldingType['fotoboek'] = 'fout';
+        }
+      }
+    }
+
+  } elseif ($formulier === 'fotoboek_album_bewerken') {
+    $slug = trim($_POST['slug'] ?? '');
+    $fotoboekData = ['albums' => []];
+    if (file_exists($fotoboekBestand)) {
+      $json = json_decode(file_get_contents($fotoboekBestand), true);
+      if (is_array($json) && isset($json['albums'])) $fotoboekData = $json;
+    }
+    $albumIndex = null;
+    foreach ($fotoboekData['albums'] as $i => $a) {
+      if ($a['slug'] === $slug) { $albumIndex = $i; break; }
+    }
+
+    if ($albumIndex === null) {
+      $melding['fotoboek'] = 'Album niet gevonden, mogelijk al verwijderd. Ververs de pagina.';
+      $meldingType['fotoboek'] = 'fout';
+    } elseif (!empty($_POST['album_verwijderen'])) {
+      // ===== Album verwijderen: inclusief de map met alle foto's en thumbnails =====
+      $titelVoorMelding = $fotoboekData['albums'][$albumIndex]['title']['nl'] ?? $slug;
+      verwijderMapRecursief($fotoboekMap . '/' . $slug);
+      array_splice($fotoboekData['albums'], $albumIndex, 1);
+      if (schrijfJson($fotoboekBestand, $fotoboekData)) {
+        $melding['fotoboek'] = 'Album "' . $titelVoorMelding . '" en alle bijbehorende foto\'s zijn verwijderd.';
+        $meldingType['fotoboek'] = 'ok';
+        schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_verwijderd', $titelVoorMelding);
+      } else {
+        $melding['fotoboek'] = 'Verwijderen mislukt. Controleer de schrijfrechten van de map data op de server.';
+        $meldingType['fotoboek'] = 'fout';
+      }
+    } else {
+      // ===== Album bijwerken: titel, volgorde, bijschriften, cover, verwijderde foto's, nieuwe uploads =====
+      $album = $fotoboekData['albums'][$albumIndex];
+
+      $titelNl = kort($_POST['titel_nl'] ?? '', 60);
+      if ($titelNl !== '') $album['title']['nl'] = $titelNl;
+      $album['title']['en'] = kort($_POST['titel_en'] ?? '', 60);
+      $album['title']['de'] = kort($_POST['titel_de'] ?? '', 60);
+      $album['volgorde'] = is_numeric($_POST['volgorde'] ?? null) ? (float) $_POST['volgorde'] : ($album['volgorde'] ?? $albumIndex);
+
+      // Bestaande foto's: bijschriften bijwerken, gemarkeerde foto's verwijderen (bestand + thumbnail van schijf)
+      $overgeblevenFotos = [];
+      $gekozenCoverIndex = $_POST['cover'] ?? null;
+      $nieuweCover = '';
+      foreach (($_POST['foto'] ?? []) as $i => $rij) {
+        $bestand = basename($rij['bestand'] ?? '');
+        if ($bestand === '') continue;
+        if (!empty($rij['verwijderen'])) {
+          @unlink($fotoboekMap . '/' . $slug . '/' . $bestand);
+          @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestand);
+          continue;
+        }
+        $bestaandeFoto = null;
+        foreach ($album['photos'] as $p) { if ($p['file'] === $bestand) { $bestaandeFoto = $p; break; } }
+        if ($bestaandeFoto === null) continue;
+
+        $bestaandeFoto['caption'] = [
+          'nl' => kort($rij['caption_nl'] ?? '', 150),
+          'en' => kort($rij['caption_en'] ?? '', 150),
+          'de' => kort($rij['caption_de'] ?? '', 150),
+        ];
+        $overgeblevenFotos[] = $bestaandeFoto;
+        if ($gekozenCoverIndex !== null && (string) $i === (string) $gekozenCoverIndex) $nieuweCover = $bestand;
+      }
+      $album['photos'] = $overgeblevenFotos;
+
+      // Nieuwe foto's uploaden
+      $watermerkAan = !empty($_POST['watermerk']);
+      $uploadFouten = [];
+      $aantalGeupload = 0;
+      if (!empty($_FILES['nieuwe_fotos']) && is_array($_FILES['nieuwe_fotos']['tmp_name'])) {
+        foreach ($_FILES['nieuwe_fotos']['tmp_name'] as $i => $tmpPad) {
+          if ($_FILES['nieuwe_fotos']['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
+          $origineleNaam = $_FILES['nieuwe_fotos']['name'][$i] ?? 'foto.jpg';
+          if ($_FILES['nieuwe_fotos']['error'][$i] !== UPLOAD_ERR_OK) {
+            $uploadFouten[] = $origineleNaam . ': uploaden mislukt.';
+            continue;
+          }
+          if ($_FILES['nieuwe_fotos']['size'][$i] > 12 * 1024 * 1024) {
+            $uploadFouten[] = $origineleNaam . ': groter dan 12 MB.';
+            continue;
+          }
+
+          $basisNaam = preg_replace('/[^a-z0-9]+/', '-', strtolower(pathinfo($origineleNaam, PATHINFO_FILENAME)));
+          $basisNaam = trim($basisNaam, '-');
+          if ($basisNaam === '') $basisNaam = 'foto';
+          $bestandsnaam = $basisNaam . '.jpg';
+          $teller = 2;
+          while (file_exists($fotoboekMap . '/' . $slug . '/' . $bestandsnaam)) {
+            $bestandsnaam = $basisNaam . '-' . $teller . '.jpg';
+            $teller++;
+          }
+
+          $resultaat = verwerkFotoboekFoto(
+            $tmpPad,
+            $fotoboekMap . '/' . $slug . '/' . $bestandsnaam,
+            $fotoboekMap . '/' . $slug . '/thumbs/' . $bestandsnaam,
+            $watermerkAan,
+            $logoPad,
+            $fotoboekMaxVolledig,
+            $fotoboekMaxThumb
+          );
+          if ($resultaat['ok']) {
+            $album['photos'][] = [
+              'file' => $bestandsnaam,
+              'width' => $resultaat['width'],
+              'height' => $resultaat['height'],
+              'caption' => ['nl' => '', 'en' => '', 'de' => ''],
+            ];
+            $aantalGeupload++;
+          } else {
+            $uploadFouten[] = $origineleNaam . ': ' . $resultaat['fout'];
+          }
+        }
+      }
+
+      // Cover bepalen: expliciet gekozen, anders behouden, anders eerste overgebleven foto
+      if ($nieuweCover !== '') {
+        $album['cover'] = $nieuweCover;
+      } elseif (empty($album['cover']) || !in_array($album['cover'], array_column($album['photos'], 'file'), true)) {
+        $album['cover'] = $album['photos'][0]['file'] ?? '';
+      }
+
+      $fotoboekData['albums'][$albumIndex] = $album;
+      usort($fotoboekData['albums'], function($a, $b) { return ($a['volgorde'] ?? 0) <=> ($b['volgorde'] ?? 0); });
+
+      if (schrijfJson($fotoboekBestand, $fotoboekData)) {
+        $onderdelen = [];
+        if ($aantalGeupload > 0) $onderdelen[] = $aantalGeupload . ' nieuwe foto(\'s) toegevoegd';
+        $melding['fotoboek'] = 'Album opgeslagen' . ($onderdelen ? ': ' . implode(', ', $onderdelen) . '.' : '.');
+        if ($uploadFouten) $melding['fotoboek'] .= ' Let op: ' . implode(' ', $uploadFouten);
+        $meldingType['fotoboek'] = $uploadFouten ? 'fout' : 'ok';
+        schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_bijgewerkt', $album['title']['nl'] . ($aantalGeupload ? ', ' . $aantalGeupload . ' upload(s)' : ''));
+      } else {
+        $melding['fotoboek'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+        $meldingType['fotoboek'] = 'fout';
+      }
+    }
+
   } elseif ($formulier === 'gebruiker_toevoegen' && $isMaster) {
     $nieuweNaam = trim($_POST['nieuwe_gebruikersnaam'] ?? '');
     $nieuwWachtwoord = $_POST['nieuw_wachtwoord'] ?? '';
@@ -549,6 +894,21 @@ while (count($sponsorData) < 8) {
   $sponsorData[] = ['name' => '', 'url' => '', 'logo' => ''];
 }
 
+$fotoboekData = ['albums' => []];
+if (file_exists($fotoboekBestand)) {
+  $json = json_decode(file_get_contents($fotoboekBestand), true);
+  if (is_array($json) && isset($json['albums'])) $fotoboekData = $json;
+}
+// 'volgorde' bestond nog niet in fase 1; ontbreekt dit veld, dan geldt de
+// bestaande volgorde in het bestand als uitgangspunt.
+foreach ($fotoboekData['albums'] as $i => &$a) {
+  if (!isset($a['volgorde'])) $a['volgorde'] = $i;
+  if (!isset($a['title']['en'])) $a['title']['en'] = '';
+  if (!isset($a['title']['de'])) $a['title']['de'] = '';
+}
+unset($a);
+usort($fotoboekData['albums'], function($a, $b) { return ($a['volgorde'] ?? 0) <=> ($b['volgorde'] ?? 0); });
+
 $gebruikersLijst = $isMaster ? laadGebruikers($usersBestand) : [];
 $logRegels = [];
 if ($isMaster && file_exists($logBestand)) {
@@ -623,6 +983,17 @@ if ($isMaster && file_exists($logBestand)) {
     .gebruiker-sinds { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
     .knop-klein { width: auto; background: none; border: 1px solid var(--border); color: var(--rust); font-size: 13px; font-weight: 600; padding: 6px 12px; white-space: nowrap; }
     .knop-klein:hover { background: #FDECEA; border-color: #F5B7B1; }
+    .fotoboek-foto-blok { border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; }
+    .fotoboek-foto-blok img { width: 76px; height: 76px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: var(--bg); }
+    .fotoboek-foto-velden { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .fotoboek-foto-velden input[type="text"] { font-size: 14px; padding: 8px 10px; }
+    .fotoboek-foto-rij { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; flex-wrap: wrap; }
+    .fotoboek-check { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 400; color: var(--text); }
+    .fotoboek-check input { width: auto; }
+    .fotoboek-cover-badge { font-size: 11px; font-weight: 700; color: var(--teal-dark); background: var(--teal-light); padding: 2px 8px; border-radius: 100px; }
+    .fotoboek-upload-blok { border-top: 1px dashed var(--border); padding-top: 14px; margin-top: 4px; }
+    .fotoboek-verwijder-blok { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
+    .fotoboek-album-kop { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -674,6 +1045,7 @@ if ($isMaster && file_exists($logBestand)) {
       <button type="button" class="menu-item" data-tab="agenda">Agenda</button>
       <button type="button" class="menu-item" data-tab="faq">Vragen</button>
       <button type="button" class="menu-item" data-tab="sponsors">Sponsors</button>
+      <button type="button" class="menu-item" data-tab="fotoboek">Fotoboek</button>
       <?php if ($isMaster): ?>
       <button type="button" class="menu-item" data-tab="gebruikers">Gebruikers</button>
       <button type="button" class="menu-item" data-tab="log">Log</button>
@@ -894,6 +1266,134 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <div class="tab-paneel" id="tab-fotoboek">
+    <!-- ===== FOTOBOEK ===== -->
+    <div class="kaart">
+      <h1>Nieuw album</h1>
+      <p class="sub">Maak een album aan, daarna kun je er hieronder foto's aan toevoegen.</p>
+
+      <?php if (isset($melding['fotoboek'])): ?>
+        <div class="melding <?php echo $meldingType['fotoboek']; ?>"><?php echo htmlspecialchars($melding['fotoboek']); ?></div>
+      <?php endif; ?>
+
+      <form method="post" action="beheer.php#fotoboek">
+        <input type="hidden" name="formulier" value="fotoboek_album_aanmaken">
+        <div class="taal-groep" style="border-top:none; padding-top:0; margin-top:0;">
+          <div class="taal-label">🇳🇱 Nederlands</div>
+          <div class="veld">
+            <label for="fotoboek-nieuw-titel-nl">Titel</label>
+            <input type="text" id="fotoboek-nieuw-titel-nl" name="titel_nl" maxlength="60" placeholder="Bijv.: ZomerBBQ 2026">
+          </div>
+        </div>
+        <div class="taal-groep">
+          <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
+          <div class="veld">
+            <label for="fotoboek-nieuw-titel-en">Title</label>
+            <input type="text" id="fotoboek-nieuw-titel-en" name="titel_en" maxlength="60">
+          </div>
+        </div>
+        <div class="taal-groep">
+          <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
+          <div class="veld">
+            <label for="fotoboek-nieuw-titel-de">Titel</label>
+            <input type="text" id="fotoboek-nieuw-titel-de" name="titel_de" maxlength="60">
+          </div>
+        </div>
+        <button type="submit">Album aanmaken</button>
+      </form>
+    </div>
+
+    <?php if (count($fotoboekData['albums']) === 0): ?>
+      <div class="kaart">
+        <p class="hint">Nog geen albums aangemaakt.</p>
+      </div>
+    <?php endif; ?>
+
+    <?php foreach ($fotoboekData['albums'] as $album): $slug = $album['slug']; ?>
+      <div class="kaart">
+        <form method="post" action="beheer.php#fotoboek" enctype="multipart/form-data">
+          <input type="hidden" name="formulier" value="fotoboek_album_bewerken">
+          <input type="hidden" name="slug" value="<?php echo htmlspecialchars($slug); ?>">
+
+          <div class="fotoboek-album-kop">
+            <h1 style="margin-bottom:0;"><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?></h1>
+            <span class="hint"><?php echo count($album['photos']); ?> foto('s)</span>
+          </div>
+          <p class="sub">Map: images/fotoboek/<?php echo htmlspecialchars($slug); ?>/</p>
+
+          <div class="rij-2">
+            <div class="veld">
+              <label for="fotoboek-<?php echo $slug; ?>-titel-nl">Titel (NL)</label>
+              <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-nl" name="titel_nl" maxlength="60" value="<?php echo htmlspecialchars($album['title']['nl'] ?? ''); ?>">
+            </div>
+            <div class="veld">
+              <label for="fotoboek-<?php echo $slug; ?>-volgorde">Volgorde</label>
+              <input type="text" inputmode="numeric" id="fotoboek-<?php echo $slug; ?>-volgorde" name="volgorde" value="<?php echo htmlspecialchars((string) ($album['volgorde'] ?? 0)); ?>">
+              <p class="hint">Laagste nummer staat vooraan op de website.</p>
+            </div>
+          </div>
+          <div class="rij-2">
+            <div class="veld">
+              <label for="fotoboek-<?php echo $slug; ?>-titel-en">Title (EN)</label>
+              <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-en" name="titel_en" maxlength="60" value="<?php echo htmlspecialchars($album['title']['en'] ?? ''); ?>">
+            </div>
+            <div class="veld">
+              <label for="fotoboek-<?php echo $slug; ?>-titel-de">Titel (DE)</label>
+              <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-de" name="titel_de" maxlength="60" value="<?php echo htmlspecialchars($album['title']['de'] ?? ''); ?>">
+            </div>
+          </div>
+
+          <?php if (count($album['photos']) > 0): ?>
+            <div class="veld">
+              <label>Foto's</label>
+              <?php foreach ($album['photos'] as $i => $foto): ?>
+                <div class="fotoboek-foto-blok">
+                  <img src="images/fotoboek/<?php echo htmlspecialchars($slug); ?>/thumbs/<?php echo htmlspecialchars($foto['file']); ?>" alt="">
+                  <div class="fotoboek-foto-velden">
+                    <input type="hidden" name="foto[<?php echo $i; ?>][bestand]" value="<?php echo htmlspecialchars($foto['file']); ?>">
+                    <input type="text" name="foto[<?php echo $i; ?>][caption_nl]" maxlength="150" placeholder="Bijschrift NL (optioneel)" value="<?php echo htmlspecialchars($foto['caption']['nl'] ?? ''); ?>">
+                    <input type="text" name="foto[<?php echo $i; ?>][caption_en]" maxlength="150" placeholder="Caption EN (optional)" value="<?php echo htmlspecialchars($foto['caption']['en'] ?? ''); ?>">
+                    <input type="text" name="foto[<?php echo $i; ?>][caption_de]" maxlength="150" placeholder="Bildtext DE (optional)" value="<?php echo htmlspecialchars($foto['caption']['de'] ?? ''); ?>">
+                    <div class="fotoboek-foto-rij">
+                      <label class="fotoboek-check">
+                        <input type="radio" name="cover" value="<?php echo $i; ?>" <?php if (($album['cover'] ?? '') === $foto['file']) echo 'checked'; ?>>
+                        cover foto
+                        <?php if (($album['cover'] ?? '') === $foto['file']): ?><span class="fotoboek-cover-badge">huidige cover</span><?php endif; ?>
+                      </label>
+                      <label class="fotoboek-check">
+                        <input type="checkbox" name="foto[<?php echo $i; ?>][verwijderen]" value="1">
+                        verwijderen
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
+
+          <div class="veld fotoboek-upload-blok">
+            <label for="fotoboek-<?php echo $slug; ?>-upload">Nieuwe foto's toevoegen</label>
+            <input type="file" id="fotoboek-<?php echo $slug; ?>-upload" name="nieuwe_fotos[]" accept="image/png,image/jpeg,image/webp" multiple>
+            <p class="hint">Meerdere foto's tegelijk mogen. JPG, PNG of WEBP, max 12 MB per foto.</p>
+            <label class="fotoboek-check" style="margin-top:8px;">
+              <input type="checkbox" name="watermerk" value="1" checked>
+              Klein watermerk (logo + rc045.nl) toevoegen aan nieuwe foto's
+            </label>
+          </div>
+
+          <button type="submit">Album opslaan</button>
+
+          <div class="fotoboek-verwijder-blok">
+            <label class="fotoboek-check">
+              <input type="checkbox" name="album_verwijderen" value="1" onchange="if(this.checked && !confirm('Album &quot;<?php echo htmlspecialchars($album['title']['nl'] ?? $slug, ENT_QUOTES); ?>&quot; en alle foto\'s hierin definitief verwijderen?')) this.checked=false;">
+              Dit album inclusief alle foto's verwijderen (kan niet ongedaan gemaakt worden)
+            </label>
+          </div>
+        </form>
+      </div>
+    <?php endforeach; ?>
+    </div>
+
     <?php if ($isMaster): ?>
 
     <div class="tab-paneel" id="tab-gebruikers">
@@ -1015,7 +1515,7 @@ if ($isMaster && file_exists($logBestand)) {
   <?php if ($ingelogd): ?>
   <script>
     (function() {
-      var tabs = ['mededeling', 'agenda', 'faq', 'sponsors'<?php if ($isMaster): ?>, 'gebruikers', 'log'<?php endif; ?>, 'rekentabel'];
+      var tabs = ['mededeling', 'agenda', 'faq', 'sponsors', 'fotoboek'<?php if ($isMaster): ?>, 'gebruikers', 'log'<?php endif; ?>, 'rekentabel'];
       var menuItems = document.querySelectorAll('.menu-item');
 
       function toonTab(naam) {
