@@ -172,8 +172,8 @@ $contactStandaard = [
   'adres_postcode_plaats' => '6464 EZ Eygelshoven',
   'openingstijden' => [
     'woensdag' => 'Woensdagavond bij voldoende animo',
-    'zaterdag' => '10:00 – 15:00',
-    'zondag' => '10:00 – 15:00',
+    'zaterdag' => ['van' => '10:00', 'tot' => '15:00'],
+    'zondag' => ['van' => '10:00', 'tot' => '15:00'],
   ],
   'lidmaatschap_vanaf' => 'Vanaf €50/jaar',
   'email' => 'bestuur@rc045.nl',
@@ -236,6 +236,17 @@ $mediaStandaard = [
     'linktekst' => ['nl' => 'Bekijk de reportage →', 'en' => 'Watch the report →', 'de' => 'Reportage ansehen →'],
   ],
 ];
+
+// Keuzelijst voor de tijd-dropdowns bij zaterdag/zondag: elk half uur van
+// 06:00 tot 22:00. Ruim genoeg voor elke realistische openingstijd, met een
+// vinkje-vriendelijk aantal opties (geen losse minuten).
+function contactTijdOpties() {
+  $opties = [];
+  for ($minuten = 6 * 60; $minuten <= 22 * 60; $minuten += 30) {
+    $opties[] = sprintf('%02d:%02d', intdiv($minuten, 60), $minuten % 60);
+  }
+  return $opties;
+}
 
 function euro($bedrag) {
   $s = number_format($bedrag, 2, ',', '.');
@@ -711,13 +722,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $melding['contact'] = 'Facebook-link moet beginnen met http:// of https://.';
         $meldingType['contact'] = 'fout';
       } else {
+        // Zaterdag/zondag komen uit een keuzemenu (dus altijd HH:MM), woensdag
+        // blijft vrije tekst omdat "bij voldoende animo" geen vaste tijd is.
+        $tijdOpties = contactTijdOpties();
+        $vanTot = function($dag) use ($tijdOpties) {
+          $van = $_POST['openingstijden'][$dag]['van'] ?? '';
+          $tot = $_POST['openingstijden'][$dag]['tot'] ?? '';
+          if (!in_array($van, $tijdOpties, true)) $van = $tijdOpties[0];
+          if (!in_array($tot, $tijdOpties, true)) $tot = $tijdOpties[0];
+          return ['van' => $van, 'tot' => $tot];
+        };
         $contactData = [
           'adres_straat' => kort($_POST['adres_straat'] ?? '', 80),
           'adres_postcode_plaats' => kort($_POST['adres_postcode_plaats'] ?? '', 80),
           'openingstijden' => [
             'woensdag' => kort($_POST['openingstijden']['woensdag'] ?? '', 80),
-            'zaterdag' => kort($_POST['openingstijden']['zaterdag'] ?? '', 80),
-            'zondag'   => kort($_POST['openingstijden']['zondag'] ?? '', 80),
+            'zaterdag' => $vanTot('zaterdag'),
+            'zondag'   => $vanTot('zondag'),
           ],
           'lidmaatschap_vanaf' => kort($_POST['lidmaatschap_vanaf'] ?? '', 60),
           'email' => $email,
@@ -1142,6 +1163,14 @@ if (file_exists($contactBestand)) {
   if (is_array($json)) {
     $contactData = array_merge($contactStandaard, $json);
     $contactData['openingstijden'] = array_merge($contactStandaard['openingstijden'], $json['openingstijden'] ?? []);
+    // Zaterdag/zondag horen altijd een ['van' => ..., 'tot' => ...] paar te zijn.
+    // Stond er nog een oude losse tekst (van vóór het keuzemenu), dan geldt de
+    // standaard tijd als uitgangspunt in plaats van dat de pagina crasht.
+    foreach (['zaterdag', 'zondag'] as $dag) {
+      if (!is_array($contactData['openingstijden'][$dag] ?? null)) {
+        $contactData['openingstijden'][$dag] = $contactStandaard['openingstijden'][$dag];
+      }
+    }
   }
 }
 
@@ -1606,20 +1635,33 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
         </div>
 
-        <div class="rij-3">
-          <div class="veld">
-            <label for="contact-woe">Woensdag</label>
-            <input type="text" id="contact-woe" name="openingstijden[woensdag]" maxlength="80" value="<?php echo htmlspecialchars($contactData['openingstijden']['woensdag'] ?? ''); ?>">
-          </div>
-          <div class="veld">
-            <label for="contact-zat">Zaterdag</label>
-            <input type="text" id="contact-zat" name="openingstijden[zaterdag]" maxlength="80" value="<?php echo htmlspecialchars($contactData['openingstijden']['zaterdag'] ?? ''); ?>">
-          </div>
-          <div class="veld">
-            <label for="contact-zon">Zondag</label>
-            <input type="text" id="contact-zon" name="openingstijden[zondag]" maxlength="80" value="<?php echo htmlspecialchars($contactData['openingstijden']['zondag'] ?? ''); ?>">
-          </div>
+        <div class="veld">
+          <label for="contact-woe">Woensdag</label>
+          <input type="text" id="contact-woe" name="openingstijden[woensdag]" maxlength="80" value="<?php echo htmlspecialchars($contactData['openingstijden']['woensdag'] ?? ''); ?>">
+          <p class="hint">Vrije tekst, bijv. "Woensdagavond bij voldoende animo". Geen vaste tijd, dus geen keuzemenu.</p>
         </div>
+
+        <?php $tijdOpties = contactTijdOpties(); ?>
+        <?php foreach (['zaterdag' => 'Zaterdag', 'zondag' => 'Zondag'] as $dag => $dagLabel): ?>
+          <div class="rij-2">
+            <div class="veld">
+              <label for="contact-<?php echo $dag; ?>-van"><?php echo $dagLabel; ?> van</label>
+              <select id="contact-<?php echo $dag; ?>-van" name="openingstijden[<?php echo $dag; ?>][van]">
+                <?php foreach ($tijdOpties as $optie): ?>
+                  <option value="<?php echo $optie; ?>" <?php if (($contactData['openingstijden'][$dag]['van'] ?? '') === $optie) echo 'selected'; ?>><?php echo $optie; ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="veld">
+              <label for="contact-<?php echo $dag; ?>-tot"><?php echo $dagLabel; ?> tot</label>
+              <select id="contact-<?php echo $dag; ?>-tot" name="openingstijden[<?php echo $dag; ?>][tot]">
+                <?php foreach ($tijdOpties as $optie): ?>
+                  <option value="<?php echo $optie; ?>" <?php if (($contactData['openingstijden'][$dag]['tot'] ?? '') === $optie) echo 'selected'; ?>><?php echo $optie; ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </div>
+        <?php endforeach; ?>
 
         <div class="veld">
           <label for="contact-lidmaatschap">Lidmaatschap vanaf-tekst</label>
