@@ -1671,22 +1671,28 @@
   // zodat de vertaalde dagnamen kloppen terwijl de tijden/adres/contactgegevens
   // zelf niet per taal worden opgeslagen.
   var contactData = null;
+  function vanTotTekst(vanTot) {
+    if (!vanTot || !vanTot.van || !vanTot.tot) return '';
+    return vanTot.van + ' – ' + vanTot.tot;
+  }
   function renderContact() {
     if (!contactData) return;
     var oh = contactData.openingstijden || {};
     var t = i18n[currentLang];
+    var zaterdagTekst = vanTotTekst(oh.zaterdag);
+    var zondagTekst = vanTotTekst(oh.zondag);
 
     var elSat = document.getElementById('info-sat-value');
-    if (elSat && oh.zaterdag) elSat.textContent = t['hours.sat'] + ' ' + oh.zaterdag;
+    if (elSat && zaterdagTekst) elSat.textContent = t['hours.sat'] + ' ' + zaterdagTekst;
     var elSun = document.getElementById('info-sun-value');
-    if (elSun && oh.zondag) elSun.textContent = t['hours.sun'] + ' ' + oh.zondag;
+    if (elSun && zondagTekst) elSun.textContent = t['hours.sun'] + ' ' + zondagTekst;
 
     var elWed = document.getElementById('hours-wed-time');
     if (elWed && oh.woensdag) elWed.textContent = oh.woensdag;
     var elHoursSat = document.getElementById('hours-sat-time');
-    if (elHoursSat && oh.zaterdag) elHoursSat.textContent = oh.zaterdag;
+    if (elHoursSat && zaterdagTekst) elHoursSat.textContent = zaterdagTekst;
     var elHoursSun = document.getElementById('hours-sun-time');
-    if (elHoursSun && oh.zondag) elHoursSun.textContent = oh.zondag;
+    if (elHoursSun && zondagTekst) elHoursSun.textContent = zondagTekst;
 
     if (contactData.adres_straat) {
       ['info-adres-straat', 'addr-straat'].forEach(function(id) {
