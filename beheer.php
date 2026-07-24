@@ -974,7 +974,7 @@ if ($isMaster && file_exists($logBestand)) {
     .taal-label .optioneel { font-weight: 400; text-transform: none; letter-spacing: normal; }
     .kaart-smal { max-width: 440px; margin: 0 auto; }
     .menu { position: sticky; top: 0; z-index: 10; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; background: rgba(250,246,236,0.95); backdrop-filter: blur(10px); padding: 10px 6px; margin: 0 -6px 4px; border-bottom: 1px solid var(--border); }
-    .menu-item { background: none; border: none; padding: 8px 16px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
+    .menu-item { width: auto; flex: 0 0 auto; background: none; border: none; padding: 8px 16px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
     .menu-item:hover { background: var(--teal-light); color: var(--teal-dark); }
     .menu-item.actief { background: var(--teal); color: white; }
     .tab-paneel { display: none; flex-direction: column; gap: 16px; }
