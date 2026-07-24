@@ -508,6 +508,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           'en' => kort($rij['desc_en'] ?? '', 200),
           'de' => kort($rij['desc_de'] ?? '', 200),
         ],
+        'past' => !empty($rij['past']),
       ];
     }
     if (schrijfJson($agendaBestand, $events)) {
@@ -883,6 +884,7 @@ if (file_exists($agendaBestand)) {
           'time' => $item['time'] ?? '',
           'title' => ['nl' => $item['title'], 'en' => '', 'de' => ''],
           'desc'  => ['nl' => is_string($item['desc'] ?? null) ? $item['desc'] : '', 'en' => '', 'de' => ''],
+          'past' => !empty($item['past']),
         ];
       }
       return [
@@ -891,13 +893,14 @@ if (file_exists($agendaBestand)) {
         'time' => $item['time'] ?? '',
         'title' => ['nl' => $item['title']['nl'] ?? '', 'en' => $item['title']['en'] ?? '', 'de' => $item['title']['de'] ?? ''],
         'desc'  => ['nl' => $item['desc']['nl'] ?? '', 'en' => $item['desc']['en'] ?? '', 'de' => $item['desc']['de'] ?? ''],
+        'past' => !empty($item['past']),
       ];
     }, $json);
   }
 }
 // Altijd 4 rijen tonen in het formulier, ook als er minder zijn opgeslagen
 while (count($agendaData) < 4) {
-  $agendaData[] = ['date' => '', 'tag' => 'leden', 'time' => '', 'title' => ['nl' => '', 'en' => '', 'de' => ''], 'desc' => ['nl' => '', 'en' => '', 'de' => '']];
+  $agendaData[] = ['date' => '', 'tag' => 'leden', 'time' => '', 'title' => ['nl' => '', 'en' => '', 'de' => ''], 'desc' => ['nl' => '', 'en' => '', 'de' => ''], 'past' => false];
 }
 
 $faqData = $faqStandaard;
@@ -1010,8 +1013,10 @@ if ($isMaster && file_exists($logBestand)) {
     table.reken tr.nu td:first-child { border-radius: 6px 0 0 6px; }
     table.reken tr.nu td:last-child { border-radius: 0 6px 6px 0; }
     .reken-noot { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.6; }
-    .item-blok { border: 1.5px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
-    .item-blok-nr { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+    .item-blok { border: 1.5px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; transition: opacity 0.15s, background 0.15s; }
+    .item-blok-nr { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .item-blok.is-afgelopen { background: var(--bg); border-style: dashed; opacity: 0.7; }
+    .afgelopen-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rust); background: var(--gold-light); padding: 2px 8px; border-radius: 100px; }
     .rij-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .rij-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .rij-titels { display: grid; grid-template-columns: 2fr 2fr 2fr 1fr; gap: 12px; }
@@ -1161,8 +1166,11 @@ if ($isMaster && file_exists($logBestand)) {
 
         <div class="item-lijst">
         <?php foreach ($agendaData as $i => $ev): ?>
-          <div class="item-blok">
-            <div class="item-blok-nr">Kaart <?php echo $i + 1; ?></div>
+          <div class="item-blok <?php echo !empty($ev['past']) ? 'is-afgelopen' : ''; ?>">
+            <div class="item-blok-nr">
+              Kaart <?php echo $i + 1; ?>
+              <span class="afgelopen-badge" style="<?php echo empty($ev['past']) ? 'display:none;' : ''; ?>">Afgelopen</span>
+            </div>
             <div class="rij-2">
               <div class="veld">
                 <label for="agenda-date-<?php echo $i; ?>">Datum</label>
@@ -1181,6 +1189,13 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="agenda-time-<?php echo $i; ?>">Tijd</label>
               <input type="text" id="agenda-time-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][time]" maxlength="40" value="<?php echo htmlspecialchars($ev['time'] ?? ''); ?>" placeholder="Bijv.: 10:00 - 15:00">
               <p class="hint">Tijd wordt niet vertaald, cijfers zijn in elke taal duidelijk.</p>
+            </div>
+            <div class="veld">
+              <label class="fotoboek-check" style="font-weight:700;">
+                <input type="checkbox" name="agenda[<?php echo $i; ?>][past]" value="1" onchange="agendaAfgelopenBijwerken(this)" <?php if (!empty($ev['past'])) echo 'checked'; ?>>
+                Evenement is afgelopen
+              </label>
+              <p class="hint">Vinkje aan: de kaart wordt op de website gedimd getoond met een "afgelopen"-label, automatisch in alle talen.</p>
             </div>
 
             <div class="taal-groep">
@@ -1650,6 +1665,15 @@ if ($isMaster && file_exists($logBestand)) {
       fotoboekVolgordeBijwerken(lijst);
     }
     document.querySelectorAll('.fotoboek-foto-lijst').forEach(fotoboekVolgordeBijwerken);
+
+    // ===== Agenda: kaart direct dimmen/badge tonen zodra "afgelopen" wordt aangevinkt =====
+    function agendaAfgelopenBijwerken(vinkje) {
+      var blok = vinkje.closest('.item-blok');
+      if (!blok) return;
+      blok.classList.toggle('is-afgelopen', vinkje.checked);
+      var badge = blok.querySelector('.afgelopen-badge');
+      if (badge) badge.style.display = vinkje.checked ? '' : 'none';
+    }
   </script>
   <?php endif; ?>
 </body>
