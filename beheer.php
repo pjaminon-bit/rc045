@@ -359,6 +359,22 @@ function verwerkFotoboekFoto($tmpPad, $volledigPad, $thumbPad, $watermerkAan, $l
   return ['ok' => true, 'width' => $opgeslagenBreedte, 'height' => $opgeslagenHoogte];
 }
 
+// Zet alsnog een watermerk op een foto die al eerder (zonder watermerk) is
+// geüpload. Werkt rechtstreeks op de al opgeslagen volledige (web) versie,
+// er wordt niet opnieuw geschaald. De thumbnail blijft ongemoeid, net als bij
+// nieuwe uploads. Kan niet ongedaan gemaakt worden: het origineel zonder
+// watermerk is niet bewaard.
+function fotoboekWatermerkBestaandeFoto($volledigPad, $logoPad) {
+  $info = @getimagesize($volledigPad);
+  if ($info === false || $info[2] !== IMAGETYPE_JPEG) return false;
+  $bron = @imagecreatefromjpeg($volledigPad);
+  if (!$bron) return false;
+  fotoboekZetWatermerk($bron, $logoPad);
+  $ok = imagejpeg($bron, $volledigPad, 82);
+  imagedestroy($bron);
+  return $ok;
+}
+
 // Verwijdert een map met alle inhoud (album verwijderen inclusief foto's en thumbnails).
 function verwijderMapRecursief($pad) {
   if (!is_dir($pad)) return;
@@ -652,10 +668,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $album['title']['de'] = kort($_POST['titel_de'] ?? '', 60);
       $album['volgorde'] = is_numeric($_POST['volgorde'] ?? null) ? (float) $_POST['volgorde'] : ($album['volgorde'] ?? $albumIndex);
 
-      // Bestaande foto's: bijschriften bijwerken, gemarkeerde foto's verwijderen (bestand + thumbnail van schijf)
+      // Bestaande foto's: bijschriften bijwerken, gemarkeerde foto's verwijderen (bestand + thumbnail van schijf),
+      // en desgewenst alsnog een watermerk toevoegen aan een foto die dat nog niet heeft.
       $overgeblevenFotos = [];
       $gekozenCoverIndex = $_POST['cover'] ?? null;
       $nieuweCover = '';
+      $watermerkToegevoegdTeller = 0;
       foreach (($_POST['foto'] ?? []) as $i => $rij) {
         $bestand = basename($rij['bestand'] ?? '');
         if ($bestand === '') continue;
@@ -673,6 +691,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           'en' => kort($rij['caption_en'] ?? '', 150),
           'de' => kort($rij['caption_de'] ?? '', 150),
         ];
+
+        if (!empty($rij['watermerk_toevoegen']) && empty($bestaandeFoto['watermerk'])) {
+          if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $bestand, $logoPad)) {
+            $bestaandeFoto['watermerk'] = true;
+            $watermerkToegevoegdTeller++;
+          }
+        }
+
         $overgeblevenFotos[] = $bestaandeFoto;
         if ($gekozenCoverIndex !== null && (string) $i === (string) $gekozenCoverIndex) $nieuweCover = $bestand;
       }
@@ -720,6 +746,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
               'width' => $resultaat['width'],
               'height' => $resultaat['height'],
               'caption' => ['nl' => '', 'en' => '', 'de' => ''],
+              'watermerk' => $watermerkAan,
             ];
             $aantalGeupload++;
           } else {
@@ -741,10 +768,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (schrijfJson($fotoboekBestand, $fotoboekData)) {
         $onderdelen = [];
         if ($aantalGeupload > 0) $onderdelen[] = $aantalGeupload . ' nieuwe foto(\'s) toegevoegd';
+        if ($watermerkToegevoegdTeller > 0) $onderdelen[] = $watermerkToegevoegdTeller . ' foto(\'s) van een watermerk voorzien';
         $melding['fotoboek'] = 'Album opgeslagen' . ($onderdelen ? ': ' . implode(', ', $onderdelen) . '.' : '.');
         if ($uploadFouten) $melding['fotoboek'] .= ' Let op: ' . implode(' ', $uploadFouten);
         $meldingType['fotoboek'] = $uploadFouten ? 'fout' : 'ok';
-        schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_bijgewerkt', $album['title']['nl'] . ($aantalGeupload ? ', ' . $aantalGeupload . ' upload(s)' : ''));
+        schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_bijgewerkt', $album['title']['nl'] . ($aantalGeupload ? ', ' . $aantalGeupload . ' upload(s)' : '') . ($watermerkToegevoegdTeller ? ', ' . $watermerkToegevoegdTeller . ' watermerk(en)' : ''));
       } else {
         $melding['fotoboek'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
         $meldingType['fotoboek'] = 'fout';
@@ -899,12 +927,19 @@ if (file_exists($fotoboekBestand)) {
   $json = json_decode(file_get_contents($fotoboekBestand), true);
   if (is_array($json) && isset($json['albums'])) $fotoboekData = $json;
 }
-// 'volgorde' bestond nog niet in fase 1; ontbreekt dit veld, dan geldt de
-// bestaande volgorde in het bestand als uitgangspunt.
+// 'volgorde' en 'watermerk' bestonden nog niet in fase 1; ontbreken deze velden,
+// dan geldt de bestaande volgorde in het bestand als uitgangspunt en tellen
+// foto's als nog niet voorzien van een watermerk.
 foreach ($fotoboekData['albums'] as $i => &$a) {
   if (!isset($a['volgorde'])) $a['volgorde'] = $i;
   if (!isset($a['title']['en'])) $a['title']['en'] = '';
   if (!isset($a['title']['de'])) $a['title']['de'] = '';
+  if (isset($a['photos']) && is_array($a['photos'])) {
+    foreach ($a['photos'] as &$foto) {
+      if (!isset($foto['watermerk'])) $foto['watermerk'] = false;
+    }
+    unset($foto);
+  }
 }
 unset($a);
 usort($fotoboekData['albums'], function($a, $b) { return ($a['volgorde'] ?? 0) <=> ($b['volgorde'] ?? 0); });
@@ -1352,6 +1387,7 @@ if ($isMaster && file_exists($logBestand)) {
           <?php if (count($album['photos']) > 0): ?>
             <div class="veld">
               <label>Foto's</label>
+              <p class="hint" style="margin-top:-4px; margin-bottom:12px;">Watermerk toevoegen kan niet ongedaan gemaakt worden, het origineel zonder watermerk wordt niet bewaard.</p>
               <div class="fotoboek-foto-lijst">
               <?php foreach ($album['photos'] as $i => $foto): ?>
                 <div class="fotoboek-foto-blok">
@@ -1367,6 +1403,14 @@ if ($isMaster && file_exists($logBestand)) {
                         cover foto
                         <?php if (($album['cover'] ?? '') === $foto['file']): ?><span class="fotoboek-cover-badge">huidige cover</span><?php endif; ?>
                       </label>
+                      <?php if (!empty($foto['watermerk'])): ?>
+                        <span class="fotoboek-cover-badge" style="background:var(--gold-light); color:var(--rust);">✓ watermerk</span>
+                      <?php else: ?>
+                        <label class="fotoboek-check">
+                          <input type="checkbox" name="foto[<?php echo $i; ?>][watermerk_toevoegen]" value="1">
+                          watermerk toevoegen
+                        </label>
+                      <?php endif; ?>
                       <label class="fotoboek-check">
                         <input type="checkbox" name="foto[<?php echo $i; ?>][verwijderen]" value="1">
                         verwijderen
