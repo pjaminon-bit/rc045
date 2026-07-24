@@ -33,11 +33,23 @@ session_set_cookie_params([
 ]);
 session_start();
 
+// ===== CSRF-token: één per sessie, verplicht veld in elk formulier =====
+if (empty($_SESSION['csrf'])) {
+  $_SESSION['csrf'] = bin2hex(random_bytes(32));
+}
+$csrfToken = $_SESSION['csrf'];
+
+// Geeft true als het meegestuurde csrf-veld bij een POST klopt met de sessie.
+function csrfOk() {
+  return isset($_POST['csrf']) && hash_equals($_SESSION['csrf'], $_POST['csrf']);
+}
+
 $configPad    = __DIR__ . '/beheer-config.php';
 $usersBestand = __DIR__ . '/beheer-users.json';
 $logBestand   = __DIR__ . '/beheer-log.json';
 $dataMap      = __DIR__ . '/data';
 
+$lockBestand    = $dataMap . '/.beheer.lock';
 $actueelBestand = $dataMap . '/actueel.json';
 $agendaBestand  = $dataMap . '/agenda.json';
 $faqBestand     = $dataMap . '/faq.json';
@@ -46,6 +58,8 @@ $sponsorMap     = __DIR__ . '/images/sponsors';
 $fotoboekBestand = $dataMap . '/fotoboek.json';
 $fotoboekMap     = __DIR__ . '/images/fotoboek';
 $logoPad         = __DIR__ . '/rc045-logo.png';
+$contactBestand  = $dataMap . '/contact.json';
+$mediaBestand    = $dataMap . '/media.json';
 
 // Formaten voor het fotoboek: volledige (web) versie max 1600px breed,
 // thumbnail voor de albumgrid max 400px breed. Alleen verkleinen, nooit
@@ -147,6 +161,80 @@ $sponsorStandaard = [
   ['name' => 'Toemen', 'url' => '', 'logo' => 'toemen.png'],
   ['name' => 'Shamrock', 'url' => '', 'logo' => 'shamrock.png'],
   ['name' => 'Rothy', 'url' => '', 'logo' => 'rothy.png'],
+];
+
+// Standaardinhoud voor de contactgegevens, alleen gebruikt zolang data/contact.json
+// nog niet bestaat. Dit zijn de gegevens die nu al (verspreid over meerdere
+// pagina's) hardcoded op de site staan, zodat opslaan zonder wijzigingen geen
+// zichtbaar verschil geeft.
+$contactStandaard = [
+  'adres_straat' => 'Wijngaardsberg 26',
+  'adres_postcode_plaats' => '6464 EZ Eygelshoven',
+  'openingstijden' => [
+    'woensdag' => 'Woensdagavond bij voldoende animo',
+    'zaterdag' => '10:00 – 15:00',
+    'zondag' => '10:00 – 15:00',
+  ],
+  'lidmaatschap_vanaf' => 'Vanaf €50/jaar',
+  'email' => 'bestuur@rc045.nl',
+  'facebook' => 'https://www.facebook.com/rc045/',
+];
+
+// Standaardinhoud voor de mediaberichten op media.html, alleen gebruikt zolang
+// data/media.json nog niet bestaat. Dit zijn de zeven items die nu al op de
+// site staan, inclusief de originele Engelse en Duitse vertaling. 'date' is
+// steeds de canonieke datum (jjjj-mm-dd); de website zet dat zelf om naar de
+// juiste datumnotatie per taal, dus hier hoeft maar één datum ingevuld te worden.
+$mediaStandaard = [
+  [
+    'date' => '2020-11-08', 'bron' => 'Omroep Landgraaf', 'icoon' => '📺',
+    'title' => ['nl' => 'Interview Omroep Landgraaf', 'en' => 'Interview Omroep Landgraaf', 'de' => 'Interview Omroep Landgraaf'],
+    'desc'  => ['nl' => 'Omroep Landgraaf bracht een interview over onze RC-autoclub, nog voordat we een eigen baan hadden.', 'en' => 'Omroep Landgraaf aired an interview about our RC car club, before we had our own track.', 'de' => 'Omroep Landgraaf brachte ein Interview über unseren RC-Auto-Verein, noch bevor wir eine eigene Strecke hatten.'],
+    'link' => 'https://www.facebook.com/OmroepLandgraaf/videos/3636393673049251/',
+    'linktekst' => ['nl' => 'Bekijk op Facebook →', 'en' => 'Watch on Facebook →', 'de' => 'Auf Facebook ansehen →'],
+  ],
+  [
+    'date' => '2020-12-06', 'bron' => 'Omroep Landgraaf', 'icoon' => '📺',
+    'title' => ['nl' => 'Interview Omroep Landgraaf: Caravanrace', 'en' => 'Interview Omroep Landgraaf: Caravanrace', 'de' => 'Interview Omroep Landgraaf: Caravanrace'],
+    'desc'  => ['nl' => 'Een tweede interview met Omroep Landgraaf, ditmaal over de Caravanrace die onze leden organiseerden.', 'en' => 'A second interview with Omroep Landgraaf, this time about the Caravanrace organised by our members.', 'de' => 'Ein zweites Interview mit Omroep Landgraaf, diesmal über das Caravanrennen, das unsere Mitglieder organisierten.'],
+    'link' => 'https://www.facebook.com/OmroepLandgraaf/videos/739268850304412/',
+    'linktekst' => ['nl' => 'Bekijk op Facebook →', 'en' => 'Watch on Facebook →', 'de' => 'Auf Facebook ansehen →'],
+  ],
+  [
+    'date' => '2021-04-25', 'bron' => 'Omroep Landgraaf', 'icoon' => '📰',
+    'title' => ['nl' => 'Artikel Omroep Landgraaf', 'en' => 'Article Omroep Landgraaf', 'de' => 'Artikel Omroep Landgraaf'],
+    'desc'  => ['nl' => 'Omroep Landgraaf schreef een artikel over RC045 en de groeiende populariteit van onze hobby in de regio.', 'en' => 'Omroep Landgraaf wrote an article about RC045 and the growing popularity of our hobby in the region.', 'de' => 'Omroep Landgraaf schrieb einen Artikel über RC045 und die wachsende Beliebtheit unseres Hobbys in der Region.'],
+    'link' => 'https://www.facebook.com/OmroepLandgraaf/posts/4235498243148100',
+    'linktekst' => ['nl' => 'Lees het artikel →', 'en' => 'Read the article →', 'de' => 'Artikel lesen →'],
+  ],
+  [
+    'date' => '2021-04-29', 'bron' => 'ZO-NWS', 'icoon' => '📰',
+    'title' => ['nl' => 'Artikel ZO-NWS: Club RC-auto\'s groeit uit jasje', 'en' => 'Article ZO-NWS: RC car club outgrows itself', 'de' => 'Artikel ZO-NWS: RC-Auto-Club wächst aus den Nähten'],
+    'desc'  => ['nl' => 'ZO-NWS berichtte over de snelle groei van RC045 en de zoektocht naar een eigen locatie voor onze baan.', 'en' => 'ZO-NWS reported on the rapid growth of RC045 and the search for a dedicated location for our track.', 'de' => 'ZO-NWS berichtete über das schnelle Wachstum von RC045 und die Suche nach einem eigenen Gelände für unsere Strecke.'],
+    'link' => 'https://www.zo-nws.nl/video-club-rc-autos-groeit-uit-jasje',
+    'linktekst' => ['nl' => 'Lees het artikel →', 'en' => 'Read the article →', 'de' => 'Artikel lesen →'],
+  ],
+  [
+    'date' => '2021-05-04', 'bron' => 'L1mburg', 'icoon' => '📺',
+    'title' => ['nl' => 'Route Regio: op zoek naar een nieuwe locatie', 'en' => 'Route Regio: looking for a new location', 'de' => 'Route Regio: auf der Suche nach einem neuen Gelände'],
+    'desc'  => ['nl' => 'L1 volgde RC045 in de zoektocht naar een nieuwe locatie voor de club.', 'en' => "L1 followed RC045's search for a new location for the club.", 'de' => 'L1 begleitete RC045 bei der Suche nach einem neuen Gelände für den Verein.'],
+    'link' => 'https://www.l1.nl/nieuws/2535856/route-regio-rc-045-is-op-zoek-naar-een-nieuwe-locatie',
+    'linktekst' => ['nl' => 'Bekijk de reportage →', 'en' => 'Watch the report →', 'de' => 'Reportage ansehen →'],
+  ],
+  [
+    'date' => '2022-11-20', 'bron' => 'Omroep Landgraaf', 'icoon' => '📺',
+    'title' => ['nl' => 'Interview Omroep Landgraaf: opening nieuwe locatie', 'en' => 'Omroep Landgraaf interview: new location opening', 'de' => 'Interview Omroep Landgraaf: Eröffnung des neuen Geländes'],
+    'desc'  => ['nl' => 'Omroep Landgraaf was aanwezig bij de opening van onze nieuwe baan aan de Wijngaardsberg in Kerkrade, nadat we waren verhuisd vanaf het veldje bij sporthal Strijthagen.', 'en' => 'Omroep Landgraaf attended the opening of our new track at the Wijngaardsberg in Kerkrade, after our move from the field near sports hall Strijthagen.', 'de' => 'Omroep Landgraaf war bei der Eröffnung unserer neuen Bahn am Wijngaardsberg in Kerkrade dabei, nachdem wir vom Feld bei der Sporthalle Strijthagen umgezogen waren.'],
+    'link' => 'https://www.facebook.com/watch/?v=828115825105155',
+    'linktekst' => ['nl' => 'Bekijk op Facebook →', 'en' => 'Watch on Facebook →', 'de' => 'Auf Facebook ansehen →'],
+  ],
+  [
+    'date' => '2024-02-13', 'bron' => 'L1mburg', 'icoon' => '📺',
+    'title' => ['nl' => 'Route Regio: eindelijk een eigen terrein', 'en' => 'Route Regio: finally our own site', 'de' => 'Route Regio: endlich ein eigenes Gelände'],
+    'desc'  => ['nl' => 'Ruim twee jaar later keerde L1 terug: RC045 had eindelijk een eigen terrein gevonden.', 'en' => 'Over two years later, L1 returned: RC045 had finally found its own site.', 'de' => 'Über zwei Jahre später kehrte L1 zurück: RC045 hatte endlich ein eigenes Gelände gefunden.'],
+    'link' => 'https://www.l1.nl/nieuws/2542087/route-regio-rc045-heeft-eindelijk-een-eigen-terrein',
+    'linktekst' => ['nl' => 'Bekijk de reportage →', 'en' => 'Watch the report →', 'de' => 'Reportage ansehen →'],
+  ],
 ];
 
 function euro($bedrag) {
@@ -418,7 +506,10 @@ if ($configOk) {
 }
 
 // ===== Uitloggen =====
-if (isset($_GET['uitloggen'])) {
+// Bewust een POST-formulier met csrf-controle in plaats van een simpele link:
+// een gewone GET-link kan door een pagina van een ander (bijv. als afbeelding)
+// worden misbruikt om een ingelogde beheerder ongevraagd uit te loggen.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'uitloggen' && csrfOk()) {
   $_SESSION = [];
   session_destroy();
   header('Location: beheer.php');
@@ -433,7 +524,9 @@ $inlogFout = '';
 // Gebruikersnaam leeg + het beheerderswachtwoord -> ingelogd als "beheerder",
 // met toegang tot gebruikersbeheer en het logboek. Een bekende gebruikersnaam
 // + bijbehorend wachtwoord -> gewone toegang tot de inhoud.
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'inloggen' && $configOk) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'inloggen' && $configOk && !csrfOk()) {
+  $inlogFout = 'Sessie verlopen. Ververs de pagina en probeer het opnieuw.';
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'inloggen' && $configOk) {
   $gebruikersnaamInvoer = trim($_POST['gebruikersnaam'] ?? '');
   $wachtwoordInvoer = $_POST['wachtwoord'] ?? '';
 
@@ -472,7 +565,20 @@ $isMaster = $ingelogd && !empty($_SESSION['is_master']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
   $formulier = $_POST['formulier'] ?? '';
 
-  if ($formulier === 'actueel') {
+  // Eén lock over het hele opslaan-blok: van inlezen van het huidige JSON-bestand
+  // tot wegschrijven van de nieuwe versie. Zonder dit zouden twee gelijktijdige
+  // opslag-acties (bijv. twee bestuursleden die tegelijk iets bewerken) elkaar
+  // stilletjes kunnen overschrijven, omdat schrijfJson() alleen tijdens het
+  // schrijven zelf een lock had, niet tijdens het hele lees-wijzig-schrijf-traject.
+  // Lukt het openen van het lock-bestand niet (zeldzaam), dan gaat het opslaan
+  // gewoon door zonder lock in plaats van helemaal te mislukken.
+  $lockHandle = @fopen($lockBestand, 'c');
+  if ($lockHandle) flock($lockHandle, LOCK_EX);
+
+  if (!csrfOk()) {
+    $melding['csrf'] = 'Sessie verlopen. Ververs de pagina en probeer het opnieuw.';
+    $meldingType['csrf'] = 'fout';
+  } elseif ($formulier === 'actueel') {
     $tekst = kort($_POST['tekst'] ?? '', 500);
     if (schrijfJson($actueelBestand, ['text' => $tekst, 'updated' => date('c')])) {
       $melding['actueel'] = $tekst === ''
@@ -592,6 +698,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       $melding['sponsors'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['sponsors'] = 'fout';
+    }
+
+  } elseif ($formulier === 'contact') {
+    $email = trim($_POST['email'] ?? '');
+    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $melding['contact'] = 'Vul een geldig e-mailadres in.';
+      $meldingType['contact'] = 'fout';
+    } else {
+      $facebook = trim($_POST['facebook'] ?? '');
+      if ($facebook !== '' && !preg_match('#^https?://#i', $facebook)) {
+        $melding['contact'] = 'Facebook-link moet beginnen met http:// of https://.';
+        $meldingType['contact'] = 'fout';
+      } else {
+        $contactData = [
+          'adres_straat' => kort($_POST['adres_straat'] ?? '', 80),
+          'adres_postcode_plaats' => kort($_POST['adres_postcode_plaats'] ?? '', 80),
+          'openingstijden' => [
+            'woensdag' => kort($_POST['openingstijden']['woensdag'] ?? '', 80),
+            'zaterdag' => kort($_POST['openingstijden']['zaterdag'] ?? '', 80),
+            'zondag'   => kort($_POST['openingstijden']['zondag'] ?? '', 80),
+          ],
+          'lidmaatschap_vanaf' => kort($_POST['lidmaatschap_vanaf'] ?? '', 60),
+          'email' => $email,
+          'facebook' => $facebook,
+        ];
+        if (schrijfJson($contactBestand, $contactData)) {
+          $melding['contact'] = 'Opgeslagen. De contactgegevens en openingstijden op de website zijn bijgewerkt.';
+          $meldingType['contact'] = 'ok';
+          schrijfLog($logBestand, $huidigeGebruiker, 'contact', 'contactgegevens bijgewerkt');
+        } else {
+          $melding['contact'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+          $meldingType['contact'] = 'fout';
+        }
+      }
+    }
+
+  } elseif ($formulier === 'media') {
+    $items = [];
+    $mediaFout = null;
+    foreach (($_POST['media'] ?? []) as $rij) {
+      $titelNl = kort($rij['title_nl'] ?? '', 100);
+      if ($titelNl === '') continue; // NL titel is verplicht, anders wordt de kaart niet getoond
+      $link = trim($rij['link'] ?? '');
+      if ($link !== '' && !preg_match('#^https?://#i', $link)) {
+        $mediaFout = 'Link bij "' . $titelNl . '" moet beginnen met http:// of https://.';
+        break;
+      }
+      $datum = $rij['date'] ?? '';
+      if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datum)) $datum = '';
+      $icoon = ($rij['icoon'] ?? '📺') === '📰' ? '📰' : '📺';
+      $items[] = [
+        'date' => $datum,
+        'bron' => kort($rij['bron'] ?? '', 60),
+        'icoon' => $icoon,
+        'title' => [
+          'nl' => $titelNl,
+          'en' => kort($rij['title_en'] ?? '', 100),
+          'de' => kort($rij['title_de'] ?? '', 100),
+        ],
+        'desc' => [
+          'nl' => kort($rij['desc_nl'] ?? '', 300),
+          'en' => kort($rij['desc_en'] ?? '', 300),
+          'de' => kort($rij['desc_de'] ?? '', 300),
+        ],
+        'link' => $link,
+        'linktekst' => [
+          'nl' => kort($rij['linktekst_nl'] ?? '', 40),
+          'en' => kort($rij['linktekst_en'] ?? '', 40),
+          'de' => kort($rij['linktekst_de'] ?? '', 40),
+        ],
+      ];
+    }
+    if ($mediaFout) {
+      $melding['media'] = $mediaFout;
+      $meldingType['media'] = 'fout';
+    } elseif (schrijfJson($mediaBestand, $items)) {
+      $melding['media'] = 'Opgeslagen. De media-pagina is bijgewerkt.';
+      $meldingType['media'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'media', count($items) . ' item(s) opgeslagen');
+    } else {
+      $melding['media'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+      $meldingType['media'] = 'fout';
     }
 
   } elseif ($formulier === 'fotoboek_album_aanmaken') {
@@ -860,6 +1048,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $meldingType['gebruikers'] = 'fout';
     }
   }
+
+  if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
 }
 
 // ===== Huidige inhoud inlezen voor de formulieren =====
@@ -944,6 +1134,24 @@ if (file_exists($sponsorBestand)) {
 }
 while (count($sponsorData) < 8) {
   $sponsorData[] = ['name' => '', 'url' => '', 'logo' => ''];
+}
+
+$contactData = $contactStandaard;
+if (file_exists($contactBestand)) {
+  $json = json_decode(file_get_contents($contactBestand), true);
+  if (is_array($json)) {
+    $contactData = array_merge($contactStandaard, $json);
+    $contactData['openingstijden'] = array_merge($contactStandaard['openingstijden'], $json['openingstijden'] ?? []);
+  }
+}
+
+$mediaData = $mediaStandaard;
+if (file_exists($mediaBestand)) {
+  $json = json_decode(file_get_contents($mediaBestand), true);
+  if (is_array($json) && count($json) > 0) $mediaData = $json;
+}
+while (count($mediaData) < 8) {
+  $mediaData[] = ['date' => '', 'bron' => '', 'icoon' => '📺', 'title' => ['nl' => '', 'en' => '', 'de' => ''], 'desc' => ['nl' => '', 'en' => '', 'de' => ''], 'link' => '', 'linktekst' => ['nl' => '', 'en' => '', 'de' => '']];
 }
 
 $fotoboekData = ['albums' => []];
@@ -1047,6 +1255,8 @@ if ($isMaster && file_exists($logBestand)) {
     .ingelogd-balk { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); }
     .ingelogd-balk a { color: var(--teal-dark); font-weight: 600; text-decoration: none; }
     .ingelogd-balk a:hover { text-decoration: underline; }
+    .link-knop { width: auto; background: none; border: none; padding: 0; margin: 0; font: inherit; font-weight: 600; color: var(--teal-dark); text-decoration: none; cursor: pointer; }
+    .link-knop:hover { text-decoration: underline; background: none; }
     .gebruiker-rij { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 12px; }
     .gebruiker-rij:last-child { border-bottom: none; }
     .gebruiker-rij form { margin: 0; }
@@ -1094,6 +1304,7 @@ if ($isMaster && file_exists($logBestand)) {
 
       <form method="post" action="beheer.php">
         <input type="hidden" name="formulier" value="inloggen">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="veld">
           <label for="login-gebruikersnaam">Gebruikersnaam</label>
           <input type="text" id="login-gebruikersnaam" name="gebruikersnaam" autocomplete="username" autocapitalize="off">
@@ -1111,14 +1322,24 @@ if ($isMaster && file_exists($logBestand)) {
 
     <div class="ingelogd-balk">
       <span>Ingelogd als <strong><?php echo htmlspecialchars($huidigeGebruiker); ?></strong></span>
-      <a href="beheer.php?uitloggen=1">Uitloggen</a>
+      <form method="post" action="beheer.php" style="display:inline;">
+        <input type="hidden" name="formulier" value="uitloggen">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+        <button type="submit" class="link-knop">Uitloggen</button>
+      </form>
     </div>
+
+    <?php if (isset($melding['csrf'])): ?>
+      <div class="melding <?php echo $meldingType['csrf']; ?>"><?php echo htmlspecialchars($melding['csrf']); ?></div>
+    <?php endif; ?>
 
     <nav class="menu">
       <button type="button" class="menu-item" data-tab="mededeling">Mededeling</button>
       <button type="button" class="menu-item" data-tab="agenda">Agenda</button>
       <button type="button" class="menu-item" data-tab="faq">Vragen</button>
       <button type="button" class="menu-item" data-tab="sponsors">Sponsors</button>
+      <button type="button" class="menu-item" data-tab="contact">Contact</button>
+      <button type="button" class="menu-item" data-tab="media">Media</button>
       <button type="button" class="menu-item" data-tab="fotoboek">Fotoboek</button>
       <?php if ($isMaster): ?>
       <button type="button" class="menu-item" data-tab="gebruikers">Gebruikers</button>
@@ -1139,6 +1360,7 @@ if ($isMaster && file_exists($logBestand)) {
 
       <form method="post" action="beheer.php#mededeling">
         <input type="hidden" name="formulier" value="actueel">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="veld">
           <label for="tekst">Tekst voor de website</label>
           <textarea id="tekst" name="tekst" maxlength="500" placeholder="Bijv.: Zaterdag geopend van 10:00 tot 15:00, zondag gesloten wegens regen."><?php echo htmlspecialchars($huidigeTekst); ?></textarea>
@@ -1169,6 +1391,7 @@ if ($isMaster && file_exists($logBestand)) {
 
       <form method="post" action="beheer.php#agenda">
         <input type="hidden" name="formulier" value="agenda">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
         <div class="item-lijst">
         <?php foreach ($agendaData as $i => $ev): ?>
@@ -1264,6 +1487,7 @@ if ($isMaster && file_exists($logBestand)) {
 
       <form method="post" action="beheer.php#faq">
         <input type="hidden" name="formulier" value="faq">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
         <div class="item-lijst">
         <?php foreach ($faqData as $i => $item): ?>
@@ -1326,6 +1550,7 @@ if ($isMaster && file_exists($logBestand)) {
 
       <form method="post" action="beheer.php#sponsors" enctype="multipart/form-data">
         <input type="hidden" name="formulier" value="sponsors">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
         <div class="item-lijst">
         <?php foreach ($sponsorData as $i => $sp): ?>
@@ -1356,6 +1581,168 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <div class="tab-paneel" id="tab-contact">
+    <!-- ===== CONTACT & OPENINGSTIJDEN ===== -->
+    <div class="kaart kaart-smal">
+      <h1>Contact & openingstijden</h1>
+      <p class="sub">Adres, openingstijden, lidmaatschapsprijs, e-mail en Facebook-link. Deze gegevens staan op meerdere plekken op de website en worden overal automatisch bijgewerkt.</p>
+
+      <?php if (isset($melding['contact'])): ?>
+        <div class="melding <?php echo $meldingType['contact']; ?>"><?php echo htmlspecialchars($melding['contact']); ?></div>
+      <?php endif; ?>
+
+      <form method="post" action="beheer.php#contact">
+        <input type="hidden" name="formulier" value="contact">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+        <div class="rij-2">
+          <div class="veld">
+            <label for="contact-straat">Straat + huisnummer</label>
+            <input type="text" id="contact-straat" name="adres_straat" maxlength="80" value="<?php echo htmlspecialchars($contactData['adres_straat'] ?? ''); ?>">
+          </div>
+          <div class="veld">
+            <label for="contact-postcode">Postcode + plaats</label>
+            <input type="text" id="contact-postcode" name="adres_postcode_plaats" maxlength="80" value="<?php echo htmlspecialchars($contactData['adres_postcode_plaats'] ?? ''); ?>">
+          </div>
+        </div>
+
+        <div class="rij-3">
+          <div class="veld">
+            <label for="contact-woe">Woensdag</label>
+            <input type="text" id="contact-woe" name="openingstijden[woensdag]" maxlength="80" value="<?php echo htmlspecialchars($contactData['openingstijden']['woensdag'] ?? ''); ?>">
+          </div>
+          <div class="veld">
+            <label for="contact-zat">Zaterdag</label>
+            <input type="text" id="contact-zat" name="openingstijden[zaterdag]" maxlength="80" value="<?php echo htmlspecialchars($contactData['openingstijden']['zaterdag'] ?? ''); ?>">
+          </div>
+          <div class="veld">
+            <label for="contact-zon">Zondag</label>
+            <input type="text" id="contact-zon" name="openingstijden[zondag]" maxlength="80" value="<?php echo htmlspecialchars($contactData['openingstijden']['zondag'] ?? ''); ?>">
+          </div>
+        </div>
+
+        <div class="veld">
+          <label for="contact-lidmaatschap">Lidmaatschap vanaf-tekst</label>
+          <input type="text" id="contact-lidmaatschap" name="lidmaatschap_vanaf" maxlength="60" value="<?php echo htmlspecialchars($contactData['lidmaatschap_vanaf'] ?? ''); ?>">
+          <p class="hint">Wordt getoond op de homepage, bijv. "Vanaf €50/jaar".</p>
+        </div>
+
+        <div class="rij-2">
+          <div class="veld">
+            <label for="contact-email">E-mail</label>
+            <input type="text" id="contact-email" name="email" maxlength="100" value="<?php echo htmlspecialchars($contactData['email'] ?? ''); ?>">
+          </div>
+          <div class="veld">
+            <label for="contact-facebook">Facebook-link</label>
+            <input type="text" id="contact-facebook" name="facebook" maxlength="200" value="<?php echo htmlspecialchars($contactData['facebook'] ?? ''); ?>">
+          </div>
+        </div>
+
+        <button type="submit">Contactgegevens opslaan</button>
+      </form>
+    </div>
+    </div>
+
+    <div class="tab-paneel" id="tab-media">
+    <!-- ===== MEDIA / PERSBERICHTEN ===== -->
+    <div class="kaart">
+      <h1>Media / persberichten</h1>
+      <p class="sub">De lijst met persaandacht op de media-pagina. Laat een Nederlandse titel leeg om die kaart te verbergen.</p>
+
+      <?php if (isset($melding['media'])): ?>
+        <div class="melding <?php echo $meldingType['media']; ?>"><?php echo htmlspecialchars($melding['media']); ?></div>
+      <?php endif; ?>
+
+      <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
+        Nederlands is verplicht per kaart. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+      </div>
+
+      <form method="post" action="beheer.php#media">
+        <input type="hidden" name="formulier" value="media">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+        <div class="item-lijst">
+        <?php foreach ($mediaData as $i => $mi): ?>
+          <div class="item-blok">
+            <div class="item-blok-nr">Item <?php echo $i + 1; ?></div>
+            <div class="rij-3">
+              <div class="veld">
+                <label for="media-date-<?php echo $i; ?>">Datum</label>
+                <input type="date" id="media-date-<?php echo $i; ?>" name="media[<?php echo $i; ?>][date]" value="<?php echo htmlspecialchars($mi['date'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="media-bron-<?php echo $i; ?>">Bron</label>
+                <input type="text" id="media-bron-<?php echo $i; ?>" name="media[<?php echo $i; ?>][bron]" maxlength="60" value="<?php echo htmlspecialchars($mi['bron'] ?? ''); ?>" placeholder="Bijv.: L1mburg">
+              </div>
+              <div class="veld">
+                <label for="media-icoon-<?php echo $i; ?>">Type</label>
+                <select id="media-icoon-<?php echo $i; ?>" name="media[<?php echo $i; ?>][icoon]">
+                  <option value="📺" <?php if (($mi['icoon'] ?? '📺') === '📺') echo 'selected'; ?>>📺 Video</option>
+                  <option value="📰" <?php if (($mi['icoon'] ?? '') === '📰') echo 'selected'; ?>>📰 Artikel</option>
+                </select>
+              </div>
+            </div>
+            <div class="veld">
+              <label for="media-link-<?php echo $i; ?>">Link</label>
+              <input type="text" id="media-link-<?php echo $i; ?>" name="media[<?php echo $i; ?>][link]" maxlength="300" value="<?php echo htmlspecialchars($mi['link'] ?? ''); ?>" placeholder="https://...">
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇳🇱 Nederlands</div>
+              <div class="veld">
+                <label for="media-title-nl-<?php echo $i; ?>">Titel</label>
+                <input type="text" id="media-title-nl-<?php echo $i; ?>" name="media[<?php echo $i; ?>][title_nl]" maxlength="100" value="<?php echo htmlspecialchars($mi['title']['nl'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="media-desc-nl-<?php echo $i; ?>">Omschrijving</label>
+                <textarea id="media-desc-nl-<?php echo $i; ?>" name="media[<?php echo $i; ?>][desc_nl]" maxlength="300" style="min-height:60px;"><?php echo htmlspecialchars($mi['desc']['nl'] ?? ''); ?></textarea>
+              </div>
+              <div class="veld">
+                <label for="media-linktekst-nl-<?php echo $i; ?>">Linktekst</label>
+                <input type="text" id="media-linktekst-nl-<?php echo $i; ?>" name="media[<?php echo $i; ?>][linktekst_nl]" maxlength="40" value="<?php echo htmlspecialchars($mi['linktekst']['nl'] ?? ''); ?>" placeholder="Bijv.: Bekijk op Facebook →">
+              </div>
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
+              <div class="veld">
+                <label for="media-title-en-<?php echo $i; ?>">Title</label>
+                <input type="text" id="media-title-en-<?php echo $i; ?>" name="media[<?php echo $i; ?>][title_en]" maxlength="100" value="<?php echo htmlspecialchars($mi['title']['en'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="media-desc-en-<?php echo $i; ?>">Description</label>
+                <textarea id="media-desc-en-<?php echo $i; ?>" name="media[<?php echo $i; ?>][desc_en]" maxlength="300" style="min-height:60px;"><?php echo htmlspecialchars($mi['desc']['en'] ?? ''); ?></textarea>
+              </div>
+              <div class="veld">
+                <label for="media-linktekst-en-<?php echo $i; ?>">Link text</label>
+                <input type="text" id="media-linktekst-en-<?php echo $i; ?>" name="media[<?php echo $i; ?>][linktekst_en]" maxlength="40" value="<?php echo htmlspecialchars($mi['linktekst']['en'] ?? ''); ?>">
+              </div>
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
+              <div class="veld">
+                <label for="media-title-de-<?php echo $i; ?>">Titel</label>
+                <input type="text" id="media-title-de-<?php echo $i; ?>" name="media[<?php echo $i; ?>][title_de]" maxlength="100" value="<?php echo htmlspecialchars($mi['title']['de'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="media-desc-de-<?php echo $i; ?>">Beschreibung</label>
+                <textarea id="media-desc-de-<?php echo $i; ?>" name="media[<?php echo $i; ?>][desc_de]" maxlength="300" style="min-height:60px;"><?php echo htmlspecialchars($mi['desc']['de'] ?? ''); ?></textarea>
+              </div>
+              <div class="veld">
+                <label for="media-linktekst-de-<?php echo $i; ?>">Linktext</label>
+                <input type="text" id="media-linktekst-de-<?php echo $i; ?>" name="media[<?php echo $i; ?>][linktekst_de]" maxlength="40" value="<?php echo htmlspecialchars($mi['linktekst']['de'] ?? ''); ?>">
+              </div>
+            </div>
+          </div>
+        <?php endforeach; ?>
+        </div>
+
+        <button type="submit">Media opslaan</button>
+      </form>
+    </div>
+    </div>
+
     <div class="tab-paneel" id="tab-fotoboek">
     <!-- ===== FOTOBOEK ===== -->
     <div class="kaart">
@@ -1368,6 +1755,7 @@ if ($isMaster && file_exists($logBestand)) {
 
       <form method="post" action="beheer.php#fotoboek">
         <input type="hidden" name="formulier" value="fotoboek_album_aanmaken">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="rij-3">
           <div class="veld">
             <label for="fotoboek-nieuw-titel-nl">🇳🇱 Titel</label>
@@ -1396,6 +1784,7 @@ if ($isMaster && file_exists($logBestand)) {
       <div class="kaart">
         <form method="post" action="beheer.php#fotoboek" enctype="multipart/form-data">
           <input type="hidden" name="formulier" value="fotoboek_album_bewerken">
+          <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
           <input type="hidden" name="slug" value="<?php echo htmlspecialchars($slug); ?>">
 
           <div class="fotoboek-album-kop">
@@ -1526,6 +1915,7 @@ if ($isMaster && file_exists($logBestand)) {
             </div>
             <form method="post" action="beheer.php#gebruikers" onsubmit="return confirm('Gebruiker &quot;<?php echo htmlspecialchars($g['gebruikersnaam'] ?? '', ENT_QUOTES); ?>&quot; verwijderen?');">
               <input type="hidden" name="formulier" value="gebruiker_verwijderen">
+              <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
               <input type="hidden" name="gebruikersnaam" value="<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>">
               <button type="submit" class="knop-klein">Verwijderen</button>
             </form>
@@ -1539,6 +1929,7 @@ if ($isMaster && file_exists($logBestand)) {
       <p class="sub">Bestaat de gebruikersnaam al, dan wordt alleen het wachtwoord bijgewerkt.</p>
       <form method="post" action="beheer.php#gebruikers">
         <input type="hidden" name="formulier" value="gebruiker_toevoegen">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="veld">
           <label for="nieuwe-gebruikersnaam">Gebruikersnaam</label>
           <input type="text" id="nieuwe-gebruikersnaam" name="nieuwe_gebruikersnaam" maxlength="30" placeholder="Bijv.: jan" autocapitalize="off" required>
@@ -1622,7 +2013,7 @@ if ($isMaster && file_exists($logBestand)) {
   <?php if ($ingelogd): ?>
   <script>
     (function() {
-      var tabs = ['mededeling', 'agenda', 'faq', 'sponsors', 'fotoboek'<?php if ($isMaster): ?>, 'gebruikers', 'log'<?php endif; ?>, 'rekentabel'];
+      var tabs = ['mededeling', 'agenda', 'faq', 'sponsors', 'contact', 'media', 'fotoboek'<?php if ($isMaster): ?>, 'gebruikers', 'log'<?php endif; ?>, 'rekentabel'];
       var menuItems = document.querySelectorAll('.menu-item');
 
       function toonTab(naam) {
