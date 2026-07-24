@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Media – RC045 Bashers of the South</title>
-<meta name="description" content="RC045 in de media: interviews en artikelen van Omroep Landgraaf, ZO-NWS en L1 over onze RC-autoclub in Zuid-Limburg.">
+<title>Fotoboek – RC045 Bashers of the South</title>
+<meta name="description" content="Bekijk foto's van RC045 evenementen en onze banen, gerangschikt per album.">
 <meta property="og:title" content="RC045 - Bashers of the South">
 <meta property="og:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
 <meta property="og:image" content="https://rc045.nl/rc045-logo.png">
-<meta property="og:url" content="https://rc045.nl/media.html">
+<meta property="og:url" content="https://rc045.nl/fotoboek.html">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="nl_NL">
 <meta name="twitter:card" content="summary_large_image">
@@ -22,12 +22,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#1E2C13">
-<link rel="alternate" hreflang="nl" href="https://rc045.nl/media.html">
-<link rel="alternate" hreflang="en" href="https://rc045.nl/media.html?lang=en">
-<link rel="alternate" hreflang="de" href="https://rc045.nl/media.html?lang=de">
-<link rel="alternate" hreflang="x-default" href="https://rc045.nl/media.html">
+<link rel="alternate" hreflang="nl" href="https://rc045.nl/fotoboek.html">
+<link rel="alternate" hreflang="en" href="https://rc045.nl/fotoboek.html?lang=en">
+<link rel="alternate" hreflang="de" href="https://rc045.nl/fotoboek.html?lang=de">
+<link rel="alternate" hreflang="x-default" href="https://rc045.nl/fotoboek.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/photoswipe/photoswipe.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -54,6 +55,7 @@ img { max-width: 100%; height: auto; display: block; }
 .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
 .nav-links a { padding: 6px 14px; border-radius: 8px; font-size: 16px; font-weight: 500; color: var(--text); transition: background 0.15s, color 0.15s; }
 .nav-links a:hover { background: var(--teal-light); color: var(--teal-dark); }
+.nav-links li.nav-active a { background: var(--teal-light); color: var(--teal-dark); }
 .nav-links .nav-cta a { background: transparent; color: var(--text); font-weight: 500; border: none; }
 .nav-links .nav-cta a:hover { background: var(--teal-light); color: var(--teal-dark); }
 .nav-links .nav-lid a { background: var(--teal); color: white; font-weight: 600; border-radius: 8px; }
@@ -61,27 +63,30 @@ img { max-width: 100%; height: auto; display: block; }
 .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; margin-left: 8px; }
 .nav-hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
 .page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 280px; display: flex; align-items: center; justify-content: center; }
-.page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/crawlergroep.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
+.page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/crawlercollage.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
 .page-hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
 .page-hero-content { position: relative; z-index: 1; }
 .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 12px; }
 .page-hero h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; color: white; margin-bottom: 12px; }
 .page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.7; }
-.main { max-width: 990px; margin: 0 auto; padding: 56px 24px 80px; }
-.intro-text { font-size: 16px; color: var(--muted); line-height: 1.8; margin-bottom: 48px; }
-.media-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-.media-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); display: flex; align-items: flex-start; gap: 16px; transition: transform 0.2s, box-shadow 0.2s; }
-.media-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
-.media-logo { flex-shrink: 0; width: 44px; height: 44px; border-radius: 10px; background: var(--teal-light); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-.media-body { flex: 1; }
-.media-date { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-.media-source { font-size: 12px; font-weight: 700; color: var(--teal-dark); margin-bottom: 8px; }
-.media-title { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
-.media-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
-.media-link { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--teal-dark); border-bottom: 1.5px solid var(--teal); padding-bottom: 1px; transition: color 0.2s, border-color 0.2s; }
-.media-link:hover { color: var(--teal); border-color: var(--teal); }
-.media-card-unavailable { opacity: 0.6; }
-.media-unavailable-tag { display: inline-block; font-size: 11px; font-weight: 700; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 100px; padding: 2px 10px; margin-bottom: 16px; }
+.main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 80px; }
+.intro-text { font-size: 16px; color: var(--muted); line-height: 1.8; margin-bottom: 40px; }
+.album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.album-card { position: relative; display: block; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); aspect-ratio: 4 / 3; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.album-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.16); }
+.album-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.album-card:hover img { transform: scale(1.05); }
+.album-card-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 16px; color: white; }
+.album-card-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; }
+.album-card-count { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+.album-empty { color: var(--muted); font-size: 15px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--teal-dark); margin-bottom: 24px; }
+.back-link:hover { color: var(--teal); }
+.album-detail-title { font-size: clamp(22px, 3vw, 30px); font-weight: 800; margin-bottom: 24px; color: var(--dark); }
+.photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.photo-grid a { display: block; position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 1 / 1; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.photo-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s; }
+.photo-grid a:hover img { transform: scale(1.06); }
 .back-to-top { position: fixed; bottom: 24px; right: 16px; z-index: 99; width: 44px; height: 44px; border-radius: 50%; background: var(--teal); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; border: none; box-shadow: 0 4px 16px rgba(58,122,119,0.4); opacity: 0; transform: translateY(16px); transition: opacity 0.3s, transform 0.3s, background 0.2s; pointer-events: none; }
 .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .back-to-top:hover { background: var(--teal-dark); }
@@ -114,8 +119,10 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-
   .nav-hamburger { display: flex; }
   .footer-top { grid-template-columns: 1fr; gap: 32px; }
   .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
-  .media-grid { grid-template-columns: 1fr; }
-  .media-card { flex-direction: column; gap: 16px; padding: 20px; }
+  .album-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .photo-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .album-card-title { font-size: 14px; }
+  .album-card-count { font-size: 11px; }
 }
 </style>
   <script data-goatcounter="https://rc045.goatcounter.com/count"
@@ -135,7 +142,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-
       <li><a href="index.html#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
       <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
       <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
-      <li><a href="fotoboek.html" data-i18n="nav.photobook">Fotoboek</a></li>
+      <li class="nav-active"><a href="fotoboek.html" data-i18n="nav.photobook">Fotoboek</a></li>
       <li class="nav-cta"><a href="index.html#contact" data-i18n="nav.question">Contact</a></li>
       <li class="nav-lid"><a href="aanmelden.html" data-i18n="nav.join">Lid worden</a></li>
     </ul>
@@ -153,83 +160,19 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-
   <div class="page-hero-bg" id="hero-bg"></div>
   <div class="page-hero-gradient"></div>
   <div class="page-hero-content">
-    <div class="section-label" data-i18n="hero.label">Over ons</div>
-    <h1 data-i18n="hero.title">Media</h1>
-    <p data-i18n="hero.sub">Voordat wij een eigen baan hadden, gaf de media ons veelvuldig aandacht. Hier vind je een overzicht van die berichtgevingen.</p>
+    <div class="section-label" data-i18n="hero.label">Fotoboek</div>
+    <h1 data-i18n="hero.title">Fotoboek</h1>
+    <p data-i18n="hero.sub">Foto's van onze evenementen en banen, gerangschikt per album. Klik op een album om de foto's te bekijken.</p>
   </div>
 </div>
 <main class="main" id="main-content">
-  <div class="media-grid">
-    <div class="media-card">
-      <div class="media-logo">📺</div>
-      <div class="media-body">
-        <div class="media-date" data-i18n="media.date1">8 november 2020</div>
-        <div class="media-source">Omroep Landgraaf</div>
-        <div class="media-title" data-i18n="media.title1">Interview Omroep Landgraaf</div>
-        <div class="media-desc" data-i18n="media.desc1">Omroep Landgraaf bracht een interview over onze RC-autoclub, nog voordat we een eigen baan hadden.</div>
-        <a href="https://www.facebook.com/OmroepLandgraaf/videos/3636393673049251/" target="_blank" rel="noopener" class="media-link" data-i18n="media.watch">Bekijk op Facebook →</a>
-      </div>
-    </div>
-    <div class="media-card">
-      <div class="media-logo">📺</div>
-      <div class="media-body">
-        <div class="media-date" data-i18n="media.date2">6 december 2020</div>
-        <div class="media-source">Omroep Landgraaf</div>
-        <div class="media-title" data-i18n="media.title2">Interview Omroep Landgraaf: Caravanrace</div>
-        <div class="media-desc" data-i18n="media.desc2">Een tweede interview met Omroep Landgraaf, ditmaal over de Caravanrace die onze leden organiseerden.</div>
-        <a href="https://www.facebook.com/OmroepLandgraaf/videos/739268850304412/" target="_blank" rel="noopener" class="media-link" data-i18n="media.watch">Bekijk op Facebook →</a>
-      </div>
-    </div>
-    <div class="media-card">
-      <div class="media-logo">📰</div>
-      <div class="media-body">
-        <div class="media-date" data-i18n="media.date3">25 april 2021</div>
-        <div class="media-source">Omroep Landgraaf</div>
-        <div class="media-title" data-i18n="media.title3">Artikel Omroep Landgraaf</div>
-        <div class="media-desc" data-i18n="media.desc3">Omroep Landgraaf schreef een artikel over RC045 en de groeiende populariteit van onze hobby in de regio.</div>
-        <a href="https://www.facebook.com/OmroepLandgraaf/posts/4235498243148100" target="_blank" rel="noopener" class="media-link" data-i18n="media.read">Lees op Facebook →</a>
-      </div>
-    </div>
-    <div class="media-card">
-      <div class="media-logo">📰</div>
-      <div class="media-body">
-        <div class="media-date" data-i18n="media.date4">29 april 2021</div>
-        <div class="media-source">ZO-NWS</div>
-        <div class="media-title" data-i18n="media.title4">Artikel ZO-NWS: Club RC-auto's groeit uit jasje</div>
-        <div class="media-desc" data-i18n="media.desc4">ZO-NWS berichtte over de snelle groei van RC045 en de zoektocht naar een eigen locatie voor onze baan.</div>
-        <a href="https://www.zo-nws.nl/video-club-rc-autos-groeit-uit-jasje" target="_blank" rel="noopener" class="media-link" data-i18n="media.read">Lees het artikel →</a>
-      </div>
-    </div>
-    <div class="media-card">
-      <div class="media-logo">📺</div>
-      <div class="media-body">
-        <div class="media-date" data-i18n="media.date5">4 mei 2021</div>
-        <div class="media-source">L1mburg</div>
-        <div class="media-title" data-i18n="media.title5">Route Regio: op zoek naar een nieuwe locatie</div>
-        <div class="media-desc" data-i18n="media.desc5">L1 volgde RC045 in de zoektocht naar een nieuwe locatie voor de club.</div>
-        <a href="https://www.l1.nl/nieuws/2535856/route-regio-rc-045-is-op-zoek-naar-een-nieuwe-locatie" target="_blank" rel="noopener" class="media-link" data-i18n="media.watchreport">Bekijk de reportage →</a>
-      </div>
-    </div>
-    <div class="media-card">
-      <div class="media-logo">📺</div>
-      <div class="media-body">
-        <div class="media-date" data-i18n="media.date7">20 november 2022</div>
-        <div class="media-source">Omroep Landgraaf</div>
-        <div class="media-title" data-i18n="media.title7">Interview Omroep Landgraaf: opening nieuwe locatie</div>
-        <div class="media-desc" data-i18n="media.desc7">Omroep Landgraaf was aanwezig bij de opening van onze nieuwe baan aan de Wijngaardsberg in Kerkrade, nadat we waren verhuisd vanaf het veldje bij sporthal Strijthagen.</div>
-        <a href="https://www.facebook.com/watch/?v=828115825105155" target="_blank" rel="noopener" class="media-link" data-i18n="media.watch">Bekijk op Facebook →</a>
-      </div>
-    </div>
-    <div class="media-card">
-      <div class="media-logo">📺</div>
-      <div class="media-body">
-        <div class="media-date" data-i18n="media.date6">13 februari 2024</div>
-        <div class="media-source">L1mburg</div>
-        <div class="media-title" data-i18n="media.title6">Route Regio: eindelijk een eigen terrein</div>
-        <div class="media-desc" data-i18n="media.desc6">Ruim twee jaar later keerde L1 terug: RC045 had eindelijk een eigen terrein gevonden.</div>
-        <a href="https://www.l1.nl/nieuws/2542087/route-regio-rc045-heeft-eindelijk-een-eigen-terrein" target="_blank" rel="noopener" class="media-link" data-i18n="media.watchreport">Bekijk de reportage →</a>
-      </div>
-    </div>
+  <div id="album-grid" class="album-grid">
+    <p class="album-empty" data-i18n="fotoboek.loading">Albums worden geladen...</p>
+  </div>
+  <div id="album-detail" class="album-detail" hidden>
+    <a href="#" id="back-to-albums" class="back-link" data-i18n="fotoboek.back">← Terug naar albums</a>
+    <h2 id="album-detail-title" class="album-detail-title"></h2>
+    <div id="photo-grid" class="photo-grid"></div>
   </div>
 </main>
 <footer class="footer">
@@ -286,26 +229,14 @@ const i18n = {
   nl: {
     'nav.about': 'Over ons', 'nav.membership': 'Lidmaatschap', 'nav.track': 'De baan',
     'nav.location': 'Locatie', 'nav.photobook': 'Fotoboek', 'nav.question': 'Contact', 'nav.join': 'Lid worden',
-    'hero.label': 'Over ons', 'hero.title': 'Media',
-    'hero.sub': 'Voordat wij een eigen baan hadden, gaf de media ons veelvuldig aandacht. Hier vind je een overzicht van die berichtgevingen.',
-    'media.date1': '8 november 2020', 'media.title1': 'Interview Omroep Landgraaf',
-    'media.desc1': 'Omroep Landgraaf bracht een interview over onze RC-autoclub, nog voordat we een eigen baan hadden.',
-    'media.date2': '6 december 2020', 'media.title2': 'Interview Omroep Landgraaf: Caravanrace',
-    'media.desc2': 'Een tweede interview met Omroep Landgraaf, ditmaal over de Caravanrace die onze leden organiseerden.',
-    'media.date3': '25 april 2021', 'media.title3': 'Artikel Omroep Landgraaf',
-    'media.desc3': 'Omroep Landgraaf schreef een artikel over RC045 en de groeiende populariteit van onze hobby in de regio.',
-    'media.date4': '29 april 2021', 'media.title4': 'Artikel ZO-NWS: Club RC-auto\'s groeit uit jasje',
-    'media.desc4': 'ZO-NWS berichtte over de snelle groei van RC045 en de zoektocht naar een eigen locatie voor onze baan.',
-    'media.date5': '4 mei 2021', 'media.title5': 'Route Regio: op zoek naar een nieuwe locatie',
-    'media.desc5': 'L1 volgde RC045 in de zoektocht naar een nieuwe locatie voor de club.',
-    'media.date7': '20 november 2022', 'media.title7': 'Interview Omroep Landgraaf: opening nieuwe locatie',
-    'media.desc7': 'Omroep Landgraaf was aanwezig bij de opening van onze nieuwe baan aan de Wijngaardsberg in Kerkrade, nadat we waren verhuisd vanaf het veldje bij sporthal Strijthagen.',
-    'media.date6': '13 februari 2024', 'media.title6': 'Route Regio: eindelijk een eigen terrein',
-    'media.desc6': 'Ruim twee jaar later keerde L1 terug: RC045 had eindelijk een eigen terrein gevonden.',
-    'media.watch': 'Bekijk op Facebook →', 'media.read': 'Lees het artikel →', 'media.watchreport': 'Bekijk de reportage →',
+    'hero.label': 'Fotoboek', 'hero.title': 'Fotoboek',
+    'hero.sub': 'Foto\'s van onze evenementen en banen, gerangschikt per album. Klik op een album om de foto\'s te bekijken.',
+    'fotoboek.loading': 'Albums worden geladen...',
+    'fotoboek.empty': 'Er zijn nog geen albums geplaatst.',
+    'fotoboek.back': '← Terug naar albums',
     'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
     'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.photobook': 'Fotoboek',
-    'footer.board': 'Bestuur & organisatie', 'footer.photos': 'Foto\'s',
+    'footer.board': 'Bestuur & organisatie', 'footer.photos': 'foto\'s',
     'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
     'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement',
     'footer.sponsor': 'Sponsoring', 'footer.made': 'Gemaakt met ❤️ voor onze hobby',
@@ -316,26 +247,14 @@ const i18n = {
   en: {
     'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
     'nav.location': 'Location', 'nav.photobook': 'Photo book', 'nav.question': 'Contact', 'nav.join': 'Become a member',
-    'hero.label': 'About us', 'hero.title': 'Media',
-    'hero.sub': 'Before we had our own track, the media paid us frequent attention. Here you will find an overview of those features.',
-    'media.date1': '8 November 2020', 'media.title1': 'Interview Omroep Landgraaf',
-    'media.desc1': 'Omroep Landgraaf aired an interview about our RC car club, before we had our own track.',
-    'media.date2': '6 December 2020', 'media.title2': 'Interview Omroep Landgraaf: Caravanrace',
-    'media.desc2': 'A second interview with Omroep Landgraaf, this time about the Caravanrace organised by our members.',
-    'media.date3': '25 April 2021', 'media.title3': 'Article Omroep Landgraaf',
-    'media.desc3': 'Omroep Landgraaf wrote an article about RC045 and the growing popularity of our hobby in the region.',
-    'media.date4': '29 April 2021', 'media.title4': 'Article ZO-NWS: RC car club outgrows itself',
-    'media.desc4': 'ZO-NWS reported on the rapid growth of RC045 and the search for a dedicated location for our track.',
-    'media.date5': '4 May 2021', 'media.title5': 'Route Regio: looking for a new location',
-    'media.desc5': 'L1 followed RC045\'s search for a new location for the club.',
-    'media.date7': '20 November 2022', 'media.title7': 'Omroep Landgraaf interview: new location opening',
-    'media.desc7': 'Omroep Landgraaf attended the opening of our new track at the Wijngaardsberg in Kerkrade, after our move from the field near sports hall Strijthagen.',
-    'media.date6': '13 February 2024', 'media.title6': 'Route Regio: finally our own site',
-    'media.desc6': 'Over two years later, L1 returned: RC045 had finally found its own site.',
-    'media.watch': 'Watch on Facebook →', 'media.read': 'Read the article →', 'media.watchreport': 'Watch the report →',
+    'hero.label': 'Photo book', 'hero.title': 'Photo book',
+    'hero.sub': 'Photos from our events and tracks, sorted by album. Click an album to view the photos.',
+    'fotoboek.loading': 'Loading albums...',
+    'fotoboek.empty': 'No albums have been added yet.',
+    'fotoboek.back': '← Back to albums',
     'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
     'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.photobook': 'Photo book',
-    'footer.board': 'Board & organisation', 'footer.photos': 'Photos',
+    'footer.board': 'Board & organisation', 'footer.photos': 'photos',
     'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
     'footer.become': 'Become a member', 'footer.rules': 'Track regulations',
     'footer.sponsor': 'Sponsorship', 'footer.made': 'Made with ❤️ for our hobby',
@@ -346,23 +265,11 @@ const i18n = {
   de: {
     'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
     'nav.location': 'Standort', 'nav.photobook': 'Fotobuch', 'nav.question': 'Contact', 'nav.join': 'Mitglied werden',
-    'hero.label': 'Über uns', 'hero.title': 'Medien',
-    'hero.sub': 'Bevor wir eine eigene Strecke hatten, schenkten uns die Medien häufig Aufmerksamkeit. Hier findest du eine Übersicht dieser Berichterstattungen.',
-    'media.date1': '8. November 2020', 'media.title1': 'Interview Omroep Landgraaf',
-    'media.desc1': 'Omroep Landgraaf brachte ein Interview über unseren RC-Auto-Verein, noch bevor wir eine eigene Strecke hatten.',
-    'media.date2': '6. Dezember 2020', 'media.title2': 'Interview Omroep Landgraaf: Caravanrace',
-    'media.desc2': 'Ein zweites Interview mit Omroep Landgraaf, diesmal über das Caravanrennen, das unsere Mitglieder organisierten.',
-    'media.date3': '25. April 2021', 'media.title3': 'Artikel Omroep Landgraaf',
-    'media.desc3': 'Omroep Landgraaf schrieb einen Artikel über RC045 und die wachsende Beliebtheit unseres Hobbys in der Region.',
-    'media.date4': '29. April 2021', 'media.title4': 'Artikel ZO-NWS: RC-Auto-Club wächst aus den Nähten',
-    'media.desc4': 'ZO-NWS berichtete über das schnelle Wachstum von RC045 und die Suche nach einem eigenen Gelände für unsere Strecke.',
-    'media.date5': '4. Mai 2021', 'media.title5': 'Route Regio: auf der Suche nach einem neuen Gelände',
-    'media.desc5': 'L1 begleitete RC045 bei der Suche nach einem neuen Gelände für den Verein.',
-    'media.date7': '20. November 2022', 'media.title7': 'Interview Omroep Landgraaf: Eröffnung des neuen Geländes',
-    'media.desc7': 'Omroep Landgraaf war bei der Eröffnung unserer neuen Bahn am Wijngaardsberg in Kerkrade dabei, nachdem wir vom Feld bei der Sporthalle Strijthagen umgezogen waren.',
-    'media.date6': '13. Februar 2024', 'media.title6': 'Route Regio: endlich ein eigenes Gelände',
-    'media.desc6': 'Über zwei Jahre später kehrte L1 zurück: RC045 hatte endlich ein eigenes Gelände gefunden.',
-    'media.watch': 'Auf Facebook ansehen →', 'media.read': 'Artikel lesen →', 'media.watchreport': 'Reportage ansehen →',
+    'hero.label': 'Fotobuch', 'hero.title': 'Fotobuch',
+    'hero.sub': 'Fotos von unseren Veranstaltungen und Strecken, sortiert nach Album. Klicke auf ein Album, um die Fotos anzusehen.',
+    'fotoboek.loading': 'Alben werden geladen...',
+    'fotoboek.empty': 'Es wurden noch keine Alben angelegt.',
+    'fotoboek.back': '← Zurück zu den Alben',
     'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
     'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.photobook': 'Fotobuch',
     'footer.board': 'Vorstand & Organisation', 'footer.photos': 'Fotos',
@@ -411,6 +318,7 @@ function setLang(lang) {
   else currentUrl.searchParams.set('lang', lang);
   history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
   updateInternalLinks(lang);
+  renderFotoboekView();
 }
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 if (currentLang !== 'nl') setLang(currentLang);
@@ -434,41 +342,168 @@ window.addEventListener('scroll', function() {
   backToTop.classList.toggle('visible', window.scrollY > 400);
 }, { passive: true });
 
-  // ===== SPONSORS (data/sponsors.json, bijwerken via beheer.php) =====
-  fetch('data/sponsors.json', { cache: 'no-store' })
-    .then(function(r) { return r.ok ? r.json() : null; })
-    .then(function(d) {
-      if (!d || !Array.isArray(d.items) || d.items.length === 0) return;
-      var grid = document.getElementById('sponsors-grid');
-      if (!grid) return;
-      var versie = d.updated ? ('?v=' + encodeURIComponent(d.updated)) : '';
+// ===== SPONSORS (data/sponsors.json, bijwerken via beheer.php) =====
+fetch('data/sponsors.json', { cache: 'no-store' })
+  .then(function(r) { return r.ok ? r.json() : null; })
+  .then(function(d) {
+    if (!d || !Array.isArray(d.items) || d.items.length === 0) return;
+    var grid = document.getElementById('sponsors-grid');
+    if (!grid) return;
+    var versie = d.updated ? ('?v=' + encodeURIComponent(d.updated)) : '';
 
-      d.items.forEach(function(sp) {
-        if (!sp || !sp.name || !sp.logo) return;
+    d.items.forEach(function(sp) {
+      if (!sp || !sp.name || !sp.logo) return;
 
-        var img = document.createElement('img');
-        img.src = 'images/sponsors/' + encodeURIComponent(sp.logo) + versie;
-        img.alt = sp.name;
-        img.className = 'footer-sponsor-logo';
+      var img = document.createElement('img');
+      img.src = 'images/sponsors/' + encodeURIComponent(sp.logo) + versie;
+      img.alt = sp.name;
+      img.className = 'footer-sponsor-logo';
 
-        var kaart = document.createElement('div');
-        kaart.className = 'footer-sponsor-card';
-        kaart.appendChild(img);
+      var kaart = document.createElement('div');
+      kaart.className = 'footer-sponsor-card';
+      kaart.appendChild(img);
 
-        if (sp.url && /^https?:\/\//i.test(sp.url)) {
-          var link = document.createElement('a');
-          link.href = sp.url;
-          link.target = '_blank';
-          link.rel = 'noopener noreferrer';
-          link.style.display = 'contents';
-          link.appendChild(kaart);
-          grid.appendChild(link);
-        } else {
-          grid.appendChild(kaart);
-        }
-      });
-    })
-    .catch(function() {});
+      if (sp.url && /^https?:\/\//i.test(sp.url)) {
+        var link = document.createElement('a');
+        link.href = sp.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.display = 'contents';
+        link.appendChild(kaart);
+        grid.appendChild(link);
+      } else {
+        grid.appendChild(kaart);
+      }
+    });
+  })
+  .catch(function() {});
+
+// ===== FOTOBOEK (data/fotoboek.json, bijwerken via beheer.php) =====
+// Albums staan in images/fotoboek/<album-slug>/, met thumbnails in de
+// submap thumbs/. Welk album open staat wordt bijgehouden via het
+// hash-gedeelte van de URL (#album=<slug>), zodat de terug-knop van de
+// browser gewoon werkt en een album ook direct te linken is.
+var fotoboekData = null;
+
+function fotoboekAlbumFromHash() {
+  var m = /^#album=(.+)$/.exec(window.location.hash);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function renderAlbumGrid() {
+  var grid = document.getElementById('album-grid');
+  grid.innerHTML = '';
+  if (!fotoboekData || !Array.isArray(fotoboekData.albums) || fotoboekData.albums.length === 0) {
+    var p = document.createElement('p');
+    p.className = 'album-empty';
+    p.textContent = i18n[currentLang]['fotoboek.empty'];
+    grid.appendChild(p);
+    return;
+  }
+  fotoboekData.albums.forEach(function(album) {
+    var titel = (album.title && (album.title[currentLang] || album.title.nl)) || album.slug;
+    var aantal = Array.isArray(album.photos) ? album.photos.length : 0;
+    var cover = album.cover || (album.photos && album.photos[0] && album.photos[0].file);
+
+    var kaart = document.createElement('a');
+    kaart.href = '#album=' + encodeURIComponent(album.slug);
+    kaart.className = 'album-card';
+
+    var img = document.createElement('img');
+    img.src = 'images/fotoboek/' + encodeURIComponent(album.slug) + '/thumbs/' + encodeURIComponent(cover);
+    img.alt = titel;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    kaart.appendChild(img);
+
+    var overlay = document.createElement('div');
+    overlay.className = 'album-card-overlay';
+    var titelEl = document.createElement('div');
+    titelEl.className = 'album-card-title';
+    titelEl.textContent = titel;
+    var countEl = document.createElement('div');
+    countEl.className = 'album-card-count';
+    countEl.textContent = aantal + ' ' + i18n[currentLang]['footer.photos'];
+    overlay.appendChild(titelEl);
+    overlay.appendChild(countEl);
+    kaart.appendChild(overlay);
+
+    grid.appendChild(kaart);
+  });
+}
+
+function renderAlbumDetail(slug) {
+  var album = fotoboekData && Array.isArray(fotoboekData.albums)
+    ? fotoboekData.albums.find(function(a) { return a.slug === slug; })
+    : null;
+  if (!album) { window.location.hash = ''; return; }
+
+  var titel = (album.title && (album.title[currentLang] || album.title.nl)) || album.slug;
+  document.getElementById('album-detail-title').textContent = titel;
+
+  var photoGrid = document.getElementById('photo-grid');
+  photoGrid.innerHTML = '';
+  (album.photos || []).forEach(function(foto) {
+    var bijschrift = (foto.caption && (foto.caption[currentLang] || foto.caption.nl)) || titel;
+
+    var link = document.createElement('a');
+    link.href = 'images/fotoboek/' + encodeURIComponent(album.slug) + '/' + encodeURIComponent(foto.file);
+    link.setAttribute('data-pswp-width', foto.width);
+    link.setAttribute('data-pswp-height', foto.height);
+    link.setAttribute('target', '_blank');
+    if (bijschrift) link.setAttribute('data-pswp-caption', bijschrift);
+
+    var img = document.createElement('img');
+    img.src = 'images/fotoboek/' + encodeURIComponent(album.slug) + '/thumbs/' + encodeURIComponent(foto.file);
+    img.alt = bijschrift;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    link.appendChild(img);
+
+    photoGrid.appendChild(link);
+  });
+
+  document.getElementById('album-grid').hidden = true;
+  document.getElementById('album-detail').hidden = false;
+}
+
+function renderFotoboekView() {
+  if (!fotoboekData) return;
+  var slug = fotoboekAlbumFromHash();
+  if (slug) {
+    renderAlbumDetail(slug);
+  } else {
+    document.getElementById('album-detail').hidden = true;
+    document.getElementById('album-grid').hidden = false;
+    renderAlbumGrid();
+  }
+}
+
+document.getElementById('back-to-albums').addEventListener('click', function(e) {
+  e.preventDefault();
+  window.location.hash = '';
+});
+window.addEventListener('hashchange', renderFotoboekView);
+
+fetch('data/fotoboek.json', { cache: 'no-store' })
+  .then(function(r) { return r.ok ? r.json() : null; })
+  .then(function(d) {
+    fotoboekData = d && Array.isArray(d.albums) ? d : { albums: [] };
+    renderFotoboekView();
+  })
+  .catch(function() {
+    fotoboekData = { albums: [] };
+    renderFotoboekView();
+  });
+</script>
+<script type="module">
+  import PhotoSwipeLightbox from './vendor/photoswipe/photoswipe-lightbox.esm.min.js';
+  var lightbox = new PhotoSwipeLightbox({
+    gallery: '#photo-grid',
+    children: 'a',
+    pswpModule: function() { return import('./vendor/photoswipe/photoswipe.esm.min.js'); }
+  });
+  lightbox.init();
 </script>
 </body>
 </html>
