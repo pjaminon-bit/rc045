@@ -667,6 +667,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $album['title']['en'] = kort($_POST['titel_en'] ?? '', 60);
       $album['title']['de'] = kort($_POST['titel_de'] ?? '', 60);
       $album['volgorde'] = is_numeric($_POST['volgorde'] ?? null) ? (float) $_POST['volgorde'] : ($album['volgorde'] ?? $albumIndex);
+      if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['datum'] ?? '')) $album['date'] = $_POST['datum'];
 
       // Bestaande foto's: bijschriften bijwerken, gemarkeerde foto's verwijderen (bestand + thumbnail van schijf),
       // en desgewenst alsnog een watermerk toevoegen aan een foto die dat nog niet heeft.
@@ -760,6 +761,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $album['cover'] = $nieuweCover;
       } elseif (empty($album['cover']) || !in_array($album['cover'], array_column($album['photos'], 'file'), true)) {
         $album['cover'] = $album['photos'][0]['file'] ?? '';
+      }
+
+      // Watermerk in één keer voor het hele album: alle foto's zonder watermerk
+      // (inclusief foto's die net in dit verzoek zijn geüpload zonder dat vinkje).
+      if (!empty($_POST['album_watermerk_alle'])) {
+        foreach ($album['photos'] as &$foto) {
+          if (empty($foto['watermerk'])) {
+            if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $foto['file'], $logoPad)) {
+              $foto['watermerk'] = true;
+              $watermerkToegevoegdTeller++;
+            }
+          }
+        }
+        unset($foto);
       }
 
       $fotoboekData['albums'][$albumIndex] = $album;
@@ -1028,6 +1043,10 @@ if ($isMaster && file_exists($logBestand)) {
     .knop-klein { width: auto; background: none; border: 1px solid var(--border); color: var(--rust); font-size: 13px; font-weight: 600; padding: 6px 12px; white-space: nowrap; }
     .knop-klein:hover { background: #FDECEA; border-color: #F5B7B1; }
     .fotoboek-foto-blok { border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; }
+    .fotoboek-foto-volgorde { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; justify-content: center; }
+    .fotoboek-foto-volgorde button { width: auto; background: none; color: var(--muted); border: none; padding: 2px 4px; font-size: 12px; line-height: 1; border-radius: 4px; }
+    .fotoboek-foto-volgorde button:hover:not(:disabled) { background: var(--teal-light); color: var(--teal-dark); }
+    .fotoboek-foto-volgorde button:disabled { opacity: 0.25; cursor: default; }
     .fotoboek-foto-blok img { width: 76px; height: 76px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: var(--bg); }
     .fotoboek-foto-velden { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
     .fotoboek-foto-velden input[type="text"] { font-size: 14px; padding: 8px 10px; }
@@ -1377,20 +1396,35 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="fotoboek-<?php echo $slug; ?>-titel-de">🇩🇪 Titel <span class="optioneel">(optioneel)</span></label>
               <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-de" name="titel_de" maxlength="60" value="<?php echo htmlspecialchars($album['title']['de'] ?? ''); ?>">
             </div>
+          </div>
+          <div class="rij-2">
+            <div class="veld">
+              <label for="fotoboek-<?php echo $slug; ?>-datum">Datum</label>
+              <input type="date" id="fotoboek-<?php echo $slug; ?>-datum" name="datum" value="<?php echo htmlspecialchars($album['date'] ?? ''); ?>">
+              <p class="hint">Wordt getoond op de albumkaart op de website.</p>
+            </div>
             <div class="veld">
               <label for="fotoboek-<?php echo $slug; ?>-volgorde">Volgorde</label>
               <input type="text" inputmode="numeric" id="fotoboek-<?php echo $slug; ?>-volgorde" name="volgorde" value="<?php echo htmlspecialchars((string) ($album['volgorde'] ?? 0)); ?>">
+              <p class="hint">Laagste nummer staat vooraan op de website.</p>
             </div>
           </div>
-          <p class="hint" style="margin-top:-8px; margin-bottom:18px;">Laagste volgordenummer staat vooraan op de website.</p>
 
           <?php if (count($album['photos']) > 0): ?>
             <div class="veld">
               <label>Foto's</label>
-              <p class="hint" style="margin-top:-4px; margin-bottom:12px;">Watermerk toevoegen kan niet ongedaan gemaakt worden, het origineel zonder watermerk wordt niet bewaard.</p>
+              <p class="hint" style="margin-top:-4px; margin-bottom:12px;">Met de pijltjes verplaats je een foto, de volgorde hier is ook de volgorde op de website. Watermerk toevoegen kan niet ongedaan gemaakt worden, het origineel zonder watermerk wordt niet bewaard.</p>
+              <label class="fotoboek-check" style="margin-bottom:12px;">
+                <input type="checkbox" name="album_watermerk_alle" value="1">
+                Watermerk toevoegen aan alle foto's in dit album die er nog geen hebben
+              </label>
               <div class="fotoboek-foto-lijst">
               <?php foreach ($album['photos'] as $i => $foto): ?>
                 <div class="fotoboek-foto-blok">
+                  <div class="fotoboek-foto-volgorde">
+                    <button type="button" onclick="fotoboekVerplaats(this, -1)" title="Naar voren" aria-label="Foto naar voren verplaatsen">▲</button>
+                    <button type="button" onclick="fotoboekVerplaats(this, 1)" title="Naar achteren" aria-label="Foto naar achteren verplaatsen">▼</button>
+                  </div>
                   <img src="images/fotoboek/<?php echo htmlspecialchars($slug); ?>/thumbs/<?php echo htmlspecialchars($foto['file']); ?>" alt="">
                   <div class="fotoboek-foto-velden">
                     <input type="hidden" name="foto[<?php echo $i; ?>][bestand]" value="<?php echo htmlspecialchars($foto['file']); ?>">
@@ -1592,6 +1626,30 @@ if ($isMaster && file_exists($logBestand)) {
 
       toonTab((location.hash || '').replace('#', ''));
     })();
+
+    // ===== Fotoboek: foto's herordenen met de pijltjes =====
+    // De volgorde waarin de blokken hier in de pagina staan bepaalt de
+    // volgorde waarin ze worden opgeslagen (formuliervelden worden in
+    // documentvolgorde verzonden), dus verplaatsen in de DOM is voldoende.
+    function fotoboekVolgordeBijwerken(lijst) {
+      var bloks = lijst.querySelectorAll('.fotoboek-foto-blok');
+      bloks.forEach(function(blok, idx) {
+        var knoppen = blok.querySelectorAll('.fotoboek-foto-volgorde button');
+        knoppen[0].disabled = (idx === 0);
+        knoppen[1].disabled = (idx === bloks.length - 1);
+      });
+    }
+    function fotoboekVerplaats(knop, richting) {
+      var blok = knop.closest('.fotoboek-foto-blok');
+      var lijst = blok.parentNode;
+      if (richting < 0 && blok.previousElementSibling) {
+        lijst.insertBefore(blok, blok.previousElementSibling);
+      } else if (richting > 0 && blok.nextElementSibling) {
+        lijst.insertBefore(blok.nextElementSibling, blok);
+      }
+      fotoboekVolgordeBijwerken(lijst);
+    }
+    document.querySelectorAll('.fotoboek-foto-lijst').forEach(fotoboekVolgordeBijwerken);
   </script>
   <?php endif; ?>
 </body>
