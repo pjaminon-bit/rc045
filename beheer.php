@@ -926,15 +926,16 @@ if ($isMaster && file_exists($logBestand)) {
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <style>
     :root {
-      --teal: #3A7A77; --teal-dark: #2D6260;
+      --teal: #3A7A77; --teal-dark: #2D6260; --teal-light: #EAF4F3;
       --gold-light: #FBF4DF; --rust: #8B3319;
       --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
       --border: #DDD8C0; --bg: #FAF6EC; --white: #FFFFFF;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 24px 16px; }
-    .wrap { width: 100%; max-width: 640px; margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 16px 40px; }
+    .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding-top: 24px; display: flex; flex-direction: column; gap: 16px; }
     .kaart { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; padding: 28px; }
+    @media (max-width: 640px) { .kaart { padding: 20px; } }
     h1 { font-size: 20px; color: var(--dark); margin-bottom: 4px; }
     .sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
     label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--dark); }
@@ -962,17 +963,25 @@ if ($isMaster && file_exists($logBestand)) {
     .item-blok { border: 1.5px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
     .item-blok-nr { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
     .rij-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 480px) { .rij-2 { grid-template-columns: 1fr; } }
+    .rij-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .rij-titels { display: grid; grid-template-columns: 2fr 2fr 2fr 1fr; gap: 12px; }
+    @media (max-width: 720px) { .rij-3 { grid-template-columns: 1fr 1fr; } .rij-titels { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .rij-2, .rij-3, .rij-titels { grid-template-columns: 1fr; } }
     .item-blok .veld:last-child { margin-bottom: 0; }
     .taal-groep { padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--border); }
     .taal-groep:first-of-type { padding-top: 0; margin-top: 0; border-top: none; }
     .taal-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
     .taal-label .optioneel { font-weight: 400; text-transform: none; letter-spacing: normal; }
-    .menu { position: sticky; top: 0; z-index: 10; display: flex; gap: 22px; flex-wrap: wrap; background: var(--bg); padding: 12px 0 10px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
-    .menu-item { background: none; border: none; padding: 2px 0; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
-    .menu-item:hover { color: var(--text); }
-    .menu-item.actief { color: var(--teal-dark); font-weight: 700; border-bottom-color: var(--teal); }
+    .kaart-smal { max-width: 440px; margin: 0 auto; }
+    .menu { position: sticky; top: 0; z-index: 10; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; background: rgba(250,246,236,0.95); backdrop-filter: blur(10px); padding: 10px 6px; margin: 0 -6px 4px; border-bottom: 1px solid var(--border); }
+    .menu-item { background: none; border: none; padding: 8px 16px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
+    .menu-item:hover { background: var(--teal-light); color: var(--teal-dark); }
+    .menu-item.actief { background: var(--teal); color: white; }
     .tab-paneel { display: none; flex-direction: column; gap: 16px; }
+    .item-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+    .item-lijst .item-blok { margin-bottom: 0; }
+    .fotoboek-foto-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .fotoboek-foto-lijst .fotoboek-foto-blok { margin-bottom: 0; }
     #tab-mededeling { display: flex; }
     .ingelogd-balk { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); }
     .ingelogd-balk a { color: var(--teal-dark); font-weight: 600; text-decoration: none; }
@@ -1001,7 +1010,7 @@ if ($isMaster && file_exists($logBestand)) {
 
   <?php if (!$configOk): ?>
 
-    <div class="kaart">
+    <div class="kaart kaart-smal">
       <h1>Beheer</h1>
       <div class="melding fout">
         Configuratie ontbreekt. Upload eenmalig het bestand <strong>beheer-config.php</strong> via FTP naar dezelfde map als deze pagina en stel daarin een eigen wachtwoord in.
@@ -1010,7 +1019,7 @@ if ($isMaster && file_exists($logBestand)) {
 
   <?php elseif (!$ingelogd): ?>
 
-    <div class="kaart">
+    <div class="kaart kaart-smal">
       <h1>Inloggen</h1>
       <p class="sub">RC045 beheer</p>
 
@@ -1096,6 +1105,7 @@ if ($isMaster && file_exists($logBestand)) {
       <form method="post" action="beheer.php#agenda">
         <input type="hidden" name="formulier" value="agenda">
 
+        <div class="item-lijst">
         <?php foreach ($agendaData as $i => $ev): ?>
           <div class="item-blok">
             <div class="item-blok-nr">Kaart <?php echo $i + 1; ?></div>
@@ -1156,6 +1166,7 @@ if ($isMaster && file_exists($logBestand)) {
             </div>
           </div>
         <?php endforeach; ?>
+        </div>
 
         <button type="submit">Agenda opslaan</button>
       </form>
@@ -1179,6 +1190,7 @@ if ($isMaster && file_exists($logBestand)) {
       <form method="post" action="beheer.php#faq">
         <input type="hidden" name="formulier" value="faq">
 
+        <div class="item-lijst">
         <?php foreach ($faqData as $i => $item): ?>
           <div class="item-blok">
             <div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div>
@@ -1220,6 +1232,7 @@ if ($isMaster && file_exists($logBestand)) {
             </div>
           </div>
         <?php endforeach; ?>
+        </div>
 
         <button type="submit">Vragen opslaan</button>
       </form>
@@ -1239,6 +1252,7 @@ if ($isMaster && file_exists($logBestand)) {
       <form method="post" action="beheer.php#sponsors" enctype="multipart/form-data">
         <input type="hidden" name="formulier" value="sponsors">
 
+        <div class="item-lijst">
         <?php foreach ($sponsorData as $i => $sp): ?>
           <div class="item-blok">
             <div class="item-blok-nr">Sponsor <?php echo $i + 1; ?></div>
@@ -1260,6 +1274,7 @@ if ($isMaster && file_exists($logBestand)) {
             </div>
           </div>
         <?php endforeach; ?>
+        </div>
 
         <button type="submit">Sponsors opslaan</button>
       </form>
@@ -1278,24 +1293,17 @@ if ($isMaster && file_exists($logBestand)) {
 
       <form method="post" action="beheer.php#fotoboek">
         <input type="hidden" name="formulier" value="fotoboek_album_aanmaken">
-        <div class="taal-groep" style="border-top:none; padding-top:0; margin-top:0;">
-          <div class="taal-label">🇳🇱 Nederlands</div>
+        <div class="rij-3">
           <div class="veld">
-            <label for="fotoboek-nieuw-titel-nl">Titel</label>
+            <label for="fotoboek-nieuw-titel-nl">🇳🇱 Titel</label>
             <input type="text" id="fotoboek-nieuw-titel-nl" name="titel_nl" maxlength="60" placeholder="Bijv.: ZomerBBQ 2026">
           </div>
-        </div>
-        <div class="taal-groep">
-          <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
           <div class="veld">
-            <label for="fotoboek-nieuw-titel-en">Title</label>
+            <label for="fotoboek-nieuw-titel-en">🇬🇧 Title <span class="optioneel">(optioneel)</span></label>
             <input type="text" id="fotoboek-nieuw-titel-en" name="titel_en" maxlength="60">
           </div>
-        </div>
-        <div class="taal-groep">
-          <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
           <div class="veld">
-            <label for="fotoboek-nieuw-titel-de">Titel</label>
+            <label for="fotoboek-nieuw-titel-de">🇩🇪 Titel <span class="optioneel">(optioneel)</span></label>
             <input type="text" id="fotoboek-nieuw-titel-de" name="titel_de" maxlength="60">
           </div>
         </div>
@@ -1321,31 +1329,30 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
           <p class="sub">Map: images/fotoboek/<?php echo htmlspecialchars($slug); ?>/</p>
 
-          <div class="rij-2">
+          <div class="rij-titels">
             <div class="veld">
-              <label for="fotoboek-<?php echo $slug; ?>-titel-nl">Titel (NL)</label>
+              <label for="fotoboek-<?php echo $slug; ?>-titel-nl">🇳🇱 Titel</label>
               <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-nl" name="titel_nl" maxlength="60" value="<?php echo htmlspecialchars($album['title']['nl'] ?? ''); ?>">
+            </div>
+            <div class="veld">
+              <label for="fotoboek-<?php echo $slug; ?>-titel-en">🇬🇧 Title <span class="optioneel">(optioneel)</span></label>
+              <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-en" name="titel_en" maxlength="60" value="<?php echo htmlspecialchars($album['title']['en'] ?? ''); ?>">
+            </div>
+            <div class="veld">
+              <label for="fotoboek-<?php echo $slug; ?>-titel-de">🇩🇪 Titel <span class="optioneel">(optioneel)</span></label>
+              <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-de" name="titel_de" maxlength="60" value="<?php echo htmlspecialchars($album['title']['de'] ?? ''); ?>">
             </div>
             <div class="veld">
               <label for="fotoboek-<?php echo $slug; ?>-volgorde">Volgorde</label>
               <input type="text" inputmode="numeric" id="fotoboek-<?php echo $slug; ?>-volgorde" name="volgorde" value="<?php echo htmlspecialchars((string) ($album['volgorde'] ?? 0)); ?>">
-              <p class="hint">Laagste nummer staat vooraan op de website.</p>
             </div>
           </div>
-          <div class="rij-2">
-            <div class="veld">
-              <label for="fotoboek-<?php echo $slug; ?>-titel-en">Title (EN)</label>
-              <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-en" name="titel_en" maxlength="60" value="<?php echo htmlspecialchars($album['title']['en'] ?? ''); ?>">
-            </div>
-            <div class="veld">
-              <label for="fotoboek-<?php echo $slug; ?>-titel-de">Titel (DE)</label>
-              <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-de" name="titel_de" maxlength="60" value="<?php echo htmlspecialchars($album['title']['de'] ?? ''); ?>">
-            </div>
-          </div>
+          <p class="hint" style="margin-top:-8px; margin-bottom:18px;">Laagste volgordenummer staat vooraan op de website.</p>
 
           <?php if (count($album['photos']) > 0): ?>
             <div class="veld">
               <label>Foto's</label>
+              <div class="fotoboek-foto-lijst">
               <?php foreach ($album['photos'] as $i => $foto): ?>
                 <div class="fotoboek-foto-blok">
                   <img src="images/fotoboek/<?php echo htmlspecialchars($slug); ?>/thumbs/<?php echo htmlspecialchars($foto['file']); ?>" alt="">
@@ -1368,6 +1375,7 @@ if ($isMaster && file_exists($logBestand)) {
                   </div>
                 </div>
               <?php endforeach; ?>
+              </div>
             </div>
           <?php endif; ?>
 
