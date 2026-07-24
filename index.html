@@ -241,6 +241,9 @@
     .agenda-card h3 { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
     .agenda-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
     .agenda-card-time { font-size: 13px; font-weight: 600; color: var(--teal); margin-top: auto; padding-top: 12px; display: flex; align-items: center; gap: 4px; }
+    .agenda-card.afgelopen { opacity: 0.55; filter: grayscale(0.5); }
+    .agenda-card.afgelopen:hover { transform: none; box-shadow: none; }
+    .agenda-card-past-badge { position: absolute; top: 14px; right: 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 100px; background: #E5E7EB; color: #4B5563; }
     @media (max-width: 900px) { .agenda-grid { grid-template-columns: 1fr; } }
 
     /* ===== RULES ===== */
@@ -1031,6 +1034,7 @@
       'agenda.label': 'Agenda', 'agenda.title': 'Activiteiten',
       'agenda.sub': 'Kijk hier wat er op de planning staat bij RC045. Check onze Facebook-pagina voor de meest actuele informatie.',
       'agenda.tag.opendag': 'Open dag', 'agenda.tag.leden': 'Ledenevenement', 'agenda.tag.wedstrijd': 'Wedstrijd',
+      'agenda.past': 'Afgelopen',
       'rules.label': 'Reglement', 'rules.title': 'Veiligheid staat voorop',
       'rules.sub': 'We hebben duidelijke regels zodat iedereen veilig en met plezier kan rijden. Hieronder lees je de belangrijkste punten.',
       'rule1.title': 'Alleen elektrisch', 'rule1.text': 'Nitro en benzine zijn niet toegestaan op ons terrein. Alleen elektrisch aangedreven voertuigen zijn welkom.',
@@ -1097,6 +1101,7 @@
       'agenda.label': 'Events', 'agenda.title': 'Activities',
       'agenda.sub': 'Check what is planned at RC045. Follow our Facebook page for the most up-to-date information.',
       'agenda.tag.opendag': 'Open day', 'agenda.tag.leden': 'Members event', 'agenda.tag.wedstrijd': 'Race',
+      'agenda.past': 'Past event',
       'rules.label': 'Rules', 'rules.title': 'Safety comes first',
       'rules.sub': 'We have clear rules so everyone can ride safely and have fun. Below you can read the most important points.',
       'rule1.title': 'Electric only', 'rule1.text': 'Nitro and petrol are not permitted on our grounds. Only electrically powered vehicles are welcome.',
@@ -1163,6 +1168,7 @@
       'agenda.label': 'Veranstaltungen', 'agenda.title': 'Aktivitäten',
       'agenda.sub': 'Schau hier, was bei RC045 geplant ist. Folge unserer Facebook-Seite für die aktuellsten Informationen.',
       'agenda.tag.opendag': 'Offener Tag', 'agenda.tag.leden': 'Mitgliederevent', 'agenda.tag.wedstrijd': 'Rennen',
+      'agenda.past': 'Vorbei',
       'rules.label': 'Reglement', 'rules.title': 'Sicherheit geht vor',
       'rules.sub': 'Wir haben klare Regeln, damit alle sicher und mit Freude fahren können. Im Folgenden liest du die wichtigsten Punkte.',
       'rule1.title': 'Nur elektrisch', 'rule1.text': 'Nitro und Benzin sind auf unserem Gelände nicht erlaubt. Nur elektrisch angetriebene Fahrzeuge sind willkommen.',
@@ -1562,7 +1568,7 @@
       }
 
       var card = document.createElement('div');
-      card.className = 'agenda-card reveal reveal-delay-' + (((i % 4) + 1));
+      card.className = 'agenda-card reveal reveal-delay-' + (((i % 4) + 1)) + (ev.past ? ' afgelopen' : '');
 
       var dateBox = document.createElement('div');
       dateBox.className = 'agenda-card-date';
@@ -1592,6 +1598,15 @@
       card.appendChild(h3);
       card.appendChild(p);
       card.appendChild(timeBox);
+
+      if (ev.past) {
+        var pastBadge = document.createElement('span');
+        pastBadge.className = 'agenda-card-past-badge';
+        pastBadge.setAttribute('data-i18n', 'agenda.past');
+        pastBadge.textContent = t['agenda.past'] || '';
+        card.appendChild(pastBadge);
+      }
+
       grid.appendChild(card);
 
       agendaObserver.observe(card);
