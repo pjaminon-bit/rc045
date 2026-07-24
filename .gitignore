@@ -1,0 +1,19 @@
+# RC045 website: alles hieronder is server-only en wordt beheerd via beheer.php.
+# Nooit committen, ook niet per ongeluk: de deploy-workflow pusht de hele repo
+# op elke push naar main, dus elk bestand dat hier per ongeluk in staat
+# overschrijft bij de volgende deploy de live, via beheer.php bewerkte versie.
+
+# Admin-data (JSON), geschreven door beheer.php
+data/
+
+# Fotoboek-foto's en sponsorlogo's, geupload via beheer.php
+images/fotoboek/
+images/sponsors/
+
+# Inloggegevens en logboek van beheer.php
+beheer-config.php
+beheer-users.json
+beheer-log.json
+
+# macOS
+.DS_Store
