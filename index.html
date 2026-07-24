@@ -502,8 +502,8 @@
       </div>
       <div>
         <div class="info-label" data-i18n="info.hours">Openingstijden</div>
-        <div class="info-value" data-i18n="info.sat">Zaterdag 10:00–15:00</div>
-        <div class="info-value" data-i18n="info.sun">Zondag 10:00–15:00</div>
+        <div class="info-value" id="info-sat-value">Zaterdag 10:00–15:00</div>
+        <div class="info-value" id="info-sun-value">Zondag 10:00–15:00</div>
         <div id="status-indicator"></div>
       </div>
     </div>
@@ -514,7 +514,7 @@
       <div>
         <div class="info-label" data-i18n="info.location">Locatie</div>
         <div class="info-value">
-          <a href="#locatie" class="info-location-link">Wijngaardsberg 26 <small>Kerkrade (Eygelshoven)</small></a>
+          <a href="#locatie" class="info-location-link"><span id="info-adres-straat">Wijngaardsberg 26</span> <small id="info-adres-plaats">Kerkrade (Eygelshoven)</small></a>
         </div>
       </div>
     </div>
@@ -524,7 +524,7 @@
       </div>
       <div>
         <div class="info-label" data-i18n="info.membership">Lidmaatschap</div>
-        <div class="info-value" data-i18n="info.from">Vanaf €50/jaar</div>
+        <div class="info-value" id="info-membership-value">Vanaf €50/jaar</div>
       </div>
     </div>
   </div>
@@ -831,18 +831,18 @@
           </div>
           <div class="hours-row">
             <span class="hours-day" data-i18n="hours.wed">Woensdag</span>
-            <span class="hours-time" data-i18n="hours.wed.time">Woensdagavond bij voldoende animo</span>
+            <span class="hours-time" id="hours-wed-time">Woensdagavond bij voldoende animo</span>
           </div>
           <div class="hours-row">
             <span class="hours-day" data-i18n="hours.sat">Zaterdag</span>
-            <span class="hours-time">10:00 – 15:00</span>
+            <span class="hours-time" id="hours-sat-time">10:00 – 15:00</span>
           </div>
           <div class="hours-row">
             <span class="hours-day" data-i18n="hours.sun">Zondag</span>
-            <span class="hours-time">10:00 – 15:00</span>
+            <span class="hours-time" id="hours-sun-time">10:00 – 15:00</span>
           </div>
 <div class="hours-note">
-            ℹ️ <strong data-i18n="hours.note.attention">Let op:</strong> <span data-i18n="hours.note.text">We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze</span> <a href="https://www.facebook.com/rc045/" target="_blank" class="info-location-link" style="color:var(--teal-dark);" data-i18n="hours.note.fb">Facebook-pagina</a> <span data-i18n="hours.note.times">voor actuele openingstijden.</span>
+            ℹ️ <strong data-i18n="hours.note.attention">Let op:</strong> <span data-i18n="hours.note.text">We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze</span> <a href="https://www.facebook.com/rc045/" target="_blank" class="info-location-link" style="color:var(--teal-dark);" data-i18n="hours.note.fb" id="hours-note-fb-link">Facebook-pagina</a> <span data-i18n="hours.note.times">voor actuele openingstijden.</span>
             <br><br><strong data-i18n="hours.weather">❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.</strong>
           </div>
         </div>
@@ -850,7 +850,7 @@
           <div class="address-card-icon">📍</div>
           <div>
             <h4 data-i18n="addr.title">Adres</h4>
-            <p>Wijngaardsberg 26<br>6464 EZ Eygelshoven<br><br><span data-i18n="addr.text">Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.</span></p>
+            <p><span id="addr-straat">Wijngaardsberg 26</span><br><span id="addr-postcode-plaats">6464 EZ Eygelshoven</span><br><br><span data-i18n="addr.text">Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.</span></p>
             <a href="https://www.openstreetmap.org/search?lat=50.889462&lon=6.071899&zoom=19#map=19/50.889461/6.071900" target="_blank" style="display:inline-block; margin-top:12px; color:var(--teal); font-weight:600; font-size:14px;" data-i18n="addr.route">Routebeschrijving openen →</a>
           </div>
         </div>
@@ -868,18 +868,18 @@
         <h2 class="section-title" data-i18n="contact.title">Heb je een vraag?</h2>
         <p data-i18n="contact.text">Wil je meer weten over een lidmaatschap, gastrijden, eens komen kijken, of heb je gewoon een vraag? Stuur ons een bericht en we reageren zo snel mogelijk.</p>
         <div class="contact-channels">
-          <a href="mailto:bestuur@rc045.nl" class="channel">
+          <a href="mailto:bestuur@rc045.nl" class="channel" id="contact-email-link">
             <div class="channel-icon">✉️</div>
             <div>
               <div class="channel-label" data-i18n="contact.email.label">E-mail</div>
-              <div class="channel-value">bestuur@rc045.nl</div>
+              <div class="channel-value" id="contact-email-value">bestuur@rc045.nl</div>
             </div>
           </a>
-          <a href="https://www.facebook.com/rc045/" target="_blank" class="channel">
+          <a href="https://www.facebook.com/rc045/" target="_blank" class="channel" id="contact-facebook-link">
             <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true"></div>
             <div>
               <div class="channel-label">Facebook</div>
-              <div class="channel-value">facebook.com/rc045</div>
+              <div class="channel-value" id="contact-facebook-value">facebook.com/rc045</div>
             </div>
           </a>
           <div class="channel" style="opacity: 0.4; cursor: default; pointer-events: none;">
@@ -959,7 +959,7 @@
         <img src="rc045-logo.png" alt="RC045">
         <p data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
         <div class="footer-social">
-          <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook">
+          <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook" id="footer-facebook-link">
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true">
           </a>
           <span title="Instagram (binnenkort)" style="opacity: 0.3; display: flex; align-items: center;" aria-label="Instagram binnenkort beschikbaar">
@@ -1261,6 +1261,7 @@
     updateWeatherDisplay();
     updateStatus();
     renderAgenda();
+    renderContact();
   }
 
   // ===== CONTACTFORMULIER =====
@@ -1660,6 +1661,71 @@
           grid.appendChild(kaart);
         }
       });
+    })
+    .catch(function() {});
+
+  // ===== CONTACT & OPENINGSTIJDEN (data/contact.json, bijwerken via beheer.php) =====
+  // Bestaat het bestand nog niet, dan blijft de hardcoded tekst in de HTML
+  // gewoon staan (die is gelijk aan de standaardwaarden in beheer.php).
+  // renderContact() tekent opnieuw bij elke taalwissel (aangeroepen vanuit setLang),
+  // zodat de vertaalde dagnamen kloppen terwijl de tijden/adres/contactgegevens
+  // zelf niet per taal worden opgeslagen.
+  var contactData = null;
+  function renderContact() {
+    if (!contactData) return;
+    var oh = contactData.openingstijden || {};
+    var t = i18n[currentLang];
+
+    var elSat = document.getElementById('info-sat-value');
+    if (elSat && oh.zaterdag) elSat.textContent = t['hours.sat'] + ' ' + oh.zaterdag;
+    var elSun = document.getElementById('info-sun-value');
+    if (elSun && oh.zondag) elSun.textContent = t['hours.sun'] + ' ' + oh.zondag;
+
+    var elWed = document.getElementById('hours-wed-time');
+    if (elWed && oh.woensdag) elWed.textContent = oh.woensdag;
+    var elHoursSat = document.getElementById('hours-sat-time');
+    if (elHoursSat && oh.zaterdag) elHoursSat.textContent = oh.zaterdag;
+    var elHoursSun = document.getElementById('hours-sun-time');
+    if (elHoursSun && oh.zondag) elHoursSun.textContent = oh.zondag;
+
+    if (contactData.adres_straat) {
+      ['info-adres-straat', 'addr-straat'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = contactData.adres_straat;
+      });
+    }
+    if (contactData.adres_postcode_plaats) {
+      ['info-adres-plaats', 'addr-postcode-plaats'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = contactData.adres_postcode_plaats;
+      });
+    }
+
+    var elMembership = document.getElementById('info-membership-value');
+    if (elMembership && contactData.lidmaatschap_vanaf) elMembership.textContent = contactData.lidmaatschap_vanaf;
+
+    if (contactData.facebook) {
+      ['hours-note-fb-link', 'contact-facebook-link', 'footer-facebook-link'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.href = contactData.facebook;
+      });
+      var fbValueEl = document.getElementById('contact-facebook-value');
+      if (fbValueEl) fbValueEl.textContent = contactData.facebook.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+    }
+    if (contactData.email) {
+      var emailLink = document.getElementById('contact-email-link');
+      if (emailLink) emailLink.href = 'mailto:' + contactData.email;
+      var emailValue = document.getElementById('contact-email-value');
+      if (emailValue) emailValue.textContent = contactData.email;
+    }
+  }
+
+  fetch('data/contact.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      if (!d) return;
+      contactData = d;
+      renderContact();
     })
     .catch(function() {});
 </script>
