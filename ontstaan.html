@@ -209,7 +209,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 <img src="rc045-logo.png" alt="RC045">
 <p data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
 <div class="footer-social">
-<a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook">
+<a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook" id="footer-facebook-link">
 <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true">
 </a>
 <span title="Instagram (binnenkort)" style="opacity: 0.3; display: flex; align-items: center;" aria-label="Instagram binnenkort beschikbaar">
@@ -425,6 +425,16 @@ function closeLightbox() { lightbox.classList.remove('open'); document.body.styl
           grid.appendChild(kaart);
         }
       });
+    })
+    .catch(function() {});
+
+  // ===== FOOTER FACEBOOK-LINK (data/contact.json, bijwerken via beheer.php) =====
+  fetch('data/contact.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      if (!d || !d.facebook) return;
+      var el = document.getElementById('footer-facebook-link');
+      if (el) el.href = d.facebook;
     })
     .catch(function() {});
 </script>
