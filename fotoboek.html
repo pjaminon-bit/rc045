@@ -83,7 +83,9 @@ img { max-width: 100%; height: auto; display: block; }
 .album-empty { color: var(--muted); font-size: 15px; }
 .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--teal-dark); margin-bottom: 24px; }
 .back-link:hover { color: var(--teal); }
-.album-detail-title { font-size: clamp(22px, 3vw, 30px); font-weight: 800; margin-bottom: 24px; color: var(--dark); }
+.album-detail-title { font-size: clamp(22px, 3vw, 30px); font-weight: 800; margin-bottom: 8px; color: var(--dark); }
+.album-detail-title:has(+ .album-detail-beschrijving[hidden]) { margin-bottom: 24px; }
+.album-detail-beschrijving { white-space: pre-line; color: var(--muted); font-size: 15px; line-height: 1.75; max-width: 640px; margin-bottom: 28px; }
 .photo-grid { columns: 4; column-gap: 14px; }
 .photo-grid a { display: block; position: relative; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 14px; break-inside: avoid; }
 .photo-grid img { width: 100%; height: auto; display: block; transition: transform 0.25s; }
@@ -183,6 +185,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-
   <div id="album-detail" class="album-detail" hidden>
     <a href="#" id="back-to-albums" class="back-link" data-i18n="fotoboek.back">← Terug naar albums</a>
     <h2 id="album-detail-title" class="album-detail-title"></h2>
+    <p id="album-detail-beschrijving" class="album-detail-beschrijving" hidden></p>
     <div id="photo-grid" class="photo-grid"></div>
   </div>
 </main>
@@ -531,6 +534,13 @@ function renderAlbumDetail(slug) {
 
   var titel = (album.title && (album.title[currentLang] || album.title.nl)) || album.slug;
   document.getElementById('album-detail-title').textContent = titel;
+
+  // Kort verhaal onder de titel: optioneel, NL-terugval, helemaal verborgen
+  // als er ook geen Nederlandse tekst is ingevuld.
+  var beschrijvingEl = document.getElementById('album-detail-beschrijving');
+  var beschrijving = (album.beschrijving && (album.beschrijving[currentLang] || album.beschrijving.nl)) || '';
+  beschrijvingEl.textContent = beschrijving;
+  beschrijvingEl.hidden = beschrijving === '';
 
   var photoGrid = document.getElementById('photo-grid');
   photoGrid.innerHTML = '';
