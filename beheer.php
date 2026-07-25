@@ -905,6 +905,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           'volgorde' => count($fotoboekData['albums']),
           'cover' => '',
           'verborgen' => false,
+          'beschrijving' => ['nl' => '', 'en' => '', 'de' => ''],
           'photos' => [],
         ];
         if (schrijfJson($fotoboekBestand, $fotoboekData)) {
@@ -958,6 +959,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $album['volgorde'] = is_numeric($_POST['volgorde'] ?? null) ? (float) $_POST['volgorde'] : ($album['volgorde'] ?? $albumIndex);
       if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['datum'] ?? '')) $album['date'] = $_POST['datum'];
       $album['verborgen'] = !empty($_POST['album_verborgen']);
+      // Kort verhaal onder de titel: helemaal optioneel, mag ook leeggemaakt
+      // worden (in tegenstelling tot de titel valt dit dus niet terug op de
+      // vorige waarde als het veld leeg wordt opgeslagen).
+      $album['beschrijving'] = [
+        'nl' => kort($_POST['beschrijving_nl'] ?? '', 600),
+        'en' => kort($_POST['beschrijving_en'] ?? '', 600),
+        'de' => kort($_POST['beschrijving_de'] ?? '', 600),
+      ];
 
       // Bestaande foto's: bijschriften bijwerken, gemarkeerde foto's verwijderen (bestand + thumbnail van schijf),
       // en desgewenst alsnog een watermerk toevoegen aan een foto die dat nog niet heeft.
@@ -1477,6 +1486,7 @@ if ($isMaster && file_exists($logBestand)) {
     .fotoboek-album-kop { display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; list-style-position: outside; }
     .fotoboek-album-kop::-webkit-details-marker { margin-right: 8px; }
     .fotoboek-album-titel { font-size: 20px; font-weight: 700; color: var(--dark); }
+    .fotoboek-album-volgnummer { font-size: 15px; font-weight: 400; color: var(--muted); margin-right: 8px; }
     .fotoboek-album-inhoud { margin-top: 16px; }
     details.fotoboek-album-details:not([open]) .fotoboek-album-kop { margin-bottom: 0; }
   </style>
@@ -2018,7 +2028,7 @@ if ($isMaster && file_exists($logBestand)) {
       <div class="kaart">
         <details class="fotoboek-album-details">
           <summary class="fotoboek-album-kop">
-            <span class="fotoboek-album-titel"><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?><?php if (!empty($album['verborgen'])): ?> <span class="fotoboek-cover-badge" style="background:var(--rust); color:#fff;">verborgen</span><?php endif; ?></span>
+            <span class="fotoboek-album-titel"><span class="fotoboek-album-volgnummer">#<?php echo htmlspecialchars((string) ($album['volgorde'] ?? 0)); ?></span><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?><?php if (!empty($album['verborgen'])): ?> <span class="fotoboek-cover-badge" style="background:var(--rust); color:#fff;">verborgen</span><?php endif; ?></span>
             <span class="hint"><?php echo count($album['photos']); ?> foto('s)</span>
           </summary>
           <div class="fotoboek-album-inhoud">
@@ -2054,6 +2064,26 @@ if ($isMaster && file_exists($logBestand)) {
               <input type="text" inputmode="numeric" id="fotoboek-<?php echo $slug; ?>-volgorde" name="volgorde" value="<?php echo htmlspecialchars((string) ($album['volgorde'] ?? 0)); ?>">
               <p class="hint">Laagste nummer staat vooraan op de website.</p>
             </div>
+          </div>
+
+          <div class="veld">
+            <label>Kort verhaal <span class="optioneel">(optioneel)</span></label>
+            <p class="hint" style="margin-top:-4px; margin-bottom:10px;">Komt onder de titel te staan zodra iemand het album opent. Laat alle drie leeg om niets te tonen.</p>
+            <div class="rij-3">
+              <div class="veld">
+                <label for="fotoboek-<?php echo $slug; ?>-beschrijving-nl">🇳🇱 Tekst</label>
+                <textarea id="fotoboek-<?php echo $slug; ?>-beschrijving-nl" name="beschrijving_nl" maxlength="600"><?php echo htmlspecialchars($album['beschrijving']['nl'] ?? ''); ?></textarea>
+              </div>
+              <div class="veld">
+                <label for="fotoboek-<?php echo $slug; ?>-beschrijving-en">🇬🇧 Text <span class="optioneel">(optioneel)</span></label>
+                <textarea id="fotoboek-<?php echo $slug; ?>-beschrijving-en" name="beschrijving_en" maxlength="600"><?php echo htmlspecialchars($album['beschrijving']['en'] ?? ''); ?></textarea>
+              </div>
+              <div class="veld">
+                <label for="fotoboek-<?php echo $slug; ?>-beschrijving-de">🇩🇪 Text <span class="optioneel">(optioneel)</span></label>
+                <textarea id="fotoboek-<?php echo $slug; ?>-beschrijving-de" name="beschrijving_de" maxlength="600"><?php echo htmlspecialchars($album['beschrijving']['de'] ?? ''); ?></textarea>
+              </div>
+            </div>
+            <p class="hint">Engels en Duits leeg laten? Dan toont de website daar automatisch de Nederlandse tekst.</p>
           </div>
 
           <?php if (count($album['photos']) > 0): ?>
