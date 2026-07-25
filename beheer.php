@@ -1312,7 +1312,11 @@ if ($isMaster && file_exists($logBestand)) {
     .fotoboek-upload-blok { border-top: 1px dashed var(--border); padding-top: 14px; margin-top: 4px; }
     .fotoboek-verberg-blok { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
     .fotoboek-verwijder-blok { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
-    .fotoboek-album-kop { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 4px; }
+    .fotoboek-album-kop { display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; list-style-position: outside; }
+    .fotoboek-album-kop::-webkit-details-marker { margin-right: 8px; }
+    .fotoboek-album-titel { font-size: 20px; font-weight: 700; color: var(--dark); }
+    .fotoboek-album-inhoud { margin-top: 16px; }
+    details.fotoboek-album-details:not([open]) .fotoboek-album-kop { margin-bottom: 0; }
   </style>
 </head>
 <body>
@@ -1830,15 +1834,17 @@ if ($isMaster && file_exists($logBestand)) {
 
     <?php foreach ($fotoboekData['albums'] as $album): $slug = $album['slug']; ?>
       <div class="kaart">
-        <form method="post" action="beheer.php#fotoboek" enctype="multipart/form-data">
+        <details class="fotoboek-album-details"<?php echo empty($album['verborgen']) ? ' open' : ''; ?>>
+          <summary class="fotoboek-album-kop">
+            <span class="fotoboek-album-titel"><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?><?php if (!empty($album['verborgen'])): ?> <span class="fotoboek-cover-badge" style="background:var(--rust); color:#fff;">verborgen</span><?php endif; ?></span>
+            <span class="hint"><?php echo count($album['photos']); ?> foto('s)</span>
+          </summary>
+          <div class="fotoboek-album-inhoud">
+          <form method="post" action="beheer.php#fotoboek" enctype="multipart/form-data">
           <input type="hidden" name="formulier" value="fotoboek_album_bewerken">
           <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
           <input type="hidden" name="slug" value="<?php echo htmlspecialchars($slug); ?>">
 
-          <div class="fotoboek-album-kop">
-            <h1 style="margin-bottom:0;"><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?><?php if (!empty($album['verborgen'])): ?> <span class="fotoboek-cover-badge" style="background:var(--rust); color:#fff;">verborgen</span><?php endif; ?></h1>
-            <span class="hint"><?php echo count($album['photos']); ?> foto('s)</span>
-          </div>
           <p class="sub">Map: images/fotoboek/<?php echo htmlspecialchars($slug); ?>/</p>
 
           <div class="rij-titels">
@@ -1941,7 +1947,9 @@ if ($isMaster && file_exists($logBestand)) {
               Dit album inclusief alle foto's verwijderen (kan niet ongedaan gemaakt worden)
             </label>
           </div>
-        </form>
+          </form>
+          </div>
+        </details>
       </div>
     <?php endforeach; ?>
     </div>
