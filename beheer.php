@@ -990,51 +990,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
 
       // Bestaande foto's: bijschriften bijwerken, gemarkeerde foto's verwijderen (bestand + thumbnail van schijf),
       // en desgewenst alsnog een watermerk toevoegen aan een foto die dat nog niet heeft.
-      $overgeblevenFotos = [];
       $gekozenCoverIndex = $_POST['cover'] ?? null;
       $nieuweCover = '';
       $watermerkToegevoegdTeller = 0;
-      foreach (($_POST['foto'] ?? []) as $i => $rij) {
-        $bestand = basename($rij['bestand'] ?? '');
-        if ($bestand === '') continue;
+      // $_POST['foto'] is alleen aanwezig bij een gewone opslag of het EERSTE
+      // verzoek van een batch-upload (zie JS): dan weerspiegelt het veld echt
+      // alle op dat moment bestaande foto's, en mag $album['photos'] daarmee
+      // herbouwd worden. Bij vervolgverzoeken van dezelfde batch-upload stuurt
+      // de JS dit veld bewust niet mee, want de browser weet niet welke foto's
+      // eerdere batches net hebben toegevoegd; zonder deze check zou elk
+      // vervolgverzoek $album['photos'] terugzetten naar de stand van vóór de
+      // hele upload en zo alle net geuploade foto's weer weggooien, op de
+      // laatst toegevoegde na.
+      if (isset($_POST['foto']) && is_array($_POST['foto'])) {
+        $overgeblevenFotos = [];
+        foreach ($_POST['foto'] as $i => $rij) {
+          $bestand = basename($rij['bestand'] ?? '');
+          if ($bestand === '') continue;
 
-        $bestaandeFoto = null;
-        foreach ($album['photos'] as $p) { if ($p['file'] === $bestand) { $bestaandeFoto = $p; break; } }
-        if ($bestaandeFoto === null) continue;
-        $isVideo = ($bestaandeFoto['type'] ?? 'photo') === 'video';
+          $bestaandeFoto = null;
+          foreach ($album['photos'] as $p) { if ($p['file'] === $bestand) { $bestaandeFoto = $p; break; } }
+          if ($bestaandeFoto === null) continue;
+          $isVideo = ($bestaandeFoto['type'] ?? 'photo') === 'video';
 
-        if (!empty($rij['verwijderen'])) {
-          @unlink($fotoboekMap . '/' . $slug . '/' . $bestand);
-          @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestand);
-          if (!empty($bestaandeFoto['poster'])) {
-            @unlink($fotoboekMap . '/' . $slug . '/' . $bestaandeFoto['poster']);
-            @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestaandeFoto['poster']);
+          if (!empty($rij['verwijderen'])) {
+            @unlink($fotoboekMap . '/' . $slug . '/' . $bestand);
+            @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestand);
+            if (!empty($bestaandeFoto['poster'])) {
+              @unlink($fotoboekMap . '/' . $slug . '/' . $bestaandeFoto['poster']);
+              @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestaandeFoto['poster']);
+            }
+            continue;
           }
-          continue;
-        }
 
-        $bestaandeFoto['caption'] = [
-          'nl' => kort($rij['caption_nl'] ?? '', 150),
-          'en' => kort($rij['caption_en'] ?? '', 150),
-          'de' => kort($rij['caption_de'] ?? '', 150),
-        ];
+          $bestaandeFoto['caption'] = [
+            'nl' => kort($rij['caption_nl'] ?? '', 150),
+            'en' => kort($rij['caption_en'] ?? '', 150),
+            'de' => kort($rij['caption_de'] ?? '', 150),
+          ];
 
-        // Let op: hier NIET controleren of $bestaandeFoto['watermerk'] al true is.
-        // Dat vlaggetje kan stiekem niet meer kloppen met het echte bestand (bijv.
-        // nadat een bestand buiten beheer.php om is teruggezet), dus een vinkje
-        // hier moet altijd echt opnieuw het watermerk zetten, ongeacht de huidige vlag.
-        // Video's slaan dit altijd over: watermerkeren gebeurt met GD en werkt niet op video.
-        if (!$isVideo && !empty($rij['watermerk_toevoegen'])) {
-          if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $bestand, $logoPad)) {
-            $bestaandeFoto['watermerk'] = true;
-            $watermerkToegevoegdTeller++;
+          // Let op: hier NIET controleren of $bestaandeFoto['watermerk'] al true is.
+          // Dat vlaggetje kan stiekem niet meer kloppen met het echte bestand (bijv.
+          // nadat een bestand buiten beheer.php om is teruggezet), dus een vinkje
+          // hier moet altijd echt opnieuw het watermerk zetten, ongeacht de huidige vlag.
+          // Video's slaan dit altijd over: watermerkeren gebeurt met GD en werkt niet op video.
+          if (!$isVideo && !empty($rij['watermerk_toevoegen'])) {
+            if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $bestand, $logoPad)) {
+              $bestaandeFoto['watermerk'] = true;
+              $watermerkToegevoegdTeller++;
+            }
           }
-        }
 
-        $overgeblevenFotos[] = $bestaandeFoto;
-        if (!$isVideo && $gekozenCoverIndex !== null && (string) $i === (string) $gekozenCoverIndex) $nieuweCover = $bestand;
+          $overgeblevenFotos[] = $bestaandeFoto;
+          if (!$isVideo && $gekozenCoverIndex !== null && (string) $i === (string) $gekozenCoverIndex) $nieuweCover = $bestand;
+        }
+        $album['photos'] = $overgeblevenFotos;
       }
-      $album['photos'] = $overgeblevenFotos;
 
       // Nieuwe foto's en video's uploaden. Video's (mp4) worden herkend aan de
       // extensie en gaan een ander pad in: geen GD-verwerking (dat kan niet op
@@ -2480,13 +2491,23 @@ if ($isMaster && file_exists($logBestand)) {
     // watermerkvinkje wordt bewust apart gehouden: dat zou anders bij elke
     // batch opnieuw alle bestaande foto's doorlopen, onnodig traag bij een
     // groot album.
-    function fotoboekAndereVelden(form) {
+    //
+    // "foto[...]"-velden (bijschriften/verwijderen/cover van de foto's die al
+    // in het album staan) worden alleen meegestuurd als weglaten=false. Dat is
+    // bewust: die velden weerspiegelen de stand van het album bij het LADEN
+    // van de pagina, dus alleen bij het eerste verzoek van een batch-upload
+    // klopt dat nog. Bij vervolgverzoeken zou het opnieuw meesturen ervan de
+    // net (door eerdere verzoeken in dezelfde upload) toegevoegde foto's weer
+    // ongedaan maken - de server herbouwt het foto-overzicht namelijk uit dit
+    // veld zodra het aanwezig is. Zie ook de PHP-kant bij "Bestaande foto's".
+    function fotoboekAndereVelden(form, weglaten) {
       var velden = [];
       Array.prototype.forEach.call(form.elements, function(el) {
         if (!el.name || el.disabled) return;
         if (el.name === 'nieuwe_fotos[]') return;
         if (el.name.indexOf('video_poster[') === 0) return;
         if (el.name === 'album_watermerk_alle') return;
+        if (weglaten && el.name.indexOf('foto[') === 0) return;
         if (el.type === 'file') return;
         if (el.type === 'checkbox' || el.type === 'radio') {
           if (el.checked) velden.push([el.name, el.value]);
@@ -2500,7 +2521,7 @@ if ($isMaster && file_exists($logBestand)) {
     // Verwerkt (HEIC/video) en verstuurt één foto, en roept zichzelf pas
     // daarna aan voor de volgende. Zo draait er nooit meer dan één zware
     // conversie tegelijk en blijft elk serververzoek klein.
-    function fotoboekVerwerkEnVerstuurBatch(form, knop, andereVelden, watermerkAlle, ruweBatches, index, totaalBestanden) {
+    function fotoboekVerwerkEnVerstuurBatch(form, knop, andereVeldenEerste, andereVeldenVervolg, watermerkAlle, ruweBatches, index, totaalBestanden) {
       if (index >= ruweBatches.length) {
         fotoboekUploadBezig = false;
         if (knop) knop.textContent = 'Klaar, pagina wordt ververst...';
@@ -2508,6 +2529,10 @@ if ($isMaster && file_exists($logBestand)) {
         return Promise.resolve();
       }
       var volgnr = index + 1;
+      // Alleen het allereerste verzoek stuurt de "foto[...]"-velden mee (zie
+      // fotoboekAndereVelden hierboven en de PHP-kant): dat voorkomt dat
+      // vervolgverzoeken de zojuist toegevoegde foto's weer wegschrijven.
+      var andereVelden = index === 0 ? andereVeldenEerste : andereVeldenVervolg;
       if (knop) {
         knop.textContent = 'Bezig met verwerken (foto ' + volgnr + ' van ' + totaalBestanden + ')...';
       }
@@ -2537,7 +2562,7 @@ if ($isMaster && file_exists($logBestand)) {
         // Deze batch (verwerken of versturen) mislukte: gewoon doorgaan met de
         // volgende, beter dan de hele upload te laten vastlopen.
       }).then(function() {
-        return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVelden, watermerkAlle, ruweBatches, index + 1, totaalBestanden);
+        return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVeldenEerste, andereVeldenVervolg, watermerkAlle, ruweBatches, index + 1, totaalBestanden);
       });
     }
 
@@ -2562,7 +2587,8 @@ if ($isMaster && file_exists($logBestand)) {
 
         var watermerkAlle = !!form.querySelector('input[name="album_watermerk_alle"]:checked');
         var alleBestanden = Array.prototype.slice.call(input.files);
-        var andereVelden = fotoboekAndereVelden(form);
+        var andereVeldenEerste = fotoboekAndereVelden(form, false);
+        var andereVeldenVervolg = fotoboekAndereVelden(form, true);
         var ruweBatches = [];
         for (var start = 0; start < alleBestanden.length; start += FOTOBOEK_BATCH_GROOTTE) {
           ruweBatches.push(alleBestanden.slice(start, start + FOTOBOEK_BATCH_GROOTTE));
@@ -2571,7 +2597,7 @@ if ($isMaster && file_exists($logBestand)) {
         fotoboekUploadBezig = true;
         var laadPromise = heeftHeic ? fotoboekHeicScriptLaden().catch(function() {}) : Promise.resolve();
         laadPromise.then(function() {
-          return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVelden, watermerkAlle, ruweBatches, 0, alleBestanden.length);
+          return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVeldenEerste, andereVeldenVervolg, watermerkAlle, ruweBatches, 0, alleBestanden.length);
         }).catch(function() {
           // Iets ging structureel mis (bijv. heic2any kon niet laden): toch
           // proberen te versturen met de originele bestanden, dat is beter
