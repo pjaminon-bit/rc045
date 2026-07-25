@@ -99,6 +99,9 @@ img { max-width: 100%; height: auto; display: block; }
 .footer-sponsor-card { background: var(--white); border-radius: 8px; padding: 8px 14px; display: flex; align-items: center; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
 .footer-sponsor-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
 .footer-sponsor-logo { height: 30px; width: auto; object-fit: contain; display: block; }
+.footer-sponsors-cta { margin: 16px 0 0; font-size: 13px; color: rgba(255,255,255,0.5); }
+.footer-sponsors-cta a { color: rgba(255,255,255,0.85); text-decoration: underline; }
+.footer-sponsors-cta a:hover { color: #fff; }
 .footer-brand img { height: 44px; margin-bottom: 16px; }
 .footer-brand p { font-size: 14px; line-height: 1.7; max-width: 280px; }
 .footer-social { display: flex; gap: 12px; margin-top: 20px; align-items: center; }
@@ -220,6 +223,7 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-
       <div class="footer-sponsors-grid" id="sponsors-grid">
         <!-- Sponsors worden hier ingevuld vanuit data/sponsors.json, bij te werken via beheer.php -->
       </div>
+      <p class="footer-sponsors-cta" id="footer-sponsors-cta"></p>
     </div>
     <div class="footer-bottom">
       <span>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South</span>
@@ -323,6 +327,7 @@ function setLang(lang) {
   history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
   updateInternalLinks(lang);
   renderFotoboekView();
+  renderSponsorCta();
 }
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 if (currentLang !== 'nl') setLang(currentLang);
@@ -347,9 +352,46 @@ window.addEventListener('scroll', function() {
 }, { passive: true });
 
 // ===== SPONSORS (data/sponsors.json, bijwerken via beheer.php) =====
+// sponsorCtaData/renderSponsorCta(): de "sponsor worden?"-tekst onder de
+// logo's, vertaald per taal met NL-terugval. Het woord "contactformulier"
+// (of de vertaling ervan) wordt automatisch een link naar het
+// contactformulier op de homepage; dat gebeurt puur op basis van dat woord
+// in de tekst.
+var sponsorCtaData = null;
+var sponsorCtaDefault = {
+  nl: 'Sponsor worden? Neem contact op via het contactformulier.',
+  en: 'Want to become a sponsor? Get in touch via the contact form.',
+  de: 'Sponsor werden? Kontaktieren Sie uns über das Kontaktformular.'
+};
+var sponsorCtaKeyword = { nl: 'contactformulier', en: 'contact form', de: 'Kontaktformular' };
+var sponsorContactLink = 'index.html#contact';
+
+function renderSponsorCta() {
+  var el = document.getElementById('footer-sponsors-cta');
+  if (!el) return;
+  var bron = sponsorCtaData || sponsorCtaDefault;
+  var tekst = bron[currentLang] || bron.nl || sponsorCtaDefault[currentLang] || sponsorCtaDefault.nl;
+  var keyword = sponsorCtaKeyword[currentLang] || sponsorCtaKeyword.nl;
+  el.textContent = '';
+  var idx = tekst.toLowerCase().indexOf(keyword.toLowerCase());
+  if (idx === -1) {
+    el.textContent = tekst;
+    return;
+  }
+  el.appendChild(document.createTextNode(tekst.slice(0, idx)));
+  var a = document.createElement('a');
+  a.href = sponsorContactLink;
+  a.textContent = tekst.slice(idx, idx + keyword.length);
+  el.appendChild(a);
+  el.appendChild(document.createTextNode(tekst.slice(idx + keyword.length)));
+}
+
 fetch('data/sponsors.json', { cache: 'no-store' })
   .then(function(r) { return r.ok ? r.json() : null; })
   .then(function(d) {
+    if (d && d.cta) sponsorCtaData = d.cta;
+    renderSponsorCta();
+
     if (!d || !Array.isArray(d.items) || d.items.length === 0) return;
     var grid = document.getElementById('sponsors-grid');
     if (!grid) return;
@@ -380,7 +422,7 @@ fetch('data/sponsors.json', { cache: 'no-store' })
       }
     });
   })
-  .catch(function() {});
+  .catch(function() { renderSponsorCta(); });
 
 // ===== FOOTER FACEBOOK-LINK (data/contact.json, bijwerken via beheer.php) =====
 fetch('data/contact.json', { cache: 'no-store' })
