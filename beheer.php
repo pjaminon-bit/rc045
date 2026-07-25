@@ -586,6 +586,16 @@ $melding = [];
 $meldingType = [];
 $inlogFout = '';
 
+// Meldingen die via Post-Redirect-Get zijn doorgegeven (zie hieronder bij
+// "fotoboek_album_aanmaken"): één keer tonen en direct weer weggooien.
+if (!empty($_SESSION['flash']) && is_array($_SESSION['flash'])) {
+  foreach ($_SESSION['flash'] as $sleutel => $flash) {
+    $melding[$sleutel] = $flash['tekst'] ?? '';
+    $meldingType[$sleutel] = $flash['type'] ?? 'ok';
+  }
+  unset($_SESSION['flash']);
+}
+
 // ===== Inloggen =====
 // Gebruikersnaam leeg + het beheerderswachtwoord -> ingelogd als "beheerder",
 // met toegang tot gebruikersbeheer en het logboek. Een bekende gebruikersnaam
@@ -909,9 +919,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           'photos' => [],
         ];
         if (schrijfJson($fotoboekBestand, $fotoboekData)) {
-          $melding['fotoboek'] = 'Album "' . $titelNl . '" is aangemaakt. Voeg hieronder foto\'s toe.';
-          $meldingType['fotoboek'] = 'ok';
           schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_aangemaakt', $titelNl);
+          // Post-Redirect-Get: zonder deze redirect blijft deze pagina het
+          // resultaat van een POST. Ververst iemand die pagina dan per ongeluk
+          // (bijv. tijdens een lang durende foto-upload verderop), dan vraagt
+          // de browser om het formulier opnieuw te verzenden - en dat maakt
+          // een tweede album met dezelfde naam aan. De melding gaat via de
+          // sessie mee naar de volgende (GET-)weergave van deze pagina.
+          $_SESSION['flash'] = ['fotoboek' => [
+            'tekst' => 'Album "' . $titelNl . '" is aangemaakt. Voeg hieronder foto\'s toe.',
+            'type' => 'ok',
+          ]];
+          header('Location: beheer.php#fotoboek');
+          exit;
         } else {
           $melding['fotoboek'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
           $meldingType['fotoboek'] = 'fout';
@@ -2431,15 +2451,29 @@ if ($isMaster && file_exists($logBestand)) {
         });
       });
     }
-    // PHP staat standaard maar 20 bestanden per upload toe (max_file_uploads),
-    // ongeacht wat er in .user.ini staat te verhogen: dat werkt alleen als
-    // Strato PHP als FastCGI draait. Grote uploads worden daarom altijd
-    // opgeknipt in groepjes van 10 en na elkaar verwerkt en verstuurd, ook als
-    // er geen HEIC of video tussen zit. Belangrijk: de HEIC/video-omzetting
-    // gebeurt per groepje, niet in één keer voor alle bestanden tegelijk. Bij
-    // veel HEIC-foto's tegelijk (elk een zware WASM-decode) liep de browser
-    // anders vast of brak de verwerking halverwege af.
-    var FOTOBOEK_BATCH_GROOTTE = 10;
+    // Elke foto wordt apart omgezet en apart geupload: eerst converteren
+    // (HEIC/video-thumbnail), dan direct die ene foto versturen, dan pas de
+    // volgende. Dat lijkt trager dan groepjes tegelijk doen, maar is juist
+    // betrouwbaarder: (1) nooit meer dan één zware HEIC/video-omzetting
+    // tegelijk, dus geen zware belasting op oudere telefoons/laptops, (2) elk
+    // serververzoek is klein en snel klaar, dus geen risico dat Strato's
+    // tijdslimiet voor een verzoek wordt overschreden bij een groep van
+    // meerdere zware foto's, (3) gaat er één keer iets mis, dan raakt alleen
+    // die ene foto kwijt in plaats van een hele groep. Zet dit op 1.
+    var FOTOBOEK_BATCH_GROOTTE = 1;
+
+    // Blijft "true" zolang een batch-upload loopt. Ververst of sluit iemand de
+    // pagina in die tussentijd (bijv. uit ongeduld, omdat het een tijdje kan
+    // duren), dan breekt dat de nog lopende batches keihard af - en omdat deze
+    // pagina eerder soms het resultaat van een POST is, kan verversen ook nog
+    // een oud formulier opnieuw verzenden. De waarschuwing hieronder voorkomt
+    // dat iemand dat per ongeluk doet.
+    var fotoboekUploadBezig = false;
+    window.addEventListener('beforeunload', function(event) {
+      if (!fotoboekUploadBezig) return;
+      event.preventDefault();
+      event.returnValue = '';
+    });
 
     // Verzamelt alle overige formuliervelden (titel, datum, bestaande foto's,
     // csrf, enz.) zodat elke batch hetzelfde album bijwerkt. Het bulk-
@@ -2463,16 +2497,19 @@ if ($isMaster && file_exists($logBestand)) {
       return velden;
     }
 
-    // Verwerkt (HEIC/video) en verstuurt één groepje bestanden, en roept
-    // zichzelf pas daarna aan voor het volgende groepje. Zo draaien er nooit
-    // meer dan FOTOBOEK_BATCH_GROOTTE zware conversies tegelijk.
-    function fotoboekVerwerkEnVerstuurBatch(form, knop, andereVelden, watermerkAlle, ruweBatches, index) {
+    // Verwerkt (HEIC/video) en verstuurt één foto, en roept zichzelf pas
+    // daarna aan voor de volgende. Zo draait er nooit meer dan één zware
+    // conversie tegelijk en blijft elk serververzoek klein.
+    function fotoboekVerwerkEnVerstuurBatch(form, knop, andereVelden, watermerkAlle, ruweBatches, index, totaalBestanden) {
       if (index >= ruweBatches.length) {
+        fotoboekUploadBezig = false;
+        if (knop) knop.textContent = 'Klaar, pagina wordt ververst...';
         window.location.reload();
         return Promise.resolve();
       }
+      var volgnr = index + 1;
       if (knop) {
-        knop.textContent = 'Bezig met verwerken (' + (index + 1) + '/' + ruweBatches.length + ')...';
+        knop.textContent = 'Bezig met verwerken (foto ' + volgnr + ' van ' + totaalBestanden + ')...';
       }
       return Promise.all(ruweBatches[index].map(function(bestand) {
         if (fotoboekIsHeic(bestand) && window.heic2any) {
@@ -2487,7 +2524,7 @@ if ($isMaster && file_exists($logBestand)) {
         }
         return { bestand: bestand, poster: null };
       })).then(function(verwerkteBatch) {
-        if (knop) knop.textContent = 'Bezig met uploaden (' + (index + 1) + '/' + ruweBatches.length + ')...';
+        if (knop) knop.textContent = 'Bezig met uploaden (foto ' + volgnr + ' van ' + totaalBestanden + ')... niet verversen of sluiten';
         var data = new FormData();
         andereVelden.forEach(function(paar) { data.append(paar[0], paar[1]); });
         if (watermerkAlle && index === ruweBatches.length - 1) data.append('album_watermerk_alle', '1');
@@ -2500,7 +2537,7 @@ if ($isMaster && file_exists($logBestand)) {
         // Deze batch (verwerken of versturen) mislukte: gewoon doorgaan met de
         // volgende, beter dan de hele upload te laten vastlopen.
       }).then(function() {
-        return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVelden, watermerkAlle, ruweBatches, index + 1);
+        return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVelden, watermerkAlle, ruweBatches, index + 1, totaalBestanden);
       });
     }
 
@@ -2531,13 +2568,15 @@ if ($isMaster && file_exists($logBestand)) {
           ruweBatches.push(alleBestanden.slice(start, start + FOTOBOEK_BATCH_GROOTTE));
         }
 
+        fotoboekUploadBezig = true;
         var laadPromise = heeftHeic ? fotoboekHeicScriptLaden().catch(function() {}) : Promise.resolve();
         laadPromise.then(function() {
-          return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVelden, watermerkAlle, ruweBatches, 0);
+          return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVelden, watermerkAlle, ruweBatches, 0, alleBestanden.length);
         }).catch(function() {
           // Iets ging structureel mis (bijv. heic2any kon niet laden): toch
           // proberen te versturen met de originele bestanden, dat is beter
           // dan de gebruiker te laten vastlopen.
+          fotoboekUploadBezig = false;
           form.submit();
         });
       });
