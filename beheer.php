@@ -2148,7 +2148,7 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="veld fotoboek-upload-blok">
             <label for="fotoboek-<?php echo $slug; ?>-upload">Nieuwe foto's of video's toevoegen</label>
             <input type="file" id="fotoboek-<?php echo $slug; ?>-upload" name="nieuwe_fotos[]" accept="image/png,image/jpeg,image/webp,image/heic,image/heif,.heic,.heif,video/mp4,.mp4" multiple>
-            <p class="hint">Meerdere bestanden tegelijk mogen. Foto's: JPG, PNG, WEBP of HEIC (iPhone), max 12 MB per foto. HEIC wordt automatisch omgezet naar JPEG bij het uploaden. Video: mp4, max <?php echo (int) round($fotoboekMaxVideoBytes / 1024 / 1024); ?> MB. Er wordt automatisch een voorbeeldbeeld uit de video gemaakt, geen watermerk mogelijk.</p>
+            <p class="hint">Meerdere bestanden tegelijk mogen, ook heel veel: grote uploads worden automatisch in groepjes verstuurd, dat kan even duren, laat het tabblad gewoon open staan. Foto's: JPG, PNG, WEBP of HEIC (iPhone), max 12 MB per foto. HEIC wordt automatisch omgezet naar JPEG bij het uploaden. Video: mp4, max <?php echo (int) round($fotoboekMaxVideoBytes / 1024 / 1024); ?> MB. Er wordt automatisch een voorbeeldbeeld uit de video gemaakt, geen watermerk mogelijk.</p>
             <label class="fotoboek-check" style="margin-top:8px;">
               <input type="checkbox" name="watermerk" value="1" checked>
               Klein watermerk (logo + rc045.nl) toevoegen aan nieuwe foto's (niet op video's)
@@ -2431,6 +2431,56 @@ if ($isMaster && file_exists($logBestand)) {
         });
       });
     }
+    // PHP staat standaard maar 20 bestanden per upload toe (max_file_uploads),
+    // ongeacht wat er in .user.ini staat te verhogen: dat werkt alleen als
+    // Strato PHP als FastCGI draait. Om daar nooit meer tegenaan te lopen
+    // (bijv. bij 98 foto's in één keer), worden grote uploads hier altijd
+    // opgeknipt in kleinere groepjes en na elkaar verstuurd via fetch, ook als
+    // er geen HEIC of video tussen zit.
+    var FOTOBOEK_BATCH_GROOTTE = 12;
+
+    // Verzamelt alle overige formuliervelden (titel, datum, bestaande foto's,
+    // csrf, enz.) zodat elke batch hetzelfde album bijwerkt. Het bulk-
+    // watermerkvinkje wordt bewust apart gehouden: dat zou anders bij elke
+    // batch opnieuw alle bestaande foto's doorlopen, onnodig traag bij een
+    // groot album.
+    function fotoboekAndereVelden(form) {
+      var velden = [];
+      Array.prototype.forEach.call(form.elements, function(el) {
+        if (!el.name || el.disabled) return;
+        if (el.name === 'nieuwe_fotos[]') return;
+        if (el.name.indexOf('video_poster[') === 0) return;
+        if (el.name === 'album_watermerk_alle') return;
+        if (el.type === 'file') return;
+        if (el.type === 'checkbox' || el.type === 'radio') {
+          if (el.checked) velden.push([el.name, el.value]);
+        } else {
+          velden.push([el.name, el.value]);
+        }
+      });
+      return velden;
+    }
+
+    function fotoboekVerstuurBatches(form, knop, andereVelden, watermerkAlle, batches, index) {
+      if (index >= batches.length) {
+        window.location.reload();
+        return;
+      }
+      if (knop && batches.length > 1) {
+        knop.textContent = 'Bezig met uploaden (' + (index + 1) + '/' + batches.length + ')...';
+      }
+      var data = new FormData();
+      andereVelden.forEach(function(paar) { data.append(paar[0], paar[1]); });
+      if (watermerkAlle && index === batches.length - 1) data.append('album_watermerk_alle', '1');
+      batches[index].forEach(function(item, i) {
+        data.append('nieuwe_fotos[]', item.bestand);
+        if (item.poster) data.append('video_poster[' + i + ']', item.poster);
+      });
+      fetch(form.getAttribute('action'), { method: 'POST', body: data, credentials: 'same-origin' })
+        .then(function() { fotoboekVerstuurBatches(form, knop, andereVelden, watermerkAlle, batches, index + 1); })
+        .catch(function() { fotoboekVerstuurBatches(form, knop, andereVelden, watermerkAlle, batches, index + 1); });
+    }
+
     document.querySelectorAll('.fotoboek-album-form').forEach(function(form) {
       form.addEventListener('submit', function(event) {
         var input = form.querySelector('input[name="nieuwe_fotos[]"]');
@@ -2441,41 +2491,40 @@ if ($isMaster && file_exists($logBestand)) {
           if (fotoboekIsHeic(input.files[i])) heeftHeic = true;
           if (fotoboekIsVideo(input.files[i])) heeftVideo = true;
         }
-        if (!heeftHeic && !heeftVideo) return; // gewone foto's: gewoon versturen zoals altijd
+        var vindtBatchenNodig = input.files.length > FOTOBOEK_BATCH_GROOTTE;
+        if (!heeftHeic && !heeftVideo && !vindtBatchenNodig) return; // klein, gewoon foto's: gewoon versturen zoals altijd
 
-        if (typeof DataTransfer === 'undefined') return; // oude browser: gewoon proberen te uploaden zoals het is
+        if (typeof DataTransfer === 'undefined' || typeof fetch === 'undefined') return; // oude browser: gewoon proberen te uploaden zoals het is
 
         event.preventDefault();
         var knop = form.querySelector('button[type="submit"]');
         if (knop) { knop.disabled = true; knop.dataset.oorspronkelijkeTekst = knop.textContent; knop.textContent = 'Bezig met verwerken...'; }
 
+        var watermerkAlle = !!form.querySelector('input[name="album_watermerk_alle"]:checked');
         var oudeBestanden = Array.prototype.slice.call(input.files);
         var laadPromise = heeftHeic ? fotoboekHeicScriptLaden().catch(function() {}) : Promise.resolve();
 
         laadPromise.then(function() {
-          return Promise.all(oudeBestanden.map(function(bestand, i) {
+          return Promise.all(oudeBestanden.map(function(bestand) {
             if (fotoboekIsHeic(bestand) && window.heic2any) {
-              return fotoboekHeicNaarJpeg(bestand).catch(function() { return bestand; });
+              return fotoboekHeicNaarJpeg(bestand).catch(function() { return bestand; }).then(function(b) {
+                return { bestand: b, poster: null };
+              });
             }
             if (fotoboekIsVideo(bestand)) {
               return fotoboekVideoThumbnail(bestand).then(function(dataUrl) {
-                if (dataUrl) {
-                  var veld = document.createElement('input');
-                  veld.type = 'hidden';
-                  veld.name = 'video_poster[' + i + ']';
-                  veld.value = dataUrl;
-                  form.appendChild(veld);
-                }
-                return bestand;
+                return { bestand: bestand, poster: dataUrl };
               });
             }
-            return bestand;
+            return { bestand: bestand, poster: null };
           }));
-        }).then(function(nieuweBestanden) {
-          var overdracht = new DataTransfer();
-          nieuweBestanden.forEach(function(bestand) { overdracht.items.add(bestand); });
-          input.files = overdracht.files;
-          form.submit();
+        }).then(function(verwerkt) {
+          var andereVelden = fotoboekAndereVelden(form);
+          var batches = [];
+          for (var start = 0; start < verwerkt.length; start += FOTOBOEK_BATCH_GROOTTE) {
+            batches.push(verwerkt.slice(start, start + FOTOBOEK_BATCH_GROOTTE));
+          }
+          fotoboekVerstuurBatches(form, knop, andereVelden, watermerkAlle, batches, 0);
         }).catch(function() {
           // Voorbewerken mislukt: toch proberen te versturen met de originele
           // bestanden, dat is beter dan de gebruiker te laten vastlopen.
