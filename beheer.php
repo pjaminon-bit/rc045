@@ -1834,7 +1834,7 @@ if ($isMaster && file_exists($logBestand)) {
 
     <?php foreach ($fotoboekData['albums'] as $album): $slug = $album['slug']; ?>
       <div class="kaart">
-        <details class="fotoboek-album-details"<?php echo empty($album['verborgen']) ? ' open' : ''; ?>>
+        <details class="fotoboek-album-details">
           <summary class="fotoboek-album-kop">
             <span class="fotoboek-album-titel"><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?><?php if (!empty($album['verborgen'])): ?> <span class="fotoboek-cover-badge" style="background:var(--rust); color:#fff;">verborgen</span><?php endif; ?></span>
             <span class="hint"><?php echo count($album['photos']); ?> foto('s)</span>
