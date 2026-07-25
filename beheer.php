@@ -827,6 +827,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           'date' => date('Y-m-d'),
           'volgorde' => count($fotoboekData['albums']),
           'cover' => '',
+          'verborgen' => false,
           'photos' => [],
         ];
         if (schrijfJson($fotoboekBestand, $fotoboekData)) {
@@ -871,6 +872,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       // ===== Album bijwerken: titel, volgorde, bijschriften, cover, verwijderde foto's, nieuwe uploads =====
       $album = $fotoboekData['albums'][$albumIndex];
+      $wasVerborgen = !empty($album['verborgen']);
 
       $titelNl = kort($_POST['titel_nl'] ?? '', 60);
       if ($titelNl !== '') $album['title']['nl'] = $titelNl;
@@ -878,6 +880,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $album['title']['de'] = kort($_POST['titel_de'] ?? '', 60);
       $album['volgorde'] = is_numeric($_POST['volgorde'] ?? null) ? (float) $_POST['volgorde'] : ($album['volgorde'] ?? $albumIndex);
       if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['datum'] ?? '')) $album['date'] = $_POST['datum'];
+      $album['verborgen'] = !empty($_POST['album_verborgen']);
 
       // Bestaande foto's: bijschriften bijwerken, gemarkeerde foto's verwijderen (bestand + thumbnail van schijf),
       // en desgewenst alsnog een watermerk toevoegen aan een foto die dat nog niet heeft.
@@ -1000,10 +1003,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $onderdelen = [];
         if ($aantalGeupload > 0) $onderdelen[] = $aantalGeupload . ' nieuwe foto(\'s) toegevoegd';
         if ($watermerkToegevoegdTeller > 0) $onderdelen[] = $watermerkToegevoegdTeller . ' foto(\'s) van een watermerk voorzien';
+        if ($album['verborgen'] && !$wasVerborgen) $onderdelen[] = 'album verborgen op de website';
+        if (!$album['verborgen'] && $wasVerborgen) $onderdelen[] = 'album weer zichtbaar op de website';
         $melding['fotoboek'] = 'Album opgeslagen' . ($onderdelen ? ': ' . implode(', ', $onderdelen) . '.' : '.');
         if ($uploadFouten) $melding['fotoboek'] .= ' Let op: ' . implode(' ', $uploadFouten);
         $meldingType['fotoboek'] = $uploadFouten ? 'fout' : 'ok';
-        schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_bijgewerkt', $album['title']['nl'] . ($aantalGeupload ? ', ' . $aantalGeupload . ' upload(s)' : '') . ($watermerkToegevoegdTeller ? ', ' . $watermerkToegevoegdTeller . ' watermerk(en)' : ''));
+        schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_bijgewerkt', $album['title']['nl'] . ($aantalGeupload ? ', ' . $aantalGeupload . ' upload(s)' : '') . ($watermerkToegevoegdTeller ? ', ' . $watermerkToegevoegdTeller . ' watermerk(en)' : '') . ($album['verborgen'] !== $wasVerborgen ? ', ' . ($album['verborgen'] ? 'verborgen' : 'weer zichtbaar') : ''));
       } else {
         $melding['fotoboek'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
         $meldingType['fotoboek'] = 'fout';
@@ -1305,6 +1310,7 @@ if ($isMaster && file_exists($logBestand)) {
     .fotoboek-check input { width: auto; }
     .fotoboek-cover-badge { font-size: 11px; font-weight: 700; color: var(--teal-dark); background: var(--teal-light); padding: 2px 8px; border-radius: 100px; }
     .fotoboek-upload-blok { border-top: 1px dashed var(--border); padding-top: 14px; margin-top: 4px; }
+    .fotoboek-verberg-blok { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
     .fotoboek-verwijder-blok { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
     .fotoboek-album-kop { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 4px; }
   </style>
@@ -1830,7 +1836,7 @@ if ($isMaster && file_exists($logBestand)) {
           <input type="hidden" name="slug" value="<?php echo htmlspecialchars($slug); ?>">
 
           <div class="fotoboek-album-kop">
-            <h1 style="margin-bottom:0;"><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?></h1>
+            <h1 style="margin-bottom:0;"><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?><?php if (!empty($album['verborgen'])): ?> <span class="fotoboek-cover-badge" style="background:var(--rust); color:#fff;">verborgen</span><?php endif; ?></h1>
             <span class="hint"><?php echo count($album['photos']); ?> foto('s)</span>
           </div>
           <p class="sub">Map: images/fotoboek/<?php echo htmlspecialchars($slug); ?>/</p>
@@ -1917,6 +1923,14 @@ if ($isMaster && file_exists($logBestand)) {
               <input type="checkbox" name="watermerk" value="1" checked>
               Klein watermerk (logo + rc045.nl) toevoegen aan nieuwe foto's
             </label>
+          </div>
+
+          <div class="veld fotoboek-verberg-blok">
+            <label class="fotoboek-check">
+              <input type="checkbox" name="album_verborgen" value="1" <?php if (!empty($album['verborgen'])) echo 'checked'; ?>>
+              Album verbergen op de website
+            </label>
+            <p class="hint" style="margin-top:2px;">Het album en de foto's blijven bewaard, maar zijn niet zichtbaar op de fotoboekpagina totdat je het vinkje weer uitzet. Wijziging wordt opgeslagen samen met de rest van dit album via "Album opslaan".</p>
           </div>
 
           <button type="submit">Album opslaan</button>
