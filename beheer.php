@@ -163,6 +163,17 @@ $sponsorStandaard = [
   ['name' => 'Rothy', 'url' => '', 'logo' => 'rothy.png'],
 ];
 
+// Standaardtekst voor de "sponsor worden"-oproep onderaan elke pagina, onder
+// de sponsorlogo's. Het woord "contactformulier" (of de vertaling ervan) wordt
+// op de website automatisch een link naar het contactformulier op de homepage;
+// dat gebeurt puur op basis van dat woord in de tekst, dus het moet er letterlijk
+// in blijven staan.
+$sponsorCtaStandaard = [
+  'nl' => 'Sponsor worden? Neem contact op via het contactformulier.',
+  'en' => 'Want to become a sponsor? Get in touch via the contact form.',
+  'de' => 'Sponsor werden? Kontaktieren Sie uns über das Kontaktformular.',
+];
+
 // Standaardinhoud voor de contactgegevens, alleen gebruikt zolang data/contact.json
 // nog niet bestaat. Dit zijn de gegevens die nu al (verspreid over meerdere
 // pagina's) hardcoded op de site staan, zodat opslaan zonder wijzigingen geen
@@ -668,10 +679,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     // Huidige logo's inlezen, zodat een slot zonder nieuwe upload zijn logo behoudt.
     // Bestaat het bestand nog niet, dan gelden de vijf sponsors die al op de site staan.
     $bestaandeSponsors = $sponsorStandaard;
+    $bestaandeCta = $sponsorCtaStandaard;
     if (file_exists($sponsorBestand)) {
       $json = json_decode(file_get_contents($sponsorBestand), true);
       if (is_array($json) && isset($json['items'])) $bestaandeSponsors = $json['items'];
+      if (is_array($json) && isset($json['cta']) && is_array($json['cta'])) $bestaandeCta = array_merge($sponsorCtaStandaard, $json['cta']);
     }
+
+    // Nederlands is verplicht (val terug op de vorige tekst als het veld leeg
+    // wordt opgeslagen); Engels en Duits blijven leeg toegestaan, dan valt de
+    // website terug op de Nederlandse tekst.
+    $ctaNl = kort($_POST['cta_nl'] ?? '', 200);
+    $cta = [
+      'nl' => $ctaNl !== '' ? $ctaNl : $bestaandeCta['nl'],
+      'en' => kort($_POST['cta_en'] ?? '', 200),
+      'de' => kort($_POST['cta_de'] ?? '', 200),
+    ];
 
     $items = [];
     $sponsorFout = null;
@@ -702,7 +725,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     if ($sponsorFout) {
       $melding['sponsors'] = $sponsorFout;
       $meldingType['sponsors'] = 'fout';
-    } elseif (schrijfJson($sponsorBestand, ['updated' => date('c'), 'items' => $items])) {
+    } elseif (schrijfJson($sponsorBestand, ['updated' => date('c'), 'items' => $items, 'cta' => $cta])) {
       $melding['sponsors'] = 'Opgeslagen. De sponsoren op de website zijn bijgewerkt.';
       $meldingType['sponsors'] = 'ok';
       schrijfLog($logBestand, $huidigeGebruiker, 'sponsors', count($items) . ' sponsor(s) opgeslagen');
@@ -1152,10 +1175,14 @@ while (count($faqData) < 8) {
 }
 
 $sponsorData = $sponsorStandaard;
+$sponsorCtaData = $sponsorCtaStandaard;
 if (file_exists($sponsorBestand)) {
   $json = json_decode(file_get_contents($sponsorBestand), true);
   if (is_array($json) && isset($json['items']) && count($json['items']) > 0) {
     $sponsorData = $json['items'];
+  }
+  if (is_array($json) && isset($json['cta']) && is_array($json['cta'])) {
+    $sponsorCtaData = array_merge($sponsorCtaStandaard, $json['cta']);
   }
 }
 while (count($sponsorData) < 8) {
@@ -1590,6 +1617,26 @@ if ($isMaster && file_exists($logBestand)) {
       <form method="post" action="beheer.php#sponsors" enctype="multipart/form-data">
         <input type="hidden" name="formulier" value="sponsors">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+        <div class="veld" style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;">
+          <label>Tekst "sponsor worden" (onderaan elke pagina, onder de sponsorlogo's)</label>
+          <p class="hint" style="margin-top:-4px; margin-bottom:10px;">Het woord "contactformulier" (of de vertaling ervan hieronder) wordt op de website automatisch een link naar het contactformulier. Laat dat woord dus letterlijk in de tekst staan.</p>
+          <div class="rij-3">
+            <div class="veld">
+              <label for="sponsor-cta-nl">🇳🇱 Tekst</label>
+              <textarea id="sponsor-cta-nl" name="cta_nl" maxlength="200"><?php echo htmlspecialchars($sponsorCtaData['nl'] ?? ''); ?></textarea>
+            </div>
+            <div class="veld">
+              <label for="sponsor-cta-en">🇬🇧 Text <span class="optioneel">(optioneel)</span></label>
+              <textarea id="sponsor-cta-en" name="cta_en" maxlength="200"><?php echo htmlspecialchars($sponsorCtaData['en'] ?? ''); ?></textarea>
+            </div>
+            <div class="veld">
+              <label for="sponsor-cta-de">🇩🇪 Text <span class="optioneel">(optioneel)</span></label>
+              <textarea id="sponsor-cta-de" name="cta_de" maxlength="200"><?php echo htmlspecialchars($sponsorCtaData['de'] ?? ''); ?></textarea>
+            </div>
+          </div>
+          <p class="hint">Engels en Duits leeg laten? Dan toont de website daar automatisch de Nederlandse tekst.</p>
+        </div>
 
         <div class="item-lijst">
         <?php foreach ($sponsorData as $i => $sp): ?>
