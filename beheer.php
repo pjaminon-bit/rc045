@@ -67,6 +67,16 @@ $mediaBestand    = $dataMap . '/media.json';
 $fotoboekMaxVolledig = 1600;
 $fotoboekMaxThumb    = 400;
 
+// Video's (mp4) worden zonder verkleinen/watermerk opgeslagen: GD kan geen
+// video verwerken en er is geen ffmpeg op de gedeelde hosting om automatisch
+// een thumbnail te trekken. De browser maakt daarom zelf een thumbnail (een
+// frame uit de video via canvas) en stuurt die als los plaatje mee; die wordt
+// hier net als een gewone foto verkleind naar een volledige en thumb-versie.
+// Let op: dit limiet werkt alleen als upload_max_filesize/post_max_size in de
+// PHP-instellingen van Strato dit ook toestaan; anders wordt de upload al
+// eerder, stilletjes, door de server zelf afgekapt.
+$fotoboekMaxVideoBytes = 80 * 1024 * 1024;
+
 // Rekentabel contributie (zelfde bedragen als op aanmelden.html;
 // wijzigen de prijzen, pas ze dan op BEIDE plekken aan)
 $inschrijfkosten = 10;
@@ -469,6 +479,40 @@ function verwerkFotoboekFoto($tmpPad, $volledigPad, $thumbPad, $watermerkAan, $l
   return ['ok' => true, 'width' => $opgeslagenBreedte, 'height' => $opgeslagenHoogte];
 }
 
+// Slaat de in de browser gemaakte video-thumbnail (een los frame uit de video,
+// als data-URL meegestuurd door JavaScript) op als volledige en thumb-versie,
+// net als bij foto's. Geen watermerk: dit is geen upload van een foto, maar
+// een automatisch gegrabt frame uit een video. Komt er geen (geldige)
+// thumbnail binnen, dan slaat de video zelf gewoon toch op, alleen zonder
+// voorbeeldbeeld; de website toont dan een generiek video-icoon.
+function verwerkFotoboekVideoPoster($dataUrl, $volledigPad, $thumbPad, $maxVolledig, $maxThumb) {
+  if (!preg_match('#^data:image/(jpeg|jpg|png);base64,(.+)$#s', $dataUrl, $match)) {
+    return ['ok' => false, 'width' => 0, 'height' => 0];
+  }
+  $ruw = base64_decode($match[2], true);
+  if ($ruw === false) return ['ok' => false, 'width' => 0, 'height' => 0];
+
+  $bron = @imagecreatefromstring($ruw);
+  if (!$bron) return ['ok' => false, 'width' => 0, 'height' => 0];
+
+  $breedte = imagesx($bron);
+  $hoogte  = imagesy($bron);
+
+  $volledig = fotoboekSchaalAf($bron, $breedte, $hoogte, $maxVolledig);
+  imagejpeg($volledig, $volledigPad, 82);
+  $opgeslagenBreedte = imagesx($volledig);
+  $opgeslagenHoogte  = imagesy($volledig);
+  imagedestroy($volledig);
+
+  $thumb = fotoboekSchaalAf($bron, $breedte, $hoogte, $maxThumb);
+  imagejpeg($thumb, $thumbPad, 78);
+  imagedestroy($thumb);
+
+  imagedestroy($bron);
+
+  return ['ok' => true, 'width' => $opgeslagenBreedte, 'height' => $opgeslagenHoogte];
+}
+
 // Zet alsnog een watermerk op een foto die al eerder (zonder watermerk) is
 // geüpload. Werkt rechtstreeks op de al opgeslagen volledige (web) versie,
 // er wordt niet opnieuw geschaald. De thumbnail blijft ongemoeid, net als bij
@@ -597,7 +641,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
   $lockHandle = @fopen($lockBestand, 'c');
   if ($lockHandle) flock($lockHandle, LOCK_EX);
 
-  if (!csrfOk()) {
+  // Herkent een POST die door PHP zelf al is afgewezen omdat het geheel groter
+  // was dan upload_max_filesize/post_max_size: $_POST en $_FILES komen dan
+  // allebei leeg binnen, terwijl de browser wel degelijk iets groots stuurde.
+  // Zonder deze check zou dit stilzwijgend als "sessie verlopen" ogen, wat
+  // vooral bij een te grote video-upload verwarrend zou zijn.
+  $mogelijkTeGroot = empty($_POST) && empty($_FILES) && !empty($_SERVER['CONTENT_LENGTH']) && (int) $_SERVER['CONTENT_LENGTH'] > 0;
+
+  if ($mogelijkTeGroot) {
+    $melding['fotoboek'] = 'Uploaden mislukt: het geheel is waarschijnlijk te groot voor de server. Probeer een kleiner bestand, of vraag na bij Strato of upload_max_filesize/post_max_size hoger kan.';
+    $meldingType['fotoboek'] = 'fout';
+  } elseif (!csrfOk()) {
     $melding['csrf'] = 'Sessie verlopen. Ververs de pagina en probeer het opnieuw.';
     $meldingType['csrf'] = 'fout';
   } elseif ($formulier === 'actueel') {
@@ -914,14 +968,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       foreach (($_POST['foto'] ?? []) as $i => $rij) {
         $bestand = basename($rij['bestand'] ?? '');
         if ($bestand === '') continue;
-        if (!empty($rij['verwijderen'])) {
-          @unlink($fotoboekMap . '/' . $slug . '/' . $bestand);
-          @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestand);
-          continue;
-        }
+
         $bestaandeFoto = null;
         foreach ($album['photos'] as $p) { if ($p['file'] === $bestand) { $bestaandeFoto = $p; break; } }
         if ($bestaandeFoto === null) continue;
+        $isVideo = ($bestaandeFoto['type'] ?? 'photo') === 'video';
+
+        if (!empty($rij['verwijderen'])) {
+          @unlink($fotoboekMap . '/' . $slug . '/' . $bestand);
+          @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestand);
+          if (!empty($bestaandeFoto['poster'])) {
+            @unlink($fotoboekMap . '/' . $slug . '/' . $bestaandeFoto['poster']);
+            @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestaandeFoto['poster']);
+          }
+          continue;
+        }
 
         $bestaandeFoto['caption'] = [
           'nl' => kort($rij['caption_nl'] ?? '', 150),
@@ -933,7 +994,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         // Dat vlaggetje kan stiekem niet meer kloppen met het echte bestand (bijv.
         // nadat een bestand buiten beheer.php om is teruggezet), dus een vinkje
         // hier moet altijd echt opnieuw het watermerk zetten, ongeacht de huidige vlag.
-        if (!empty($rij['watermerk_toevoegen'])) {
+        // Video's slaan dit altijd over: watermerkeren gebeurt met GD en werkt niet op video.
+        if (!$isVideo && !empty($rij['watermerk_toevoegen'])) {
           if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $bestand, $logoPad)) {
             $bestaandeFoto['watermerk'] = true;
             $watermerkToegevoegdTeller++;
@@ -941,34 +1003,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         }
 
         $overgeblevenFotos[] = $bestaandeFoto;
-        if ($gekozenCoverIndex !== null && (string) $i === (string) $gekozenCoverIndex) $nieuweCover = $bestand;
+        if (!$isVideo && $gekozenCoverIndex !== null && (string) $i === (string) $gekozenCoverIndex) $nieuweCover = $bestand;
       }
       $album['photos'] = $overgeblevenFotos;
 
-      // Nieuwe foto's uploaden
+      // Nieuwe foto's en video's uploaden. Video's (mp4) worden herkend aan de
+      // extensie en gaan een ander pad in: geen GD-verwerking (dat kan niet op
+      // video), wel wordt een eventueel meegestuurde browser-thumbnail
+      // (video_poster, een data-URL) opgeslagen als voorbeeldbeeld.
       $watermerkAan = !empty($_POST['watermerk']);
       $uploadFouten = [];
       $aantalGeupload = 0;
       if (!empty($_FILES['nieuwe_fotos']) && is_array($_FILES['nieuwe_fotos']['tmp_name'])) {
         foreach ($_FILES['nieuwe_fotos']['tmp_name'] as $i => $tmpPad) {
           if ($_FILES['nieuwe_fotos']['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
-          $origineleNaam = $_FILES['nieuwe_fotos']['name'][$i] ?? 'foto.jpg';
+          $origineleNaam = $_FILES['nieuwe_fotos']['name'][$i] ?? 'bestand';
           if ($_FILES['nieuwe_fotos']['error'][$i] !== UPLOAD_ERR_OK) {
             $uploadFouten[] = $origineleNaam . ': uploaden mislukt.';
             continue;
           }
+
+          $extensie = strtolower(pathinfo($origineleNaam, PATHINFO_EXTENSION));
+          $isVideoUpload = $extensie === 'mp4';
+
+          $basisNaamOrig = preg_replace('/[^a-z0-9]+/', '-', strtolower(pathinfo($origineleNaam, PATHINFO_FILENAME)));
+          $basisNaamOrig = trim($basisNaamOrig, '-');
+          if ($basisNaamOrig === '') $basisNaamOrig = $isVideoUpload ? 'video' : 'foto';
+
+          if ($isVideoUpload) {
+            if ($_FILES['nieuwe_fotos']['size'][$i] > $fotoboekMaxVideoBytes) {
+              $uploadFouten[] = $origineleNaam . ': groter dan ' . (int) round($fotoboekMaxVideoBytes / 1024 / 1024) . ' MB.';
+              continue;
+            }
+            if (function_exists('finfo_open')) {
+              $finfo = finfo_open(FILEINFO_MIME_TYPE);
+              $mimeType = $finfo ? finfo_file($finfo, $tmpPad) : false;
+              if ($finfo) finfo_close($finfo);
+              if ($mimeType && strpos($mimeType, 'video/') !== 0) {
+                $uploadFouten[] = $origineleNaam . ': geen geldig video-bestand.';
+                continue;
+              }
+            }
+
+            // Bestandsnaam (video + eventuele poster) samen uniek maken, zodat
+            // een video en zijn posterbestand altijd dezelfde basisnaam delen.
+            $kandidaat = $basisNaamOrig;
+            $teller = 2;
+            while (file_exists($fotoboekMap . '/' . $slug . '/' . $kandidaat . '.mp4') || file_exists($fotoboekMap . '/' . $slug . '/' . $kandidaat . '.jpg')) {
+              $kandidaat = $basisNaamOrig . '-' . $teller;
+              $teller++;
+            }
+            $bestandsnaam = $kandidaat . '.mp4';
+            $posterNaam   = $kandidaat . '.jpg';
+
+            if (!move_uploaded_file($tmpPad, $fotoboekMap . '/' . $slug . '/' . $bestandsnaam)) {
+              $uploadFouten[] = $origineleNaam . ': opslaan van de video op de server is mislukt.';
+              continue;
+            }
+
+            $posterResultaat = ['ok' => false, 'width' => 0, 'height' => 0];
+            $posterData = $_POST['video_poster'][$i] ?? '';
+            if ($posterData !== '') {
+              $posterResultaat = verwerkFotoboekVideoPoster(
+                $posterData,
+                $fotoboekMap . '/' . $slug . '/' . $posterNaam,
+                $fotoboekMap . '/' . $slug . '/thumbs/' . $posterNaam,
+                $fotoboekMaxVolledig,
+                $fotoboekMaxThumb
+              );
+            }
+
+            $album['photos'][] = [
+              'type' => 'video',
+              'file' => $bestandsnaam,
+              'poster' => $posterResultaat['ok'] ? $posterNaam : '',
+              'width' => $posterResultaat['width'],
+              'height' => $posterResultaat['height'],
+              'caption' => ['nl' => '', 'en' => '', 'de' => ''],
+            ];
+            $aantalGeupload++;
+            continue;
+          }
+
           if ($_FILES['nieuwe_fotos']['size'][$i] > 12 * 1024 * 1024) {
             $uploadFouten[] = $origineleNaam . ': groter dan 12 MB.';
             continue;
           }
 
-          $basisNaam = preg_replace('/[^a-z0-9]+/', '-', strtolower(pathinfo($origineleNaam, PATHINFO_FILENAME)));
-          $basisNaam = trim($basisNaam, '-');
-          if ($basisNaam === '') $basisNaam = 'foto';
-          $bestandsnaam = $basisNaam . '.jpg';
+          $bestandsnaam = $basisNaamOrig . '.jpg';
           $teller = 2;
           while (file_exists($fotoboekMap . '/' . $slug . '/' . $bestandsnaam)) {
-            $bestandsnaam = $basisNaam . '-' . $teller . '.jpg';
+            $bestandsnaam = $basisNaamOrig . '-' . $teller . '.jpg';
             $teller++;
           }
 
@@ -983,6 +1108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           );
           if ($resultaat['ok']) {
             $album['photos'][] = [
+              'type' => 'photo',
               'file' => $bestandsnaam,
               'width' => $resultaat['width'],
               'height' => $resultaat['height'],
@@ -996,11 +1122,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         }
       }
 
-      // Cover bepalen: expliciet gekozen, anders behouden, anders eerste overgebleven foto
+      // Cover bepalen: expliciet gekozen, anders behouden, anders eerste
+      // overgebleven fóto (nooit een video: die heeft geen bruikbaar
+      // cover-bestand voor de albumkaart op de website).
+      $eersteFotoBestand = null;
+      foreach ($album['photos'] as $p) {
+        if (($p['type'] ?? 'photo') !== 'video') { $eersteFotoBestand = $p['file']; break; }
+      }
+      $fotoBestanden = array_column(array_filter($album['photos'], function($p) { return ($p['type'] ?? 'photo') !== 'video'; }), 'file');
       if ($nieuweCover !== '') {
         $album['cover'] = $nieuweCover;
-      } elseif (empty($album['cover']) || !in_array($album['cover'], array_column($album['photos'], 'file'), true)) {
-        $album['cover'] = $album['photos'][0]['file'] ?? '';
+      } elseif (empty($album['cover']) || !in_array($album['cover'], $fotoBestanden, true)) {
+        $album['cover'] = $eersteFotoBestand ?? '';
       }
 
       // Watermerk in één keer voor het hele album: verwerkt ALLE foto's, ook
@@ -1008,9 +1141,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       // dat vlaggetje zegt alleen wat er de vorige keer is opgeslagen, niet of
       // het bestand op schijf nu nog echt een watermerk heeft (dat kan uit de
       // pas zijn na een externe overschrijving), dus dit vinkje mag nooit een
-      // foto overslaan.
+      // foto overslaan. Video's slaan dit altijd over.
       if (!empty($_POST['album_watermerk_alle'])) {
         foreach ($album['photos'] as &$foto) {
+          if (($foto['type'] ?? 'photo') === 'video') continue;
           if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $foto['file'], $logoPad)) {
             $foto['watermerk'] = true;
             $watermerkToegevoegdTeller++;
@@ -1330,6 +1464,7 @@ if ($isMaster && file_exists($logBestand)) {
     .fotoboek-foto-volgorde button:hover:not(:disabled) { background: var(--teal-light); color: var(--teal-dark); }
     .fotoboek-foto-volgorde button:disabled { opacity: 0.25; cursor: default; }
     .fotoboek-foto-blok img { width: 76px; height: 76px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: var(--bg); }
+    .fotoboek-video-thumb { width: 76px; height: 76px; border-radius: 6px; flex-shrink: 0; background-color: var(--bg); background-size: cover; background-position: center; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--muted); }
     .fotoboek-foto-velden { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
     .fotoboek-foto-velden input[type="text"] { font-size: 14px; padding: 8px 10px; }
     .fotoboek-foto-rij { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; flex-wrap: wrap; }
@@ -1887,7 +2022,7 @@ if ($isMaster && file_exists($logBestand)) {
             <span class="hint"><?php echo count($album['photos']); ?> foto('s)</span>
           </summary>
           <div class="fotoboek-album-inhoud">
-          <form method="post" action="beheer.php#fotoboek" enctype="multipart/form-data">
+          <form method="post" action="beheer.php#fotoboek" enctype="multipart/form-data" class="fotoboek-album-form">
           <input type="hidden" name="formulier" value="fotoboek_album_bewerken">
           <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
           <input type="hidden" name="slug" value="<?php echo htmlspecialchars($slug); ?>">
@@ -1931,31 +2066,43 @@ if ($isMaster && file_exists($logBestand)) {
               </label>
               <p class="hint" style="margin-top:-8px; margin-bottom:12px;">Verwerkt alle foto's in dit album, ook de foto's die al een watermerk-vinkje hebben. Handig als foto's op de server ooit buiten beheer.php om zijn overschreven.</p>
               <div class="fotoboek-foto-lijst">
-              <?php foreach ($album['photos'] as $i => $foto): ?>
+              <?php foreach ($album['photos'] as $i => $foto): $isVideo = ($foto['type'] ?? 'photo') === 'video'; ?>
                 <div class="fotoboek-foto-blok">
                   <div class="fotoboek-foto-volgorde">
                     <button type="button" onclick="fotoboekVerplaats(this, -1)" title="Naar voren" aria-label="Foto naar voren verplaatsen">▲</button>
                     <button type="button" onclick="fotoboekVerplaats(this, 1)" title="Naar achteren" aria-label="Foto naar achteren verplaatsen">▼</button>
                   </div>
-                  <img src="images/fotoboek/<?php echo htmlspecialchars($slug); ?>/thumbs/<?php echo htmlspecialchars($foto['file']); ?>" alt="">
+                  <?php if ($isVideo): ?>
+                    <?php if (!empty($foto['poster'])): ?>
+                      <div class="fotoboek-video-thumb" style="background-image:url('images/fotoboek/<?php echo htmlspecialchars($slug); ?>/thumbs/<?php echo htmlspecialchars($foto['poster']); ?>');">▶</div>
+                    <?php else: ?>
+                      <div class="fotoboek-video-thumb">🎬</div>
+                    <?php endif; ?>
+                  <?php else: ?>
+                    <img src="images/fotoboek/<?php echo htmlspecialchars($slug); ?>/thumbs/<?php echo htmlspecialchars($foto['file']); ?>" alt="">
+                  <?php endif; ?>
                   <div class="fotoboek-foto-velden">
                     <input type="hidden" name="foto[<?php echo $i; ?>][bestand]" value="<?php echo htmlspecialchars($foto['file']); ?>">
                     <input type="text" name="foto[<?php echo $i; ?>][caption_nl]" maxlength="150" placeholder="Bijschrift NL (optioneel)" value="<?php echo htmlspecialchars($foto['caption']['nl'] ?? ''); ?>">
                     <input type="text" name="foto[<?php echo $i; ?>][caption_en]" maxlength="150" placeholder="Caption EN (optional)" value="<?php echo htmlspecialchars($foto['caption']['en'] ?? ''); ?>">
                     <input type="text" name="foto[<?php echo $i; ?>][caption_de]" maxlength="150" placeholder="Bildtext DE (optional)" value="<?php echo htmlspecialchars($foto['caption']['de'] ?? ''); ?>">
                     <div class="fotoboek-foto-rij">
-                      <label class="fotoboek-check">
-                        <input type="radio" name="cover" value="<?php echo $i; ?>" <?php if (($album['cover'] ?? '') === $foto['file']) echo 'checked'; ?>>
-                        cover foto
-                        <?php if (($album['cover'] ?? '') === $foto['file']): ?><span class="fotoboek-cover-badge">huidige cover</span><?php endif; ?>
-                      </label>
-                      <?php if (!empty($foto['watermerk'])): ?>
-                        <span class="fotoboek-cover-badge" style="background:var(--gold-light); color:var(--rust);">✓ watermerk</span>
+                      <?php if ($isVideo): ?>
+                        <span class="fotoboek-cover-badge" style="background:var(--teal-light); color:var(--teal-dark);">🎬 video<?php echo empty($foto['poster']) ? ' (geen voorbeeldbeeld)' : ''; ?></span>
+                      <?php else: ?>
+                        <label class="fotoboek-check">
+                          <input type="radio" name="cover" value="<?php echo $i; ?>" <?php if (($album['cover'] ?? '') === $foto['file']) echo 'checked'; ?>>
+                          cover foto
+                          <?php if (($album['cover'] ?? '') === $foto['file']): ?><span class="fotoboek-cover-badge">huidige cover</span><?php endif; ?>
+                        </label>
+                        <?php if (!empty($foto['watermerk'])): ?>
+                          <span class="fotoboek-cover-badge" style="background:var(--gold-light); color:var(--rust);">✓ watermerk</span>
+                        <?php endif; ?>
+                        <label class="fotoboek-check">
+                          <input type="checkbox" name="foto[<?php echo $i; ?>][watermerk_toevoegen]" value="1">
+                          <?php echo !empty($foto['watermerk']) ? 'watermerk opnieuw toepassen' : 'watermerk toevoegen'; ?>
+                        </label>
                       <?php endif; ?>
-                      <label class="fotoboek-check">
-                        <input type="checkbox" name="foto[<?php echo $i; ?>][watermerk_toevoegen]" value="1">
-                        <?php echo !empty($foto['watermerk']) ? 'watermerk opnieuw toepassen' : 'watermerk toevoegen'; ?>
-                      </label>
                       <label class="fotoboek-check">
                         <input type="checkbox" name="foto[<?php echo $i; ?>][verwijderen]" value="1">
                         verwijderen
@@ -1969,12 +2116,12 @@ if ($isMaster && file_exists($logBestand)) {
           <?php endif; ?>
 
           <div class="veld fotoboek-upload-blok">
-            <label for="fotoboek-<?php echo $slug; ?>-upload">Nieuwe foto's toevoegen</label>
-            <input type="file" id="fotoboek-<?php echo $slug; ?>-upload" name="nieuwe_fotos[]" accept="image/png,image/jpeg,image/webp" multiple>
-            <p class="hint">Meerdere foto's tegelijk mogen. JPG, PNG of WEBP, max 12 MB per foto.</p>
+            <label for="fotoboek-<?php echo $slug; ?>-upload">Nieuwe foto's of video's toevoegen</label>
+            <input type="file" id="fotoboek-<?php echo $slug; ?>-upload" name="nieuwe_fotos[]" accept="image/png,image/jpeg,image/webp,image/heic,image/heif,.heic,.heif,video/mp4,.mp4" multiple>
+            <p class="hint">Meerdere bestanden tegelijk mogen. Foto's: JPG, PNG, WEBP of HEIC (iPhone), max 12 MB per foto. HEIC wordt automatisch omgezet naar JPEG bij het uploaden. Video: mp4, max <?php echo (int) round($fotoboekMaxVideoBytes / 1024 / 1024); ?> MB. Er wordt automatisch een voorbeeldbeeld uit de video gemaakt, geen watermerk mogelijk.</p>
             <label class="fotoboek-check" style="margin-top:8px;">
               <input type="checkbox" name="watermerk" value="1" checked>
-              Klein watermerk (logo + rc045.nl) toevoegen aan nieuwe foto's
+              Klein watermerk (logo + rc045.nl) toevoegen aan nieuwe foto's (niet op video's)
             </label>
           </div>
 
@@ -2173,6 +2320,139 @@ if ($isMaster && file_exists($logBestand)) {
       fotoboekVolgordeBijwerken(lijst);
     }
     document.querySelectorAll('.fotoboek-foto-lijst').forEach(fotoboekVolgordeBijwerken);
+
+    // ===== Fotoboek: HEIC omzetten en video-thumbnail maken vóór het uploaden =====
+    // HEIC (iPhone-foto's) kan de server niet lezen: er is geen HEIC-decoder in
+    // GD en zeker geen Imagick met libheif op gedeelde hosting. Daarom wordt
+    // HEIC hier, in de browser, omgezet naar JPEG met heic2any (WASM, zelf
+    // gehost in vendor/heic2any/, geen externe afhankelijkheid).
+    // Voor mp4-video's is er geen ffmpeg op de server om automatisch een
+    // thumbnail te trekken; die wordt hier gegrabt uit de video zelf via een
+    // canvas. Lukt dat een keer niet (oude browser, vreemde codec), dan gaat
+    // de video gewoon mee zonder voorbeeldbeeld en toont de website een
+    // generiek video-icoon in plaats van vast te lopen.
+    function fotoboekIsHeic(bestand) {
+      var naam = (bestand.name || '').toLowerCase();
+      return naam.endsWith('.heic') || naam.endsWith('.heif') || bestand.type === 'image/heic' || bestand.type === 'image/heif';
+    }
+    function fotoboekIsVideo(bestand) {
+      var naam = (bestand.name || '').toLowerCase();
+      return naam.endsWith('.mp4') || bestand.type === 'video/mp4';
+    }
+    function fotoboekHeicScriptLaden() {
+      if (window.heic2any) return Promise.resolve();
+      if (window.__heic2anyLaden) return window.__heic2anyLaden;
+      window.__heic2anyLaden = new Promise(function(resolve, reject) {
+        var script = document.createElement('script');
+        script.src = 'vendor/heic2any/heic2any.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+      return window.__heic2anyLaden;
+    }
+    function fotoboekHeicNaarJpeg(bestand) {
+      return window.heic2any({ blob: bestand, toType: 'image/jpeg', quality: 0.85 }).then(function(resultaat) {
+        var blob = Array.isArray(resultaat) ? resultaat[0] : resultaat;
+        var naam = bestand.name.replace(/\.(heic|heif)$/i, '.jpg');
+        return new File([blob], naam, { type: 'image/jpeg' });
+      });
+    }
+    function fotoboekVideoThumbnail(bestand) {
+      return new Promise(function(resolve) {
+        var klaar = false;
+        var video = document.createElement('video');
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = 'auto';
+        var url = URL.createObjectURL(bestand);
+        video.src = url;
+
+        var afronden = function(dataUrl) {
+          if (klaar) return;
+          klaar = true;
+          URL.revokeObjectURL(url);
+          resolve(dataUrl);
+        };
+        var timeout = setTimeout(function() { afronden(null); }, 8000);
+
+        video.addEventListener('error', function() { clearTimeout(timeout); afronden(null); });
+        video.addEventListener('loadeddata', function() {
+          try {
+            video.currentTime = Math.min(0.5, (video.duration || 1) / 2);
+          } catch (e) { clearTimeout(timeout); afronden(null); }
+        });
+        video.addEventListener('seeked', function() {
+          clearTimeout(timeout);
+          try {
+            var maxBreedte = 1200;
+            var breedte = video.videoWidth || 320;
+            var hoogte = video.videoHeight || 180;
+            var schaal = breedte > maxBreedte ? maxBreedte / breedte : 1;
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.round(breedte * schaal);
+            canvas.height = Math.round(hoogte * schaal);
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            afronden(canvas.toDataURL('image/jpeg', 0.82));
+          } catch (e) {
+            afronden(null);
+          }
+        });
+      });
+    }
+    document.querySelectorAll('.fotoboek-album-form').forEach(function(form) {
+      form.addEventListener('submit', function(event) {
+        var input = form.querySelector('input[name="nieuwe_fotos[]"]');
+        if (!input || !input.files || input.files.length === 0) return;
+
+        var heeftHeic = false, heeftVideo = false;
+        for (var i = 0; i < input.files.length; i++) {
+          if (fotoboekIsHeic(input.files[i])) heeftHeic = true;
+          if (fotoboekIsVideo(input.files[i])) heeftVideo = true;
+        }
+        if (!heeftHeic && !heeftVideo) return; // gewone foto's: gewoon versturen zoals altijd
+
+        if (typeof DataTransfer === 'undefined') return; // oude browser: gewoon proberen te uploaden zoals het is
+
+        event.preventDefault();
+        var knop = form.querySelector('button[type="submit"]');
+        if (knop) { knop.disabled = true; knop.dataset.oorspronkelijkeTekst = knop.textContent; knop.textContent = 'Bezig met verwerken...'; }
+
+        var oudeBestanden = Array.prototype.slice.call(input.files);
+        var laadPromise = heeftHeic ? fotoboekHeicScriptLaden().catch(function() {}) : Promise.resolve();
+
+        laadPromise.then(function() {
+          return Promise.all(oudeBestanden.map(function(bestand, i) {
+            if (fotoboekIsHeic(bestand) && window.heic2any) {
+              return fotoboekHeicNaarJpeg(bestand).catch(function() { return bestand; });
+            }
+            if (fotoboekIsVideo(bestand)) {
+              return fotoboekVideoThumbnail(bestand).then(function(dataUrl) {
+                if (dataUrl) {
+                  var veld = document.createElement('input');
+                  veld.type = 'hidden';
+                  veld.name = 'video_poster[' + i + ']';
+                  veld.value = dataUrl;
+                  form.appendChild(veld);
+                }
+                return bestand;
+              });
+            }
+            return bestand;
+          }));
+        }).then(function(nieuweBestanden) {
+          var overdracht = new DataTransfer();
+          nieuweBestanden.forEach(function(bestand) { overdracht.items.add(bestand); });
+          input.files = overdracht.files;
+          form.submit();
+        }).catch(function() {
+          // Voorbewerken mislukt: toch proberen te versturen met de originele
+          // bestanden, dat is beter dan de gebruiker te laten vastlopen.
+          form.submit();
+        });
+      });
+    });
 
     // ===== Agenda: kaart direct dimmen/badge tonen zodra "afgelopen" wordt aangevinkt =====
     function agendaAfgelopenBijwerken(vinkje) {
