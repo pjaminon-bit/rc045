@@ -421,14 +421,17 @@ function fotoboekFormatDatum(datumStr) {
 function renderAlbumGrid() {
   var grid = document.getElementById('album-grid');
   grid.innerHTML = '';
-  if (!fotoboekData || !Array.isArray(fotoboekData.albums) || fotoboekData.albums.length === 0) {
+  var zichtbareAlbums = (fotoboekData && Array.isArray(fotoboekData.albums))
+    ? fotoboekData.albums.filter(function(a) { return !a.verborgen; })
+    : [];
+  if (zichtbareAlbums.length === 0) {
     var p = document.createElement('p');
     p.className = 'album-empty';
     p.textContent = i18n[currentLang]['fotoboek.empty'];
     grid.appendChild(p);
     return;
   }
-  fotoboekData.albums.forEach(function(album) {
+  zichtbareAlbums.forEach(function(album) {
     var titel = (album.title && (album.title[currentLang] || album.title.nl)) || album.slug;
     var aantal = Array.isArray(album.photos) ? album.photos.length : 0;
     var cover = album.cover || (album.photos && album.photos[0] && album.photos[0].file);
@@ -465,7 +468,7 @@ function renderAlbumDetail(slug) {
   var album = fotoboekData && Array.isArray(fotoboekData.albums)
     ? fotoboekData.albums.find(function(a) { return a.slug === slug; })
     : null;
-  if (!album) { window.location.hash = ''; return; }
+  if (!album || album.verborgen) { window.location.hash = ''; return; }
 
   var titel = (album.title && (album.title[currentLang] || album.title.nl)) || album.slug;
   document.getElementById('album-detail-title').textContent = titel;
