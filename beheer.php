@@ -1088,11 +1088,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $_SESSION['fotoboek_batch_fouten'][$slug] = [];
       }
       if (!empty($_FILES['nieuwe_fotos']) && is_array($_FILES['nieuwe_fotos']['tmp_name'])) {
+        // Bekende bestandsinhoud van dit album (sha1 van elk al opgeslagen
+        // bestand), om dubbele uploads te herkennen aan de INHOUD, niet de
+        // bestandsnaam. Komt van pas als een grote upload halverwege afbreekt
+        // (bijv. door de tab te sluiten) en dezelfde foto's per ongeluk nog
+        // een keer geselecteerd worden: die komen dan niet dubbel in het
+        // album, in plaats van een tweede kopie met "-2" in de bestandsnaam.
+        // Foto's van vóór deze functie hebben nog geen hash en worden dus
+        // pas vanaf nu meegeteld.
+        $bestaandeHashes = [];
+        foreach ($album['photos'] as $p) {
+          if (!empty($p['hash'])) $bestaandeHashes[$p['hash']] = true;
+        }
         foreach ($_FILES['nieuwe_fotos']['tmp_name'] as $i => $tmpPad) {
           if ($_FILES['nieuwe_fotos']['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
           $origineleNaam = $_FILES['nieuwe_fotos']['name'][$i] ?? 'bestand';
           if ($_FILES['nieuwe_fotos']['error'][$i] !== UPLOAD_ERR_OK) {
             $uploadFouten[] = $origineleNaam . ': uploaden mislukt.';
+            continue;
+          }
+
+          $hash = @sha1_file($tmpPad);
+          if ($hash && isset($bestaandeHashes[$hash])) {
+            $uploadFouten[] = $origineleNaam . ': staat al in dit album, overgeslagen.';
             continue;
           }
 
@@ -1158,7 +1176,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
               'width' => $posterResultaat['width'],
               'height' => $posterResultaat['height'],
               'caption' => ['nl' => '', 'en' => '', 'de' => ''],
+              'hash' => $hash ?: null,
             ];
+            if ($hash) $bestaandeHashes[$hash] = true;
             $aantalGeupload++;
             continue;
           }
@@ -1192,7 +1212,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
               'height' => $resultaat['height'],
               'caption' => ['nl' => '', 'en' => '', 'de' => ''],
               'watermerk' => $watermerkAan,
+              'hash' => $hash ?: null,
             ];
+            if ($hash) $bestaandeHashes[$hash] = true;
             $aantalGeupload++;
           } else {
             $uploadFouten[] = $origineleNaam . ': ' . $resultaat['fout'];
@@ -1590,6 +1612,10 @@ if ($isMaster && file_exists($logBestand)) {
     .fotoboek-album-volgnummer { font-size: 15px; font-weight: 400; color: var(--muted); margin-right: 8px; }
     .fotoboek-album-inhoud { margin-top: 16px; }
     details.fotoboek-album-details:not([open]) .fotoboek-album-kop { margin-bottom: 0; }
+    .fotoboek-voortgang { margin-top: 10px; }
+    .fotoboek-voortgang-balk { width: 100%; height: 8px; border-radius: 100px; background: var(--teal-light); overflow: hidden; }
+    .fotoboek-voortgang-vulling { height: 100%; width: 0%; background: var(--teal); border-radius: 100px; transition: width 0.2s ease; }
+    .fotoboek-voortgang-tekst { font-size: 13px; color: var(--muted); margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -2595,13 +2621,35 @@ if ($isMaster && file_exists($logBestand)) {
       return velden;
     }
 
+    // Maakt een kleine voortgangsbalk direct onder de upload-knop, zodat
+    // bij een grote upload (tientallen tot honderden foto's) duidelijk
+    // zichtbaar blijft dat het proces nog loopt en hoe ver het is - alleen
+    // een veranderende knoptekst bleek onvoldoende: bij een trage batch
+    // leek het net alsof de pagina vastzat.
+    function fotoboekMaakVoortgangsbalk(knop) {
+      var wrap = document.createElement('div');
+      wrap.className = 'fotoboek-voortgang';
+      wrap.innerHTML = '<div class="fotoboek-voortgang-balk"><div class="fotoboek-voortgang-vulling"></div></div><p class="fotoboek-voortgang-tekst"></p>';
+      if (knop && knop.parentNode) knop.parentNode.insertBefore(wrap, knop.nextSibling);
+      return wrap;
+    }
+    function fotoboekVoortgangBijwerken(voortgang, klaar, totaal, tekst) {
+      if (!voortgang) return;
+      var pct = totaal > 0 ? Math.round((klaar / totaal) * 100) : 0;
+      var vulling = voortgang.querySelector('.fotoboek-voortgang-vulling');
+      if (vulling) vulling.style.width = pct + '%';
+      var label = voortgang.querySelector('.fotoboek-voortgang-tekst');
+      if (label) label.textContent = tekst + ' (' + pct + '%)';
+    }
+
     // Verwerkt (HEIC/video) en verstuurt één foto, en roept zichzelf pas
     // daarna aan voor de volgende. Zo draait er nooit meer dan één zware
     // conversie tegelijk en blijft elk serververzoek klein.
-    function fotoboekVerwerkEnVerstuurBatch(form, knop, andereVeldenEerste, andereVeldenVervolg, watermerkAlle, ruweBatches, index, totaalBestanden) {
+    function fotoboekVerwerkEnVerstuurBatch(form, knop, voortgang, andereVeldenEerste, andereVeldenVervolg, watermerkAlle, ruweBatches, index, totaalBestanden) {
       if (index >= ruweBatches.length) {
         fotoboekUploadBezig = false;
         if (knop) knop.textContent = 'Klaar, pagina wordt ververst...';
+        fotoboekVoortgangBijwerken(voortgang, totaalBestanden, totaalBestanden, 'Klaar');
         window.location.reload();
         return Promise.resolve();
       }
@@ -2613,6 +2661,7 @@ if ($isMaster && file_exists($logBestand)) {
       if (knop) {
         knop.textContent = 'Bezig met verwerken (foto ' + volgnr + ' van ' + totaalBestanden + ')...';
       }
+      fotoboekVoortgangBijwerken(voortgang, index, totaalBestanden, 'Foto ' + volgnr + ' van ' + totaalBestanden + ' - verwerken...');
       return Promise.all(ruweBatches[index].map(function(bestand) {
         if (fotoboekIsHeic(bestand) && window.heic2any) {
           return fotoboekHeicNaarJpeg(bestand).catch(function() { return bestand; }).then(function(b) {
@@ -2627,6 +2676,7 @@ if ($isMaster && file_exists($logBestand)) {
         return { bestand: bestand, poster: null };
       })).then(function(verwerkteBatch) {
         if (knop) knop.textContent = 'Bezig met uploaden (foto ' + volgnr + ' van ' + totaalBestanden + ')... niet verversen of sluiten';
+        fotoboekVoortgangBijwerken(voortgang, index, totaalBestanden, 'Foto ' + volgnr + ' van ' + totaalBestanden + ' - uploaden...');
         var data = new FormData();
         andereVelden.forEach(function(paar) { data.append(paar[0], paar[1]); });
         if (watermerkAlle && index === ruweBatches.length - 1) data.append('album_watermerk_alle', '1');
@@ -2644,7 +2694,7 @@ if ($isMaster && file_exists($logBestand)) {
         // Deze batch (verwerken of versturen) mislukte: gewoon doorgaan met de
         // volgende, beter dan de hele upload te laten vastlopen.
       }).then(function() {
-        return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVeldenEerste, andereVeldenVervolg, watermerkAlle, ruweBatches, index + 1, totaalBestanden);
+        return fotoboekVerwerkEnVerstuurBatch(form, knop, voortgang, andereVeldenEerste, andereVeldenVervolg, watermerkAlle, ruweBatches, index + 1, totaalBestanden);
       });
     }
 
@@ -2666,6 +2716,7 @@ if ($isMaster && file_exists($logBestand)) {
         event.preventDefault();
         var knop = form.querySelector('button[type="submit"]');
         if (knop) { knop.disabled = true; knop.dataset.oorspronkelijkeTekst = knop.textContent; knop.textContent = 'Bezig met verwerken...'; }
+        var voortgang = fotoboekMaakVoortgangsbalk(knop);
 
         var watermerkAlle = !!form.querySelector('input[name="album_watermerk_alle"]:checked');
         var alleBestanden = Array.prototype.slice.call(input.files);
@@ -2679,7 +2730,7 @@ if ($isMaster && file_exists($logBestand)) {
         fotoboekUploadBezig = true;
         var laadPromise = heeftHeic ? fotoboekHeicScriptLaden().catch(function() {}) : Promise.resolve();
         laadPromise.then(function() {
-          return fotoboekVerwerkEnVerstuurBatch(form, knop, andereVeldenEerste, andereVeldenVervolg, watermerkAlle, ruweBatches, 0, alleBestanden.length);
+          return fotoboekVerwerkEnVerstuurBatch(form, knop, voortgang, andereVeldenEerste, andereVeldenVervolg, watermerkAlle, ruweBatches, 0, alleBestanden.length);
         }).catch(function() {
           // Iets ging structureel mis (bijv. heic2any kon niet laden): toch
           // proberen te versturen met de originele bestanden, dat is beter
