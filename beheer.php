@@ -1567,8 +1567,17 @@ if ($isMaster && file_exists($logBestand)) {
     table.reken tr.nu td:first-child { border-radius: 6px 0 0 6px; }
     table.reken tr.nu td:last-child { border-radius: 0 6px 6px 0; }
     .reken-noot { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.6; }
-    .logboek-filter-input { width: 100%; font-size: 13px; padding: 5px 7px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-family: inherit; font-weight: 400; }
-    .logboek-filter-input:focus { outline: none; border-color: var(--teal); }
+    #logboek-tabel th { position: relative; }
+    .logboek-filter-knop { font-size: 12px; font-weight: 400; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; cursor: pointer; margin-left: 4px; }
+    .logboek-filter-knop:hover { background: var(--teal-light); color: var(--teal-dark); }
+    .logboek-filter-knop.actief { background: var(--teal); color: white; border-color: var(--teal); }
+    .logboek-filter-paneel { position: absolute; top: 100%; left: 0; z-index: 20; background: var(--white); border: 1.5px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 10px; min-width: 200px; max-height: 260px; overflow-y: auto; font-weight: 400; font-size: 13px; }
+    .logboek-filter-paneel-acties { display: flex; gap: 10px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .logboek-filter-paneel-acties button { width: auto; background: none; color: var(--teal); font-size: 12px; font-weight: 700; padding: 0; }
+    .logboek-filter-paneel-acties button:hover { text-decoration: underline; background: none; }
+    .logboek-filter-optie { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-weight: 400; }
+    .logboek-filter-optie input { width: auto; }
+    .logboek-filter-optie label { font-weight: 400; margin: 0; color: var(--text); cursor: pointer; }
     .logboek-geen-resultaten td { color: var(--muted); font-style: italic; }
     .item-blok { border: 1.5px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; transition: opacity 0.15s, background 0.15s; }
     .item-blok-nr { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
@@ -2390,20 +2399,15 @@ if ($isMaster && file_exists($logBestand)) {
       <?php else: ?>
         <table class="reken" id="logboek-tabel">
           <tr>
-            <th>Tijd</th>
-            <th>Gebruiker</th>
-            <th>Actie</th>
-          </tr>
-          <tr class="logboek-filterrij">
-            <th><input type="text" class="logboek-filter-input" data-logboek-filter="0" placeholder="Filter op tijd..."></th>
-            <th><input type="text" class="logboek-filter-input" data-logboek-filter="1" placeholder="Filter op gebruiker..."></th>
-            <th><input type="text" class="logboek-filter-input" data-logboek-filter="2" placeholder="Filter op actie..."></th>
+            <th>Tijd <button type="button" class="logboek-filter-knop" data-kolom="0" aria-label="Filter op tijd">Filter ▾</button></th>
+            <th>Gebruiker <button type="button" class="logboek-filter-knop" data-kolom="1" aria-label="Filter op gebruiker">Filter ▾</button></th>
+            <th>Actie <button type="button" class="logboek-filter-knop" data-kolom="2" aria-label="Filter op actie">Filter ▾</button></th>
           </tr>
           <?php foreach (array_slice($logRegels, 0, 100) as $regel): ?>
             <tr>
-              <td><?php echo htmlspecialchars(date('d-m-Y H:i', strtotime($regel['tijd'] ?? ''))); ?></td>
-              <td><?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?></td>
-              <td><?php echo htmlspecialchars($regel['actie'] ?? ''); ?><?php echo !empty($regel['details']) ? ': ' . htmlspecialchars($regel['details']) : ''; ?></td>
+              <td data-filterwaarde="<?php echo htmlspecialchars(date('d-m-Y', strtotime($regel['tijd'] ?? ''))); ?>"><?php echo htmlspecialchars(date('d-m-Y H:i', strtotime($regel['tijd'] ?? ''))); ?></td>
+              <td data-filterwaarde="<?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?>"><?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?></td>
+              <td data-filterwaarde="<?php echo htmlspecialchars($regel['actie'] ?? ''); ?>"><?php echo htmlspecialchars($regel['actie'] ?? ''); ?><?php echo !empty($regel['details']) ? ': ' . htmlspecialchars($regel['details']) : ''; ?></td>
             </tr>
           <?php endforeach; ?>
         </table>
@@ -2772,43 +2776,139 @@ if ($isMaster && file_exists($logBestand)) {
       if (badge) badge.style.display = vinkje.checked ? '' : 'none';
     }
 
-    // ===== Logboek: los filterveld per kolom (tijd/gebruiker/actie) =====
-    // Elk veld filtert onafhankelijk (tekst moet ergens in die kolom
-    // voorkomen, hoofdletterongevoelig); alle ingevulde filters moeten
-    // tegelijk kloppen (EN, niet OF). Puur client-side, er wordt maar één
-    // pagina met maximaal 100 regels getoond, dus een serverzoekactie heeft
-    // hier geen meerwaarde.
+    // ===== Logboek: filter per kolom via een uitklapbaar vinkjeslijstje =====
+    // Zelfde idee als een Excel-autofilter: klik op "Filter" bij een
+    // kolomkop, vink aan welke waarden zichtbaar moeten blijven. Alle drie
+    // de kolommen werken onafhankelijk van elkaar (EN, niet OF). Bij Tijd
+    // wordt gefilterd op de datum (niet het exacte tijdstip) en bij Actie op
+    // het actietype zonder de bijgevoegde details, anders zou de lijst met
+    // mogelijke waarden bijna net zo lang worden als het aantal regels.
+    // Puur client-side: er wordt sowieso maar één pagina met maximaal 100
+    // regels getoond, dus een serverzoekactie heeft hier geen meerwaarde.
     (function() {
       var tabel = document.getElementById('logboek-tabel');
       if (!tabel) return;
-      var filterVelden = Array.prototype.slice.call(tabel.querySelectorAll('[data-logboek-filter]'));
-      if (filterVelden.length === 0) return;
+      var knoppen = Array.prototype.slice.call(tabel.querySelectorAll('.logboek-filter-knop'));
+      if (knoppen.length === 0) return;
       var geenResultatenMelding = document.querySelector('.logboek-geen-resultaten-melding');
       var dataRijen = Array.prototype.slice.call(tabel.querySelectorAll('tr')).filter(function(rij) {
-        return !rij.classList.contains('logboek-filterrij') && rij.querySelector('td');
+        return rij.querySelector('td');
       });
 
-      function logboekFilteren() {
-        var actieveFilters = filterVelden.map(function(veld) {
-          return { kolom: parseInt(veld.getAttribute('data-logboek-filter'), 10), tekst: veld.value.trim().toLowerCase() };
-        }).filter(function(f) { return f.tekst !== ''; });
+      // kolomindex -> array van aangevinkte waarden. Geen sleutel voor een
+      // kolom betekent "geen filter, alles tonen" (zo hoeven we niet steeds
+      // de volledige waardenlijst te onthouden voor kolommen zonder filter).
+      var geselecteerd = {};
 
+      function celWaarde(cel) {
+        return cel ? (cel.getAttribute('data-filterwaarde') || cel.textContent) : '';
+      }
+
+      function alleWaarden(kolom) {
+        var set = {};
+        dataRijen.forEach(function(rij) {
+          set[celWaarde(rij.querySelectorAll('td')[kolom])] = true;
+        });
+        var waarden = Object.keys(set);
+        if (kolom === 0) {
+          // Tijd staat als dd-mm-jjjj: chronologisch sorteren, niet alfabetisch.
+          waarden.sort(function(a, b) {
+            var pa = a.split('-'), pb = b.split('-');
+            return new Date(pa[2], pa[1] - 1, pa[0]) - new Date(pb[2], pb[1] - 1, pb[0]);
+          });
+        } else {
+          waarden.sort(function(a, b) { return a.localeCompare(b, 'nl'); });
+        }
+        return waarden;
+      }
+
+      function toepassen() {
         var aantalZichtbaar = 0;
         dataRijen.forEach(function(rij) {
           var cellen = rij.querySelectorAll('td');
-          var zichtbaar = actieveFilters.every(function(f) {
-            var cel = cellen[f.kolom];
-            return cel && cel.textContent.toLowerCase().indexOf(f.tekst) !== -1;
+          var zichtbaar = Object.keys(geselecteerd).every(function(kolomStr) {
+            return geselecteerd[kolomStr].indexOf(celWaarde(cellen[kolomStr])) !== -1;
           });
           rij.style.display = zichtbaar ? '' : 'none';
           if (zichtbaar) aantalZichtbaar++;
         });
         if (geenResultatenMelding) geenResultatenMelding.hidden = aantalZichtbaar !== 0;
+        knoppen.forEach(function(knop) {
+          knop.classList.toggle('actief', geselecteerd.hasOwnProperty(knop.getAttribute('data-kolom')));
+        });
       }
 
-      filterVelden.forEach(function(veld) {
-        veld.addEventListener('input', logboekFilteren);
+      function paneelSluiten() {
+        var open = tabel.querySelector('.logboek-filter-paneel');
+        if (open) open.remove();
+      }
+
+      function paneelOpenen(knop) {
+        var kolom = knop.getAttribute('data-kolom');
+        var bestaandeWaarden = alleWaarden(kolom);
+        var actief = geselecteerd[kolom]; // undefined = alles aan
+
+        var paneel = document.createElement('div');
+        paneel.className = 'logboek-filter-paneel';
+
+        var acties = document.createElement('div');
+        acties.className = 'logboek-filter-paneel-acties';
+        var alleKnop = document.createElement('button');
+        alleKnop.type = 'button';
+        alleKnop.textContent = 'Alles';
+        var geenKnop = document.createElement('button');
+        geenKnop.type = 'button';
+        geenKnop.textContent = 'Niets';
+        acties.appendChild(alleKnop);
+        acties.appendChild(geenKnop);
+        paneel.appendChild(acties);
+
+        var vinkjes = [];
+        bestaandeWaarden.forEach(function(waarde, i) {
+          var optie = document.createElement('div');
+          optie.className = 'logboek-filter-optie';
+          var id = 'logboek-filter-' + kolom + '-' + i;
+          var vinkje = document.createElement('input');
+          vinkje.type = 'checkbox';
+          vinkje.id = id;
+          vinkje.checked = !actief || actief.indexOf(waarde) !== -1;
+          vinkje.value = waarde;
+          var label = document.createElement('label');
+          label.setAttribute('for', id);
+          label.textContent = waarde === '' ? '(leeg)' : waarde;
+          optie.appendChild(vinkje);
+          optie.appendChild(label);
+          paneel.appendChild(optie);
+          vinkjes.push(vinkje);
+        });
+
+        function bijwerken() {
+          var aangevinkt = vinkjes.filter(function(v) { return v.checked; }).map(function(v) { return v.value; });
+          if (aangevinkt.length === bestaandeWaarden.length) {
+            delete geselecteerd[kolom];
+          } else {
+            geselecteerd[kolom] = aangevinkt;
+          }
+          toepassen();
+        }
+
+        vinkjes.forEach(function(v) { v.addEventListener('change', bijwerken); });
+        alleKnop.addEventListener('click', function() { vinkjes.forEach(function(v) { v.checked = true; }); bijwerken(); });
+        geenKnop.addEventListener('click', function() { vinkjes.forEach(function(v) { v.checked = false; }); bijwerken(); });
+        paneel.addEventListener('click', function(e) { e.stopPropagation(); });
+
+        knop.parentElement.appendChild(paneel);
+      }
+
+      knoppen.forEach(function(knop) {
+        knop.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var bestondAl = knop.parentElement.querySelector('.logboek-filter-paneel');
+          paneelSluiten();
+          if (!bestondAl) paneelOpenen(knop);
+        });
       });
+      document.addEventListener('click', paneelSluiten);
     })();
   </script>
   <?php endif; ?>
