@@ -1099,6 +1099,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $batchVerzoek = !empty($_POST['batch_start']) || !empty($_POST['batch_laatste']);
       if (!empty($_POST['batch_start'])) {
         $_SESSION['fotoboek_batch_fouten'][$slug] = [];
+        $_SESSION['fotoboek_batch_totalen'][$slug] = ['geupload' => 0, 'watermerk' => 0];
       }
       if (!empty($_FILES['nieuwe_fotos']) && is_array($_FILES['nieuwe_fotos']['tmp_name'])) {
         // Bekende bestandsinhoud van dit album (sha1 van elk al opgeslagen
@@ -1269,10 +1270,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $fotoboekData['albums'][$albumIndex] = $album;
       usort($fotoboekData['albums'], function($a, $b) { return ($a['volgorde'] ?? 0) <=> ($b['volgorde'] ?? 0); });
 
-      // Fouten van dit verzoek bij de rest van deze batch optellen (zie
-      // hierboven bij $batchVerzoek). Bij een gewone, niet-gebatchte opslag
-      // is er niets om bij op te tellen: dan is $alleUploadFouten gelijk aan
-      // gewoon dit verzoek se eigen lijst.
+      // Fouten en aantallen van dit verzoek bij de rest van deze batch
+      // optellen (zie hierboven bij $batchVerzoek). Bij een gewone,
+      // niet-gebatchte opslag is er niets om bij op te tellen: dan gelden
+      // gewoon de aantallen van dit ene verzoek.
       if ($batchVerzoek) {
         if (!isset($_SESSION['fotoboek_batch_fouten'][$slug]) || !is_array($_SESSION['fotoboek_batch_fouten'][$slug])) {
           $_SESSION['fotoboek_batch_fouten'][$slug] = [];
@@ -1281,22 +1282,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           $_SESSION['fotoboek_batch_fouten'][$slug] = array_merge($_SESSION['fotoboek_batch_fouten'][$slug], $uploadFouten);
         }
         $alleUploadFouten = $_SESSION['fotoboek_batch_fouten'][$slug];
+
+        if (!isset($_SESSION['fotoboek_batch_totalen'][$slug]) || !is_array($_SESSION['fotoboek_batch_totalen'][$slug])) {
+          $_SESSION['fotoboek_batch_totalen'][$slug] = ['geupload' => 0, 'watermerk' => 0];
+        }
+        $_SESSION['fotoboek_batch_totalen'][$slug]['geupload'] += $aantalGeupload;
+        $_SESSION['fotoboek_batch_totalen'][$slug]['watermerk'] += $watermerkToegevoegdTeller;
+        $totaalGeupload = $_SESSION['fotoboek_batch_totalen'][$slug]['geupload'];
+        $totaalWatermerk = $_SESSION['fotoboek_batch_totalen'][$slug]['watermerk'];
+
         if (!empty($_POST['batch_laatste'])) {
           unset($_SESSION['fotoboek_batch_fouten'][$slug]);
+          unset($_SESSION['fotoboek_batch_totalen'][$slug]);
         }
       } else {
         $alleUploadFouten = $uploadFouten;
+        $totaalGeupload = $aantalGeupload;
+        $totaalWatermerk = $watermerkToegevoegdTeller;
       }
+      // Bij een batch-upload (één foto per verzoek, zie JS) alleen bij het
+      // allerlaatste verzoek loggen en de melding tonen, met de opgetelde
+      // aantallen van de hele batch. Anders zou een upload van 98 foto's ook
+      // 98 bijna-identieke logregels opleveren, en zou de "X foto's
+      // toegevoegd"-melding na afloop alleen de laatste foto meetellen.
+      $ditIsHetMomentOmTeMeldenEnTeLoggen = !$batchVerzoek || !empty($_POST['batch_laatste']);
 
       if (schrijfJson($fotoboekBestand, $fotoboekData)) {
         $onderdelen = [];
-        if ($aantalGeupload > 0) $onderdelen[] = $aantalGeupload . ' nieuwe foto(\'s) toegevoegd';
-        if ($watermerkToegevoegdTeller > 0) $onderdelen[] = $watermerkToegevoegdTeller . ' foto(\'s) van een watermerk voorzien';
+        if ($totaalGeupload > 0) $onderdelen[] = $totaalGeupload . ' nieuwe foto(\'s) toegevoegd';
+        if ($totaalWatermerk > 0) $onderdelen[] = $totaalWatermerk . ' foto(\'s) van een watermerk voorzien';
         if ($album['verborgen'] && !$wasVerborgen) $onderdelen[] = 'album verborgen op de website';
         if (!$album['verborgen'] && $wasVerborgen) $onderdelen[] = 'album weer zichtbaar op de website';
         $meldingTekst = 'Album opgeslagen' . ($onderdelen ? ': ' . implode(', ', $onderdelen) . '.' : '.');
         if ($alleUploadFouten) $meldingTekst .= ' Let op: ' . implode(' ', $alleUploadFouten);
-        schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_bijgewerkt', $album['title']['nl'] . ($aantalGeupload ? ', ' . $aantalGeupload . ' upload(s)' : '') . ($watermerkToegevoegdTeller ? ', ' . $watermerkToegevoegdTeller . ' watermerk(en)' : '') . ($album['verborgen'] !== $wasVerborgen ? ', ' . ($album['verborgen'] ? 'verborgen' : 'weer zichtbaar') : ''));
+        if ($ditIsHetMomentOmTeMeldenEnTeLoggen) {
+          schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_bijgewerkt', $album['title']['nl'] . ($totaalGeupload ? ', ' . $totaalGeupload . ' upload(s)' : '') . ($totaalWatermerk ? ', ' . $totaalWatermerk . ' watermerk(en)' : '') . ($album['verborgen'] !== $wasVerborgen ? ', ' . ($album['verborgen'] ? 'verborgen' : 'weer zichtbaar') : ''));
+        }
         // Post-Redirect-Get, zelfde reden als bij het aanmaken van een album:
         // zonder deze redirect blijft deze pagina het resultaat van een POST,
         // en kan een latere verversing (per ongeluk, of doordat de batch-
