@@ -1076,6 +1076,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $watermerkAan = !empty($_POST['watermerk']);
       $uploadFouten = [];
       $aantalGeupload = 0;
+      // De batch-upload (zie JS) stuurt elke foto als een eigen verzoek. Een
+      // foutmelding die alleen in DIT ene verzoek zou blijven staan, wordt
+      // direct daarna overschreven door het volgende verzoek en is dan nooit
+      // zichtbaar geweest - een foto die halverwege een upload van 98 mislukt
+      // zou zo geruisloos verdwijnen. Daarom worden fouten hier verzameld in
+      // de sessie, per album, en pas bij het laatste verzoek van de batch in
+      // hun geheel getoond (en de teller weer gewist).
+      $batchVerzoek = !empty($_POST['batch_start']) || !empty($_POST['batch_laatste']);
+      if (!empty($_POST['batch_start'])) {
+        $_SESSION['fotoboek_batch_fouten'][$slug] = [];
+      }
       if (!empty($_FILES['nieuwe_fotos']) && is_array($_FILES['nieuwe_fotos']['tmp_name'])) {
         foreach ($_FILES['nieuwe_fotos']['tmp_name'] as $i => $tmpPad) {
           if ($_FILES['nieuwe_fotos']['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
@@ -1223,6 +1234,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $fotoboekData['albums'][$albumIndex] = $album;
       usort($fotoboekData['albums'], function($a, $b) { return ($a['volgorde'] ?? 0) <=> ($b['volgorde'] ?? 0); });
 
+      // Fouten van dit verzoek bij de rest van deze batch optellen (zie
+      // hierboven bij $batchVerzoek). Bij een gewone, niet-gebatchte opslag
+      // is er niets om bij op te tellen: dan is $alleUploadFouten gelijk aan
+      // gewoon dit verzoek se eigen lijst.
+      if ($batchVerzoek) {
+        if (!isset($_SESSION['fotoboek_batch_fouten'][$slug]) || !is_array($_SESSION['fotoboek_batch_fouten'][$slug])) {
+          $_SESSION['fotoboek_batch_fouten'][$slug] = [];
+        }
+        if ($uploadFouten) {
+          $_SESSION['fotoboek_batch_fouten'][$slug] = array_merge($_SESSION['fotoboek_batch_fouten'][$slug], $uploadFouten);
+        }
+        $alleUploadFouten = $_SESSION['fotoboek_batch_fouten'][$slug];
+        if (!empty($_POST['batch_laatste'])) {
+          unset($_SESSION['fotoboek_batch_fouten'][$slug]);
+        }
+      } else {
+        $alleUploadFouten = $uploadFouten;
+      }
+
       if (schrijfJson($fotoboekBestand, $fotoboekData)) {
         $onderdelen = [];
         if ($aantalGeupload > 0) $onderdelen[] = $aantalGeupload . ' nieuwe foto(\'s) toegevoegd';
@@ -1230,7 +1260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         if ($album['verborgen'] && !$wasVerborgen) $onderdelen[] = 'album verborgen op de website';
         if (!$album['verborgen'] && $wasVerborgen) $onderdelen[] = 'album weer zichtbaar op de website';
         $meldingTekst = 'Album opgeslagen' . ($onderdelen ? ': ' . implode(', ', $onderdelen) . '.' : '.');
-        if ($uploadFouten) $meldingTekst .= ' Let op: ' . implode(' ', $uploadFouten);
+        if ($alleUploadFouten) $meldingTekst .= ' Let op: ' . implode(' ', $alleUploadFouten);
         schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_bijgewerkt', $album['title']['nl'] . ($aantalGeupload ? ', ' . $aantalGeupload . ' upload(s)' : '') . ($watermerkToegevoegdTeller ? ', ' . $watermerkToegevoegdTeller . ' watermerk(en)' : '') . ($album['verborgen'] !== $wasVerborgen ? ', ' . ($album['verborgen'] ? 'verborgen' : 'weer zichtbaar') : ''));
         // Post-Redirect-Get, zelfde reden als bij het aanmaken van een album:
         // zonder deze redirect blijft deze pagina het resultaat van een POST,
@@ -1242,7 +1272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         // batch-upload zelf.
         $_SESSION['flash'] = ['fotoboek' => [
           'tekst' => $meldingTekst,
-          'type' => $uploadFouten ? 'fout' : 'ok',
+          'type' => $alleUploadFouten ? 'fout' : 'ok',
         ]];
         header('Location: beheer.php#fotoboek');
         exit;
@@ -2600,6 +2630,11 @@ if ($isMaster && file_exists($logBestand)) {
         var data = new FormData();
         andereVelden.forEach(function(paar) { data.append(paar[0], paar[1]); });
         if (watermerkAlle && index === ruweBatches.length - 1) data.append('album_watermerk_alle', '1');
+        // Vertelt de server waar deze batch begint/eindigt, zodat foutmeldingen
+        // van tussentijdse verzoeken verzameld en pas bij het laatste verzoek
+        // in hun geheel getoond worden (zie PHP: $batchVerzoek).
+        if (index === 0) data.append('batch_start', '1');
+        if (index === ruweBatches.length - 1) data.append('batch_laatste', '1');
         verwerkteBatch.forEach(function(item, i) {
           data.append('nieuwe_fotos[]', item.bestand);
           if (item.poster) data.append('video_poster[' + i + ']', item.poster);
