@@ -573,9 +573,20 @@ function schrijfLog($pad, $gebruiker, $actie, $details = '') {
     if (is_array($json)) $log = $json;
   }
   $log[] = ['tijd' => date('c'), 'gebruiker' => $gebruiker, 'actie' => $actie, 'details' => $details];
-  if (count($log) > 300) {
-    $log = array_slice($log, -300); // logboek niet onbeperkt laten groeien
+
+  // Bewaren op tijd (een paar maanden), niet op een vast aantal regels: bij
+  // een vast aantal duwt een drukke dag (bijv. een grote foto-upload) meteen
+  // oudere, nog prima relevante regels eruit. De harde bovengrens van 5000 is
+  // alleen een noodrem tegen onbeperkte bestandsgroei, geen streefwaarde.
+  $bewaarGrens = strtotime('-90 days');
+  $log = array_values(array_filter($log, function($regel) use ($bewaarGrens) {
+    $tijd = strtotime($regel['tijd'] ?? '');
+    return $tijd === false || $tijd >= $bewaarGrens;
+  }));
+  if (count($log) > 5000) {
+    $log = array_slice($log, -5000);
   }
+
   file_put_contents($pad, json_encode($log, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
 }
 
@@ -2413,7 +2424,7 @@ if ($isMaster && file_exists($logBestand)) {
     <!-- ===== LOGBOEK ===== -->
     <div class="kaart">
       <h1>Logboek</h1>
-      <p class="sub">De laatste wijzigingen, nieuwste bovenaan.</p>
+      <p class="sub">De laatste wijzigingen van de afgelopen 90 dagen, nieuwste bovenaan.</p>
 
       <?php if (count($logRegels) === 0): ?>
         <p class="hint">Nog geen activiteit gelogd.</p>
@@ -2424,7 +2435,7 @@ if ($isMaster && file_exists($logBestand)) {
             <th>Gebruiker <button type="button" class="logboek-filter-knop" data-kolom="1" aria-label="Filter op gebruiker">Filter ▾</button></th>
             <th>Actie <button type="button" class="logboek-filter-knop" data-kolom="2" aria-label="Filter op actie">Filter ▾</button></th>
           </tr>
-          <?php foreach (array_slice($logRegels, 0, 100) as $regel): ?>
+          <?php foreach (array_slice($logRegels, 0, 1000) as $regel): ?>
             <tr>
               <td data-filterwaarde="<?php echo htmlspecialchars(date('d-m-Y', strtotime($regel['tijd'] ?? ''))); ?>"><?php echo htmlspecialchars(date('d-m-Y H:i', strtotime($regel['tijd'] ?? ''))); ?></td>
               <td data-filterwaarde="<?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?>"><?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?></td>
