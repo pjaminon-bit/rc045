@@ -67,6 +67,13 @@ $mediaBestand    = $dataMap . '/media.json';
 $fotoboekMaxVolledig = 1600;
 $fotoboekMaxThumb    = 400;
 
+// Max bestandsgrootte per FOTO-upload (video heeft zijn eigen limiet, zie
+// $fotoboekMaxVideoBytes hieronder). Moderne telefooncamera's halen soms
+// 15-25 MB per foto, vandaar deze ruimere marge. Let op: upload_max_filesize
+// in .user.ini moet minstens even hoog staan, anders knipt PHP de upload al
+// eerder, stilletjes, af.
+$fotoboekMaxFotoBytes = 25 * 1024 * 1024;
+
 // Video's (mp4) worden zonder verkleinen/watermerk opgeslagen: GD kan geen
 // video verwerken en er is geen ffmpeg op de gedeelde hosting om automatisch
 // een thumbnail te trekken. De browser maakt daarom zelf een thumbnail (een
@@ -1183,8 +1190,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
             continue;
           }
 
-          if ($_FILES['nieuwe_fotos']['size'][$i] > 12 * 1024 * 1024) {
-            $uploadFouten[] = $origineleNaam . ': groter dan 12 MB.';
+          if ($_FILES['nieuwe_fotos']['size'][$i] > $fotoboekMaxFotoBytes) {
+            $uploadFouten[] = $origineleNaam . ': groter dan ' . (int) round($fotoboekMaxFotoBytes / 1024 / 1024) . ' MB.';
             continue;
           }
 
@@ -2275,7 +2282,7 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="veld fotoboek-upload-blok">
             <label for="fotoboek-<?php echo $slug; ?>-upload">Nieuwe foto's<?php echo $fotoboekVideoAan ? ' of video\'s' : ''; ?> toevoegen</label>
             <input type="file" id="fotoboek-<?php echo $slug; ?>-upload" name="nieuwe_fotos[]" accept="image/png,image/jpeg,image/webp,image/heic,image/heif,.heic,.heif<?php echo $fotoboekVideoAan ? ',video/mp4,.mp4' : ''; ?>" multiple>
-            <p class="hint">Meerdere bestanden tegelijk mogen, ook heel veel: grote uploads worden automatisch in groepjes verstuurd, dat kan even duren, laat het tabblad gewoon open staan. Foto's: JPG, PNG, WEBP of HEIC (iPhone), max 12 MB per foto. HEIC wordt automatisch omgezet naar JPEG bij het uploaden.<?php echo $fotoboekVideoAan ? ' Video: mp4, max ' . (int) round($fotoboekMaxVideoBytes / 1024 / 1024) . ' MB. Er wordt automatisch een voorbeeldbeeld uit de video gemaakt, geen watermerk mogelijk.' : ' Video-upload staat tijdelijk uit.'; ?></p>
+            <p class="hint">Meerdere bestanden tegelijk mogen, ook heel veel: grote uploads worden automatisch in groepjes verstuurd, dat kan even duren, laat het tabblad gewoon open staan. Foto's: JPG, PNG, WEBP of HEIC (iPhone), max <?php echo (int) round($fotoboekMaxFotoBytes / 1024 / 1024); ?> MB per foto. HEIC wordt automatisch omgezet naar JPEG bij het uploaden.<?php echo $fotoboekVideoAan ? ' Video: mp4, max ' . (int) round($fotoboekMaxVideoBytes / 1024 / 1024) . ' MB. Er wordt automatisch een voorbeeldbeeld uit de video gemaakt, geen watermerk mogelijk.' : ' Video-upload staat tijdelijk uit.'; ?></p>
             <label class="fotoboek-check" style="margin-top:8px;">
               <input type="checkbox" name="watermerk" value="1" checked>
               Klein watermerk (logo + rc045.nl) toevoegen aan nieuwe foto's (niet op video's)
