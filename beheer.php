@@ -77,6 +77,13 @@ $fotoboekMaxThumb    = 400;
 // eerder, stilletjes, door de server zelf afgekapt.
 $fotoboekMaxVideoBytes = 80 * 1024 * 1024;
 
+// Tijdelijk uit: terwijl we grote foto-uploads (98+ bestanden) stabiel
+// krijgen, staat video-upload even helemaal uit (verbergen in het
+// bestandskiezer-filter, weigeren op de server als iemand het toch stuurt).
+// Op false zetten om video weer aan te zetten; de rest van de video-code
+// (opslag, thumbnail, weergave) blijft intact staan.
+$fotoboekVideoAan = false;
+
 // Rekentabel contributie (zelfde bedragen als op aanmelden.html;
 // wijzigen de prijzen, pas ze dan op BEIDE plekken aan)
 $inschrijfkosten = 10;
@@ -1065,6 +1072,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
 
           $extensie = strtolower(pathinfo($origineleNaam, PATHINFO_EXTENSION));
           $isVideoUpload = $extensie === 'mp4';
+
+          if ($isVideoUpload && !$fotoboekVideoAan) {
+            $uploadFouten[] = $origineleNaam . ': video-upload staat tijdelijk uit.';
+            continue;
+          }
 
           $basisNaamOrig = preg_replace('/[^a-z0-9]+/', '-', strtolower(pathinfo($origineleNaam, PATHINFO_FILENAME)));
           $basisNaamOrig = trim($basisNaamOrig, '-');
@@ -2177,9 +2189,9 @@ if ($isMaster && file_exists($logBestand)) {
           <?php endif; ?>
 
           <div class="veld fotoboek-upload-blok">
-            <label for="fotoboek-<?php echo $slug; ?>-upload">Nieuwe foto's of video's toevoegen</label>
-            <input type="file" id="fotoboek-<?php echo $slug; ?>-upload" name="nieuwe_fotos[]" accept="image/png,image/jpeg,image/webp,image/heic,image/heif,.heic,.heif,video/mp4,.mp4" multiple>
-            <p class="hint">Meerdere bestanden tegelijk mogen, ook heel veel: grote uploads worden automatisch in groepjes verstuurd, dat kan even duren, laat het tabblad gewoon open staan. Foto's: JPG, PNG, WEBP of HEIC (iPhone), max 12 MB per foto. HEIC wordt automatisch omgezet naar JPEG bij het uploaden. Video: mp4, max <?php echo (int) round($fotoboekMaxVideoBytes / 1024 / 1024); ?> MB. Er wordt automatisch een voorbeeldbeeld uit de video gemaakt, geen watermerk mogelijk.</p>
+            <label for="fotoboek-<?php echo $slug; ?>-upload">Nieuwe foto's<?php echo $fotoboekVideoAan ? ' of video\'s' : ''; ?> toevoegen</label>
+            <input type="file" id="fotoboek-<?php echo $slug; ?>-upload" name="nieuwe_fotos[]" accept="image/png,image/jpeg,image/webp,image/heic,image/heif,.heic,.heif<?php echo $fotoboekVideoAan ? ',video/mp4,.mp4' : ''; ?>" multiple>
+            <p class="hint">Meerdere bestanden tegelijk mogen, ook heel veel: grote uploads worden automatisch in groepjes verstuurd, dat kan even duren, laat het tabblad gewoon open staan. Foto's: JPG, PNG, WEBP of HEIC (iPhone), max 12 MB per foto. HEIC wordt automatisch omgezet naar JPEG bij het uploaden.<?php echo $fotoboekVideoAan ? ' Video: mp4, max ' . (int) round($fotoboekMaxVideoBytes / 1024 / 1024) . ' MB. Er wordt automatisch een voorbeeldbeeld uit de video gemaakt, geen watermerk mogelijk.' : ' Video-upload staat tijdelijk uit.'; ?></p>
             <label class="fotoboek-check" style="margin-top:8px;">
               <input type="checkbox" name="watermerk" value="1" checked>
               Klein watermerk (logo + rc045.nl) toevoegen aan nieuwe foto's (niet op video's)
@@ -2396,7 +2408,14 @@ if ($isMaster && file_exists($logBestand)) {
       var naam = (bestand.name || '').toLowerCase();
       return naam.endsWith('.heic') || naam.endsWith('.heif') || bestand.type === 'image/heic' || bestand.type === 'image/heif';
     }
+    // Weerspiegelt $fotoboekVideoAan in PHP: staat video-upload tijdelijk uit,
+    // dan doet de JS net alsof er nooit een video wordt geselecteerd (ook als
+    // iemand het accept-filter omzeilt), zodat de trage/zware
+    // thumbnail-generatie niet eens geprobeerd wordt. De server weigert het
+    // bestand dan alsnog met een duidelijke melding.
+    var FOTOBOEK_VIDEO_AAN = <?php echo $fotoboekVideoAan ? 'true' : 'false'; ?>;
     function fotoboekIsVideo(bestand) {
+      if (!FOTOBOEK_VIDEO_AAN) return false;
       var naam = (bestand.name || '').toLowerCase();
       return naam.endsWith('.mp4') || bestand.type === 'video/mp4';
     }
