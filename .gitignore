@@ -6,6 +6,9 @@
 # Admin-data (JSON), geschreven door beheer.php
 data/
 
+# Automatische back-ups van de databestanden hierboven
+data-backups/
+
 # Fotoboek-foto's en sponsorlogo's, geupload via beheer.php
 images/fotoboek/
 images/sponsors/
@@ -14,6 +17,7 @@ images/sponsors/
 beheer-config.php
 beheer-users.json
 beheer-log.json
+beheer-login-pogingen.json
 
 # macOS
 .DS_Store
