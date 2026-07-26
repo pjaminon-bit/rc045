@@ -1567,6 +1567,9 @@ if ($isMaster && file_exists($logBestand)) {
     table.reken tr.nu td:first-child { border-radius: 6px 0 0 6px; }
     table.reken tr.nu td:last-child { border-radius: 0 6px 6px 0; }
     .reken-noot { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.6; }
+    .logboek-filter-input { width: 100%; font-size: 13px; padding: 5px 7px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-family: inherit; font-weight: 400; }
+    .logboek-filter-input:focus { outline: none; border-color: var(--teal); }
+    .logboek-geen-resultaten td { color: var(--muted); font-style: italic; }
     .item-blok { border: 1.5px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; transition: opacity 0.15s, background 0.15s; }
     .item-blok-nr { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
     .item-blok.is-afgelopen { background: var(--bg); border-style: dashed; opacity: 0.7; }
@@ -2385,11 +2388,16 @@ if ($isMaster && file_exists($logBestand)) {
       <?php if (count($logRegels) === 0): ?>
         <p class="hint">Nog geen activiteit gelogd.</p>
       <?php else: ?>
-        <table class="reken">
+        <table class="reken" id="logboek-tabel">
           <tr>
             <th>Tijd</th>
             <th>Gebruiker</th>
             <th>Actie</th>
+          </tr>
+          <tr class="logboek-filterrij">
+            <th><input type="text" class="logboek-filter-input" data-logboek-filter="0" placeholder="Filter op tijd..."></th>
+            <th><input type="text" class="logboek-filter-input" data-logboek-filter="1" placeholder="Filter op gebruiker..."></th>
+            <th><input type="text" class="logboek-filter-input" data-logboek-filter="2" placeholder="Filter op actie..."></th>
           </tr>
           <?php foreach (array_slice($logRegels, 0, 100) as $regel): ?>
             <tr>
@@ -2399,6 +2407,7 @@ if ($isMaster && file_exists($logBestand)) {
             </tr>
           <?php endforeach; ?>
         </table>
+        <p class="hint logboek-geen-resultaten-melding" hidden>Geen regels komen overeen met de filters.</p>
       <?php endif; ?>
     </div>
     </div>
@@ -2762,6 +2771,45 @@ if ($isMaster && file_exists($logBestand)) {
       var badge = blok.querySelector('.afgelopen-badge');
       if (badge) badge.style.display = vinkje.checked ? '' : 'none';
     }
+
+    // ===== Logboek: los filterveld per kolom (tijd/gebruiker/actie) =====
+    // Elk veld filtert onafhankelijk (tekst moet ergens in die kolom
+    // voorkomen, hoofdletterongevoelig); alle ingevulde filters moeten
+    // tegelijk kloppen (EN, niet OF). Puur client-side, er wordt maar één
+    // pagina met maximaal 100 regels getoond, dus een serverzoekactie heeft
+    // hier geen meerwaarde.
+    (function() {
+      var tabel = document.getElementById('logboek-tabel');
+      if (!tabel) return;
+      var filterVelden = Array.prototype.slice.call(tabel.querySelectorAll('[data-logboek-filter]'));
+      if (filterVelden.length === 0) return;
+      var geenResultatenMelding = document.querySelector('.logboek-geen-resultaten-melding');
+      var dataRijen = Array.prototype.slice.call(tabel.querySelectorAll('tr')).filter(function(rij) {
+        return !rij.classList.contains('logboek-filterrij') && rij.querySelector('td');
+      });
+
+      function logboekFilteren() {
+        var actieveFilters = filterVelden.map(function(veld) {
+          return { kolom: parseInt(veld.getAttribute('data-logboek-filter'), 10), tekst: veld.value.trim().toLowerCase() };
+        }).filter(function(f) { return f.tekst !== ''; });
+
+        var aantalZichtbaar = 0;
+        dataRijen.forEach(function(rij) {
+          var cellen = rij.querySelectorAll('td');
+          var zichtbaar = actieveFilters.every(function(f) {
+            var cel = cellen[f.kolom];
+            return cel && cel.textContent.toLowerCase().indexOf(f.tekst) !== -1;
+          });
+          rij.style.display = zichtbaar ? '' : 'none';
+          if (zichtbaar) aantalZichtbaar++;
+        });
+        if (geenResultatenMelding) geenResultatenMelding.hidden = aantalZichtbaar !== 0;
+      }
+
+      filterVelden.forEach(function(veld) {
+        veld.addEventListener('input', logboekFilteren);
+      });
+    })();
   </script>
   <?php endif; ?>
 </body>
