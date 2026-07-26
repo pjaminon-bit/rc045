@@ -47,7 +47,28 @@ function csrfOk() {
 $configPad    = __DIR__ . '/beheer-config.php';
 $usersBestand = __DIR__ . '/beheer-users.json';
 $logBestand   = __DIR__ . '/beheer-log.json';
+$loginPogingenBestand = __DIR__ . '/beheer-login-pogingen.json';
 $dataMap      = __DIR__ . '/data';
+
+// Lockout bij te veel mislukte inlogpogingen (per gebruikersnaam, of
+// "beheerder" voor het beheerderswachtwoord): na $loginLockoutDrempel
+// mislukte pogingen binnen $loginLockoutVenster wordt verder inloggen voor
+// die ene gebruikersnaam tijdelijk geblokkeerd, ongeacht of het wachtwoord
+// daarna alsnog klopt. De sleep(2) verderop blijft ook bestaan als extra,
+// simpele afremming.
+$loginLockoutVenster = 15 * 60;
+$loginLockoutDrempel = 5;
+
+// Automatische back-up van de databestanden (data/*.json): vlak voordat
+// schrijfJson() een bestand overschrijft, gaat er eerst een tijdgestempelde
+// kopie naar data-backups/. Zo is een verkeerde opslag- of bugactie altijd
+// terug te draaien. Bewaartermijn gelijk aan het logboek (90 dagen), met een
+// hardstop per bestand zodat de map nooit ongelimiteerd kan groeien. Deze map
+// staat buiten data/ zodat hij apart in .htaccess geblokkeerd kan worden (de
+// bestanden in data/ zelf zijn bewust wel publiek opvraagbaar).
+$dataBackupMap              = __DIR__ . '/data-backups';
+$dataBackupBewaardagen      = 90;
+$dataBackupMaxPerBestand    = 200;
 
 $lockBestand    = $dataMap . '/.beheer.lock';
 $actueelBestand = $dataMap . '/actueel.json';
@@ -294,7 +315,44 @@ function kort($tekst, $max) {
   return function_exists('mb_substr') ? mb_substr($tekst, 0, $max) : substr($tekst, 0, $max);
 }
 
+// Zet een tijdgestempelde kopie van $pad in $backupMap voordat schrijfJson()
+// de huidige inhoud overschrijft, en ruimt daarna oude kopieën van datzelfde
+// bestand op (ouder dan $bewaardagen, met $maxPerBestand als hardstop).
+// Stil falen (@) is bewust: een mislukte back-up mag het opslaan van de
+// eigenlijke wijziging nooit blokkeren.
+function maakDataBackup($pad, $backupMap, $bewaardagen, $maxPerBestand) {
+  if (!file_exists($pad)) return; // nieuw bestand, er is nog niets te bewaren
+
+  if (!is_dir($backupMap)) {
+    @mkdir($backupMap, 0755, true);
+  }
+  $basisnaam = basename($pad);
+  $doelpad = $backupMap . '/' . date('Y-m-d_His') . '_' . $basisnaam;
+  @copy($pad, $doelpad);
+
+  $bestanden = @glob($backupMap . '/*_' . $basisnaam);
+  if ($bestanden === false || count($bestanden) === 0) return;
+  sort($bestanden); // tijdstempel voorop => alfabetisch is ook chronologisch
+
+  $grens = time() - $bewaardagen * 24 * 60 * 60;
+  $overgebleven = [];
+  foreach ($bestanden as $b) {
+    $tijd = @filemtime($b);
+    if ($tijd !== false && $tijd >= $grens) {
+      $overgebleven[] = $b;
+    } else {
+      @unlink($b);
+    }
+  }
+  $teveel = count($overgebleven) - $maxPerBestand;
+  for ($i = 0; $i < $teveel; $i++) {
+    @unlink($overgebleven[$i]);
+  }
+}
+
 function schrijfJson($pad, $data) {
+  global $dataBackupMap, $dataBackupBewaardagen, $dataBackupMaxPerBestand;
+  maakDataBackup($pad, $dataBackupMap, $dataBackupBewaardagen, $dataBackupMaxPerBestand);
   $map = dirname($pad);
   if (!is_dir($map)) {
     mkdir($map, 0755, true);
@@ -563,6 +621,8 @@ function laadGebruikers($pad) {
 }
 
 function schrijfGebruikers($pad, $gebruikers) {
+  global $dataBackupMap, $dataBackupBewaardagen, $dataBackupMaxPerBestand;
+  maakDataBackup($pad, $dataBackupMap, $dataBackupBewaardagen, $dataBackupMaxPerBestand);
   return file_put_contents($pad, json_encode($gebruikers, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX) !== false;
 }
 
@@ -588,6 +648,54 @@ function schrijfLog($pad, $gebruiker, $actie, $details = '') {
   }
 
   file_put_contents($pad, json_encode($log, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
+}
+
+// ===== Lockout bij mislukte inlogpogingen =====
+// Bestandsformaat: { "gebruikersnaam-in-kleine-letters": [unix-tijdstip, ...] }
+// Alleen mislukte pogingen van de laatste $venster seconden tellen mee; ouder
+// wordt bij elke controle stilzwijgend opgeruimd.
+function laadLoginPogingen($pad) {
+  if (!file_exists($pad)) return [];
+  $json = json_decode(file_get_contents($pad), true);
+  return is_array($json) ? $json : [];
+}
+
+function schrijfLoginPogingen($pad, $pogingen) {
+  file_put_contents($pad, json_encode($pogingen, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
+}
+
+// Geeft het aantal hele minuten tot de lockout van $sleutel voorbij is, of 0
+// als er (nog) geen lockout actief is.
+function loginLockoutMinuten($pad, $sleutel, $venster, $drempel) {
+  $pogingen = laadLoginPogingen($pad);
+  $nu = time();
+  $recent = array_values(array_filter($pogingen[$sleutel] ?? [], function($t) use ($nu, $venster) {
+    return $t > $nu - $venster;
+  }));
+  if (count($recent) < $drempel) return 0;
+  return (int) ceil((min($recent) + $venster - $nu) / 60);
+}
+
+// Telt een mislukte poging voor $sleutel mee (en ruimt meteen verlopen
+// pogingen van diezelfde sleutel op).
+function loginPogingRegistreren($pad, $sleutel, $venster) {
+  $pogingen = laadLoginPogingen($pad);
+  $nu = time();
+  $recent = array_values(array_filter($pogingen[$sleutel] ?? [], function($t) use ($nu, $venster) {
+    return $t > $nu - $venster;
+  }));
+  $recent[] = $nu;
+  $pogingen[$sleutel] = $recent;
+  schrijfLoginPogingen($pad, $pogingen);
+}
+
+// Wist de teller voor $sleutel helemaal (na een geslaagde login).
+function loginPogingenWissen($pad, $sleutel) {
+  $pogingen = laadLoginPogingen($pad);
+  if (isset($pogingen[$sleutel])) {
+    unset($pogingen[$sleutel]);
+    schrijfLoginPogingen($pad, $pogingen);
+  }
 }
 
 $configOk = file_exists($configPad);
@@ -630,8 +738,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'in
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'inloggen' && $configOk) {
   $gebruikersnaamInvoer = trim($_POST['gebruikersnaam'] ?? '');
   $wachtwoordInvoer = $_POST['wachtwoord'] ?? '';
+  $lockoutNaam = $gebruikersnaamInvoer === '' ? 'beheerder' : $gebruikersnaamInvoer;
+  $lockoutSleutel = strtolower($lockoutNaam);
+  $minutenTeWachten = loginLockoutMinuten($loginPogingenBestand, $lockoutSleutel, $loginLockoutVenster, $loginLockoutDrempel);
 
-  if ($gebruikersnaamInvoer === '' && hash_equals($BEHEER_WACHTWOORD, $wachtwoordInvoer)) {
+  if ($minutenTeWachten > 0) {
+    // Te veel mislukte pogingen recent voor deze ene gebruikersnaam: het
+    // wachtwoord wordt niet eens meer gecontroleerd. Anders zou iemand met
+    // geduld de sleep(2) hieronder gewoon kunnen uitzitten en toch door
+    // blijven gokken.
+    $inlogFout = 'Te veel mislukte pogingen voor "' . $lockoutNaam . '". Probeer het over ' . $minutenTeWachten . ' minuut' . ($minutenTeWachten === 1 ? '' : 'en') . ' opnieuw.';
+  } elseif ($gebruikersnaamInvoer === '' && hash_equals($BEHEER_WACHTWOORD, $wachtwoordInvoer)) {
     // Nieuw sessie-ID na succesvol inloggen (session fixation): zonder dit zou
     // een sessie-ID dat van vóór het inloggen dateert (bijv. opgedrongen door
     // een aanvaller) na login gewoon geldig blijven. "true" verwijdert meteen
@@ -639,29 +756,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'in
     session_regenerate_id(true);
     $_SESSION['gebruiker'] = 'beheerder';
     $_SESSION['is_master'] = true;
+    loginPogingenWissen($loginPogingenBestand, $lockoutSleutel);
     schrijfLog($logBestand, 'beheerder', 'login', '');
     header('Location: beheer.php');
     exit;
-  }
-
-  $gevondenGebruiker = null;
-  foreach (laadGebruikers($usersBestand) as $g) {
-    if (isset($g['gebruikersnaam']) && strcasecmp($g['gebruikersnaam'], $gebruikersnaamInvoer) === 0) {
-      $gevondenGebruiker = $g;
-      break;
+  } else {
+    $gevondenGebruiker = null;
+    foreach (laadGebruikers($usersBestand) as $g) {
+      if (isset($g['gebruikersnaam']) && strcasecmp($g['gebruikersnaam'], $gebruikersnaamInvoer) === 0) {
+        $gevondenGebruiker = $g;
+        break;
+      }
     }
-  }
-  if ($gevondenGebruiker && isset($gevondenGebruiker['hash']) && password_verify($wachtwoordInvoer, $gevondenGebruiker['hash'])) {
-    session_regenerate_id(true);
-    $_SESSION['gebruiker'] = $gevondenGebruiker['gebruikersnaam'];
-    $_SESSION['is_master'] = false;
-    schrijfLog($logBestand, $gevondenGebruiker['gebruikersnaam'], 'login', '');
-    header('Location: beheer.php');
-    exit;
-  }
+    if ($gevondenGebruiker && isset($gevondenGebruiker['hash']) && password_verify($wachtwoordInvoer, $gevondenGebruiker['hash'])) {
+      session_regenerate_id(true);
+      $_SESSION['gebruiker'] = $gevondenGebruiker['gebruikersnaam'];
+      $_SESSION['is_master'] = false;
+      loginPogingenWissen($loginPogingenBestand, $lockoutSleutel);
+      schrijfLog($logBestand, $gevondenGebruiker['gebruikersnaam'], 'login', '');
+      header('Location: beheer.php');
+      exit;
+    }
 
-  sleep(2); // remt gokpogingen af
-  $inlogFout = 'Gebruikersnaam of wachtwoord onjuist.';
+    loginPogingRegistreren($loginPogingenBestand, $lockoutSleutel, $loginLockoutVenster);
+    sleep(2); // blijft daarnaast bestaan als simpele, extra afremming
+    $inlogFout = 'Gebruikersnaam of wachtwoord onjuist.';
+  }
 }
 
 $ingelogd = $configOk && isset($_SESSION['gebruiker']);
