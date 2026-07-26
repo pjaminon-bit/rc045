@@ -82,6 +82,22 @@ $logoPad         = __DIR__ . '/rc045-logo.png';
 $contactBestand  = $dataMap . '/contact.json';
 $mediaBestand    = $dataMap . '/media.json';
 
+// Alle bestanden die automatisch back-upt worden (zie maakDataBackup()),
+// gebruikt door het tabblad "Back-ups" en de backup_herstellen-actie
+// verderop. "schrijffunctie" bepaalt via welke functie een herstelde back-up
+// weer wordt weggeschreven: gebruikers.json gaat via schrijfGebruikers, de
+// rest via het generieke schrijfJson.
+$dataBackupBestanden = [
+  'mededeling' => ['label' => 'Mededeling', 'pad' => $actueelBestand, 'schrijffunctie' => 'schrijfJson'],
+  'agenda'     => ['label' => 'Agenda', 'pad' => $agendaBestand, 'schrijffunctie' => 'schrijfJson'],
+  'faq'        => ['label' => 'Vragen (FAQ)', 'pad' => $faqBestand, 'schrijffunctie' => 'schrijfJson'],
+  'sponsors'   => ['label' => 'Sponsors', 'pad' => $sponsorBestand, 'schrijffunctie' => 'schrijfJson'],
+  'contact'    => ['label' => 'Contact', 'pad' => $contactBestand, 'schrijffunctie' => 'schrijfJson'],
+  'media'      => ['label' => 'Media', 'pad' => $mediaBestand, 'schrijffunctie' => 'schrijfJson'],
+  'fotoboek'   => ['label' => 'Fotoboek', 'pad' => $fotoboekBestand, 'schrijffunctie' => 'schrijfJson'],
+  'gebruikers' => ['label' => 'Gebruikers', 'pad' => $usersBestand, 'schrijffunctie' => 'schrijfGebruikers'],
+];
+
 // Formaten voor het fotoboek: volledige (web) versie max 1600px breed,
 // thumbnail voor de albumgrid max 400px breed. Alleen verkleinen, nooit
 // vergroten. Watermerk wordt alleen op de volledige versie gezet.
@@ -359,6 +375,22 @@ function schrijfJson($pad, $data) {
   }
   $inhoud = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
   return file_put_contents($pad, $inhoud, LOCK_EX) !== false;
+}
+
+// Geeft de beschikbare back-ups van precies één bestand terug (nieuwste
+// eerst), als array van ['bestand' => bestandsnaam zonder pad, 'tijd' =>
+// unix-timestamp]. $basisnaam is bijv. "fotoboek.json", zonder pad.
+function lijstDataBackups($backupMap, $basisnaam) {
+  $bestanden = @glob($backupMap . '/*_' . $basisnaam);
+  if ($bestanden === false) return [];
+  $resultaat = [];
+  foreach ($bestanden as $b) {
+    $tijd = @filemtime($b);
+    if ($tijd === false) continue;
+    $resultaat[] = ['bestand' => basename($b), 'tijd' => $tijd];
+  }
+  usort($resultaat, function($a, $b) { return $b['tijd'] <=> $a['tijd']; });
+  return $resultaat;
 }
 
 // Verwerkt (optioneel) een geüpload sponsorlogo. Zonder nieuw bestand blijft
@@ -1527,6 +1559,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $melding['gebruikers'] = 'Verwijderen mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
       $meldingType['gebruikers'] = 'fout';
     }
+
+  } elseif ($formulier === 'backup_herstellen' && $isMaster) {
+    $sleutel = $_POST['sleutel'] ?? '';
+    // basename() eerst: het POST-veld mag nooit een pad bevatten, alleen een
+    // kale bestandsnaam. Zo kan dit veld nooit gebruikt worden om buiten
+    // data-backups/ te lezen.
+    $backupBestandsnaam = basename($_POST['backup_bestand'] ?? '');
+    $info = $dataBackupBestanden[$sleutel] ?? null;
+    $verwachteUitgang = $info ? ('_' . basename($info['pad'])) : null;
+
+    if (!$info) {
+      $melding['backups'] = 'Onbekend databestand.';
+      $meldingType['backups'] = 'fout';
+    } elseif ($backupBestandsnaam === '' || substr($backupBestandsnaam, -strlen($verwachteUitgang)) !== $verwachteUitgang) {
+      // De bestandsnaam moet qua opbouw (tijdstempel_basisnaam) echt bij dit
+      // databestand horen, anders zou iemand met een aangepast formulier de
+      // back-up van het ene bestand in het andere kunnen proberen herstellen.
+      $melding['backups'] = 'Ongeldige back-up geselecteerd.';
+      $meldingType['backups'] = 'fout';
+    } else {
+      $backupPad = $dataBackupMap . '/' . $backupBestandsnaam;
+      if (!is_file($backupPad)) {
+        $melding['backups'] = 'Deze back-up bestaat niet meer.';
+        $meldingType['backups'] = 'fout';
+      } else {
+        $ruweInhoud = @file_get_contents($backupPad);
+        $herstelData = $ruweInhoud === false ? null : json_decode($ruweInhoud, true);
+        if ($ruweInhoud === false || json_last_error() !== JSON_ERROR_NONE) {
+          $melding['backups'] = 'Back-up kon niet gelezen worden (beschadigd bestand?).';
+          $meldingType['backups'] = 'fout';
+        } else {
+          $backupTijd = filemtime($backupPad);
+          // schrijfJson()/schrijfGebruikers() maken zelf, vóórdat ze
+          // overschrijven, ook weer een back-up: de huidige (net te vervangen)
+          // versie gaat dus niet verloren, ook dit herstel is terug te draaien.
+          $gelukt = $info['schrijffunctie'] === 'schrijfGebruikers'
+            ? schrijfGebruikers($info['pad'], $herstelData)
+            : schrijfJson($info['pad'], $herstelData);
+          if ($gelukt) {
+            schrijfLog($logBestand, $huidigeGebruiker, 'backup_hersteld', $info['label'] . ' (' . $backupBestandsnaam . ')');
+            $_SESSION['flash'] = ['backups' => [
+              'tekst' => $info['label'] . ' is teruggezet naar de versie van ' . date('d-m-Y H:i', $backupTijd ?: time()) . '. De versie van vlak vóór dit herstel is zelf ook als back-up bewaard.',
+              'type' => 'ok',
+            ]];
+            header('Location: beheer.php#backups');
+            exit;
+          } else {
+            $melding['backups'] = 'Terugzetten mislukt. Controleer de schrijfrechten op de server.';
+            $meldingType['backups'] = 'fout';
+          }
+        }
+      }
+    }
   }
 
   if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
@@ -1859,6 +1944,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php if ($isMaster): ?>
       <button type="button" class="menu-item" data-tab="gebruikers">Gebruikers</button>
       <button type="button" class="menu-item" data-tab="log">Log</button>
+      <button type="button" class="menu-item" data-tab="backups">Back-ups</button>
       <?php endif; ?>
       <button type="button" class="menu-item" data-tab="rekentabel">Rekentabel</button>
     </nav>
@@ -2568,6 +2654,43 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <div class="tab-paneel" id="tab-backups">
+    <!-- ===== BACK-UPS ===== -->
+    <?php if (isset($melding['backups'])): ?>
+      <div class="melding <?php echo $meldingType['backups']; ?>"><?php echo htmlspecialchars($melding['backups']); ?></div>
+    <?php endif; ?>
+
+    <?php foreach ($dataBackupBestanden as $sleutel => $info): ?>
+      <div class="kaart">
+        <h1><?php echo htmlspecialchars($info['label']); ?></h1>
+        <p class="sub">Automatische back-up vlak vóór elke keer opslaan, bewaard voor 90 dagen.</p>
+        <?php
+          $volledigeBackupLijst = lijstDataBackups($dataBackupMap, basename($info['pad']));
+          $getoondeBackups = array_slice($volledigeBackupLijst, 0, 20);
+        ?>
+        <?php if (count($getoondeBackups) === 0): ?>
+          <p class="hint">Nog geen back-up van dit bestand.</p>
+        <?php else: ?>
+          <?php foreach ($getoondeBackups as $b): ?>
+            <div class="gebruiker-rij">
+              <div><?php echo htmlspecialchars(date('d-m-Y H:i', $b['tijd'])); ?></div>
+              <form method="post" action="beheer.php#backups" onsubmit="return confirm('<?php echo htmlspecialchars($info['label'], ENT_QUOTES); ?> terugzetten naar de versie van <?php echo htmlspecialchars(date('d-m-Y H:i', $b['tijd']), ENT_QUOTES); ?>? De huidige versie wordt eerst zelf ook als back-up bewaard.');">
+                <input type="hidden" name="formulier" value="backup_herstellen">
+                <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+                <input type="hidden" name="sleutel" value="<?php echo htmlspecialchars($sleutel); ?>">
+                <input type="hidden" name="backup_bestand" value="<?php echo htmlspecialchars($b['bestand']); ?>">
+                <button type="submit" class="knop-klein">Terugzetten</button>
+              </form>
+            </div>
+          <?php endforeach; ?>
+          <?php if (count($volledigeBackupLijst) > count($getoondeBackups)): ?>
+            <p class="hint">Nieuwste 20 van de <?php echo count($volledigeBackupLijst); ?> getoond.</p>
+          <?php endif; ?>
+        <?php endif; ?>
+      </div>
+    <?php endforeach; ?>
+    </div>
+
     <?php endif; ?>
 
     <div class="tab-paneel" id="tab-rekentabel">
@@ -2606,7 +2729,7 @@ if ($isMaster && file_exists($logBestand)) {
   <?php if ($ingelogd): ?>
   <script>
     (function() {
-      var tabs = ['mededeling', 'agenda', 'faq', 'sponsors', 'contact', 'media', 'fotoboek'<?php if ($isMaster): ?>, 'gebruikers', 'log'<?php endif; ?>, 'rekentabel'];
+      var tabs = ['mededeling', 'agenda', 'faq', 'sponsors', 'contact', 'media', 'fotoboek'<?php if ($isMaster): ?>, 'gebruikers', 'log', 'backups'<?php endif; ?>, 'rekentabel'];
       var menuItems = document.querySelectorAll('.menu-item');
 
       function toonTab(naam) {
