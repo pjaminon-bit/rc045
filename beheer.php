@@ -621,6 +621,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'in
   $wachtwoordInvoer = $_POST['wachtwoord'] ?? '';
 
   if ($gebruikersnaamInvoer === '' && hash_equals($BEHEER_WACHTWOORD, $wachtwoordInvoer)) {
+    // Nieuw sessie-ID na succesvol inloggen (session fixation): zonder dit zou
+    // een sessie-ID dat van vóór het inloggen dateert (bijv. opgedrongen door
+    // een aanvaller) na login gewoon geldig blijven. "true" verwijdert meteen
+    // ook het oude sessiebestand op de server.
+    session_regenerate_id(true);
     $_SESSION['gebruiker'] = 'beheerder';
     $_SESSION['is_master'] = true;
     schrijfLog($logBestand, 'beheerder', 'login', '');
@@ -636,6 +641,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'in
     }
   }
   if ($gevondenGebruiker && isset($gevondenGebruiker['hash']) && password_verify($wachtwoordInvoer, $gevondenGebruiker['hash'])) {
+    session_regenerate_id(true);
     $_SESSION['gebruiker'] = $gevondenGebruiker['gebruikersnaam'];
     $_SESSION['is_master'] = false;
     schrijfLog($logBestand, $gevondenGebruiker['gebruikersnaam'], 'login', '');
