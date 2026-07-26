@@ -967,9 +967,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       verwijderMapRecursief($fotoboekMap . '/' . $slug);
       array_splice($fotoboekData['albums'], $albumIndex, 1);
       if (schrijfJson($fotoboekBestand, $fotoboekData)) {
-        $melding['fotoboek'] = 'Album "' . $titelVoorMelding . '" en alle bijbehorende foto\'s zijn verwijderd.';
-        $meldingType['fotoboek'] = 'ok';
         schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_verwijderd', $titelVoorMelding);
+        $_SESSION['flash'] = ['fotoboek' => [
+          'tekst' => 'Album "' . $titelVoorMelding . '" en alle bijbehorende foto\'s zijn verwijderd.',
+          'type' => 'ok',
+        ]];
+        header('Location: beheer.php#fotoboek');
+        exit;
       } else {
         $melding['fotoboek'] = 'Verwijderen mislukt. Controleer de schrijfrechten van de map data op de server.';
         $meldingType['fotoboek'] = 'fout';
@@ -997,61 +1001,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
 
       // Bestaande foto's: bijschriften bijwerken, gemarkeerde foto's verwijderen (bestand + thumbnail van schijf),
       // en desgewenst alsnog een watermerk toevoegen aan een foto die dat nog niet heeft.
+      //
+      // Belangrijk: dit past ALLEEN foto's aan die daadwerkelijk in $_POST['foto']
+      // voorkomen, en herbouwt $album['photos'] nooit meer helemaal opnieuw.
+      // Eerder deed dit veld dienst als "dit zijn ALLE foto's die mogen
+      // blijven staan" - alles wat er niet in voorkwam werd stilzwijgend
+      // weggegooid. Dat bleek een keer te hard te kunnen toeslaan: bij een
+      // grote foto-upload in losse batches (zie JS) kent een verzoek de
+      // foto's van eerdere batches niet, en ook een oude, per ongeluk
+      // opnieuw verzonden pagina (bijv. via de "formulier opnieuw
+      // verzenden"-vraag van de browser na een refresh) kan een verouderd
+      // en onvolledig lijstje meesturen. Met deze aanpak kan zoiets nooit
+      // meer foto's laten verdwijnen die niet expliciet zijn aangevinkt om
+      // verwijderd te worden.
       $gekozenCoverIndex = $_POST['cover'] ?? null;
       $nieuweCover = '';
       $watermerkToegevoegdTeller = 0;
-      // $_POST['foto'] is alleen aanwezig bij een gewone opslag of het EERSTE
-      // verzoek van een batch-upload (zie JS): dan weerspiegelt het veld echt
-      // alle op dat moment bestaande foto's, en mag $album['photos'] daarmee
-      // herbouwd worden. Bij vervolgverzoeken van dezelfde batch-upload stuurt
-      // de JS dit veld bewust niet mee, want de browser weet niet welke foto's
-      // eerdere batches net hebben toegevoegd; zonder deze check zou elk
-      // vervolgverzoek $album['photos'] terugzetten naar de stand van vóór de
-      // hele upload en zo alle net geuploade foto's weer weggooien, op de
-      // laatst toegevoegde na.
+      $teVerwijderen = [];
       if (isset($_POST['foto']) && is_array($_POST['foto'])) {
-        $overgeblevenFotos = [];
         foreach ($_POST['foto'] as $i => $rij) {
           $bestand = basename($rij['bestand'] ?? '');
           if ($bestand === '') continue;
 
-          $bestaandeFoto = null;
-          foreach ($album['photos'] as $p) { if ($p['file'] === $bestand) { $bestaandeFoto = $p; break; } }
-          if ($bestaandeFoto === null) continue;
-          $isVideo = ($bestaandeFoto['type'] ?? 'photo') === 'video';
+          $fotoIndex = null;
+          foreach ($album['photos'] as $pi => $p) { if ($p['file'] === $bestand) { $fotoIndex = $pi; break; } }
+          if ($fotoIndex === null) continue;
+          $isVideo = ($album['photos'][$fotoIndex]['type'] ?? 'photo') === 'video';
 
           if (!empty($rij['verwijderen'])) {
-            @unlink($fotoboekMap . '/' . $slug . '/' . $bestand);
-            @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestand);
-            if (!empty($bestaandeFoto['poster'])) {
-              @unlink($fotoboekMap . '/' . $slug . '/' . $bestaandeFoto['poster']);
-              @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $bestaandeFoto['poster']);
-            }
+            $teVerwijderen[] = $bestand;
             continue;
           }
 
-          $bestaandeFoto['caption'] = [
+          $album['photos'][$fotoIndex]['caption'] = [
             'nl' => kort($rij['caption_nl'] ?? '', 150),
             'en' => kort($rij['caption_en'] ?? '', 150),
             'de' => kort($rij['caption_de'] ?? '', 150),
           ];
 
-          // Let op: hier NIET controleren of $bestaandeFoto['watermerk'] al true is.
+          // Let op: hier NIET controleren of ['watermerk'] al true is.
           // Dat vlaggetje kan stiekem niet meer kloppen met het echte bestand (bijv.
           // nadat een bestand buiten beheer.php om is teruggezet), dus een vinkje
           // hier moet altijd echt opnieuw het watermerk zetten, ongeacht de huidige vlag.
           // Video's slaan dit altijd over: watermerkeren gebeurt met GD en werkt niet op video.
           if (!$isVideo && !empty($rij['watermerk_toevoegen'])) {
             if (fotoboekWatermerkBestaandeFoto($fotoboekMap . '/' . $slug . '/' . $bestand, $logoPad)) {
-              $bestaandeFoto['watermerk'] = true;
+              $album['photos'][$fotoIndex]['watermerk'] = true;
               $watermerkToegevoegdTeller++;
             }
           }
 
-          $overgeblevenFotos[] = $bestaandeFoto;
           if (!$isVideo && $gekozenCoverIndex !== null && (string) $i === (string) $gekozenCoverIndex) $nieuweCover = $bestand;
         }
-        $album['photos'] = $overgeblevenFotos;
+      }
+      if ($teVerwijderen) {
+        foreach ($album['photos'] as $p) {
+          if (!in_array($p['file'], $teVerwijderen, true)) continue;
+          @unlink($fotoboekMap . '/' . $slug . '/' . $p['file']);
+          @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $p['file']);
+          if (!empty($p['poster'])) {
+            @unlink($fotoboekMap . '/' . $slug . '/' . $p['poster']);
+            @unlink($fotoboekMap . '/' . $slug . '/thumbs/' . $p['poster']);
+          }
+        }
+        $album['photos'] = array_values(array_filter($album['photos'], function($p) use ($teVerwijderen) {
+          return !in_array($p['file'], $teVerwijderen, true);
+        }));
       }
 
       // Nieuwe foto's en video's uploaden. Video's (mp4) worden herkend aan de
@@ -1214,10 +1229,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         if ($watermerkToegevoegdTeller > 0) $onderdelen[] = $watermerkToegevoegdTeller . ' foto(\'s) van een watermerk voorzien';
         if ($album['verborgen'] && !$wasVerborgen) $onderdelen[] = 'album verborgen op de website';
         if (!$album['verborgen'] && $wasVerborgen) $onderdelen[] = 'album weer zichtbaar op de website';
-        $melding['fotoboek'] = 'Album opgeslagen' . ($onderdelen ? ': ' . implode(', ', $onderdelen) . '.' : '.');
-        if ($uploadFouten) $melding['fotoboek'] .= ' Let op: ' . implode(' ', $uploadFouten);
-        $meldingType['fotoboek'] = $uploadFouten ? 'fout' : 'ok';
+        $meldingTekst = 'Album opgeslagen' . ($onderdelen ? ': ' . implode(', ', $onderdelen) . '.' : '.');
+        if ($uploadFouten) $meldingTekst .= ' Let op: ' . implode(' ', $uploadFouten);
         schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_album_bijgewerkt', $album['title']['nl'] . ($aantalGeupload ? ', ' . $aantalGeupload . ' upload(s)' : '') . ($watermerkToegevoegdTeller ? ', ' . $watermerkToegevoegdTeller . ' watermerk(en)' : '') . ($album['verborgen'] !== $wasVerborgen ? ', ' . ($album['verborgen'] ? 'verborgen' : 'weer zichtbaar') : ''));
+        // Post-Redirect-Get, zelfde reden als bij het aanmaken van een album:
+        // zonder deze redirect blijft deze pagina het resultaat van een POST,
+        // en kan een latere verversing (per ongeluk, of doordat de batch-
+        // upload aan het einde de pagina herlaadt) de browser laten vragen om
+        // dit formulier - met de foto-stand van OP DAT MOMENT - opnieuw te
+        // verzenden. Dat verzenden gebeurt hier via fetch() (niet via een
+        // echte paginanavigatie), dus dit heeft geen invloed op de lopende
+        // batch-upload zelf.
+        $_SESSION['flash'] = ['fotoboek' => [
+          'tekst' => $meldingTekst,
+          'type' => $uploadFouten ? 'fout' : 'ok',
+        ]];
+        header('Location: beheer.php#fotoboek');
+        exit;
       } else {
         $melding['fotoboek'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
         $meldingType['fotoboek'] = 'fout';
