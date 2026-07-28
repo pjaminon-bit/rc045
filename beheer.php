@@ -1013,6 +1013,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           'lidmaatschap_vanaf' => kort($_POST['lidmaatschap_vanaf'] ?? '', 60),
           'email' => $email,
           'facebook' => $facebook,
+          // Toont op de website wanneer de openingstijden voor het laatst zijn
+          // aangepast ("Laatste update: ..." bij de openingstijden-kaart en de
+          // info-balk). Dit formulier bevat ook adres/e-mail/Facebook, dus deze
+          // tijd verschuift strikt genomen ook als alleen dat wijzigt, maar in
+          // de praktijk wordt dit formulier vrijwel altijd voor de
+          // openingstijden zelf gebruikt.
+          'updated' => date('c'),
         ];
         if (schrijfJson($contactBestand, $contactData)) {
           $melding['contact'] = 'Opgeslagen. De contactgegevens en openingstijden op de website zijn bijgewerkt.';
