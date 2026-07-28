@@ -830,7 +830,7 @@
         <div class="opening-hours">
           <h3 data-i18n="hours.title">🕐 Openingstijden</h3>
           <div class="actueel-hours" id="actueel-hours">
-            <strong data-i18n="update.label">📣 Actueel:</strong> <span class="actueel-hours-text" id="actueel-hours-text"></span>
+            <strong data-i18n="update.label" id="actueel-hours-label">📣 Actueel:</strong> <span class="actueel-hours-text" id="actueel-hours-text"></span>
           </div>
           <div class="hours-row">
             <span class="hours-day" data-i18n="hours.wed">Woensdag</span>
@@ -1059,6 +1059,7 @@
       'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze',
       'hours.note.fb': 'Facebook-pagina', 'hours.note.times': 'voor actuele openingstijden.',
       'hours.weather': '❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
+      'hours.default.label': '🕐 Standaard:', 'hours.default.text': '10:00 – 15:00. Actuele openingstijden verschijnen op vrijdag op onze website.',
       'addr.title': 'Adres', 'addr.text': 'Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.',
       'addr.route': 'Routebeschrijving openen →',
       'contact.label': 'Contact', 'contact.title': 'Heb je een vraag?',
@@ -1126,6 +1127,7 @@
       'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance. Check our',
       'hours.note.fb': 'Facebook page', 'hours.note.times': 'for current opening hours.',
       'hours.weather': '❗ In bad weather we may decide to close early or not open at all.',
+      'hours.default.label': '🕐 Default:', 'hours.default.text': '10:00 – 15:00. Confirmed opening hours appear on our website on Friday.',
       'addr.title': 'Address', 'addr.text': 'Our track is on the Kok Lexmond site, follow the RC045 arrows on arrival.',
       'addr.route': 'Open directions →',
       'contact.label': 'Contact', 'contact.title': 'Got a question?',
@@ -1193,6 +1195,7 @@
       'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen. Schau auf unsere',
       'hours.note.fb': 'Facebook-Seite', 'hours.note.times': 'für aktuelle Öffnungszeiten.',
       'hours.weather': '❗ Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
+      'hours.default.label': '🕐 Standard:', 'hours.default.text': '10:00 – 15:00 Uhr. Die aktuellen Öffnungszeiten erscheinen freitags auf unserer Website.',
       'addr.title': 'Adresse', 'addr.text': 'Unsere Strecke liegt auf dem Gelände von Kok Lexmond, folge beim Ankommen den RC045-Schildern.',
       'addr.route': 'Route öffnen →',
       'contact.label': 'Kontakt', 'contact.title': 'Hast du eine Frage?',
@@ -1267,6 +1270,7 @@
     renderAgenda();
     renderContact();
     renderSponsorCta();
+    renderActueelHours();
   }
 
   // ===== CONTACTFORMULIER =====
@@ -1533,17 +1537,37 @@
   function closeLightbox() { lightbox.classList.remove('open'); document.body.style.overflow = ''; }
 
   // ===== ACTUELE UPDATE STROOK (data/actueel.json, bijwerken via beheer.php) =====
+  // Is er geen tekst ingevuld (of kan het bestand niet geladen worden), dan
+  // toont de openingstijden-kaart toch een standaardregel (10:00 - 15:00 +
+  // verwijzing naar vrijdag) in plaats van helemaal niets. De grote
+  // announce-bar bovenaan blijft in dat geval wel verborgen: die is bedoeld
+  // voor een echte, actieve mededeling, niet voor de standaardsituatie.
+  var actueelTekst = null;
+  function renderActueelHours() {
+    var t = i18n[currentLang];
+    var label = document.getElementById('actueel-hours-label');
+    var tekstEl = document.getElementById('actueel-hours-text');
+    if (!label || !tekstEl) return;
+    if (actueelTekst) {
+      label.textContent = t['update.label'];
+      tekstEl.textContent = actueelTekst;
+    } else {
+      label.textContent = t['hours.default.label'];
+      tekstEl.textContent = t['hours.default.text'];
+    }
+    document.getElementById('actueel-hours').style.display = 'block';
+  }
   fetch('data/actueel.json', { cache: 'no-store' })
     .then(function(r) { return r.ok ? r.json() : null; })
     .then(function(d) {
-      if (!d || !d.text || !d.text.trim()) return;
-      var tekst = d.text.trim();
-      document.getElementById('announce-text').textContent = tekst;
-      document.getElementById('announce-bar').style.display = 'flex';
-      document.getElementById('actueel-hours-text').textContent = tekst;
-      document.getElementById('actueel-hours').style.display = 'block';
+      if (d && d.text && d.text.trim()) {
+        actueelTekst = d.text.trim();
+        document.getElementById('announce-text').textContent = actueelTekst;
+        document.getElementById('announce-bar').style.display = 'flex';
+      }
+      renderActueelHours();
     })
-    .catch(function() {});
+    .catch(function() { renderActueelHours(); });
 
   // ===== AGENDA (data/agenda.json, bijwerken via beheer.php) =====
   // Nederlands is verplicht per kaart; Engels/Duits vallen terug op
