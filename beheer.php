@@ -1774,7 +1774,7 @@ if ($isMaster && file_exists($logBestand)) {
   <style>
     :root {
       --teal: #3A7A77; --teal-dark: #2D6260; --teal-light: #EAF4F3;
-      --gold-light: #FBF4DF; --rust: #8B3319;
+      --gold: #C89A1A; --gold-light: #FBF4DF; --rust: #8B3319;
       --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
       --border: #DDD8C0; --bg: #FAF6EC; --white: #FFFFFF;
     }
