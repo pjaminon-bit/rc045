@@ -5,7 +5,7 @@
 // voor gebruikersbeheer en het logboek. Vijf inhoudelijke onderdelen,
 // elk met een eigen formulier en eigen JSON-bestand in data/, die door
 // de website worden uitgelezen:
-//   - Actuele mededeling  -> data/actueel.json
+//   - Afwijkende openingstijden -> data/actueel.json
 //   - Agenda (4 kaarten)  -> data/agenda.json
 //   - Veelgestelde vragen -> data/faq.json
 //   - Sponsors (logo's)   -> data/sponsors.json, bestanden in images/sponsors/
@@ -88,7 +88,7 @@ $mediaBestand    = $dataMap . '/media.json';
 // weer wordt weggeschreven: gebruikers.json gaat via schrijfGebruikers, de
 // rest via het generieke schrijfJson.
 $dataBackupBestanden = [
-  'mededeling' => ['label' => 'Mededeling', 'pad' => $actueelBestand, 'schrijffunctie' => 'schrijfJson'],
+  'mededeling' => ['label' => 'Openingstijden', 'pad' => $actueelBestand, 'schrijffunctie' => 'schrijfJson'],
   'agenda'     => ['label' => 'Agenda', 'pad' => $agendaBestand, 'schrijffunctie' => 'schrijfJson'],
   'faq'        => ['label' => 'Vragen (FAQ)', 'pad' => $faqBestand, 'schrijffunctie' => 'schrijfJson'],
   'sponsors'   => ['label' => 'Sponsors', 'pad' => $sponsorBestand, 'schrijffunctie' => 'schrijfJson'],
@@ -820,7 +820,7 @@ $ingelogd = $configOk && isset($_SESSION['gebruiker']);
 $huidigeGebruiker = $_SESSION['gebruiker'] ?? '';
 $isMaster = $ingelogd && !empty($_SESSION['is_master']);
 
-// ===== Inhoud opslaan (mededeling / agenda / faq / sponsors / gebruikers) =====
+// ===== Inhoud opslaan (openingstijden / agenda / faq / sponsors / gebruikers) =====
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
   $formulier = $_POST['formulier'] ?? '';
 
@@ -854,7 +854,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         ? 'Opgeslagen. De strook is nu verborgen op de website.'
         : 'Opgeslagen. De nieuwe tekst staat nu op de website.';
       $meldingType['actueel'] = 'ok';
-      schrijfLog($logBestand, $huidigeGebruiker, 'mededeling', $tekst === '' ? 'strook verborgen' : 'tekst bijgewerkt');
+      schrijfLog($logBestand, $huidigeGebruiker, 'openingstijden', $tekst === '' ? 'strook verborgen' : 'tekst bijgewerkt');
     } else {
       $melding['actueel'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['actueel'] = 'fout';
@@ -1946,7 +1946,7 @@ if ($isMaster && file_exists($logBestand)) {
     <?php endif; ?>
 
     <nav class="menu">
-      <button type="button" class="menu-item" data-tab="mededeling">Mededeling</button>
+      <button type="button" class="menu-item" data-tab="mededeling">Openingstijden</button>
       <button type="button" class="menu-item" data-tab="agenda">Agenda</button>
       <button type="button" class="menu-item" data-tab="faq">Vragen</button>
       <button type="button" class="menu-item" data-tab="sponsors">Sponsors</button>
@@ -1962,10 +1962,10 @@ if ($isMaster && file_exists($logBestand)) {
     </nav>
 
     <div class="tab-paneel" id="tab-mededeling">
-    <!-- ===== ACTUELE MEDEDELING ===== -->
+    <!-- ===== AFWIJKENDE OPENINGSTIJDEN ===== -->
     <div class="kaart">
-      <h1>Actuele mededeling</h1>
-      <p class="sub">Verschijnt bovenaan de homepage en bij de openingstijden</p>
+      <h1>Afwijkende openingstijden</h1>
+      <p class="sub">Tijdelijke aanvulling op de vaste openingstijden (tab Contact), bijvoorbeeld een keer dicht of een andere sluitingstijd. Verschijnt bovenaan de homepage en bij de openingstijden.</p>
 
       <?php if (isset($melding['actueel'])): ?>
         <div class="melding <?php echo $meldingType['actueel']; ?>"><?php echo htmlspecialchars($melding['actueel']); ?></div>
