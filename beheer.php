@@ -1855,8 +1855,15 @@ if ($isMaster && file_exists($logBestand)) {
     .gebruiker-sinds { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
     .knop-klein { width: auto; background: none; border: 1px solid var(--border); color: var(--rust); font-size: 13px; font-weight: 600; padding: 6px 12px; white-space: nowrap; }
     .knop-klein:hover { background: #FDECEA; border-color: #F5B7B1; }
-    .knop-toevoegen { width: auto; background: none; border: 1.5px dashed var(--teal); color: var(--teal-dark); font-size: 14px; font-weight: 600; padding: 10px 16px; margin-bottom: 14px; }
-    .knop-toevoegen:hover { background: var(--teal-light); border-style: solid; }
+    .kaart-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .kaart-header h1 { margin-bottom: 4px; }
+    .kaart-header .sub { margin-bottom: 0; }
+    .knop-toevoegen { width: auto; background: var(--gold); color: var(--dark); font-size: 14px; font-weight: 700; padding: 11px 20px; white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 8px rgba(200,154,26,0.35); }
+    .knop-toevoegen:hover { background: #B08A17; }
+    @media (max-width: 600px) {
+      .kaart-header { flex-direction: column; }
+      .knop-toevoegen { width: 100%; }
+    }
     .fotoboek-foto-blok { border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; }
     .fotoboek-foto-volgorde { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; justify-content: center; }
     .fotoboek-foto-volgorde button { width: auto; background: none; color: var(--muted); border: none; padding: 2px 4px; font-size: 12px; line-height: 1; border-radius: 4px; }
@@ -2080,8 +2087,13 @@ if ($isMaster && file_exists($logBestand)) {
     <div class="tab-paneel" id="tab-faq">
     <!-- ===== VEELGESTELDE VRAGEN ===== -->
     <div class="kaart">
-      <h1>Veelgestelde vragen</h1>
-      <p class="sub">De volledige vragenlijst op de aanmeldpagina, inclusief de bestaande vragen. Laat een vraag leeg om die niet te tonen.</p>
+      <div class="kaart-header">
+        <div>
+          <h1>Veelgestelde vragen</h1>
+          <p class="sub">De volledige vragenlijst op de aanmeldpagina, inclusief de bestaande vragen. Laat een vraag leeg om die niet te tonen.</p>
+        </div>
+        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('faq-lijst', 'Vraag')">+ Vraag toevoegen</button>
+      </div>
 
       <?php if (isset($melding['faq'])): ?>
         <div class="melding <?php echo $meldingType['faq']; ?>"><?php echo htmlspecialchars($melding['faq']); ?></div>
@@ -2139,8 +2151,6 @@ if ($isMaster && file_exists($logBestand)) {
         <?php endforeach; ?>
         </div>
 
-        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('faq-lijst', 'Vraag')">+ Nog een vraag toevoegen</button>
-
         <button type="submit">Vragen opslaan</button>
       </form>
     </div>
@@ -2149,8 +2159,13 @@ if ($isMaster && file_exists($logBestand)) {
     <div class="tab-paneel" id="tab-sponsors">
     <!-- ===== SPONSORS ===== -->
     <div class="kaart">
-      <h1>Sponsors</h1>
-      <p class="sub">De sponsorlogo's onderaan elke pagina. Laat een naam leeg om die sponsor te verbergen.</p>
+      <div class="kaart-header">
+        <div>
+          <h1>Sponsors</h1>
+          <p class="sub">De sponsorlogo's onderaan elke pagina. Laat een naam leeg om die sponsor te verbergen.</p>
+        </div>
+        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('sponsors-lijst', 'Sponsor')">+ Sponsor toevoegen</button>
+      </div>
 
       <?php if (isset($melding['sponsors'])): ?>
         <div class="melding <?php echo $meldingType['sponsors']; ?>"><?php echo htmlspecialchars($melding['sponsors']); ?></div>
@@ -2203,8 +2218,6 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
         <?php endforeach; ?>
         </div>
-
-        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('sponsors-lijst', 'Sponsor')">+ Nog een sponsor toevoegen</button>
 
         <button type="submit">Sponsors opslaan</button>
       </form>
@@ -2289,8 +2302,13 @@ if ($isMaster && file_exists($logBestand)) {
     <div class="tab-paneel" id="tab-media">
     <!-- ===== MEDIA / PERSBERICHTEN ===== -->
     <div class="kaart">
-      <h1>Media / persberichten</h1>
-      <p class="sub">De lijst met persaandacht op de media-pagina. Laat een Nederlandse titel leeg om die kaart te verbergen.</p>
+      <div class="kaart-header">
+        <div>
+          <h1>Media / persberichten</h1>
+          <p class="sub">De lijst met persaandacht op de media-pagina. Laat een Nederlandse titel leeg om die kaart te verbergen.</p>
+        </div>
+        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('media-lijst', 'Item')">+ Media-item toevoegen</button>
+      </div>
 
       <?php if (isset($melding['media'])): ?>
         <div class="melding <?php echo $meldingType['media']; ?>"><?php echo htmlspecialchars($melding['media']); ?></div>
@@ -2380,8 +2398,6 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
         <?php endforeach; ?>
         </div>
-
-        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('media-lijst', 'Item')">+ Nog een media-item toevoegen</button>
 
         <button type="submit">Media opslaan</button>
       </form>
