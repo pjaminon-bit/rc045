@@ -1686,9 +1686,11 @@ if (file_exists($faqBestand)) {
     }, $json);
   }
 }
-while (count($faqData) < 8) {
-  $faqData[] = ['q' => ['nl' => '', 'en' => '', 'de' => ''], 'a' => ['nl' => '', 'en' => '', 'de' => '']];
-}
+// Geen vast maximum meer: altijd de bestaande vragen plus telkens 1 leeg
+// blok aan het einde om een nieuwe vraag te beginnen. Meerdere vragen in
+// één keer toevoegen kan met de knop "Nog een vraag toevoegen" (JS kloont
+// dan clientside een extra leeg blok, zie itemBlokToevoegen()).
+$faqData[] = ['q' => ['nl' => '', 'en' => '', 'de' => ''], 'a' => ['nl' => '', 'en' => '', 'de' => '']];
 
 $sponsorData = $sponsorStandaard;
 $sponsorCtaData = $sponsorCtaStandaard;
@@ -1701,9 +1703,10 @@ if (file_exists($sponsorBestand)) {
     $sponsorCtaData = array_merge($sponsorCtaStandaard, $json['cta']);
   }
 }
-while (count($sponsorData) < 8) {
-  $sponsorData[] = ['name' => '', 'url' => '', 'logo' => ''];
-}
+// Geen vast maximum meer: altijd de bestaande sponsors plus telkens 1 leeg
+// blok aan het einde. Zie faqData hierboven voor de toelichting; hetzelfde
+// principe (en dezelfde itemBlokToevoegen()-knop) geldt hier.
+$sponsorData[] = ['name' => '', 'url' => '', 'logo' => ''];
 
 $contactData = $contactStandaard;
 if (file_exists($contactBestand)) {
@@ -1727,9 +1730,9 @@ if (file_exists($mediaBestand)) {
   $json = json_decode(file_get_contents($mediaBestand), true);
   if (is_array($json) && count($json) > 0) $mediaData = $json;
 }
-while (count($mediaData) < 8) {
-  $mediaData[] = ['date' => '', 'bron' => '', 'icoon' => '📺', 'title' => ['nl' => '', 'en' => '', 'de' => ''], 'desc' => ['nl' => '', 'en' => '', 'de' => ''], 'link' => '', 'linktekst' => ['nl' => '', 'en' => '', 'de' => '']];
-}
+// Geen vast maximum meer: altijd de bestaande media-items plus telkens 1
+// leeg blok aan het einde. Zie faqData hierboven voor de toelichting.
+$mediaData[] = ['date' => '', 'bron' => '', 'icoon' => '📺', 'title' => ['nl' => '', 'en' => '', 'de' => ''], 'desc' => ['nl' => '', 'en' => '', 'de' => ''], 'link' => '', 'linktekst' => ['nl' => '', 'en' => '', 'de' => '']];
 
 $fotoboekData = ['albums' => []];
 if (file_exists($fotoboekBestand)) {
@@ -1852,6 +1855,8 @@ if ($isMaster && file_exists($logBestand)) {
     .gebruiker-sinds { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
     .knop-klein { width: auto; background: none; border: 1px solid var(--border); color: var(--rust); font-size: 13px; font-weight: 600; padding: 6px 12px; white-space: nowrap; }
     .knop-klein:hover { background: #FDECEA; border-color: #F5B7B1; }
+    .knop-toevoegen { width: auto; background: none; border: 1.5px dashed var(--teal); color: var(--teal-dark); font-size: 14px; font-weight: 600; padding: 10px 16px; margin-bottom: 14px; }
+    .knop-toevoegen:hover { background: var(--teal-light); border-style: solid; }
     .fotoboek-foto-blok { border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; }
     .fotoboek-foto-volgorde { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; justify-content: center; }
     .fotoboek-foto-volgorde button { width: auto; background: none; color: var(--muted); border: none; padding: 2px 4px; font-size: 12px; line-height: 1; border-radius: 4px; }
@@ -2090,7 +2095,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="formulier" value="faq">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
-        <div class="item-lijst">
+        <div class="item-lijst" id="faq-lijst">
         <?php foreach ($faqData as $i => $item): ?>
           <div class="item-blok">
             <div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div>
@@ -2134,6 +2139,8 @@ if ($isMaster && file_exists($logBestand)) {
         <?php endforeach; ?>
         </div>
 
+        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('faq-lijst', 'Vraag')">+ Nog een vraag toevoegen</button>
+
         <button type="submit">Vragen opslaan</button>
       </form>
     </div>
@@ -2173,7 +2180,7 @@ if ($isMaster && file_exists($logBestand)) {
           <p class="hint">Engels en Duits leeg laten? Dan toont de website daar automatisch de Nederlandse tekst.</p>
         </div>
 
-        <div class="item-lijst">
+        <div class="item-lijst" id="sponsors-lijst">
         <?php foreach ($sponsorData as $i => $sp): ?>
           <div class="item-blok">
             <div class="item-blok-nr">Sponsor <?php echo $i + 1; ?></div>
@@ -2196,6 +2203,8 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
         <?php endforeach; ?>
         </div>
+
+        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('sponsors-lijst', 'Sponsor')">+ Nog een sponsor toevoegen</button>
 
         <button type="submit">Sponsors opslaan</button>
       </form>
@@ -2295,7 +2304,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="formulier" value="media">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
-        <div class="item-lijst">
+        <div class="item-lijst" id="media-lijst">
         <?php foreach ($mediaData as $i => $mi): ?>
           <div class="item-blok">
             <div class="item-blok-nr">Item <?php echo $i + 1; ?></div>
@@ -2371,6 +2380,8 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
         <?php endforeach; ?>
         </div>
+
+        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('media-lijst', 'Item')">+ Nog een media-item toevoegen</button>
 
         <button type="submit">Media opslaan</button>
       </form>
@@ -3049,6 +3060,59 @@ if ($isMaster && file_exists($logBestand)) {
       blok.classList.toggle('is-afgelopen', vinkje.checked);
       var badge = blok.querySelector('.afgelopen-badge');
       if (badge) badge.style.display = vinkje.checked ? '' : 'none';
+    }
+
+    // ===== FAQ / sponsors / media: extra leeg blok toevoegen zonder maximum =====
+    // Deze drie secties vulden vroeger altijd aan tot precies 8 lege blokken;
+    // een negende vraag, sponsor of media-item kon dan alleen door de "8" in
+    // beheer.php zelf te verhogen (dus via GitHub). Nu toont de pagina steeds
+    // de bestaande items plus 1 leeg blok aan het einde (zie faqData/
+    // sponsorData/mediaData in PHP hierboven); deze knop kloont dat laatste,
+    // lege blok zodat je er clientside nog meer bij kan zetten voordat je
+    // opslaat. Werkt voor alle drie omdat de velden twee naamstijlen volgen:
+    // "sectie[3][veld]" (tekst/textarea/select) of "sectie_logo_3" (het
+    // sponsor-logo-bestandsveld); beide worden hier herkend en herindexeerd.
+    function itemBlokToevoegen(lijstId, labelPrefix) {
+      var lijst = document.getElementById(lijstId);
+      if (!lijst) return;
+      var blokken = lijst.querySelectorAll('.item-blok');
+      if (blokken.length === 0) return;
+      var laatste = blokken[blokken.length - 1];
+      var nieuweIndex = blokken.length;
+      var nieuw = laatste.cloneNode(true);
+
+      nieuw.querySelectorAll('input, textarea, select').forEach(function(veld) {
+        if (veld.name) {
+          veld.name = veld.name
+            .replace(/\[(\d+)\]/, '[' + nieuweIndex + ']')
+            .replace(/_(\d+)$/, '_' + nieuweIndex);
+        }
+        if (veld.id) veld.id = veld.id.replace(/-(\d+)$/, '-' + nieuweIndex);
+
+        if (veld.tagName === 'SELECT') {
+          veld.selectedIndex = 0;
+        } else if (veld.type === 'checkbox' || veld.type === 'radio') {
+          veld.checked = false;
+        } else if (veld.type !== 'file') {
+          veld.value = '';
+        }
+      });
+
+      nieuw.querySelectorAll('label[for]').forEach(function(label) {
+        label.htmlFor = label.htmlFor.replace(/-(\d+)$/, '-' + nieuweIndex);
+      });
+
+      // Een gekloond blok kan een bestaand sponsorlogo tonen; een nieuw leeg
+      // blok hoort dat niet te doen.
+      nieuw.querySelectorAll('img').forEach(function(img) { img.remove(); });
+
+      var nrLabel = nieuw.querySelector('.item-blok-nr');
+      if (nrLabel) nrLabel.textContent = labelPrefix + ' ' + (nieuweIndex + 1);
+
+      lijst.appendChild(nieuw);
+      nieuw.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      var eersteVeld = nieuw.querySelector('input, textarea');
+      if (eersteVeld) eersteVeld.focus();
     }
 
     // ===== Logboek: filter per kolom via een uitklapbaar vinkjeslijstje =====
