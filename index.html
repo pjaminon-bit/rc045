@@ -104,6 +104,8 @@
     .actueel-hours { display: none; background: var(--gold-light); border: 1px solid rgba(200,154,26,0.35); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 14px; line-height: 1.6; }
     .actueel-hours strong { color: var(--rust); }
     .actueel-hours-text { white-space: pre-line; }
+    .actueel-hours-updated { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .info-hours-note { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
 
     /* ===== INFO BAR ===== */
     .info-bar { background: var(--white); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); }
@@ -508,6 +510,10 @@
         <div class="info-value" id="info-sat-value">Zaterdag 10:00–15:00</div>
         <div class="info-value" id="info-sun-value">Zondag 10:00–15:00</div>
         <div id="status-indicator"></div>
+        <div class="info-hours-note" id="info-hours-note">
+          <span data-i18n="info.hours.note">Op vrijdag passen we onze actuele openingstijden aan.</span>
+          <span id="info-hours-updated"></span>
+        </div>
       </div>
     </div>
     <div class="info-item">
@@ -830,7 +836,8 @@
         <div class="opening-hours">
           <h3 data-i18n="hours.title">🕐 Openingstijden</h3>
           <div class="actueel-hours" id="actueel-hours">
-            <strong data-i18n="update.label" id="actueel-hours-label">📣 Actueel:</strong> <span class="actueel-hours-text" id="actueel-hours-text"></span>
+            <div><strong data-i18n="update.label" id="actueel-hours-label">📣 Actueel:</strong> <span class="actueel-hours-text" id="actueel-hours-text"></span></div>
+            <div class="actueel-hours-updated" id="actueel-hours-updated" hidden></div>
           </div>
           <div class="hours-row">
             <span class="hours-day" data-i18n="hours.wed">Woensdag</span>
@@ -1059,7 +1066,8 @@
       'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze',
       'hours.note.fb': 'Facebook-pagina', 'hours.note.times': 'voor actuele openingstijden.',
       'hours.weather': '❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
-      'hours.default.label': '🕐 Standaard:', 'hours.default.text': '10:00 – 15:00. Actuele openingstijden verschijnen op vrijdag op onze website.',
+      'hours.default.label': '🕐 Standaard:', 'hours.default.text': '10:00 – 15:00. Op vrijdag passen we onze actuele openingstijden aan.',
+      'hours.updated.label': 'Laatste update:', 'info.hours.note': 'Op vrijdag passen we onze actuele openingstijden aan.',
       'addr.title': 'Adres', 'addr.text': 'Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.',
       'addr.route': 'Routebeschrijving openen →',
       'contact.label': 'Contact', 'contact.title': 'Heb je een vraag?',
@@ -1127,7 +1135,8 @@
       'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance. Check our',
       'hours.note.fb': 'Facebook page', 'hours.note.times': 'for current opening hours.',
       'hours.weather': '❗ In bad weather we may decide to close early or not open at all.',
-      'hours.default.label': '🕐 Default:', 'hours.default.text': '10:00 – 15:00. Confirmed opening hours appear on our website on Friday.',
+      'hours.default.label': '🕐 Default:', 'hours.default.text': '10:00 – 15:00. We update our opening hours every Friday.',
+      'hours.updated.label': 'Last updated:', 'info.hours.note': 'We update our opening hours every Friday.',
       'addr.title': 'Address', 'addr.text': 'Our track is on the Kok Lexmond site, follow the RC045 arrows on arrival.',
       'addr.route': 'Open directions →',
       'contact.label': 'Contact', 'contact.title': 'Got a question?',
@@ -1195,7 +1204,8 @@
       'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen. Schau auf unsere',
       'hours.note.fb': 'Facebook-Seite', 'hours.note.times': 'für aktuelle Öffnungszeiten.',
       'hours.weather': '❗ Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
-      'hours.default.label': '🕐 Standard:', 'hours.default.text': '10:00 – 15:00 Uhr. Die aktuellen Öffnungszeiten erscheinen freitags auf unserer Website.',
+      'hours.default.label': '🕐 Standard:', 'hours.default.text': '10:00 – 15:00 Uhr. Freitags aktualisieren wir unsere Öffnungszeiten.',
+      'hours.updated.label': 'Letzte Aktualisierung:', 'info.hours.note': 'Freitags aktualisieren wir unsere Öffnungszeiten.',
       'addr.title': 'Adresse', 'addr.text': 'Unsere Strecke liegt auf dem Gelände von Kok Lexmond, folge beim Ankommen den RC045-Schildern.',
       'addr.route': 'Route öffnen →',
       'contact.label': 'Kontakt', 'contact.title': 'Hast du eine Frage?',
@@ -1543,6 +1553,16 @@
   // announce-bar bovenaan blijft in dat geval wel verborgen: die is bedoeld
   // voor een echte, actieve mededeling, niet voor de standaardsituatie.
   var actueelTekst = null;
+  // Zet een ISO-tijdstempel (zoals PHP's date('c')) om naar DD/MM/JJJJ UU:MM,
+  // ongeacht taal: de rest van de site toont tijden ook overal in dit
+  // 24-uursformaat, dus dit blijft consistent voor NL/EN/DE bezoekers.
+  function formatteerBijgewerkt(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
   function renderActueelHours() {
     var t = i18n[currentLang];
     var label = document.getElementById('actueel-hours-label');
@@ -1556,6 +1576,20 @@
       tekstEl.textContent = t['hours.default.text'];
     }
     document.getElementById('actueel-hours').style.display = 'block';
+
+    // "Laatste update" verwijst naar de openingstijden zelf (data/contact.json),
+    // niet naar deze mededelingenstrook; alleen zinvol als er geen actuele
+    // mededeling actief is, want dan tonen we toch al de standaardtijden.
+    var updatedEl = document.getElementById('actueel-hours-updated');
+    if (updatedEl) {
+      var gefmt = (!actueelTekst && contactData) ? formatteerBijgewerkt(contactData.updated) : '';
+      if (gefmt) {
+        updatedEl.textContent = t['hours.updated.label'] + ' ' + gefmt;
+        updatedEl.hidden = false;
+      } else {
+        updatedEl.hidden = true;
+      }
+    }
   }
   fetch('data/actueel.json', { cache: 'no-store' })
     .then(function(r) { return r.ok ? r.json() : null; })
@@ -1787,6 +1821,12 @@
     var elMembership = document.getElementById('info-membership-value');
     if (elMembership && contactData.lidmaatschap_vanaf) elMembership.textContent = contactData.lidmaatschap_vanaf;
 
+    var updatedInfoEl = document.getElementById('info-hours-updated');
+    if (updatedInfoEl) {
+      var gefmtInfo = formatteerBijgewerkt(contactData.updated);
+      updatedInfoEl.textContent = gefmtInfo ? ('· ' + t['hours.updated.label'] + ' ' + gefmtInfo) : '';
+    }
+
     if (contactData.facebook) {
       ['hours-note-fb-link', 'contact-facebook-link', 'footer-facebook-link'].forEach(function(id) {
         var el = document.getElementById(id);
@@ -1810,6 +1850,7 @@
       contactData = d;
       renderContact();
       updateStatus();
+      renderActueelHours();
     })
     .catch(function() {});
 </script>
