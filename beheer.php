@@ -6,7 +6,7 @@
 // elk met een eigen formulier en eigen JSON-bestand in data/, die door
 // de website worden uitgelezen:
 //   - Afwijkende openingstijden -> data/actueel.json
-//   - Agenda (4 kaarten)  -> data/agenda.json
+//   - Agenda (kaarten)     -> data/agenda.json
 //   - Veelgestelde vragen -> data/faq.json
 //   - Sponsors (logo's)   -> data/sponsors.json, bestanden in images/sponsors/
 //   - Fotoboek (albums)   -> data/fotoboek.json, bestanden in images/fotoboek/<slug>/
@@ -1666,10 +1666,11 @@ if (file_exists($agendaBestand)) {
     }, $json);
   }
 }
-// Altijd 4 rijen tonen in het formulier, ook als er minder zijn opgeslagen
-while (count($agendaData) < 4) {
-  $agendaData[] = ['date' => '', 'tag' => 'leden', 'time' => '', 'title' => ['nl' => '', 'en' => '', 'de' => ''], 'desc' => ['nl' => '', 'en' => '', 'de' => ''], 'past' => false];
-}
+// Geen vast maximum meer: altijd de bestaande evenementen plus telkens 1 leeg
+// blok aan het einde om een nieuw evenement te beginnen. Meerdere in één keer
+// toevoegen kan met de knop "+ Agenda-item toevoegen" (JS kloont dan
+// clientside een extra leeg blok, zie itemBlokToevoegen()).
+$agendaData[] = ['date' => '', 'tag' => 'leden', 'time' => '', 'title' => ['nl' => '', 'en' => '', 'de' => ''], 'desc' => ['nl' => '', 'en' => '', 'de' => ''], 'past' => false];
 
 $faqData = $faqStandaard;
 if (file_exists($faqBestand)) {
@@ -1998,8 +1999,13 @@ if ($isMaster && file_exists($logBestand)) {
     <div class="tab-paneel" id="tab-agenda">
     <!-- ===== AGENDA ===== -->
     <div class="kaart">
-      <h1>Agenda homepage</h1>
-      <p class="sub">De vier evenementenkaarten op de homepage. Laat de Nederlandse titel leeg om die kaart te verbergen.</p>
+      <div class="kaart-header">
+        <div>
+          <h1>Agenda homepage</h1>
+          <p class="sub">De evenementenkaarten op de homepage, inclusief de bestaande kaarten. Laat de Nederlandse titel leeg om die kaart te verbergen.</p>
+        </div>
+        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('agenda-lijst', 'Kaart')">+ Agenda-item toevoegen</button>
+      </div>
 
       <?php if (isset($melding['agenda'])): ?>
         <div class="melding <?php echo $meldingType['agenda']; ?>"><?php echo htmlspecialchars($melding['agenda']); ?></div>
@@ -2013,7 +2019,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="formulier" value="agenda">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
-        <div class="item-lijst">
+        <div class="item-lijst" id="agenda-lijst">
         <?php foreach ($agendaData as $i => $ev): ?>
           <div class="item-blok <?php echo !empty($ev['past']) ? 'is-afgelopen' : ''; ?>">
             <div class="item-blok-nr">
