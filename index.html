@@ -268,7 +268,13 @@
     
     .agenda { background: var(--bg); }
     
-    .agenda-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    /* Kolommen passen zich vanzelf aan: nooit meer dan 5 naast elkaar
+       (begrensd door de minmax-breedte hieronder samen met de
+       max-breedte van .container), en met minder dan 5 kaarten vullen
+       de bestaande kaarten de rij mooi op in plaats van een leeg gat
+       aan het eind. Schaalt vanzelf terug naar 1 kolom op een smal
+       scherm, daarom is er geen aparte @media-regel meer voor nodig. */
+    .agenda-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px; }
     
     .agenda-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; opacity: 0; transform: translateY(24px); display: flex; flex-direction: column; }
     
@@ -315,8 +321,6 @@
         .agenda-card.afgelopen .agenda-card-time { opacity: 0.3; }
     
     .agenda-card-past-badge { position: absolute; top: 14px; right: 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 100px; background: var(--gold-light); color: var(--rust); }
-    
-    @media (max-width: 900px) { .agenda-grid { grid-template-columns: 1fr; } }
     
     .rules { background: var(--dark); color: white; }
     
