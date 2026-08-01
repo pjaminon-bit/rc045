@@ -372,9 +372,9 @@
        tekst op dezelfde lijn als de andere regels. */
     .hours-time-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
     
-    .hours-closed-note { display: none; font-size: 12px; font-weight: 600; color: var(--rust); text-align: right; }
+    .hours-closed-note { display: none; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 11px; border-radius: 100px; background: var(--rust); color: var(--white); text-align: center; }
     
-    .hours-row.is-gesloten { align-items: flex-start; background: rgba(139,51,25,0.06); border-left: 3px solid var(--rust); margin-left: -28px; margin-right: -28px; padding-left: 25px; padding-right: 28px; }
+    .hours-row.is-gesloten { align-items: flex-start; background: rgba(139,51,25,0.09); border-left: 3px solid var(--rust); margin-left: -28px; margin-right: -28px; padding-left: 25px; padding-right: 28px; }
     
     .hours-row.is-gesloten .hours-time { text-decoration: line-through; opacity: 0.55; }
     
@@ -383,9 +383,9 @@
     /* Zelfde melding in de info-balk bovenaan. Daar is bewust geen achtergrond
        en randje gebruikt: dat blok is een smalle strook van drie kolommen en
        wordt daar te zwaar van. */
-    .info-value .tijd-gesloten { text-decoration: line-through; opacity: 0.55; }
+    .info-value .tijd-gesloten { text-decoration: line-through; opacity: 0.5; }
     
-    .info-closed-note { display: block; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--rust); }
+    .info-closed-note { display: block; width: fit-content; margin-top: 4px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 11px; border-radius: 100px; background: var(--rust); color: var(--white); }
     
     .hours-note { font-size: 13px; color: var(--muted); margin-top: 14px; padding: 12px; background: var(--teal-light); border-radius: 8px; line-height: 1.5; }
     
