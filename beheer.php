@@ -244,11 +244,11 @@ $contactStandaard = [
   'adres_postcode_plaats' => '6464 EZ Eygelshoven',
   'openingstijden' => [
     'woensdag' => 'Woensdagavond bij voldoende animo',
-    // 'status' bepaalt of de dag open is of dicht, en met welke melding. De
-    // van/tot blijven altijd bewaard, zodat een dag na een sluiting gewoon
-    // weer op open gezet kan worden.
-    'zaterdag' => ['van' => '10:00', 'tot' => '15:00', 'status' => 'open'],
-    'zondag' => ['van' => '10:00', 'tot' => '15:00', 'status' => 'open'],
+    // 'status' bepaalt of de dag open is of dicht, en met welke melding.
+    // 'status_tot' is het moment waarop die melding vanzelf vervalt: de
+    // betreffende dag om 20:00. De van/tot blijven altijd bewaard.
+    'zaterdag' => ['van' => '10:00', 'tot' => '15:00', 'status' => 'open', 'status_tot' => ''],
+    'zondag' => ['van' => '10:00', 'tot' => '15:00', 'status' => 'open', 'status_tot' => ''],
   ],
   'lidmaatschap_vanaf' => 'Vanaf €50/jaar',
   'email' => 'bestuur@rc045.nl',
@@ -334,6 +334,38 @@ function contactStatusOpties() {
     'onderhoud' => '🔧 Gesloten i.v.m. onderhoud',
     'weer' => '🌧️ Gesloten i.v.m. slecht weer',
   ];
+}
+
+// Het moment waarop een gesloten-melding vanzelf vervalt: de eerstvolgende
+// keer dat die dag zich voordoet, om 20:00. Wordt de stand op zaterdagochtend
+// gezet, dan geldt hij diezelfde zaterdag; wordt hij zaterdagavond na achten
+// gezet, dan geldt hij de zaterdag erna. Er wordt een absolute tijd met
+// tijdzone weggeschreven, zodat de website hem los van de tijdzone van de
+// bezoeker goed vergelijkt.
+function contactVervalMoment($dag) {
+  $engelseDagen = ['zaterdag' => 'saturday', 'zondag' => 'sunday'];
+  if (!isset($engelseDagen[$dag])) return '';
+  $tz = new DateTimeZone('Europe/Amsterdam');
+  $nu = new DateTime('now', $tz);
+  $verval = (clone $nu)->modify('this ' . $engelseDagen[$dag])->setTime(20, 0);
+  if ($verval <= $nu) {
+    $verval = (clone $nu)->modify('next ' . $engelseDagen[$dag])->setTime(20, 0);
+  }
+  return $verval->format('c');
+}
+
+// Leesbare weergave van het vervalmoment voor in het beheerscherm.
+function contactVervalTekst($iso) {
+  if (!$iso) return '';
+  try {
+    $moment = new DateTime($iso);
+    $moment->setTimezone(new DateTimeZone('Europe/Amsterdam'));
+  } catch (Exception $e) {
+    return '';
+  }
+  $dagen = ['Sun' => 'zondag', 'Mon' => 'maandag', 'Tue' => 'dinsdag', 'Wed' => 'woensdag', 'Thu' => 'donderdag', 'Fri' => 'vrijdag', 'Sat' => 'zaterdag'];
+  $maanden = [1 => 'januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
+  return ($dagen[$moment->format('D')] ?? '') . ' ' . $moment->format('j') . ' ' . ($maanden[(int)$moment->format('n')] ?? '') . ' om ' . $moment->format('H:i');
 }
 
 function euro($bedrag) {
@@ -1019,7 +1051,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           if (!in_array($van, $tijdOpties, true)) $van = $tijdOpties[0];
           if (!in_array($tot, $tijdOpties, true)) $tot = $tijdOpties[0];
           if (!isset($statusOpties[$status])) $status = 'open';
-          return ['van' => $van, 'tot' => $tot, 'status' => $status];
+          // Het vervalmoment wordt bij elke opslag opnieuw bepaald. Dat levert
+          // steeds dezelfde datum op zolang die dag nog moet komen, en een
+          // verlopen sluiting staat op dat moment toch al weer op open.
+          $statusTot = $status === 'open' ? '' : contactVervalMoment($dag);
+          return ['van' => $van, 'tot' => $tot, 'status' => $status, 'status_tot' => $statusTot];
         };
         $contactData = [
           'adres_straat' => kort($_POST['adres_straat'] ?? '', 80),
@@ -1754,6 +1790,7 @@ if (file_exists($contactBestand)) {
     // Stond er nog een oude losse tekst (van vóór het keuzemenu), dan geldt de
     // standaard tijd als uitgangspunt in plaats van dat de pagina crasht.
     $statusOpties = contactStatusOpties();
+    $nuMoment = new DateTime('now', new DateTimeZone('Europe/Amsterdam'));
     foreach (['zaterdag', 'zondag'] as $dag) {
       if (!is_array($contactData['openingstijden'][$dag] ?? null)) {
         $contactData['openingstijden'][$dag] = $contactStandaard['openingstijden'][$dag];
@@ -1767,6 +1804,22 @@ if (file_exists($contactBestand)) {
           $contactData['openingstijden'][$dag]['status'] = !empty($oud['gesloten']) ? 'onderhoud' : 'open';
         }
         unset($contactData['openingstijden'][$dag]['gesloten']);
+
+        // Is het vervalmoment voorbij, dan telt de dag weer als open. De
+        // website doet hetzelfde, dus het beheerscherm laat zo hetzelfde zien.
+        // Het bestand wordt hier niet herschreven; dat gebeurt vanzelf bij de
+        // eerstvolgende keer opslaan.
+        $statusTot = $contactData['openingstijden'][$dag]['status_tot'] ?? '';
+        if ($contactData['openingstijden'][$dag]['status'] !== 'open' && $statusTot) {
+          try {
+            if (new DateTime($statusTot) <= $nuMoment) {
+              $contactData['openingstijden'][$dag]['status'] = 'open';
+              $contactData['openingstijden'][$dag]['status_tot'] = '';
+            }
+          } catch (Exception $e) {
+            // Onleesbare datum: laat de stand staan zoals hij is.
+          }
+        }
       }
     }
   }
@@ -2334,7 +2387,10 @@ if ($isMaster && file_exists($logBestand)) {
                 <option value="<?php echo $waarde; ?>" <?php if (($contactData['openingstijden'][$dag]['status'] ?? 'open') === $waarde) echo 'selected'; ?>><?php echo htmlspecialchars($label); ?></option>
               <?php endforeach; ?>
             </select>
-            <p class="hint">Staat dit op een gesloten-stand, dan wordt de tijd op de website doorgestreept getoond met de melding eronder, automatisch in alle talen. De tijden hierboven blijven bewaard, dus daarna zet je de dag gewoon weer op open. Ook de open/gesloten-melding bovenaan de homepage houdt hier rekening mee.</p>
+            <p class="hint">Staat dit op een gesloten-stand, dan wordt de tijd op de website doorgestreept getoond met de melding eronder, automatisch in alle talen. De tijden hierboven blijven bewaard, dus daarna zet je de dag gewoon weer op open. Ook de open/gesloten-melding bovenaan de homepage houdt hier rekening mee.<br>De melding vervalt vanzelf op de betreffende dag om 20:00, dus vergeten terug te zetten kan geen kwaad.<?php
+              $vervalTekst = contactVervalTekst($contactData['openingstijden'][$dag]['status_tot'] ?? '');
+              if ($vervalTekst) echo ' <strong>Deze melding verdwijnt ' . htmlspecialchars($vervalTekst) . '.</strong>';
+            ?></p>
           </div>
         <?php endforeach; ?>
 
