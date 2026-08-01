@@ -77,10 +77,14 @@
     .form-group input:focus, .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,122,119,0.12); }
     
     .phone-row { display: flex; gap: 8px; }
-    
+
     .phone-row select { width: 120px; flex-shrink: 0; }
-    
+
     .phone-row input { flex: 1; }
+
+    .dob-row { display: flex; gap: 8px; }
+
+    .dob-row select { flex: 1; min-width: 0; }
     
     .jeugdlid-badge { display: none; margin-top: 8px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
     
@@ -248,8 +252,13 @@
           <div class="field-error" id="achternaam-error" data-i18n="err.required">Dit veld is verplicht</div>
         </div>
         <div class="form-group full">
-          <label for="geboortedatum"><span data-i18n="form.dob">Geboortedatum</span> <span class="req">*</span></label>
-          <input type="date" id="geboortedatum" name="geboortedatum">
+          <label for="geboortedatum-dag"><span data-i18n="form.dob">Geboortedatum</span> <span class="req">*</span></label>
+          <div class="dob-row">
+            <select id="geboortedatum-dag" aria-label="Dag"></select>
+            <select id="geboortedatum-maand" aria-label="Maand"></select>
+            <select id="geboortedatum-jaar" aria-label="Jaar"></select>
+          </div>
+          <input type="hidden" id="geboortedatum" name="geboortedatum">
           <div class="field-error" id="geboortedatum-error" data-i18n="err.required">Dit veld is verplicht</div>
           <div class="jeugdlid-badge" id="jeugdlid-badge"></div>
         </div>
@@ -429,6 +438,7 @@
       'form.contact': 'Contactgegevens', 'form.agreement': 'Akkoordverklaring',
       'form.firstname': 'Voornaam', 'form.lastname': 'Achternaam',
       'form.dob': 'Geboortedatum', 'form.street': 'Straat',
+      'form.day': 'Dag', 'form.month': 'Maand', 'form.year': 'Jaar',
       'form.number': 'Huisnummer', 'form.postcode': 'Postcode',
       'form.city': 'Woonplaats', 'form.country': 'Land',
       'form.email': 'E-mailadres', 'form.mobile': 'Mobiel nummer',
@@ -471,6 +481,7 @@
       'form.contact': 'Contact details', 'form.agreement': 'Declaration of agreement',
       'form.firstname': 'First name', 'form.lastname': 'Last name',
       'form.dob': 'Date of birth', 'form.street': 'Street',
+      'form.day': 'Day', 'form.month': 'Month', 'form.year': 'Year',
       'form.number': 'House number', 'form.postcode': 'Postcode',
       'form.city': 'City', 'form.country': 'Country',
       'form.email': 'Email address', 'form.mobile': 'Mobile number',
@@ -513,6 +524,7 @@
       'form.contact': 'Kontaktdaten', 'form.agreement': 'Einverständniserklärung',
       'form.firstname': 'Vorname', 'form.lastname': 'Nachname',
       'form.dob': 'Geburtsdatum', 'form.street': 'Straße',
+      'form.day': 'Tag', 'form.month': 'Monat', 'form.year': 'Jahr',
       'form.number': 'Hausnummer', 'form.postcode': 'Postleitzahl',
       'form.city': 'Wohnort', 'form.country': 'Land',
       'form.email': 'E-Mail-Adresse', 'form.mobile': 'Handynummer',
@@ -569,6 +581,7 @@
     else currentUrl.searchParams.set('lang', lang);
     history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
     updateInternalLinks(lang);
+    populateDobSelects();
     berekenContributie();
     renderFaq();
     renderSponsorCta();
@@ -615,17 +628,19 @@
   function berekenContributie() {
     const t = i18n[currentLang];
     const maandNamen = getMaandNamen();
-    const geboortedatum = document.getElementById('geboortedatum').value;
+    const dobDag = document.getElementById('geboortedatum-dag').value;
+    const dobMaand = document.getElementById('geboortedatum-maand').value;
+    const dobJaar = document.getElementById('geboortedatum-jaar').value;
     const contentEl = document.getElementById('contributie-content');
 
-    if (!geboortedatum) {
+    if (!dobDag || !dobMaand || !dobJaar) {
       contentEl.innerHTML = `<p class="contributie-placeholder">${t['contrib.placeholder']}</p>`;
       document.getElementById('jeugdlid-hidden').value = '';
       document.getElementById('contributiebedrag-hidden').value = '';
       return;
     }
 
-    const geb = new Date(geboortedatum);
+    const geb = new Date(Number(dobJaar), Number(dobMaand) - 1, Number(dobDag));
     const nu = new Date();
     const maand = nu.getMonth() + 1; // 1-12
     const jaar = nu.getFullYear();
@@ -678,7 +693,43 @@
     `;
   }
 
-  document.getElementById('geboortedatum').addEventListener('change', berekenContributie);
+  function populateDobSelects() {
+    const t = i18n[currentLang];
+    const dagSel = document.getElementById('geboortedatum-dag');
+    const maandSel = document.getElementById('geboortedatum-maand');
+    const jaarSel = document.getElementById('geboortedatum-jaar');
+    const huidigeDag = dagSel.value, huidigeMaand = maandSel.value, huidigJaarVal = jaarSel.value;
+
+    dagSel.innerHTML = `<option value="">${t['form.day']}</option>` +
+      Array.from({ length: 31 }, (_, i) => i + 1).map(d => `<option value="${d}">${d}</option>`).join('');
+
+    maandSel.innerHTML = `<option value="">${t['form.month']}</option>` +
+      getMaandNamen().map((naam, i) => `<option value="${i + 1}">${naam}</option>`).join('');
+
+    const huidigJaar = new Date().getFullYear();
+    jaarSel.innerHTML = `<option value="">${t['form.year']}</option>` +
+      Array.from({ length: 100 }, (_, i) => huidigJaar - i).map(j => `<option value="${j}">${j}</option>`).join('');
+
+    if (huidigeDag) dagSel.value = huidigeDag;
+    if (huidigeMaand) maandSel.value = huidigeMaand;
+    if (huidigJaarVal) jaarSel.value = huidigJaarVal;
+  }
+
+  function updateGeboortedatum() {
+    const dag = document.getElementById('geboortedatum-dag').value;
+    const maand = document.getElementById('geboortedatum-maand').value;
+    const jaar = document.getElementById('geboortedatum-jaar').value;
+    const hidden = document.getElementById('geboortedatum');
+    hidden.value = (dag && maand && jaar)
+      ? `${String(dag).padStart(2, '0')}-${String(maand).padStart(2, '0')}-${jaar}`
+      : '';
+    berekenContributie();
+  }
+
+  populateDobSelects();
+  ['geboortedatum-dag', 'geboortedatum-maand', 'geboortedatum-jaar'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updateGeboortedatum);
+  });
 
   // ===== FORMULIER VALIDATIE & VERZENDING =====
   const form = document.getElementById('aanmeld-form');
@@ -694,6 +745,17 @@
       input.classList.remove('input-error');
       group.classList.remove('has-error');
     }
+    if (id === 'geboortedatum') {
+      ['geboortedatum-dag', 'geboortedatum-maand', 'geboortedatum-jaar'].forEach(selId => {
+        document.getElementById(selId).classList.toggle('input-error', hasError);
+      });
+    }
+  }
+
+  // Voor geboortedatum verwijst het eerste (zichtbare) veld naar de dag-select,
+  // want het element met id="geboortedatum" is een verborgen input.
+  function getZichtbaarVeld(id) {
+    return id === 'geboortedatum' ? document.getElementById('geboortedatum-dag') : document.getElementById(id);
   }
 
   form.addEventListener('submit', async function(e) {
@@ -723,7 +785,7 @@
       const val = document.getElementById(id).value.trim();
       if (!val) {
         setFieldError(id, true);
-        if (!firstErrorEl) firstErrorEl = document.getElementById(id);
+        if (!firstErrorEl) firstErrorEl = getZichtbaarVeld(id);
       }
     });
 
