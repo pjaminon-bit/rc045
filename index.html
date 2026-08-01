@@ -928,14 +928,14 @@
             <span class="hours-day" data-i18n="hours.sat">Zaterdag</span>
             <span class="hours-time-wrap">
               <span class="hours-time" id="hours-sat-time">10:00 – 15:00</span>
-              <span class="hours-closed-note" id="hours-sat-closed">Gesloten</span>
+              <span class="hours-closed-note" id="hours-sat-closed">⛔ Gesloten</span>
             </span>
           </div>
           <div class="hours-row" id="hours-sun-row">
             <span class="hours-day" data-i18n="hours.sun">Zondag</span>
             <span class="hours-time-wrap">
               <span class="hours-time" id="hours-sun-time">10:00 – 15:00</span>
-              <span class="hours-closed-note" id="hours-sun-closed">Gesloten</span>
+              <span class="hours-closed-note" id="hours-sun-closed">⛔ Gesloten</span>
             </span>
           </div>
 <div class="hours-note">
@@ -1809,6 +1809,9 @@
   // Alles wat niet 'open' is, wordt op de site als gesloten getoond met de
   // bijbehorende melding.
   var statusSleutels = { gesloten: 'hours.closed', onderhoud: 'hours.closed.maintenance', weer: 'hours.closed.weather' };
+  // Het icoon staat los van de vertalingen, zodat het maar op één plek hoeft
+  // te staan en in alle drie de talen hetzelfde is.
+  var statusIconen = { gesloten: '⛔', onderhoud: '🔧', weer: '🌧️' };
   function dagStatus(dag) {
     var status = (dag && dag.status) || '';
     if (status === 'gesloten' || status === 'onderhoud' || status === 'weer') return status;
@@ -1817,7 +1820,8 @@
     return 'open';
   }
   function statusTekst(status, t) {
-    return t[statusSleutels[status]] || t['hours.closed'];
+    var tekst = t[statusSleutels[status]] || t['hours.closed'];
+    return (statusIconen[status] ? statusIconen[status] + ' ' : '') + tekst;
   }
   // Vult een regel in de info-balk: "Zaterdag 10:00 – 15:00". Is de dag dicht,
   // dan wordt de tijd doorgestreept en komt de melding eronder te staan.
