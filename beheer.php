@@ -330,9 +330,9 @@ function contactTijdOpties() {
 function contactStatusOpties() {
   return [
     'open' => 'Open (normale tijden)',
-    'gesloten' => 'Gesloten',
-    'onderhoud' => 'Gesloten i.v.m. onderhoud',
-    'weer' => 'Gesloten i.v.m. slecht weer',
+    'gesloten' => '⛔ Gesloten',
+    'onderhoud' => '🔧 Gesloten i.v.m. onderhoud',
+    'weer' => '🌧️ Gesloten i.v.m. slecht weer',
   ];
 }
 
