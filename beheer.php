@@ -244,8 +244,11 @@ $contactStandaard = [
   'adres_postcode_plaats' => '6464 EZ Eygelshoven',
   'openingstijden' => [
     'woensdag' => 'Woensdagavond bij voldoende animo',
-    'zaterdag' => ['van' => '10:00', 'tot' => '15:00'],
-    'zondag' => ['van' => '10:00', 'tot' => '15:00'],
+    // 'gesloten' hoort bij het onderhoudsvinkje: staat dat aan, dan toont de
+    // website de tijd doorgestreept met "Gesloten ivm onderhoud" eronder. De
+    // van/tot blijven bewaard, zodat het vinkje er later gewoon weer af kan.
+    'zaterdag' => ['van' => '10:00', 'tot' => '15:00', 'gesloten' => false],
+    'zondag' => ['van' => '10:00', 'tot' => '15:00', 'gesloten' => false],
   ],
   'lidmaatschap_vanaf' => 'Vanaf €50/jaar',
   'email' => 'bestuur@rc045.nl',
@@ -1000,7 +1003,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           $tot = $_POST['openingstijden'][$dag]['tot'] ?? '';
           if (!in_array($van, $tijdOpties, true)) $van = $tijdOpties[0];
           if (!in_array($tot, $tijdOpties, true)) $tot = $tijdOpties[0];
-          return ['van' => $van, 'tot' => $tot];
+          return [
+            'van' => $van,
+            'tot' => $tot,
+            'gesloten' => !empty($_POST['openingstijden'][$dag]['gesloten']),
+          ];
         };
         $contactData = [
           'adres_straat' => kort($_POST['adres_straat'] ?? '', 80),
@@ -1024,7 +1031,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         if (schrijfJson($contactBestand, $contactData)) {
           $melding['contact'] = 'Opgeslagen. De contactgegevens en openingstijden op de website zijn bijgewerkt.';
           $meldingType['contact'] = 'ok';
-          schrijfLog($logBestand, $huidigeGebruiker, 'contact', 'contactgegevens bijgewerkt');
+          // In het logboek is vooral terug te willen zien wanneer een dag op
+          // onderhoud is gezet of weer is vrijgegeven, dus dat komt er los bij.
+          $dichteDagen = [];
+          foreach (['zaterdag', 'zondag'] as $dag) {
+            if (!empty($contactData['openingstijden'][$dag]['gesloten'])) $dichteDagen[] = $dag;
+          }
+          $logTekst = 'contactgegevens bijgewerkt';
+          $logTekst .= $dichteDagen ? ', onderhoud: ' . implode(' + ', $dichteDagen) : ', geen onderhoudsdagen';
+          schrijfLog($logBestand, $huidigeGebruiker, 'contact', $logTekst);
         } else {
           $melding['contact'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
           $meldingType['contact'] = 'fout';
@@ -1728,6 +1743,13 @@ if (file_exists($contactBestand)) {
     foreach (['zaterdag', 'zondag'] as $dag) {
       if (!is_array($contactData['openingstijden'][$dag] ?? null)) {
         $contactData['openingstijden'][$dag] = $contactStandaard['openingstijden'][$dag];
+      } else {
+        // Bestanden van vóór het onderhoudsvinkje hebben alleen van/tot. Die
+        // dagen gelden dan gewoon als open.
+        $contactData['openingstijden'][$dag] = array_merge(
+          $contactStandaard['openingstijden'][$dag],
+          $contactData['openingstijden'][$dag]
+        );
       }
     }
   }
@@ -2287,6 +2309,13 @@ if ($isMaster && file_exists($logBestand)) {
                 <?php endforeach; ?>
               </select>
             </div>
+          </div>
+          <div class="veld">
+            <label class="fotoboek-check" style="font-weight:700;">
+              <input type="checkbox" name="openingstijden[<?php echo $dag; ?>][gesloten]" value="1" <?php if (!empty($contactData['openingstijden'][$dag]['gesloten'])) echo 'checked'; ?>>
+              <?php echo $dagLabel; ?>: gesloten ivm onderhoud
+            </label>
+            <p class="hint">Vinkje aan: op de website wordt deze dag doorgestreept getoond met "Gesloten ivm onderhoud" eronder, automatisch in alle talen. De tijden hierboven blijven bewaard, dus na het onderhoud haal je het vinkje er gewoon weer af. Ook de open/gesloten-melding bovenaan de homepage houdt hier rekening mee.</p>
           </div>
         <?php endforeach; ?>
 
