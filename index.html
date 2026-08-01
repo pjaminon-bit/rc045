@@ -372,7 +372,7 @@
        tekst op dezelfde lijn als de andere regels. */
     .hours-time-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
     
-    .hours-closed-note { display: none; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 11px; border-radius: 100px; background: var(--rust); color: var(--white); text-align: center; }
+    .hours-closed-note { display: none; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 100px; background: var(--rust); color: var(--white); text-align: center; }
     
     .hours-row.is-gesloten { align-items: flex-start; background: rgba(139,51,25,0.09); border-left: 3px solid var(--rust); margin-left: -28px; margin-right: -28px; padding-left: 25px; padding-right: 28px; }
     
@@ -385,7 +385,7 @@
        wordt daar te zwaar van. */
     .info-value .tijd-gesloten { text-decoration: line-through; text-decoration-color: var(--rust); text-decoration-thickness: 2px; color: var(--muted); }
     
-    .info-closed-note { display: block; width: fit-content; margin-top: 4px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 11px; border-radius: 100px; background: var(--rust); color: var(--white); }
+    .info-closed-note { display: block; width: fit-content; margin-top: 4px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 100px; background: var(--rust); color: var(--white); }
     
     .hours-note { font-size: 13px; color: var(--muted); margin-top: 14px; padding: 12px; background: var(--teal-light); border-radius: 8px; line-height: 1.5; }
     
@@ -928,14 +928,14 @@
             <span class="hours-day" data-i18n="hours.sat">Zaterdag</span>
             <span class="hours-time-wrap">
               <span class="hours-time" id="hours-sat-time">10:00 – 15:00</span>
-              <span class="hours-closed-note" id="hours-sat-closed">⛔ Gesloten</span>
+              <span class="hours-closed-note" id="hours-sat-closed">⛔ Zaterdag gesloten</span>
             </span>
           </div>
           <div class="hours-row" id="hours-sun-row">
             <span class="hours-day" data-i18n="hours.sun">Zondag</span>
             <span class="hours-time-wrap">
               <span class="hours-time" id="hours-sun-time">10:00 – 15:00</span>
-              <span class="hours-closed-note" id="hours-sun-closed">⛔ Gesloten</span>
+              <span class="hours-closed-note" id="hours-sun-closed">⛔ Zondag gesloten</span>
             </span>
           </div>
 <div class="hours-note">
@@ -1151,7 +1151,7 @@
       'loc.label': 'Bezoek ons', 'loc.title': 'Hoe vind je ons?',
       'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.wed.time': 'Woensdagavond bij voldoende animo',
       'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
-      'hours.closed': 'Gesloten', 'hours.closed.maintenance': 'Gesloten i.v.m. onderhoud', 'hours.closed.weather': 'Gesloten i.v.m. slecht weer',
+      'hours.closed': 'gesloten', 'hours.closed.maintenance': 'gesloten i.v.m. onderhoud', 'hours.closed.weather': 'gesloten i.v.m. slecht weer',
       'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze',
       'hours.note.fb': 'Facebook-pagina', 'hours.note.times': 'voor actuele openingstijden.',
       'hours.weather': '❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
@@ -1219,7 +1219,7 @@
       'loc.label': 'Visit us', 'loc.title': 'How to find us?',
       'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.wed.time': 'Wednesday evenings when there\'s enough interest',
       'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
-      'hours.closed': 'Closed', 'hours.closed.maintenance': 'Closed for maintenance', 'hours.closed.weather': 'Closed due to bad weather',
+      'hours.closed': 'closed', 'hours.closed.maintenance': 'closed for maintenance', 'hours.closed.weather': 'closed due to bad weather',
       'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance. Check our',
       'hours.note.fb': 'Facebook page', 'hours.note.times': 'for current opening hours.',
       'hours.weather': '❗ In bad weather we may decide to close early or not open at all.',
@@ -1287,7 +1287,7 @@
       'loc.label': 'Besuche uns', 'loc.title': 'Wie findest du uns?',
       'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.wed.time': 'Mittwochabend bei ausreichend Interesse',
       'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
-      'hours.closed': 'Geschlossen', 'hours.closed.maintenance': 'Wegen Wartung geschlossen', 'hours.closed.weather': 'Wegen schlechtem Wetter geschlossen',
+      'hours.closed': 'geschlossen', 'hours.closed.maintenance': 'wegen Wartung geschlossen', 'hours.closed.weather': 'wegen schlechtem Wetter geschlossen',
       'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen. Schau auf unsere',
       'hours.note.fb': 'Facebook-Seite', 'hours.note.times': 'für aktuelle Öffnungszeiten.',
       'hours.weather': '❗ Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
@@ -1500,7 +1500,9 @@
     }
   }
   updateStatus();
-  setInterval(updateStatus, 60000);
+  // Elke minuut opnieuw: zo verdwijnt een gesloten-melding vanzelf zodra het
+  // vervalmoment is bereikt, ook als de pagina open blijft staan.
+  setInterval(function() { updateStatus(); renderContact(); }, 60000);
 
   // ===== FOOTER JAAR =====
   document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -1814,14 +1816,24 @@
   var statusIconen = { gesloten: '⛔', onderhoud: '🔧', weer: '🌧️' };
   function dagStatus(dag) {
     var status = (dag && dag.status) || '';
-    if (status === 'gesloten' || status === 'onderhoud' || status === 'weer') return status;
-    // Bestanden van vóór het keuzemenu hadden alleen een onderhoudsvinkje.
-    if (dag && dag.gesloten) return 'onderhoud';
-    return 'open';
+    if (status !== 'gesloten' && status !== 'onderhoud' && status !== 'weer') {
+      // Bestanden van vóór het keuzemenu hadden alleen een onderhoudsvinkje.
+      if (dag && dag.gesloten) status = 'onderhoud';
+      else return 'open';
+    }
+    // beheer.php zet er een vervalmoment bij: de betreffende dag om 20:00.
+    // Daarna verdwijnt de melding vanzelf, zodat een sluiting niet blijft
+    // staan als iemand vergeet hem terug te zetten. Staat er niets, dan blijft
+    // de melding staan tot hij handmatig wordt weggehaald.
+    if (dag && dag.status_tot) {
+      var verval = new Date(dag.status_tot);
+      if (!isNaN(verval.getTime()) && Date.now() > verval.getTime()) return 'open';
+    }
+    return status;
   }
-  function statusTekst(status, t) {
+  function statusTekst(status, dagTekst, t) {
     var tekst = t[statusSleutels[status]] || t['hours.closed'];
-    return (statusIconen[status] ? statusIconen[status] + ' ' : '') + tekst;
+    return (statusIconen[status] ? statusIconen[status] + ' ' : '') + dagTekst + ' ' + tekst;
   }
   // Vult een regel in de info-balk: "Zaterdag 10:00 – 15:00". Is de dag dicht,
   // dan wordt de tijd doorgestreept en komt de melding eronder te staan.
@@ -1838,17 +1850,17 @@
     if (dicht) {
       var melding = document.createElement('span');
       melding.className = 'info-closed-note';
-      melding.textContent = statusTekst(status, t);
+      melding.textContent = statusTekst(status, dagTekst, t);
       el.appendChild(melding);
     }
   }
   // Zet de markering en de melding op een regel in de openingstijden-kaart.
-  function zetHoursRij(rijId, meldingId, status, t) {
+  function zetHoursRij(rijId, meldingId, dagTekst, status, t) {
     var dicht = status !== 'open';
     var rij = document.getElementById(rijId);
     if (rij) rij.classList.toggle('is-gesloten', dicht);
     var melding = document.getElementById(meldingId);
-    if (melding && dicht) melding.textContent = statusTekst(status, t);
+    if (melding && dicht) melding.textContent = statusTekst(status, dagTekst, t);
   }
   function renderContact() {
     if (!contactData) return;
@@ -1869,8 +1881,8 @@
     var elHoursSun = document.getElementById('hours-sun-time');
     if (elHoursSun && zondagTekst) elHoursSun.textContent = zondagTekst;
 
-    zetHoursRij('hours-sat-row', 'hours-sat-closed', zaterdagStatus, t);
-    zetHoursRij('hours-sun-row', 'hours-sun-closed', zondagStatus, t);
+    zetHoursRij('hours-sat-row', 'hours-sat-closed', t['hours.sat'], zaterdagStatus, t);
+    zetHoursRij('hours-sun-row', 'hours-sun-closed', t['hours.sun'], zondagStatus, t);
 
     if (contactData.adres_straat) {
       ['info-adres-straat', 'addr-straat'].forEach(function(id) {
