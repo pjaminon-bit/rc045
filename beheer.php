@@ -20,6 +20,12 @@
 date_default_timezone_set('Europe/Amsterdam');
 header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store');
+// Voorkomt dat deze pagina in een iframe op een andere site getoond kan
+// worden (clickjacking): X-Frame-Options voor oudere browsers, de CSP-regel
+// is de moderne vervanger. Beide beïnvloeden alleen framing, niet de eigen
+// inline <script>/<style> die deze pagina gebruikt.
+header('X-Frame-Options: DENY');
+header("Content-Security-Policy: frame-ancestors 'none'");
 
 // ===== Sessie: een week ingelogd blijven, niet halverwege een lang formulier uitloggen =====
 $sessieduur = 60 * 60 * 24 * 7;
@@ -81,6 +87,8 @@ $fotoboekMap     = __DIR__ . '/images/fotoboek';
 $logoPad         = __DIR__ . '/rc045-logo.png';
 $contactBestand  = $dataMap . '/contact.json';
 $mediaBestand    = $dataMap . '/media.json';
+$nieuwsBestand    = $dataMap . '/nieuws.json';
+$rekentabelBestand = $dataMap . '/rekentabel.json';
 
 // Alle bestanden die automatisch back-upt worden (zie maakDataBackup()),
 // gebruikt door het tabblad "Back-ups" en de backup_herstellen-actie
@@ -95,6 +103,8 @@ $dataBackupBestanden = [
   'contact'    => ['label' => 'Contact', 'pad' => $contactBestand, 'schrijffunctie' => 'schrijfJson'],
   'media'      => ['label' => 'Media', 'pad' => $mediaBestand, 'schrijffunctie' => 'schrijfJson'],
   'fotoboek'   => ['label' => 'Fotoboek', 'pad' => $fotoboekBestand, 'schrijffunctie' => 'schrijfJson'],
+  'nieuws'     => ['label' => 'Nieuws', 'pad' => $nieuwsBestand, 'schrijffunctie' => 'schrijfJson'],
+  'rekentabel' => ['label' => 'Rekentabel contributie', 'pad' => $rekentabelBestand, 'schrijffunctie' => 'schrijfJson'],
   'gebruikers' => ['label' => 'Gebruikers', 'pad' => $usersBestand, 'schrijffunctie' => 'schrijfGebruikers'],
 ];
 
@@ -128,11 +138,12 @@ $fotoboekMaxVideoBytes = 80 * 1024 * 1024;
 // (opslag, thumbnail, weergave) blijft intact staan.
 $fotoboekVideoAan = false;
 
-// Rekentabel contributie (zelfde bedragen als op aanmelden.html;
-// wijzigen de prijzen, pas ze dan op BEIDE plekken aan)
-$inschrijfkosten = 10;
-$tabelJeugd  = [1 => 46, 2 => 42, 3 => 38, 4 => 33, 5 => 29, 6 => 25, 7 => 21, 8 => 17, 9 => 13, 10 => 8, 11 => 4.16, 12 => null];
-$tabelSenior = [1 => 92, 2 => 83, 3 => 75, 4 => 67, 5 => 58, 6 => 50, 7 => 42, 8 => 33, 9 => 25, 10 => 17, 11 => 8, 12 => null];
+// Rekentabel contributie: bedragen komen uit data/rekentabel.json (te
+// bewerken via het tabblad "Rekentabel"), zie $rekentabelStandaard en
+// rekentabelProRata() verderop. $inschrijfkosten/$tabelJeugd/$tabelSenior
+// worden pas na het inlezen van die data definitief gezet (zie "Huidige
+// inhoud inlezen" verderop). $maandNamen/$huidigeMaand blijven wel hier,
+// die zijn puur kalenderdata en niet afhankelijk van de ingevoerde bedragen.
 $maandNamen  = [1 => 'Januari', 2 => 'Februari', 3 => 'Maart', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Augustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'December'];
 $huidigeMaand = (int) date('n');
 
@@ -311,6 +322,38 @@ $mediaStandaard = [
     'linktekst' => ['nl' => 'Bekijk de reportage →', 'en' => 'Watch the report →', 'de' => 'Reportage ansehen →'],
   ],
 ];
+
+// Standaardinhoud voor het nieuwsblok op de homepage, alleen gebruikt zolang
+// data/nieuws.json nog niet bestaat. Leeg: het nieuwsblok toont zichzelf
+// pas zodra er via het tabblad "Nieuws" een eerste item is toegevoegd.
+$nieuwsStandaard = [];
+
+// Standaardinhoud voor de rekentabel contributie, alleen gebruikt zolang
+// data/rekentabel.json nog niet bestaat. Zelfde bedragen als voorheen
+// hardcoded in beheer.php en aanmelden.html stonden, zodat er bij de
+// allereerste keer laden niets verandert aan wat bezoekers zien.
+$rekentabelStandaard = [
+  'jaar' => date('Y'),
+  'inschrijfkosten' => 10,
+  'jeugd_jaarbedrag' => 50,
+  'senior_jaarbedrag' => 100,
+  'jeugd_leeftijd_tot' => 15,
+];
+
+// Zet een volledig jaarbedrag om in de pro-rata maandtabel die de rekentabel
+// en de contributiecalculator op aanmelden.html gebruiken: bij inschrijving
+// in maand $m betaal je (12 - $m) twaalfde deel van het jaarbedrag, naar
+// hele euro's afgerond. December (maand 12) levert altijd 0 op en wordt
+// door de aanroepende code als speciaal geval behandeld (alleen
+// inschrijfkosten, contributie volgend jaar pas overmaken).
+function rekentabelProRata($jaarbedrag) {
+  $tabel = [];
+  for ($m = 1; $m <= 11; $m++) {
+    $tabel[$m] = (int) round($jaarbedrag * (12 - $m) / 12);
+  }
+  $tabel[12] = null;
+  return $tabel;
+}
 
 // Keuzelijst voor de tijd-dropdowns bij zaterdag/zondag: elk half uur van
 // 06:00 tot 22:00. Ruim genoeg voor elke realistische openingstijd, met een
@@ -1144,6 +1187,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $meldingType['media'] = 'fout';
     }
 
+  } elseif ($formulier === 'nieuws') {
+    $items = [];
+    $nieuwsFout = null;
+    foreach (($_POST['nieuws'] ?? []) as $rij) {
+      $titelNl = kort($rij['title_nl'] ?? '', 100);
+      if ($titelNl === '') continue; // NL titel is verplicht, anders wordt de kaart niet getoond
+      $link = trim($rij['link'] ?? '');
+      if ($link !== '' && !preg_match('#^https?://#i', $link)) {
+        $nieuwsFout = 'Link bij "' . $titelNl . '" moet beginnen met http:// of https://.';
+        break;
+      }
+      $datum = $rij['date'] ?? '';
+      if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datum)) $datum = '';
+      $items[] = [
+        'date' => $datum,
+        'title' => [
+          'nl' => $titelNl,
+          'en' => kort($rij['title_en'] ?? '', 100),
+          'de' => kort($rij['title_de'] ?? '', 100),
+        ],
+        'desc' => [
+          'nl' => kort($rij['desc_nl'] ?? '', 300),
+          'en' => kort($rij['desc_en'] ?? '', 300),
+          'de' => kort($rij['desc_de'] ?? '', 300),
+        ],
+        'link' => $link,
+        'linktekst' => [
+          'nl' => kort($rij['linktekst_nl'] ?? '', 40),
+          'en' => kort($rij['linktekst_en'] ?? '', 40),
+          'de' => kort($rij['linktekst_de'] ?? '', 40),
+        ],
+      ];
+    }
+    if ($nieuwsFout) {
+      $melding['nieuws'] = $nieuwsFout;
+      $meldingType['nieuws'] = 'fout';
+    } elseif (schrijfJson($nieuwsBestand, $items)) {
+      $melding['nieuws'] = 'Opgeslagen. Het nieuwsblok op de homepage is bijgewerkt.';
+      $meldingType['nieuws'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'nieuws', count($items) . ' item(s) opgeslagen');
+    } else {
+      $melding['nieuws'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+      $meldingType['nieuws'] = 'fout';
+    }
+
+  } elseif ($formulier === 'rekentabel') {
+    $jaar = trim($_POST['jaar'] ?? '');
+    $inschrijfkostenNieuw   = str_replace(',', '.', trim($_POST['inschrijfkosten'] ?? ''));
+    $jeugdJaarbedragNieuw   = str_replace(',', '.', trim($_POST['jeugd_jaarbedrag'] ?? ''));
+    $seniorJaarbedragNieuw  = str_replace(',', '.', trim($_POST['senior_jaarbedrag'] ?? ''));
+    $jeugdLeeftijdNieuw     = trim($_POST['jeugd_leeftijd_tot'] ?? '');
+
+    if ($jaar === '' || !preg_match('/^\d{4}$/', $jaar)) {
+      $melding['rekentabel'] = 'Vul een geldig jaartal in (bijv. 2026).';
+      $meldingType['rekentabel'] = 'fout';
+    } elseif (!is_numeric($inschrijfkostenNieuw) || $inschrijfkostenNieuw < 0) {
+      $melding['rekentabel'] = 'Inschrijfkosten moet een bedrag van 0 of hoger zijn.';
+      $meldingType['rekentabel'] = 'fout';
+    } elseif (!is_numeric($jeugdJaarbedragNieuw) || $jeugdJaarbedragNieuw < 0) {
+      $melding['rekentabel'] = 'Jaarbedrag jeugd moet een bedrag van 0 of hoger zijn.';
+      $meldingType['rekentabel'] = 'fout';
+    } elseif (!is_numeric($seniorJaarbedragNieuw) || $seniorJaarbedragNieuw < 0) {
+      $melding['rekentabel'] = 'Jaarbedrag senior moet een bedrag van 0 of hoger zijn.';
+      $meldingType['rekentabel'] = 'fout';
+    } elseif (!ctype_digit($jeugdLeeftijdNieuw) || (int) $jeugdLeeftijdNieuw < 1 || (int) $jeugdLeeftijdNieuw > 99) {
+      $melding['rekentabel'] = 'Leeftijdsgrens jeugd moet een heel getal tussen 1 en 99 zijn.';
+      $meldingType['rekentabel'] = 'fout';
+    } else {
+      $nieuweData = [
+        'jaar' => $jaar,
+        'inschrijfkosten' => (float) $inschrijfkostenNieuw,
+        'jeugd_jaarbedrag' => (float) $jeugdJaarbedragNieuw,
+        'senior_jaarbedrag' => (float) $seniorJaarbedragNieuw,
+        'jeugd_leeftijd_tot' => (int) $jeugdLeeftijdNieuw,
+      ];
+      if (schrijfJson($rekentabelBestand, $nieuweData)) {
+        $rekentabelData = $nieuweData;
+        $inschrijfkosten = (float) $nieuweData['inschrijfkosten'];
+        $tabelJeugd  = rekentabelProRata((float) $nieuweData['jeugd_jaarbedrag']);
+        $tabelSenior = rekentabelProRata((float) $nieuweData['senior_jaarbedrag']);
+        $melding['rekentabel'] = 'Opgeslagen. De rekentabel en de contributiecalculator op aanmelden.html gebruiken meteen deze bedragen.';
+        $meldingType['rekentabel'] = 'ok';
+        schrijfLog($logBestand, $huidigeGebruiker, 'rekentabel', "jaar $jaar, inschrijfkosten €$inschrijfkostenNieuw, jeugd €$jeugdJaarbedragNieuw, senior €$seniorJaarbedragNieuw");
+      } else {
+        $melding['rekentabel'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+        $meldingType['rekentabel'] = 'fout';
+      }
+    }
+
   } elseif ($formulier === 'fotoboek_album_aanmaken') {
     $titelNl = kort($_POST['titel_nl'] ?? '', 60);
     if ($titelNl === '') {
@@ -1834,6 +1966,27 @@ if (file_exists($mediaBestand)) {
 // leeg blok aan het einde. Zie faqData hierboven voor de toelichting.
 $mediaData[] = ['date' => '', 'bron' => '', 'icoon' => '📺', 'title' => ['nl' => '', 'en' => '', 'de' => ''], 'desc' => ['nl' => '', 'en' => '', 'de' => ''], 'link' => '', 'linktekst' => ['nl' => '', 'en' => '', 'de' => '']];
 
+$nieuwsData = $nieuwsStandaard;
+if (file_exists($nieuwsBestand)) {
+  $json = json_decode(file_get_contents($nieuwsBestand), true);
+  if (is_array($json) && count($json) > 0) $nieuwsData = $json;
+}
+// Geen vast maximum meer: altijd de bestaande nieuwsitems plus telkens 1
+// leeg blok aan het einde. Zie faqData hierboven voor de toelichting.
+$nieuwsData[] = ['date' => '', 'title' => ['nl' => '', 'en' => '', 'de' => ''], 'desc' => ['nl' => '', 'en' => '', 'de' => ''], 'link' => '', 'linktekst' => ['nl' => '', 'en' => '', 'de' => '']];
+
+// Rekentabel contributie: bedragen inlezen en meteen omzetten naar de
+// pro-rata maandtabellen die de rest van dit bestand (tabblad Rekentabel)
+// gebruikt. Zie $rekentabelStandaard hierboven voor de uitleg.
+$rekentabelData = $rekentabelStandaard;
+if (file_exists($rekentabelBestand)) {
+  $json = json_decode(file_get_contents($rekentabelBestand), true);
+  if (is_array($json)) $rekentabelData = array_merge($rekentabelStandaard, $json);
+}
+$inschrijfkosten = (float) $rekentabelData['inschrijfkosten'];
+$tabelJeugd  = rekentabelProRata((float) $rekentabelData['jeugd_jaarbedrag']);
+$tabelSenior = rekentabelProRata((float) $rekentabelData['senior_jaarbedrag']);
+
 $fotoboekData = ['albums' => []];
 if (file_exists($fotoboekBestand)) {
   $json = json_decode(file_get_contents($fotoboekBestand), true);
@@ -2047,6 +2200,7 @@ if ($isMaster && file_exists($logBestand)) {
 
     <nav class="menu">
       <button type="button" class="menu-item" data-tab="mededeling">Openingstijden</button>
+      <button type="button" class="menu-item" data-tab="nieuws">Nieuws</button>
       <button type="button" class="menu-item" data-tab="agenda">Agenda</button>
       <button type="button" class="menu-item" data-tab="faq">Vragen</button>
       <button type="button" class="menu-item" data-tab="sponsors">Sponsors</button>
@@ -2085,6 +2239,100 @@ if ($isMaster && file_exists($logBestand)) {
       <?php if ($laatstBijgewerkt): ?>
         <p class="laatst">Laatst bijgewerkt: <?php echo htmlspecialchars(date('d-m-Y H:i', strtotime($laatstBijgewerkt))); ?></p>
       <?php endif; ?>
+    </div>
+    </div>
+
+    <div class="tab-paneel" id="tab-nieuws">
+    <!-- ===== NIEUWS / UPDATES (blok op de homepage) ===== -->
+    <div class="kaart">
+      <div class="kaart-header">
+        <div>
+          <h1>Nieuws / updates</h1>
+          <p class="sub">Het nieuwsblok op de homepage. Laat een Nederlandse titel leeg om die kaart te verbergen. Zonder items blijft het blok op de homepage verborgen.</p>
+        </div>
+        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('nieuws-lijst', 'Item')">+ Nieuwsitem toevoegen</button>
+      </div>
+
+      <?php if (isset($melding['nieuws'])): ?>
+        <div class="melding <?php echo $meldingType['nieuws']; ?>"><?php echo htmlspecialchars($melding['nieuws']); ?></div>
+      <?php endif; ?>
+
+      <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
+        Nederlands is verplicht per kaart. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+      </div>
+
+      <form method="post" action="beheer.php#nieuws">
+        <input type="hidden" name="formulier" value="nieuws">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+        <div class="item-lijst" id="nieuws-lijst">
+        <?php foreach ($nieuwsData as $i => $ni): ?>
+          <div class="item-blok">
+            <div class="item-blok-nr">Item <?php echo $i + 1; ?></div>
+            <div class="rij-2">
+              <div class="veld">
+                <label for="nieuws-date-<?php echo $i; ?>">Datum</label>
+                <input type="date" id="nieuws-date-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][date]" value="<?php echo htmlspecialchars($ni['date'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="nieuws-link-<?php echo $i; ?>">Link (optioneel)</label>
+                <input type="text" id="nieuws-link-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][link]" maxlength="300" value="<?php echo htmlspecialchars($ni['link'] ?? ''); ?>" placeholder="https://...">
+              </div>
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇳🇱 Nederlands</div>
+              <div class="veld">
+                <label for="nieuws-title-nl-<?php echo $i; ?>">Titel</label>
+                <input type="text" id="nieuws-title-nl-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][title_nl]" maxlength="100" value="<?php echo htmlspecialchars($ni['title']['nl'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="nieuws-desc-nl-<?php echo $i; ?>">Tekst</label>
+                <textarea id="nieuws-desc-nl-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][desc_nl]" maxlength="300" style="min-height:60px;"><?php echo htmlspecialchars($ni['desc']['nl'] ?? ''); ?></textarea>
+              </div>
+              <div class="veld">
+                <label for="nieuws-linktekst-nl-<?php echo $i; ?>">Linktekst</label>
+                <input type="text" id="nieuws-linktekst-nl-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][linktekst_nl]" maxlength="40" value="<?php echo htmlspecialchars($ni['linktekst']['nl'] ?? ''); ?>" placeholder="Bijv.: Lees meer →">
+              </div>
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
+              <div class="veld">
+                <label for="nieuws-title-en-<?php echo $i; ?>">Title</label>
+                <input type="text" id="nieuws-title-en-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][title_en]" maxlength="100" value="<?php echo htmlspecialchars($ni['title']['en'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="nieuws-desc-en-<?php echo $i; ?>">Text</label>
+                <textarea id="nieuws-desc-en-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][desc_en]" maxlength="300" style="min-height:60px;"><?php echo htmlspecialchars($ni['desc']['en'] ?? ''); ?></textarea>
+              </div>
+              <div class="veld">
+                <label for="nieuws-linktekst-en-<?php echo $i; ?>">Link text</label>
+                <input type="text" id="nieuws-linktekst-en-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][linktekst_en]" maxlength="40" value="<?php echo htmlspecialchars($ni['linktekst']['en'] ?? ''); ?>">
+              </div>
+            </div>
+
+            <div class="taal-groep">
+              <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
+              <div class="veld">
+                <label for="nieuws-title-de-<?php echo $i; ?>">Titel</label>
+                <input type="text" id="nieuws-title-de-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][title_de]" maxlength="100" value="<?php echo htmlspecialchars($ni['title']['de'] ?? ''); ?>">
+              </div>
+              <div class="veld">
+                <label for="nieuws-desc-de-<?php echo $i; ?>">Text</label>
+                <textarea id="nieuws-desc-de-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][desc_de]" maxlength="300" style="min-height:60px;"><?php echo htmlspecialchars($ni['desc']['de'] ?? ''); ?></textarea>
+              </div>
+              <div class="veld">
+                <label for="nieuws-linktekst-de-<?php echo $i; ?>">Linktext</label>
+                <input type="text" id="nieuws-linktekst-de-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][linktekst_de]" maxlength="40" value="<?php echo htmlspecialchars($ni['linktekst']['de'] ?? ''); ?>">
+              </div>
+            </div>
+          </div>
+        <?php endforeach; ?>
+        </div>
+
+        <button type="submit">Nieuws opslaan</button>
+      </form>
     </div>
     </div>
 
@@ -2838,15 +3086,57 @@ if ($isMaster && file_exists($logBestand)) {
     <?php endif; ?>
 
     <div class="tab-paneel" id="tab-rekentabel">
-    <!-- ===== REKENTABEL (alleen ter referentie, niet bewerkbaar) ===== -->
+    <!-- ===== REKENTABEL CONTRIBUTIE (bewerkbaar) ===== -->
     <div class="kaart">
       <h1>Rekentabel contributie</h1>
+      <p class="sub">Deze bedragen bepalen zowel de referentietabel hieronder als de contributiecalculator op aanmelden.html. Wijzig ze hier één keer per jaar; beide plekken gebruiken automatisch dezelfde waarden.</p>
+
+      <?php if (isset($melding['rekentabel'])): ?>
+        <div class="melding <?php echo $meldingType['rekentabel']; ?>"><?php echo htmlspecialchars($melding['rekentabel']); ?></div>
+      <?php endif; ?>
+
+      <form method="post" action="beheer.php#rekentabel">
+        <input type="hidden" name="formulier" value="rekentabel">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+        <div class="rij-3">
+          <div class="veld">
+            <label for="rekentabel-jaar">Contributiejaar</label>
+            <input type="number" id="rekentabel-jaar" name="jaar" min="2020" max="2099" step="1" value="<?php echo htmlspecialchars($rekentabelData['jaar']); ?>">
+            <p class="hint">Wordt onder meer getoond op aanmelden.html en in de betaalreferentie.</p>
+          </div>
+          <div class="veld">
+            <label for="rekentabel-inschrijfkosten">Inschrijfkosten (eenmalig)</label>
+            <input type="number" id="rekentabel-inschrijfkosten" name="inschrijfkosten" min="0" step="0.01" value="<?php echo htmlspecialchars((string) $rekentabelData['inschrijfkosten']); ?>">
+          </div>
+          <div class="veld">
+            <label for="rekentabel-leeftijd">Jeugd t/m leeftijd</label>
+            <input type="number" id="rekentabel-leeftijd" name="jeugd_leeftijd_tot" min="1" max="99" step="1" value="<?php echo htmlspecialchars((string) $rekentabelData['jeugd_leeftijd_tot']); ?>">
+            <p class="hint">Senior begint bij deze leeftijd + 1.</p>
+          </div>
+        </div>
+        <div class="rij-2">
+          <div class="veld">
+            <label for="rekentabel-jeugd">Jaarcontributie jeugd</label>
+            <input type="number" id="rekentabel-jeugd" name="jeugd_jaarbedrag" min="0" step="0.01" value="<?php echo htmlspecialchars((string) $rekentabelData['jeugd_jaarbedrag']); ?>">
+          </div>
+          <div class="veld">
+            <label for="rekentabel-senior">Jaarcontributie senior</label>
+            <input type="number" id="rekentabel-senior" name="senior_jaarbedrag" min="0" step="0.01" value="<?php echo htmlspecialchars((string) $rekentabelData['senior_jaarbedrag']); ?>">
+          </div>
+        </div>
+        <p class="hint">De maandbedragen hieronder worden automatisch berekend als pro-rata deel van de jaarcontributie (hele euro's, naar boven/beneden afgerond). December is altijd alleen inschrijfkosten.</p>
+        <button type="submit">Rekentabel opslaan</button>
+      </form>
+    </div>
+
+    <div class="kaart">
+      <h1>Referentietabel <?php echo htmlspecialchars($rekentabelData['jaar']); ?></h1>
       <p class="sub">Wat betaalt een nieuw lid, per maand van aanmelding (inclusief <?php echo euro($inschrijfkosten); ?> inschrijfkosten)</p>
       <table class="reken">
         <tr>
           <th>Maand</th>
-          <th>Jeugd t/m 15</th>
-          <th>Senior 16+</th>
+          <th>Jeugd t/m <?php echo (int) $rekentabelData['jeugd_leeftijd_tot']; ?></th>
+          <th>Senior <?php echo (int) $rekentabelData['jeugd_leeftijd_tot'] + 1; ?>+</th>
         </tr>
         <?php foreach ($maandNamen as $m => $naam): ?>
         <tr<?php if ($m === $huidigeMaand) echo ' class="nu"'; ?>>
@@ -2860,7 +3150,7 @@ if ($isMaster && file_exists($logBestand)) {
         </tr>
         <?php endforeach; ?>
       </table>
-      <p class="reken-noot">Bedragen zijn pro-rata contributie voor de resterende maanden plus <?php echo euro($inschrijfkosten); ?> eenmalige inschrijfkosten. Volledige jaarcontributie: jeugd €50, senior €100. Deze tabel wordt niet via dit paneel bewerkt; de bedragen staan vast in de code van beheer.php en aanmelden.html.</p>
+      <p class="reken-noot">Bedragen zijn pro-rata contributie voor de resterende maanden plus <?php echo euro($inschrijfkosten); ?> eenmalige inschrijfkosten. Volledige jaarcontributie: jeugd <?php echo euro($rekentabelData['jeugd_jaarbedrag']); ?>, senior <?php echo euro($rekentabelData['senior_jaarbedrag']); ?>. Deze tabel en de calculator op aanmelden.html lezen allebei data/rekentabel.json, bewerk hierboven.</p>
     </div>
     </div>
 
@@ -2873,7 +3163,7 @@ if ($isMaster && file_exists($logBestand)) {
   <?php if ($ingelogd): ?>
   <script>
     (function() {
-      var tabs = ['mededeling', 'agenda', 'faq', 'sponsors', 'contact', 'media', 'fotoboek'<?php if ($isMaster): ?>, 'gebruikers', 'log', 'backups'<?php endif; ?>, 'rekentabel'];
+      var tabs = ['mededeling', 'nieuws', 'agenda', 'faq', 'sponsors', 'contact', 'media', 'fotoboek'<?php if ($isMaster): ?>, 'gebruikers', 'log', 'backups'<?php endif; ?>, 'rekentabel'];
       var menuItems = document.querySelectorAll('.menu-item');
 
       function toonTab(naam) {
