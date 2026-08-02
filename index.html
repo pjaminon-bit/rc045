@@ -48,7 +48,7 @@
     
     .hero { position: relative; overflow: hidden; background: var(--dark); min-height: 580px; display: flex; align-items: center; }
     
-    .hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
+    .hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/hero-achtergrond.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
     
     .hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
     
@@ -315,7 +315,25 @@
     .agenda-card.afgelopen .agenda-card-date { background: var(--bg); opacity: 0.3; }
     
     .agenda-card.afgelopen .agenda-card-tag { background: var(--bg); color: var(--muted); opacity: 0.3; }
-    
+
+    .nieuws { background: var(--bg); padding-top: 56px; padding-bottom: 56px; }
+
+    .nieuws-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+
+    .nieuws-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); transition: transform 0.2s, box-shadow 0.2s; }
+
+    .nieuws-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+
+    .nieuws-card-date { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin-bottom: 8px; }
+
+    .nieuws-card h3 { font-size: 17px; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
+
+    .nieuws-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    .nieuws-card-link { display: inline-block; margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--teal-dark); }
+
+    .nieuws-card-link:hover { color: var(--teal); }
+
     .agenda-card.afgelopen h3,
         .agenda-card.afgelopen p,
         .agenda-card.afgelopen .agenda-card-time { opacity: 0.3; }
@@ -620,6 +638,20 @@
     </div>
   </div>
 </div>
+
+<!-- ===== NIEUWS ===== -->
+<section class="section nieuws" id="nieuws" style="display:none;">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label" data-i18n="nieuws.label">Nieuws</div>
+      <h2 class="section-title" data-i18n="nieuws.title">Laatste updates</h2>
+      <p class="section-sub" data-i18n="nieuws.sub">Het laatste nieuws van RC045.</p>
+    </div>
+    <div class="nieuws-grid" id="nieuws-grid">
+      <!-- Kaarten worden hier ingevuld vanuit data/nieuws.json, bij te werken via beheer.php -->
+    </div>
+  </div>
+</section>
 
 <!-- ===== OVER ONS ===== -->
 <section class="section about" id="over-ons">
@@ -1135,6 +1167,9 @@
       'track.p2': 'Volg bij aankomst de pijlen met het RC045-logo en je ziet ons vanzelf. Er is voldoende gratis parkeergelegenheid.',
       'track.f1': 'Race-circuit voor buggy\'s, truggies en meer', 'track.f2': 'Off-road crawler-parcours',
       'track.f3': 'Jump-track met schans', 'track.f4': 'Kantine & werkruimte aanwezig', 'track.f5': 'Voldoende parkeerruimte',
+      'nieuws.label': 'Nieuws', 'nieuws.title': 'Laatste updates',
+      'nieuws.sub': 'Het laatste nieuws van RC045.',
+      'nieuws.meer': 'Lees meer →',
       'agenda.label': 'Agenda', 'agenda.title': 'Activiteiten',
       'agenda.sub': 'Kijk hier wat er op de planning staat bij RC045. Check onze Facebook-pagina voor de meest actuele informatie.',
       'agenda.tag.opendag': 'Open dag', 'agenda.tag.leden': 'Ledenevenement', 'agenda.tag.wedstrijd': 'Wedstrijd',
@@ -1203,6 +1238,9 @@
       'track.p2': 'Follow the RC045 arrows on arrival and you\'ll find us easily. There is plenty of free parking.',
       'track.f1': 'Race circuit for buggies, truggies and more', 'track.f2': 'Off-road crawler course',
       'track.f3': 'Jump track with ramp', 'track.f4': 'Canteen & workshop available', 'track.f5': 'Ample parking',
+      'nieuws.label': 'News', 'nieuws.title': 'Latest updates',
+      'nieuws.sub': 'The latest news from RC045.',
+      'nieuws.meer': 'Read more →',
       'agenda.label': 'Events', 'agenda.title': 'Activities',
       'agenda.sub': 'Check what is planned at RC045. Follow our Facebook page for the most up-to-date information.',
       'agenda.tag.opendag': 'Open day', 'agenda.tag.leden': 'Members event', 'agenda.tag.wedstrijd': 'Race',
@@ -1271,6 +1309,9 @@
       'track.p2': 'Folge beim Ankommen den RC045-Schildern und du findest uns sofort. Es gibt ausreichend kostenlose Parkplätze.',
       'track.f1': 'Rennstrecke für Buggys, Truggies und mehr', 'track.f2': 'Offroad-Crawler-Parcours',
       'track.f3': 'Sprungstrecke mit Rampe', 'track.f4': 'Kantine & Werkraum vorhanden', 'track.f5': 'Ausreichend Parkplätze',
+      'nieuws.label': 'Neuigkeiten', 'nieuws.title': 'Letzte Updates',
+      'nieuws.sub': 'Die neuesten Nachrichten von RC045.',
+      'nieuws.meer': 'Mehr lesen →',
       'agenda.label': 'Veranstaltungen', 'agenda.title': 'Aktivitäten',
       'agenda.sub': 'Schau hier, was bei RC045 geplant ist. Folge unserer Facebook-Seite für die aktuellsten Informationen.',
       'agenda.tag.opendag': 'Offener Tag', 'agenda.tag.leden': 'Mitgliederevent', 'agenda.tag.wedstrijd': 'Rennen',
@@ -1337,6 +1378,7 @@
     updateInternalLinks(lang);
     updateWeatherDisplay();
     updateStatus();
+    renderNieuws();
     renderAgenda();
     renderContact();
     renderSponsorCta();
@@ -1723,6 +1765,87 @@
       renderAgenda();
     })
     .catch(function() { agendaData = []; });
+
+  // ===== NIEUWS (data/nieuws.json, bijwerken via beheer.php) =====
+  // Zelfde opzet als agenda hierboven: sectie blijft verborgen (zie de
+  // inline style="display:none" op <section id="nieuws">) totdat er
+  // minstens één item met een Nederlandse titel is.
+  var nieuwsData = null;
+
+  function nieuwsFormatDatum(datumStr) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(datumStr || '');
+    if (!m) return '';
+    var maanden = agendaMaanden;
+    var dag = parseInt(m[3], 10);
+    var maand = maanden[parseInt(m[2], 10) - 1];
+    return currentLang === 'de' ? (dag + '. ' + maand + ' ' + m[1]) : (dag + ' ' + maand + ' ' + m[1]);
+  }
+
+  function renderNieuws() {
+    if (!nieuwsData) return;
+    var grid = document.getElementById('nieuws-grid');
+    var sectie = document.getElementById('nieuws');
+    if (!grid || !sectie) return;
+    grid.innerHTML = '';
+    var t = i18n[currentLang];
+    var zichtbaar = 0;
+
+    nieuwsData.forEach(function(item, i) {
+      if (!item) return;
+      var titelNl = (item.title && item.title.nl) || '';
+      if (!String(titelNl).trim()) return;
+      zichtbaar++;
+
+      var titelTekst = (item.title[currentLang] && String(item.title[currentLang]).trim()) ? item.title[currentLang] : titelNl;
+      var descBron = item.desc || { nl: '' };
+      var descTekst = (descBron[currentLang] && String(descBron[currentLang]).trim()) ? descBron[currentLang] : (descBron.nl || '');
+      var linktekstBron = item.linktekst || { nl: '' };
+      var linktekstTekst = (linktekstBron[currentLang] && String(linktekstBron[currentLang]).trim()) ? linktekstBron[currentLang] : (linktekstBron.nl || '');
+
+      var card = document.createElement('div');
+      card.className = 'nieuws-card reveal reveal-delay-' + (((i % 4) + 1));
+
+      if (item.date && /^\d{4}-\d{2}-\d{2}$/.test(item.date)) {
+        var datumEl = document.createElement('div');
+        datumEl.className = 'nieuws-card-date';
+        datumEl.textContent = nieuwsFormatDatum(item.date);
+        card.appendChild(datumEl);
+      }
+
+      var h3 = document.createElement('h3');
+      h3.textContent = titelTekst;
+      card.appendChild(h3);
+
+      if (descTekst) {
+        var p = document.createElement('p');
+        p.textContent = descTekst;
+        card.appendChild(p);
+      }
+
+      if (item.link) {
+        var a = document.createElement('a');
+        a.href = item.link;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.className = 'nieuws-card-link';
+        a.textContent = linktekstTekst || t['nieuws.meer'] || 'Lees meer →';
+        card.appendChild(a);
+      }
+
+      grid.appendChild(card);
+      revealObserver.observe(card);
+    });
+
+    sectie.style.display = zichtbaar > 0 ? '' : 'none';
+  }
+
+  fetch('data/nieuws.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : []; })
+    .then(function(items) {
+      nieuwsData = Array.isArray(items) ? items : [];
+      renderNieuws();
+    })
+    .catch(function() { nieuwsData = []; renderNieuws(); });
 
   // ===== SPONSORS (data/sponsors.json, bijwerken via beheer.php) =====
   // sponsorCtaData/renderSponsorCta(): de "sponsor worden?"-tekst onder de
