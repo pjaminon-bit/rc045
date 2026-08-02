@@ -36,7 +36,7 @@
     
     .page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 320px; display: flex; align-items: center; justify-content: center; }
     
-    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('https://rc045.nl/.cm4all/uproc.php/0/.TRAXXAS_RED_WEB.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
+    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/hero-achtergrond.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
     
     .page-hero .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 12px; }
     
@@ -77,14 +77,10 @@
     .form-group input:focus, .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,122,119,0.12); }
     
     .phone-row { display: flex; gap: 8px; }
-
+    
     .phone-row select { width: 120px; flex-shrink: 0; }
-
+    
     .phone-row input { flex: 1; }
-
-    .dob-row { display: flex; gap: 8px; }
-
-    .dob-row select { flex: 1; min-width: 0; }
     
     .jeugdlid-badge { display: none; margin-top: 8px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
     
@@ -224,7 +220,7 @@
 
   <!-- Contributie berekening -->
   <div class="contributie-card" id="contributie-card">
-    <h3 data-i18n="contrib.title">Jouw contributie 2026</h3>
+    <h3 data-i18n="contrib.title">Jouw contributie {jaar}</h3>
     <div id="contributie-content">
       <p class="contributie-placeholder" data-i18n="contrib.placeholder">Vul je geboortedatum in om de contributie te berekenen.</p>
     </div>
@@ -252,13 +248,8 @@
           <div class="field-error" id="achternaam-error" data-i18n="err.required">Dit veld is verplicht</div>
         </div>
         <div class="form-group full">
-          <label for="geboortedatum-dag"><span data-i18n="form.dob">Geboortedatum</span> <span class="req">*</span></label>
-          <div class="dob-row">
-            <select id="geboortedatum-dag" aria-label="Dag"></select>
-            <select id="geboortedatum-maand" aria-label="Maand"></select>
-            <select id="geboortedatum-jaar" aria-label="Jaar"></select>
-          </div>
-          <input type="hidden" id="geboortedatum" name="geboortedatum">
+          <label for="geboortedatum"><span data-i18n="form.dob">Geboortedatum</span> <span class="req">*</span></label>
+          <input type="date" id="geboortedatum" name="geboortedatum">
           <div class="field-error" id="geboortedatum-error" data-i18n="err.required">Dit veld is verplicht</div>
           <div class="jeugdlid-badge" id="jeugdlid-badge"></div>
         </div>
@@ -339,7 +330,7 @@
       <div class="akkoord-group" style="margin-top: 10px;">
         <input type="checkbox" id="akkoord-betaling" name="akkoord_betaling" value="ja">
         <label for="akkoord-betaling">
-          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong>NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 2026".</span> <span style="color:var(--teal);">*</span>
+          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong>NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".</span> <span style="color:var(--teal);">*</span>
         </label>
       </div>
 
@@ -432,13 +423,12 @@
       'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'footer.sponsors.title': 'Met dank aan onze sponsoren', 'guest.tag': 'Gastrijden',
       'hero.label': 'Lidmaatschap', 'hero.title': 'Aanmelden als lid',
       'hero.sub': 'Vul het formulier in om je aan te melden bij RC045. Na ontvangst nemen we zo snel mogelijk contact met je op.',
-      'contrib.title': 'Jouw contributie 2026',
+      'contrib.title': 'Jouw contributie {jaar}',
       'contrib.placeholder': 'Vul je geboortedatum in om de contributie te berekenen.',
       'form.personal': 'Persoonsgegevens', 'form.address': 'Adresgegevens',
       'form.contact': 'Contactgegevens', 'form.agreement': 'Akkoordverklaring',
       'form.firstname': 'Voornaam', 'form.lastname': 'Achternaam',
       'form.dob': 'Geboortedatum', 'form.street': 'Straat',
-      'form.day': 'Dag', 'form.month': 'Maand', 'form.year': 'Jaar',
       'form.number': 'Huisnummer', 'form.postcode': 'Postcode',
       'form.city': 'Woonplaats', 'form.country': 'Land',
       'form.email': 'E-mailadres', 'form.mobile': 'Mobiel nummer',
@@ -457,11 +447,11 @@
       'warn.error': '❌ Er ging iets mis. Probeer het opnieuw of mail naar bestuur@rc045.nl',
       'success.title': '✅ Aanmelding ontvangen! We nemen zo snel mogelijk contact met je op.',
       'success.sub': 'Vergeet niet de contributie over te maken via de betalingsinstructies hierboven.',
-      'jeugd.badge': '🎯 Jeugdlid (t/m 15 jaar)', 'senior.badge': '✓ Seniorlid (16+)',
+      'jeugd.badge': '🎯 Jeugdlid (t/m {leeftijd} jaar)', 'senior.badge': '✓ Seniorlid ({leeftijdplus}+)',
       'contrib.jeugd': 'Jeugdlid', 'contrib.senior': 'Seniorlid',
       'contrib.inschrijving': 'inschrijving in', 'contrib.prorata': 'je betaalt vanaf',
       'contrib.inschrijfkosten': 'Eenmalige inschrijfkosten', 'contrib.totaal': 'Totaal over te maken',
-      'contrib.volledig': 'Contributie 2027', 'contrib.niet_overmaken': 'nog niet over te maken',
+      'contrib.volledig': 'Contributie {jaarnext}', 'contrib.niet_overmaken': 'nog niet over te maken',
       'contrib.december': 'Bij inschrijving in december betaal je nu alleen de €10 eenmalige inschrijfkosten. De contributie voor 2027 hoeft nog niet te worden overgemaakt.',
     },
     en: {
@@ -475,13 +465,12 @@
       'footer.made': 'Made with ❤️ for our hobby', 'footer.sponsors.title': 'With thanks to our sponsors', 'guest.tag': 'Guest riding',
       'hero.label': 'Membership', 'hero.title': 'Register as a member',
       'hero.sub': 'Fill in the form to register with RC045. We will contact you as soon as possible after receiving your registration.',
-      'contrib.title': 'Your membership fee 2026',
+      'contrib.title': 'Your membership fee {jaar}',
       'contrib.placeholder': 'Enter your date of birth to calculate the membership fee.',
       'form.personal': 'Personal details', 'form.address': 'Address details',
       'form.contact': 'Contact details', 'form.agreement': 'Declaration of agreement',
       'form.firstname': 'First name', 'form.lastname': 'Last name',
       'form.dob': 'Date of birth', 'form.street': 'Street',
-      'form.day': 'Day', 'form.month': 'Month', 'form.year': 'Year',
       'form.number': 'House number', 'form.postcode': 'Postcode',
       'form.city': 'City', 'form.country': 'Country',
       'form.email': 'Email address', 'form.mobile': 'Mobile number',
@@ -500,11 +489,11 @@
       'warn.error': '❌ Something went wrong. Please try again or email bestuur@rc045.nl',
       'success.title': '✅ Registration received! We will contact you as soon as possible.',
       'success.sub': 'Don\'t forget to transfer the membership fee using the payment instructions above.',
-      'jeugd.badge': '🎯 Youth member (up to 15)', 'senior.badge': '✓ Senior member (16+)',
+      'jeugd.badge': '🎯 Youth member (up to {leeftijd})', 'senior.badge': '✓ Senior member ({leeftijdplus}+)',
       'contrib.jeugd': 'Youth member', 'contrib.senior': 'Senior member',
       'contrib.inschrijving': 'registration in', 'contrib.prorata': 'you pay from',
       'contrib.inschrijfkosten': 'One-time registration fee', 'contrib.totaal': 'Total to transfer',
-      'contrib.volledig': 'Membership fee 2027', 'contrib.niet_overmaken': 'not due yet',
+      'contrib.volledig': 'Membership fee {jaarnext}', 'contrib.niet_overmaken': 'not due yet',
       'contrib.december': 'If you register in December, you only pay the €10 one-time registration fee now. The membership fee for 2027 does not need to be transferred yet.',
     },
     de: {
@@ -518,13 +507,12 @@
       'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'footer.sponsors.title': 'Mit Dank an unsere Sponsoren', 'guest.tag': 'Gastfahren',
       'hero.label': 'Mitgliedschaft', 'hero.title': 'Als Mitglied anmelden',
       'hero.sub': 'Fülle das Formular aus, um dich bei RC045 anzumelden. Nach Eingang melden wir uns so schnell wie möglich bei dir.',
-      'contrib.title': 'Dein Mitgliedsbeitrag 2026',
+      'contrib.title': 'Dein Mitgliedsbeitrag {jaar}',
       'contrib.placeholder': 'Gib dein Geburtsdatum ein, um den Mitgliedsbeitrag zu berechnen.',
       'form.personal': 'Persönliche Daten', 'form.address': 'Adressdaten',
       'form.contact': 'Kontaktdaten', 'form.agreement': 'Einverständniserklärung',
       'form.firstname': 'Vorname', 'form.lastname': 'Nachname',
       'form.dob': 'Geburtsdatum', 'form.street': 'Straße',
-      'form.day': 'Tag', 'form.month': 'Monat', 'form.year': 'Jahr',
       'form.number': 'Hausnummer', 'form.postcode': 'Postleitzahl',
       'form.city': 'Wohnort', 'form.country': 'Land',
       'form.email': 'E-Mail-Adresse', 'form.mobile': 'Handynummer',
@@ -543,11 +531,11 @@
       'warn.error': '❌ Etwas ist schiefgelaufen. Bitte versuche es erneut oder schreibe an bestuur@rc045.nl',
       'success.title': '✅ Anmeldung erhalten! Wir werden uns so schnell wie möglich bei dir melden.',
       'success.sub': 'Vergiss nicht, den Mitgliedsbeitrag gemäß den obigen Zahlungsanweisungen zu überweisen.',
-      'jeugd.badge': '🎯 Jugendmitglied (bis 15 Jahre)', 'senior.badge': '✓ Seniorenmitglied (16+)',
+      'jeugd.badge': '🎯 Jugendmitglied (bis {leeftijd} Jahre)', 'senior.badge': '✓ Seniorenmitglied ({leeftijdplus}+)',
       'contrib.jeugd': 'Jugendmitglied', 'contrib.senior': 'Seniorenmitglied',
       'contrib.inschrijving': 'Anmeldung im', 'contrib.prorata': 'du zahlst ab',
       'contrib.inschrijfkosten': 'Einmalige Anmeldegebühr', 'contrib.totaal': 'Gesamt zu überweisen',
-      'contrib.volledig': 'Mitgliedsbeitrag 2027', 'contrib.niet_overmaken': 'noch nicht fällig',
+      'contrib.volledig': 'Mitgliedsbeitrag {jaarnext}', 'contrib.niet_overmaken': 'noch nicht fällig',
       'contrib.december': 'Bei Anmeldung im Dezember zahlst du jetzt nur die einmalige Anmeldegebühr von €10. Der Mitgliedsbeitrag für 2027 muss noch nicht überwiesen werden.',
     }
   };
@@ -563,12 +551,65 @@
     return currentLang === 'en' ? maandNamenEN : currentLang === 'de' ? maandNamenDE : maandNamenNL;
   }
 
+  // ===== REKENTABEL CONTRIBUTIE (data/rekentabel.json, bewerkbaar via beheer.php) =====
+  // Startwaarden hieronder zijn gelijk aan wat voorheen hardcoded stond, dus
+  // er verandert niets vóórdat de fetch verderop is teruggekomen (of als
+  // data/rekentabel.json nog niet bestaat). Moet vóór de eerste mogelijke
+  // aanroep van setLang()/berekenContributie() staan (zie "if (currentLang
+  // !== 'nl') setLang(...)" verderop), anders zijn deze nog niet
+  // geïnitialiseerd op het moment dat ze voor het eerst gebruikt worden.
+  let rekentabelJaar = '2026';
+  let rekentabelLeeftijdGrens = 15;
+  let rekentabelInschrijfkosten = 10;
+  let volledigeContributieSenior = 100;
+  let volledigeContributieJeugd = 50;
+  let tabelSenior = {
+    1: 92, 2: 83, 3: 75, 4: 67, 5: 58, 6: 50,
+    7: 42, 8: 33, 9: 25, 10: 17, 11: 8, 12: null
+  };
+  let tabelJeugd = {
+    1: 46, 2: 42, 3: 38, 4: 33, 5: 29, 6: 25,
+    7: 21, 8: 17, 9: 13, 10: 8, 11: 4.16, 12: null
+  };
+
+  // Zelfde afronding als rekentabelProRata() in beheer.php: pro-rata deel
+  // van het jaarbedrag, naar hele euro's afgerond. Maand 12 (december)
+  // blijft altijd het speciale geval (alleen inschrijfkosten).
+  function rekentabelProRataJS(jaarbedrag) {
+    const tabel = {};
+    for (let m = 1; m <= 11; m++) tabel[m] = Math.round(jaarbedrag * (12 - m) / 12);
+    tabel[12] = null;
+    return tabel;
+  }
+
+  // Vervangt {jaar}/{jaarnext}/{leeftijd}/{leeftijdplus} in een vertaalde
+  // tekst door de actuele rekentabelwaarden. Een string zonder die tokens
+  // komt ongewijzigd terug.
+  function vulRekentabelTokens(tekst) {
+    if (!tekst) return tekst;
+    return String(tekst)
+      .replace(/\{jaar\}/g, rekentabelJaar)
+      .replace(/\{jaarnext\}/g, String(Number(rekentabelJaar) + 1))
+      .replace(/\{leeftijd\}/g, rekentabelLeeftijdGrens)
+      .replace(/\{leeftijdplus\}/g, rekentabelLeeftijdGrens + 1);
+  }
+
+  // Ververst alle data-i18n-elementen die nog de rauwe (Nederlandse)
+  // HTML-tekst tonen: nodig omdat setLang('nl') bij eerste load bewust wordt
+  // overgeslagen (zie "if (currentLang !== 'nl')" verderop), dus die
+  // elementen krijgen hun tokens pas hier vervangen.
+  function vulTokensInDOM() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = vulRekentabelTokens(el.textContent);
+    });
+  }
+
   function setLang(lang) {
     currentLang = lang;
     const t = i18n[lang];
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
-      if (t[key]) el.textContent = t[key];
+      if (t[key]) el.textContent = vulRekentabelTokens(t[key]);
     });
     document.querySelectorAll('.lang-flag').forEach(btn => { btn.classList.remove('active'); btn.setAttribute('aria-pressed', 'false'); });
     const activeBtn = document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`);
@@ -581,13 +622,16 @@
     else currentUrl.searchParams.set('lang', lang);
     history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
     updateInternalLinks(lang);
-    populateDobSelects();
     berekenContributie();
     renderFaq();
     renderSponsorCta();
   }
 
   document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+  // Vult {jaar}/{leeftijd}-tokens in de rauwe (Nederlandse) HTML-tekst in,
+  // ook als setLang() hieronder wordt overgeslagen (nl-standaardgeval).
+  vulTokensInDOM();
 
   // Pas opgeslagen/URL-taal direct toe en update links bij eerste load
   if (currentLang !== 'nl') setLang(currentLang);
@@ -613,34 +657,20 @@
     if (scrollY < window.innerHeight * 1.2) heroBg.style.transform = `translateY(${scrollY * 0.5}px)`;
   }, { passive: true });
 
-  // ===== PRO-RATA TABELLEN =====
-  const tabelSenior = {
-    1: 92, 2: 83, 3: 75, 4: 67, 5: 58, 6: 50,
-    7: 42, 8: 33, 9: 25, 10: 17, 11: 8, 12: null
-  };
-  const tabelJeugd = {
-    1: 46, 2: 42, 3: 38, 4: 33, 5: 29, 6: 25,
-    7: 21, 8: 17, 9: 13, 10: 8, 11: 4.16, 12: null
-  };
-  const volledigeContributieSenior = 100;
-  const volledigeContributieJeugd = 50;
-
   function berekenContributie() {
     const t = i18n[currentLang];
     const maandNamen = getMaandNamen();
-    const dobDag = document.getElementById('geboortedatum-dag').value;
-    const dobMaand = document.getElementById('geboortedatum-maand').value;
-    const dobJaar = document.getElementById('geboortedatum-jaar').value;
+    const geboortedatum = document.getElementById('geboortedatum').value;
     const contentEl = document.getElementById('contributie-content');
 
-    if (!dobDag || !dobMaand || !dobJaar) {
+    if (!geboortedatum) {
       contentEl.innerHTML = `<p class="contributie-placeholder">${t['contrib.placeholder']}</p>`;
       document.getElementById('jeugdlid-hidden').value = '';
       document.getElementById('contributiebedrag-hidden').value = '';
       return;
     }
 
-    const geb = new Date(Number(dobJaar), Number(dobMaand) - 1, Number(dobDag));
+    const geb = new Date(geboortedatum);
     const nu = new Date();
     const maand = nu.getMonth() + 1; // 1-12
     const jaar = nu.getFullYear();
@@ -650,86 +680,50 @@
     const verjaardag = new Date(jaar, geb.getMonth(), geb.getDate());
     if (nu < verjaardag) leeftijd--;
 
-    const isJeugd = leeftijd <= 15;
+    const isJeugd = leeftijd <= rekentabelLeeftijdGrens;
     const tabel = isJeugd ? tabelJeugd : tabelSenior;
     const contributie = tabel[maand];
 
     // Update badge
     const badge = document.getElementById('jeugdlid-badge');
     badge.className = 'jeugdlid-badge ' + (isJeugd ? 'jeugd' : 'senior');
-    badge.textContent = isJeugd ? t['jeugd.badge'] : t['senior.badge'];
+    badge.textContent = vulRekentabelTokens(isJeugd ? t['jeugd.badge'] : t['senior.badge']);
 
     document.getElementById('jeugdlid-hidden').value = isJeugd ? 'Ja' : 'Nee';
 
     if (contributie === null) {
       const volledigeContributie = isJeugd ? volledigeContributieJeugd : volledigeContributieSenior;
-      document.getElementById('contributiebedrag-hidden').value = `€10 (${t['contrib.inschrijfkosten']}, nu) + €${volledigeContributie} (${t['contrib.volledig']}, ${t['contrib.niet_overmaken']})`;
+      document.getElementById('contributiebedrag-hidden').value = `€${rekentabelInschrijfkosten} (${t['contrib.inschrijfkosten']}, nu) + €${volledigeContributie} (${vulRekentabelTokens(t['contrib.volledig'])}, ${t['contrib.niet_overmaken']})`;
 
       contentEl.innerHTML = `
-        <div class="contributie-bedrag">€10,-</div>
+        <div class="contributie-bedrag">€${rekentabelInschrijfkosten},-</div>
         <div class="contributie-sub">${isJeugd ? t['contrib.jeugd'] : t['contrib.senior']} · ${t['contrib.inschrijving']} december</div>
         <div class="contributie-breakdown">
-          ${t['contrib.inschrijfkosten']}: €10<br>
-          <strong style="font-size:16px;">${t['contrib.totaal']}: €10</strong><br><br>
-          ${t['contrib.volledig']}: €${volledigeContributie} (${t['contrib.niet_overmaken']})
+          ${t['contrib.inschrijfkosten']}: €${rekentabelInschrijfkosten}<br>
+          <strong style="font-size:16px;">${t['contrib.totaal']}: €${rekentabelInschrijfkosten}</strong><br><br>
+          ${vulRekentabelTokens(t['contrib.volledig'])}: €${volledigeContributie} (${t['contrib.niet_overmaken']})
         </div>
       `;
       return;
     }
 
-    const totaal = contributie + 10;
+    const totaal = contributie + rekentabelInschrijfkosten;
     const volledigeContributie = isJeugd ? volledigeContributieJeugd : volledigeContributieSenior;
-    document.getElementById('contributiebedrag-hidden').value = `€${contributie} + €10 = €${totaal} (${t['contrib.totaal']}) + €${volledigeContributie} (${t['contrib.volledig']}, ${t['contrib.niet_overmaken']})`;
+    document.getElementById('contributiebedrag-hidden').value = `€${contributie} + €${rekentabelInschrijfkosten} = €${totaal} (${t['contrib.totaal']}) + €${volledigeContributie} (${vulRekentabelTokens(t['contrib.volledig'])}, ${t['contrib.niet_overmaken']})`;
 
     contentEl.innerHTML = `
       <div class="contributie-bedrag">€${totaal},-</div>
       <div class="contributie-sub">${isJeugd ? t['contrib.jeugd'] : t['contrib.senior']} · ${t['contrib.inschrijving']} ${maandNamen[maand - 1]} ${jaar}</div>
       <div class="contributie-breakdown">
         Contributie: €${contributie} (${t['contrib.prorata']} ${maandNamen[maand] || maandNamen[0]})<br>
-        ${t['contrib.inschrijfkosten']}: €10<br>
+        ${t['contrib.inschrijfkosten']}: €${rekentabelInschrijfkosten}<br>
         <strong style="font-size:16px;">${t['contrib.totaal']}: €${totaal}</strong><br><br>
-        ${t['contrib.volledig']}: €${volledigeContributie} (${t['contrib.niet_overmaken']})
+        ${vulRekentabelTokens(t['contrib.volledig'])}: €${volledigeContributie} (${t['contrib.niet_overmaken']})
       </div>
     `;
   }
 
-  function populateDobSelects() {
-    const t = i18n[currentLang];
-    const dagSel = document.getElementById('geboortedatum-dag');
-    const maandSel = document.getElementById('geboortedatum-maand');
-    const jaarSel = document.getElementById('geboortedatum-jaar');
-    const huidigeDag = dagSel.value, huidigeMaand = maandSel.value, huidigJaarVal = jaarSel.value;
-
-    dagSel.innerHTML = `<option value="">${t['form.day']}</option>` +
-      Array.from({ length: 31 }, (_, i) => i + 1).map(d => `<option value="${d}">${d}</option>`).join('');
-
-    maandSel.innerHTML = `<option value="">${t['form.month']}</option>` +
-      getMaandNamen().map((naam, i) => `<option value="${i + 1}">${naam}</option>`).join('');
-
-    const huidigJaar = new Date().getFullYear();
-    jaarSel.innerHTML = `<option value="">${t['form.year']}</option>` +
-      Array.from({ length: 100 }, (_, i) => huidigJaar - i).map(j => `<option value="${j}">${j}</option>`).join('');
-
-    if (huidigeDag) dagSel.value = huidigeDag;
-    if (huidigeMaand) maandSel.value = huidigeMaand;
-    if (huidigJaarVal) jaarSel.value = huidigJaarVal;
-  }
-
-  function updateGeboortedatum() {
-    const dag = document.getElementById('geboortedatum-dag').value;
-    const maand = document.getElementById('geboortedatum-maand').value;
-    const jaar = document.getElementById('geboortedatum-jaar').value;
-    const hidden = document.getElementById('geboortedatum');
-    hidden.value = (dag && maand && jaar)
-      ? `${String(dag).padStart(2, '0')}-${String(maand).padStart(2, '0')}-${jaar}`
-      : '';
-    berekenContributie();
-  }
-
-  populateDobSelects();
-  ['geboortedatum-dag', 'geboortedatum-maand', 'geboortedatum-jaar'].forEach(id => {
-    document.getElementById(id).addEventListener('change', updateGeboortedatum);
-  });
+  document.getElementById('geboortedatum').addEventListener('change', berekenContributie);
 
   // ===== FORMULIER VALIDATIE & VERZENDING =====
   const form = document.getElementById('aanmeld-form');
@@ -745,17 +739,6 @@
       input.classList.remove('input-error');
       group.classList.remove('has-error');
     }
-    if (id === 'geboortedatum') {
-      ['geboortedatum-dag', 'geboortedatum-maand', 'geboortedatum-jaar'].forEach(selId => {
-        document.getElementById(selId).classList.toggle('input-error', hasError);
-      });
-    }
-  }
-
-  // Voor geboortedatum verwijst het eerste (zichtbare) veld naar de dag-select,
-  // want het element met id="geboortedatum" is een verborgen input.
-  function getZichtbaarVeld(id) {
-    return id === 'geboortedatum' ? document.getElementById('geboortedatum-dag') : document.getElementById(id);
   }
 
   form.addEventListener('submit', async function(e) {
@@ -785,7 +768,7 @@
       const val = document.getElementById(id).value.trim();
       if (!val) {
         setFieldError(id, true);
-        if (!firstErrorEl) firstErrorEl = getZichtbaarVeld(id);
+        if (!firstErrorEl) firstErrorEl = document.getElementById(id);
       }
     });
 
@@ -917,6 +900,27 @@
       renderFaq();
     })
     .catch(function() { faqData = []; });
+
+  // ===== REKENTABEL (data/rekentabel.json, bewerkbaar via beheer.php) =====
+  // Overschrijft de startwaarden hierboven zodra dit bestand er is. Blijft
+  // dat achterwege (bestand bestaat nog niet, of fetch mislukt), dan werkt
+  // de calculator gewoon door met de eerder gezette standaardwaarden.
+  fetch('data/rekentabel.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(rt) {
+      if (!rt) return;
+      rekentabelJaar = String(rt.jaar || rekentabelJaar);
+      rekentabelLeeftijdGrens = Number(rt.jeugd_leeftijd_tot) || rekentabelLeeftijdGrens;
+      rekentabelInschrijfkosten = Number(rt.inschrijfkosten);
+      if (isNaN(rekentabelInschrijfkosten)) rekentabelInschrijfkosten = 10;
+      volledigeContributieJeugd = Number(rt.jeugd_jaarbedrag) || volledigeContributieJeugd;
+      volledigeContributieSenior = Number(rt.senior_jaarbedrag) || volledigeContributieSenior;
+      tabelJeugd = rekentabelProRataJS(volledigeContributieJeugd);
+      tabelSenior = rekentabelProRataJS(volledigeContributieSenior);
+      vulTokensInDOM();
+      berekenContributie();
+    })
+    .catch(function() { /* standaardwaarden blijven gelden */ });
 
   // ===== INPUT ERROR STYLING =====
   function setInputError(id, hasError) {
