@@ -154,7 +154,7 @@
       </div>
       <div class="iban-detail">
         <span data-i18n="iban.name">T.n.v. RC045</span><br>
-        <span data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 2026"</span>
+        <span data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"</span>
       </div>
     </div>
 
@@ -180,7 +180,7 @@
       'stap2': 'Wacht op bevestiging van het bestuur per e-mail of WhatsApp.',
       'stap3': 'Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!',
       'iban.title': 'Betalingsgegevens', 'iban.name': 'T.n.v. RC045',
-      'iban.ref': 'Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 2026"',
+      'iban.ref': 'Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"',
       'iban.copy': 'Kopieer',
       'iban.copied': 'Gekopieerd!',
       'btn.home': '🏠 Naar de hoofdpagina', 'btn.location': '📍 Hoe kom ik er?'
@@ -193,7 +193,7 @@
       'stap2': 'Wait for confirmation from the board by email or WhatsApp.',
       'stap3': 'You are very welcome at our track once your membership is confirmed!',
       'iban.title': 'Payment details', 'iban.name': 'In the name of RC045',
-      'iban.ref': 'Reference: first name + last name + "contributie RC045 2026"',
+      'iban.ref': 'Reference: first name + last name + "contributie RC045 {jaar}"',
       'iban.copy': 'Copy',
       'iban.copied': 'Copied!',
       'btn.home': '🏠 Go to the homepage', 'btn.location': '📍 How to find us?'
@@ -206,7 +206,7 @@
       'stap2': 'Warte auf die Bestätigung des Vorstands per E-Mail oder WhatsApp.',
       'stap3': 'Du bist herzlich willkommen auf unserer Strecke, sobald deine Mitgliedschaft bestätigt ist!',
       'iban.title': 'Zahlungsdaten', 'iban.name': 'Auf den Namen RC045',
-      'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 2026"',
+      'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 {jaar}"',
       'iban.copy': 'Kopieren',
       'iban.copied': 'Kopiert!',
       'btn.home': '🏠 Zur Hauptseite', 'btn.location': '📍 Wie komme ich hin?'
@@ -245,12 +245,28 @@
 
   let currentLang = getInitialLang();
 
+  // ===== REKENTABEL-JAAR (data/rekentabel.json, bewerkbaar via beheer.php) =====
+  // Alleen het jaartal is hier nodig, voor de betaalreferentie hieronder.
+  // Startwaarde gelijk aan wat voorheen hardcoded stond.
+  let rekentabelJaar = '2026';
+
+  function vulRekentabelTokens(tekst) {
+    if (!tekst) return tekst;
+    return String(tekst).replace(/\{jaar\}/g, rekentabelJaar);
+  }
+
+  function vulTokensInDOM() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.textContent = vulRekentabelTokens(el.textContent);
+    });
+  }
+
   function setLang(lang) {
     currentLang = lang;
     const t = i18n[lang];
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
-      if (t[key]) el.textContent = t[key];
+      if (t[key]) el.textContent = vulRekentabelTokens(t[key]);
     });
     document.querySelectorAll('.lang-flag').forEach(btn => { btn.classList.remove('active'); btn.setAttribute('aria-pressed', 'false'); });
     const activeBtn = document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`);
@@ -263,8 +279,18 @@
 
   document.getElementById('footer-year').textContent = new Date().getFullYear();
 
+  vulTokensInDOM();
   if (currentLang !== 'nl') setLang(currentLang);
   else updateInternalLinks('nl');
+
+  fetch('data/rekentabel.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(rt) {
+      if (!rt || !rt.jaar) return;
+      rekentabelJaar = String(rt.jaar);
+      vulTokensInDOM();
+    })
+    .catch(function() { /* standaardwaarde blijft gelden */ });
 
   // ===== TERUG NAAR BOVEN =====
   const backToTop = document.getElementById('backToTop');
