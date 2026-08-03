@@ -4,15 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RC045 – Bashers of the South</title>
-  <meta name="description" content="RC045 - Bashers of the South: een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
-  <meta property="og:title" content="RC045 - Bashers of the South">
+  <meta name="description" id="meta-description" content="RC045 – Bashers of the South: een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
+  <meta property="og:title" content="RC045 – Bashers of the South">
   <meta property="og:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
   <meta property="og:image" content="https://rc045.nl/rc045-logo.png">
   <meta property="og:url" content="https://rc045.nl">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="nl_NL">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="RC045 - Bashers of the South">
+  <meta name="twitter:title" content="RC045 – Bashers of the South">
   <meta name="twitter:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's.">
   <meta name="twitter:image" content="https://rc045.nl/rc045-logo.png">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -22,14 +22,19 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#1E2C13">
+  <link rel="canonical" href="https://rc045.nl/" id="canonical-link">
   <link rel="alternate" hreflang="nl" href="https://rc045.nl/">
   <link rel="alternate" hreflang="en" href="https://rc045.nl/?lang=en">
   <link rel="alternate" hreflang="de" href="https://rc045.nl/?lang=de">
   <link rel="alternate" hreflang="x-default" href="https://rc045.nl/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
+    /* Ankers landen onder de vaste navigatiebalk in plaats van eronder te verdwijnen. */
+    .hero, .section, .photo-strip { scroll-margin-top: 80px; }
+    
     body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: #292524; background: #FAF6EC; }
     
     .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
@@ -48,7 +53,7 @@
     
     .hero { position: relative; overflow: hidden; background: var(--dark); min-height: 580px; display: flex; align-items: center; }
     
-    .hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/hero-achtergrond.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
+    .hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
     
     .hero-gradient { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(30,44,19,0.88) 0%, rgba(58,122,119,0.25) 100%); }
     
@@ -488,11 +493,11 @@
           .photo-strip { height: 320px; }
         }
   </style>
-  <script type="application/ld+json">
+  <script type="application/ld+json" id="structured-data">
   {
     "@context": "https://schema.org",
     "@type": "SportsClub",
-    "name": "RC045 - Bashers of the South",
+    "name": "RC045 – Bashers of the South",
     "alternateName": "RC045",
     "description": "Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.",
     "url": "https://rc045.nl",
@@ -515,25 +520,18 @@
       {
         "@type": "OpeningHoursSpecification",
         "dayOfWeek": "Saturday",
-        "opens": "10:00",
+        "opens": "11:00",
         "closes": "15:00"
       },
       {
         "@type": "OpeningHoursSpecification",
         "dayOfWeek": "Sunday",
         "opens": "10:00",
-        "closes": "15:00"
-      },
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": "Wednesday",
-        "opens": "18:00",
-        "closes": "22:00"
+        "closes": "17:00"
       }
     ],
     "sameAs": [
-      "https://www.facebook.com/rc045/",
-      "https://www.instagram.com/rc045"
+      "https://www.facebook.com/rc045/"
     ],
     "email": "bestuur@rc045.nl"
   }
@@ -564,11 +562,11 @@
     </a>
     <ul class="nav-links" id="nav-links">
       <li data-section="over-ons"><a href="#over-ons" data-i18n="nav.about">Over ons</a></li>
-      <li data-section="lidmaatschap"><a href="#lid-worden" data-i18n="nav.membership">Lidmaatschap</a></li>
+      <li data-section="lidmaatschap"><a href="#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
       <li data-section="baan"><a href="#baan" data-i18n="nav.track">De baan</a></li>
       <li data-section="locatie"><a href="#locatie" data-i18n="nav.location">Locatie</a></li>
       <li><a href="fotoboek.html" data-i18n="nav.photobook">Fotoboek</a></li>
-      <li class="nav-cta" data-section="contact"><a href="#contact" data-i18n="nav.question">Contact</a></li>
+      <li class="nav-cta" data-section="contact"><a href="#contact" data-i18n="nav.contact">Contact</a></li>
       <li class="nav-lid"><a href="aanmelden.html" data-i18n="nav.join">Lid worden</a></li>
     </ul>
     <div class="lang-flags">
@@ -615,8 +613,8 @@
       </div>
       <div>
         <div class="info-label" data-i18n="info.hours">Openingstijden</div>
-        <div class="info-value" id="info-sat-value">Zaterdag 10:00–15:00</div>
-        <div class="info-value" id="info-sun-value">Zondag 10:00–15:00</div>
+        <div class="info-value" id="info-sat-value">Zaterdag 11:00 – 15:00</div>
+        <div class="info-value" id="info-sun-value">Zondag 10:00 – 17:00</div>
         <div id="status-indicator"></div>
         <div class="info-hours-note" id="info-hours-note">
           <span data-i18n="info.hours.note">Op vrijdag passen we onze actuele openingstijden aan.</span>
@@ -738,7 +736,6 @@
         <a href="#contact" class="btn btn-primary" data-i18n="guest.btn">Kom gerust langs of stuur ons een berichtje →</a>
         <p class="price-note" data-i18n="guest.note">Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</p>
       </div>
-      <span id="lid-worden" style="display:block; position:absolute; margin-top:-80px;"></span>
       <div class="price-card featured reveal reveal-delay-2">
         <div class="price-card-tag" data-i18n="member.tag">Lidmaatschap</div>
         <h3 data-i18n="member.title">Word lid van RC045</h3>
@@ -967,14 +964,14 @@
           <div class="hours-row" id="hours-sat-row">
             <span class="hours-day" data-i18n="hours.sat">Zaterdag</span>
             <span class="hours-time-wrap">
-              <span class="hours-time" id="hours-sat-time">10:00 – 15:00</span>
+              <span class="hours-time" id="hours-sat-time">11:00 – 15:00</span>
               <span class="hours-closed-note" id="hours-sat-closed">⛔ Zaterdag gesloten</span>
             </span>
           </div>
           <div class="hours-row" id="hours-sun-row">
             <span class="hours-day" data-i18n="hours.sun">Zondag</span>
             <span class="hours-time-wrap">
-              <span class="hours-time" id="hours-sun-time">10:00 – 15:00</span>
+              <span class="hours-time" id="hours-sun-time">10:00 – 17:00</span>
               <span class="hours-closed-note" id="hours-sun-closed">⛔ Zondag gesloten</span>
             </span>
           </div>
@@ -1121,7 +1118,7 @@
           <li><a href="#lidmaatschap" data-i18n="guest.tag">Gastrijden</a></li>
           <li><a href="baanreglement.html" data-i18n="footer.rules">Baanreglement</a></li>
           <li><a href="#contact" data-i18n="footer.sponsor">Sponsoring</a></li>
-          <li><a href="#contact">Contact</a></li>
+          <li><a href="#contact" data-i18n="nav.contact">Contact</a></li>
         </ul>
       </div>
     </div>
@@ -1145,11 +1142,9 @@
   const i18n = {
     nl: {
       'nav.about': 'Over ons', 'nav.membership': 'Lidmaatschap', 'nav.track': 'De baan',
-      'nav.location': 'Locatie', 'nav.photobook': 'Fotoboek', 'nav.question': 'Contact', 'nav.join': 'Lid worden', 'nav.story': 'Het ontstaan',
-      'hero.intro': 'Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners én ervaren hobbyisten. Jong én oud.',
+      'nav.location': 'Locatie', 'nav.photobook': 'Fotoboek', 'nav.contact': 'Contact', 'nav.join': 'Lid worden', 'hero.intro': 'Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners én ervaren hobbyisten. Jong én oud.',
       'hero.btn.member': 'Lid worden!', 'hero.btn.more': 'Meer over ons',
-      'update.label': '📣 Actueel:', 'info.hours': 'Openingstijden', 'info.sat': 'Zaterdag 10:00–15:00', 'info.sun': 'Zondag 10:00–15:00',
-      'info.location': 'Locatie', 'info.membership': 'Lidmaatschap', 'info.from': 'Vanaf €50/jaar', 'info.weather': 'Weer in Eygelshoven',
+      'update.label': '📣 Actueel:', 'info.hours': 'Openingstijden', 'info.location': 'Locatie', 'info.membership': 'Lidmaatschap', 'info.weather': 'Weer in Eygelshoven',
       'info.hours.note': 'Op vrijdag passen we onze actuele openingstijden aan.',
       'about.label': 'Wie zijn wij', 'about.title': 'Dé RC-vereniging van Zuid-Limburg',
       'about.p1': 'RC045 is een actieve vereniging voor liefhebbers van radiografisch bestuurbare auto\'s. We rijden met elektrische RC-auto\'s in alle schalen. Of je nu net begint of al jaren rijdt: bij ons ben je welkom.',
@@ -1193,8 +1188,7 @@
       'rule6.title': 'Geen alcohol of drugs', 'rule6.text': 'Alcoholhoudende dranken en verdovende middelen zijn ten allen tijden verboden op het gehele terrein.',
       'rule7.title': 'We rijden nooit op het asfalt', 'rule7.text': 'Het is verboden om te rijden op het asfalt. Van de kantine naar het rijderspodium rijd je stapvoets.', 'rules.link': 'Volledig (statutair) baanreglement lezen →',
       'loc.label': 'Bezoek ons', 'loc.title': 'Hoe vind je ons?',
-      'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.wed.time': 'Woensdagavond bij voldoende animo',
-      'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
+      'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
       'hours.closed': 'gesloten', 'hours.closed.maintenance': 'gesloten i.v.m. onderhoud', 'hours.closed.weather': 'gesloten i.v.m. slecht weer',
       'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.',
       'hours.weather': '❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
@@ -1208,19 +1202,17 @@
       'form.opt4': 'Sponsoring', 'form.opt5': 'Overige vragen',
       'form.message': 'Bericht *', 'form.message.ph': 'Schrijf hier je vraag of bericht...', 'form.send': 'Verstuur bericht →',
       'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
-      'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.photobook': 'Fotoboek', 'footer.board': 'Bestuur & organisatie',
-      'footer.photos': 'Foto\'s', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
+      'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.photobook': 'Fotoboek', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
       'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
-      'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'footer.sponsors.title': 'Met dank aan onze sponsoren',
-      'status.open': 'Nu open', 'status.closed': 'Nu gesloten'
+      'footer.credit': 'Website door Pascal Jaminon', 'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'footer.sponsors.title': 'Met dank aan onze sponsoren',
+      'status.open': 'Nu open', 'status.closed': 'Nu gesloten',
+      'meta.description': 'RC045 – Bashers of the South: een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners en ervaren hobbyisten, jong en oud.'
     },
     en: {
       'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
-      'nav.location': 'Location', 'nav.photobook': 'Photo book', 'nav.question': 'Contact', 'nav.join': 'Become a member', 'nav.story': 'Our history',
-      'hero.intro': 'We are a friendly club from the south of Limburg for enthusiasts of electrically powered, radio-controlled cars. For beginners and experienced hobbyists alike. Young and old.',
+      'nav.location': 'Location', 'nav.photobook': 'Photo book', 'nav.contact': 'Contact', 'nav.join': 'Become a member', 'hero.intro': 'We are a friendly club from the south of Limburg for enthusiasts of electrically powered, radio-controlled cars. For beginners and experienced hobbyists alike. Young and old.',
       'hero.btn.member': 'Become a member!', 'hero.btn.more': 'More about us',
-      'update.label': '📣 Update:', 'info.hours': 'Opening hours', 'info.sat': 'Saturday 10:00–15:00', 'info.sun': 'Sunday 10:00–15:00',
-      'info.location': 'Location', 'info.membership': 'Membership', 'info.from': 'From €50/year', 'info.weather': 'Weather in Eygelshoven',
+      'update.label': '📣 Update:', 'info.hours': 'Opening hours', 'info.location': 'Location', 'info.membership': 'Membership', 'info.weather': 'Weather in Eygelshoven',
       'info.hours.note': 'We update our opening hours every Friday.',
       'about.label': 'Who we are', 'about.title': 'The RC club of South Limburg',
       'about.p1': 'RC045 is an active club for enthusiasts of radio-controlled cars. We drive electric RC cars in all scales. Whether you\'re just starting out or have been racing for years: you\'re welcome here.',
@@ -1264,8 +1256,7 @@
       'rule6.title': 'No alcohol or drugs', 'rule6.text': 'Alcoholic beverages and narcotics are strictly prohibited at all times on the entire premises.',
       'rule7.title': 'We never ride on the asphalt', 'rule7.text': 'It is forbidden to ride on the asphalt. From the canteen to the driver\'s platform, you ride at walking pace.', 'rules.link': 'Read the full (statutory) track regulations →',
       'loc.label': 'Visit us', 'loc.title': 'How to find us?',
-      'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.wed.time': 'Wednesday evenings when there\'s enough interest',
-      'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
+      'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
       'hours.closed': 'closed', 'hours.closed.maintenance': 'closed for maintenance', 'hours.closed.weather': 'closed due to bad weather',
       'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance.',
       'hours.weather': '❗ In bad weather we may decide to close early or not open at all.',
@@ -1279,19 +1270,17 @@
       'form.opt4': 'Sponsorship', 'form.opt5': 'Other questions',
       'form.message': 'Message *', 'form.message.ph': 'Write your question or message here...', 'form.send': 'Send message →',
       'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
-      'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.photobook': 'Photo book', 'footer.board': 'Board & organisation',
-      'footer.photos': 'Photos', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
+      'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.photobook': 'Photo book', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
       'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
-      'footer.made': 'Made with ❤️ for our hobby', 'footer.sponsors.title': 'With thanks to our sponsors',
-      'status.open': 'Now open', 'status.closed': 'Now closed'
+      'footer.credit': 'Website by Pascal Jaminon', 'footer.made': 'Made with ❤️ for our hobby', 'footer.sponsors.title': 'With thanks to our sponsors',
+      'status.open': 'Now open', 'status.closed': 'Now closed',
+      'meta.description': 'RC045 – Bashers of the South: a friendly club in South Limburg for fans of electric radio controlled cars. For beginners and experienced hobbyists, young and old.'
     },
     de: {
       'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
-      'nav.location': 'Standort', 'nav.photobook': 'Fotobuch', 'nav.question': 'Contact', 'nav.join': 'Mitglied werden', 'nav.story': 'Unsere Geschichte',
-      'hero.intro': 'Wir sind ein freundlicher Verein aus dem Süden von Limburg für Liebhaber von elektrisch angetriebenen, ferngesteuerten Autos. Für Anfänger und erfahrene Hobbyisten. Jung und Alt.',
+      'nav.location': 'Standort', 'nav.photobook': 'Fotobuch', 'nav.contact': 'Kontakt', 'nav.join': 'Mitglied werden', 'hero.intro': 'Wir sind ein freundlicher Verein aus dem Süden von Limburg für Liebhaber von elektrisch angetriebenen, ferngesteuerten Autos. Für Anfänger und erfahrene Hobbyisten. Jung und Alt.',
       'hero.btn.member': 'Mitglied werden!', 'hero.btn.more': 'Mehr über uns',
-      'update.label': '📣 Aktuell:', 'info.hours': 'Öffnungszeiten', 'info.sat': 'Samstag 10:00–15:00', 'info.sun': 'Sonntag 10:00–15:00',
-      'info.location': 'Standort', 'info.membership': 'Mitgliedschaft', 'info.from': 'Ab €50/Jahr', 'info.weather': 'Wetter in Eygelshoven',
+      'update.label': '📣 Aktuell:', 'info.hours': 'Öffnungszeiten', 'info.location': 'Standort', 'info.membership': 'Mitgliedschaft', 'info.weather': 'Wetter in Eygelshoven',
       'info.hours.note': 'Freitags aktualisieren wir unsere Öffnungszeiten.',
       'about.label': 'Wer wir sind', 'about.title': 'Der RC-Verein in Südlimburg',
       'about.p1': 'RC045 ist ein aktiver Verein für Liebhaber von ferngesteuerten Autos. Wir fahren elektrische RC-Autos in allen Maßstäben. Ob Anfänger oder Erfahrener, bei uns bist du willkommen.',
@@ -1335,8 +1324,7 @@
       'rule6.title': 'Kein Alkohol oder Drogen', 'rule6.text': 'Alkoholische Getränke und Betäubungsmittel sind zu jeder Zeit auf dem gesamten Gelände verboten.',
       'rule7.title': 'Wir fahren nie auf dem Asphalt', 'rule7.text': 'Es ist verboten, auf dem Asphalt zu fahren. Von der Kantine zum Fahrerpodium fährst du Schrittgeschwindigkeit.', 'rules.link': 'Vollständiges (satzungsgemäßes) Streckenreglement lesen →',
       'loc.label': 'Besuche uns', 'loc.title': 'Wie findest du uns?',
-      'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.wed.time': 'Mittwochabend bei ausreichend Interesse',
-      'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
+      'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
       'hours.closed': 'geschlossen', 'hours.closed.maintenance': 'wegen Wartung geschlossen', 'hours.closed.weather': 'wegen schlechtem Wetter geschlossen',
       'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen.',
       'hours.weather': '❗ Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
@@ -1350,11 +1338,11 @@
       'form.opt4': 'Sponsoring', 'form.opt5': 'Sonstige Fragen',
       'form.message': 'Nachricht *', 'form.message.ph': 'Schreib hier deine Frage oder Nachricht...', 'form.send': 'Nachricht senden →',
       'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
-      'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.photobook': 'Fotobuch', 'footer.board': 'Vorstand & Organisation',
-      'footer.photos': 'Fotos', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
+      'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.photobook': 'Fotobuch', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
       'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
-      'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'footer.sponsors.title': 'Mit Dank an unsere Sponsoren',
-      'status.open': 'Jetzt geöffnet', 'status.closed': 'Jetzt geschlossen'
+      'footer.credit': 'Website von Pascal Jaminon', 'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'footer.sponsors.title': 'Mit Dank an unsere Sponsoren',
+      'status.open': 'Jetzt geöffnet', 'status.closed': 'Jetzt geschlossen',
+      'meta.description': 'RC045 – Bashers of the South: ein geselliger Verein in Süd-Limburg für Freunde elektrisch angetriebener, ferngesteuerter Autos. Für Anfänger und erfahrene Hobbyisten, jung und alt.'
     }
   };
 
@@ -1378,6 +1366,12 @@
     activeBtn.classList.add('active');
     activeBtn.setAttribute('aria-pressed', 'true');
     document.documentElement.lang = lang;
+    // Beschrijving en canonical volgen de gekozen taal, zodat ze overeenkomen
+    // met de hreflang-tags in de head.
+    var metaDesc = document.getElementById('meta-description');
+    if (metaDesc && t['meta.description']) metaDesc.setAttribute('content', t['meta.description']);
+    var canonical = document.getElementById('canonical-link');
+    if (canonical) canonical.setAttribute('href', lang === 'nl' ? 'https://rc045.nl/' : 'https://rc045.nl/?lang=' + lang);
     localStorage.setItem('rc045_lang', lang);
     const currentUrl = new URL(window.location.href);
     if (lang === 'nl') currentUrl.searchParams.delete('lang');
@@ -2036,8 +2030,30 @@
     var melding = document.getElementById(meldingId);
     if (melding && dicht) melding.textContent = statusTekst(status, dagTekst, t);
   }
+  // Houdt de openingstijden in de structured data gelijk aan contact.json.
+  // Alleen dagen met een echte begin- en eindtijd komen erin; woensdag is
+  // vrije tekst en hoort daar dus niet thuis.
+  function updateStructuredData() {
+    var el = document.getElementById('structured-data');
+    if (!el || !contactData || !contactData.openingstijden) return;
+    var dagen = { zaterdag: 'Saturday', zondag: 'Sunday' };
+    var spec = [];
+    Object.keys(dagen).forEach(function(dag) {
+      var d = contactData.openingstijden[dag];
+      if (!d || !d.van || !d.tot) return;
+      spec.push({ '@type': 'OpeningHoursSpecification', dayOfWeek: dagen[dag], opens: d.van, closes: d.tot });
+    });
+    if (!spec.length) return;
+    try {
+      var data = JSON.parse(el.textContent);
+      data.openingHoursSpecification = spec;
+      el.textContent = JSON.stringify(data, null, 2);
+    } catch (e) {}
+  }
+
   function renderContact() {
     if (!contactData) return;
+    updateStructuredData();
     var oh = contactData.openingstijden || {};
     var t = i18n[currentLang];
     var zaterdagTekst = vanTotTekst(oh.zaterdag);
