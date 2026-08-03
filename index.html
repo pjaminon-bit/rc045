@@ -102,6 +102,8 @@
     
     .info-value { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 15px; color: var(--text); }
     
+    .info-hours-note { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+    
     .info-value small { font-weight: 400; font-size: 13px; color: var(--muted); font-family: 'Inter', sans-serif; }
     
     .info-location-link { color: inherit; text-decoration: none; border-bottom: 1.5px dashed var(--muted); padding-bottom: 1px; transition: border-color 0.2s, color 0.2s; cursor: pointer; }
@@ -614,6 +616,9 @@
         <div class="info-value" id="info-sat-value">Zaterdag 10:00–15:00</div>
         <div class="info-value" id="info-sun-value">Zondag 10:00–15:00</div>
         <div id="status-indicator"></div>
+        <div class="info-hours-note" id="info-hours-note">
+          <span data-i18n="info.hours.note">Op vrijdag passen we onze actuele openingstijden aan.</span>
+        </div>
       </div>
     </div>
     <div class="info-item">
@@ -1142,6 +1147,7 @@
       'hero.btn.member': 'Lid worden!', 'hero.btn.more': 'Meer over ons',
       'update.label': '📣 Actueel:', 'info.hours': 'Openingstijden', 'info.sat': 'Zaterdag 10:00–15:00', 'info.sun': 'Zondag 10:00–15:00',
       'info.location': 'Locatie', 'info.membership': 'Lidmaatschap', 'info.from': 'Vanaf €50/jaar', 'info.weather': 'Weer in Eygelshoven',
+      'info.hours.note': 'Op vrijdag passen we onze actuele openingstijden aan.',
       'about.label': 'Wie zijn wij', 'about.title': 'Dé RC-vereniging van Zuid-Limburg',
       'about.p1': 'RC045 is een actieve vereniging voor liefhebbers van radiografisch bestuurbare auto\'s. We rijden met elektrische RC-auto\'s in alle schalen. Of je nu net begint of al jaren rijdt: bij ons ben je welkom.',
       'about.p2': 'We beschikken over een eigen baan in Eygelshoven, op het terrein van Kok Lexmond. Naast de basher baan hebben we ook een enorm crawler-parcours en een jump-track.',
@@ -1213,6 +1219,7 @@
       'hero.btn.member': 'Become a member!', 'hero.btn.more': 'More about us',
       'update.label': '📣 Update:', 'info.hours': 'Opening hours', 'info.sat': 'Saturday 10:00–15:00', 'info.sun': 'Sunday 10:00–15:00',
       'info.location': 'Location', 'info.membership': 'Membership', 'info.from': 'From €50/year', 'info.weather': 'Weather in Eygelshoven',
+      'info.hours.note': 'We update our opening hours every Friday.',
       'about.label': 'Who we are', 'about.title': 'The RC club of South Limburg',
       'about.p1': 'RC045 is an active club for enthusiasts of radio-controlled cars. We drive electric RC cars in all scales. Whether you\'re just starting out or have been racing for years: you\'re welcome here.',
       'about.p2': 'We have our own track in Eygelshoven, on the grounds of Kok Lexmond. Besides the basher track, we also have a huge crawler course and a jump track.',
@@ -1284,6 +1291,7 @@
       'hero.btn.member': 'Mitglied werden!', 'hero.btn.more': 'Mehr über uns',
       'update.label': '📣 Aktuell:', 'info.hours': 'Öffnungszeiten', 'info.sat': 'Samstag 10:00–15:00', 'info.sun': 'Sonntag 10:00–15:00',
       'info.location': 'Standort', 'info.membership': 'Mitgliedschaft', 'info.from': 'Ab €50/Jahr', 'info.weather': 'Wetter in Eygelshoven',
+      'info.hours.note': 'Freitags aktualisieren wir unsere Öffnungszeiten.',
       'about.label': 'Wer wir sind', 'about.title': 'Der RC-Verein in Südlimburg',
       'about.p1': 'RC045 ist ein aktiver Verein für Liebhaber von ferngesteuerten Autos. Wir fahren elektrische RC-Autos in allen Maßstäben. Ob Anfänger oder Erfahrener, bei uns bist du willkommen.',
       'about.p2': 'Wir haben eine eigene Strecke in Eygelshoven auf dem Gelände von Kok Lexmond. Neben der Basher-Strecke gibt es auch einen riesigen Crawler-Parcours und eine Sprungstrecke.',
