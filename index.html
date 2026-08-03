@@ -374,7 +374,9 @@
     
     .opening-hours { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 28px; margin-bottom: 24px; }
     
-    .opening-hours h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .opening-hours h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    
+    .hours-intro-note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0 0 16px; }
     
     .hours-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
     
@@ -954,6 +956,7 @@
         </div>
         <div class="opening-hours">
           <h3 data-i18n="hours.title">🕐 Openingstijden</h3>
+          <p class="hours-intro-note" data-i18n="info.hours.note">Op vrijdag passen we onze actuele openingstijden aan.</p>
           <div class="actueel-hours" id="actueel-hours">
             <strong data-i18n="update.label">📣 Actueel:</strong> <span class="actueel-hours-text" id="actueel-hours-text"></span>
           </div>
