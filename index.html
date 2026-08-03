@@ -976,7 +976,7 @@
             </span>
           </div>
 <div class="hours-note">
-            ℹ️ <strong data-i18n="hours.note.attention">Let op:</strong> <span data-i18n="hours.note.text">We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze</span> <a href="https://www.facebook.com/rc045/" target="_blank" class="info-location-link" style="color:var(--teal-dark);" data-i18n="hours.note.fb" id="hours-note-fb-link">Facebook-pagina</a> <span data-i18n="hours.note.times">voor actuele openingstijden.</span>
+            ℹ️ <strong data-i18n="hours.note.attention">Let op:</strong> <span data-i18n="hours.note.text">We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.</span>
             <br><br><strong data-i18n="hours.weather">❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.</strong>
           </div>
         </div>
@@ -1193,8 +1193,7 @@
       'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.wed.time': 'Woensdagavond bij voldoende animo',
       'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
       'hours.closed': 'gesloten', 'hours.closed.maintenance': 'gesloten i.v.m. onderhoud', 'hours.closed.weather': 'gesloten i.v.m. slecht weer',
-      'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud. Check onze',
-      'hours.note.fb': 'Facebook-pagina', 'hours.note.times': 'voor actuele openingstijden.',
+      'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.',
       'hours.weather': '❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
       'addr.title': 'Adres', 'addr.text': 'Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.',
       'addr.route': 'Routebeschrijving openen →',
@@ -1265,8 +1264,7 @@
       'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.wed.time': 'Wednesday evenings when there\'s enough interest',
       'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
       'hours.closed': 'closed', 'hours.closed.maintenance': 'closed for maintenance', 'hours.closed.weather': 'closed due to bad weather',
-      'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance. Check our',
-      'hours.note.fb': 'Facebook page', 'hours.note.times': 'for current opening hours.',
+      'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance.',
       'hours.weather': '❗ In bad weather we may decide to close early or not open at all.',
       'addr.title': 'Address', 'addr.text': 'Our track is on the Kok Lexmond site, follow the RC045 arrows on arrival.',
       'addr.route': 'Open directions →',
@@ -1337,8 +1335,7 @@
       'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.wed.time': 'Mittwochabend bei ausreichend Interesse',
       'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
       'hours.closed': 'geschlossen', 'hours.closed.maintenance': 'wegen Wartung geschlossen', 'hours.closed.weather': 'wegen schlechtem Wetter geschlossen',
-      'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen. Schau auf unsere',
-      'hours.note.fb': 'Facebook-Seite', 'hours.note.times': 'für aktuelle Öffnungszeiten.',
+      'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen.',
       'hours.weather': '❗ Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
       'addr.title': 'Adresse', 'addr.text': 'Unsere Strecke liegt auf dem Gelände von Kok Lexmond, folge beim Ankommen den RC045-Schildern.',
       'addr.route': 'Route öffnen →',
@@ -2075,7 +2072,7 @@
     if (elMembership && contactData.lidmaatschap_vanaf) elMembership.textContent = contactData.lidmaatschap_vanaf;
 
     if (contactData.facebook) {
-      ['hours-note-fb-link', 'contact-facebook-link', 'footer-facebook-link'].forEach(function(id) {
+      ['contact-facebook-link', 'footer-facebook-link'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.href = contactData.facebook;
       });
