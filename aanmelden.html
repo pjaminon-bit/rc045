@@ -190,7 +190,7 @@
       <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
       <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
       <li><a href="fotoboek.html" data-i18n="nav.photobook">Fotoboek</a></li>
-      <li class="nav-cta"><a href="index.html#contact" data-i18n="nav.question">Contact</a></li>
+      <li class="nav-cta"><a href="index.html#contact" data-i18n="nav.contact">Contact</a></li>
       <li class="nav-lid nav-active"><a href="aanmelden.html" data-i18n="nav.join">Lid worden</a></li>
     </ul>
     <div class="lang-flags">
@@ -413,12 +413,9 @@
   // ===== VERTALINGEN =====
   const i18n = {
     nl: {
-      'nav.back': '← Terug naar de site',
       'nav.about': 'Over ons', 'nav.membership': 'Lidmaatschap', 'nav.track': 'De baan',
-      'nav.location': 'Locatie', 'nav.photobook': 'Fotoboek', 'nav.question': 'Contact', 'nav.join': 'Lid worden', 'nav.story': 'Het ontstaan',
-      'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
-      'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.photobook': 'Fotoboek', 'footer.board': 'Bestuur & organisatie',
-      'footer.photos': 'Foto\'s', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
+      'nav.location': 'Locatie', 'nav.photobook': 'Fotoboek', 'nav.contact': 'Contact', 'nav.join': 'Lid worden', 'footer.credit': 'Website door Pascal Jaminon', 'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
+      'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.photobook': 'Fotoboek', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
       'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
       'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'footer.sponsors.title': 'Met dank aan onze sponsoren', 'guest.tag': 'Gastrijden',
       'hero.label': 'Lidmaatschap', 'hero.title': 'Aanmelden als lid',
@@ -434,7 +431,8 @@
       'form.email': 'E-mailadres', 'form.mobile': 'Mobiel nummer',
       'form.agree1a': 'Ik ga akkoord met het', 'form.agree1link': 'baanreglement',
       'form.agree1b': 'van RC045 en verklaar dit gelezen en begrepen te hebben.',
-      'form.agree2': 'Ik ga akkoord met de contributieverplichting en maak het verschuldigde bedrag z.s.m. over naar onderstaand rekeningnummer.',
+      'form.agree2': 'Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar',
+      'form.agree2b': 't.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".',
       'iban.title': 'Betalingsgegevens', 'iban.name': 'T.n.v. RC045',
       'iban.ref': 'Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 2026"',
       'faq.title': 'Veelgestelde vragen',
@@ -455,12 +453,9 @@
       'contrib.december': 'Bij inschrijving in december betaal je nu alleen de €10 eenmalige inschrijfkosten. De contributie voor 2027 hoeft nog niet te worden overgemaakt.',
     },
     en: {
-      'nav.back': '← Back to the site',
       'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
-      'nav.location': 'Location', 'nav.photobook': 'Photo book', 'nav.question': 'Contact', 'nav.join': 'Become a member', 'nav.story': 'Our history',
-      'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
-      'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.photobook': 'Photo book', 'footer.board': 'Board & organisation',
-      'footer.photos': 'Photos', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
+      'nav.location': 'Location', 'nav.photobook': 'Photo book', 'nav.contact': 'Contact', 'nav.join': 'Become a member', 'footer.credit': 'Website by Pascal Jaminon', 'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
+      'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.photobook': 'Photo book', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
       'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
       'footer.made': 'Made with ❤️ for our hobby', 'footer.sponsors.title': 'With thanks to our sponsors', 'guest.tag': 'Guest riding',
       'hero.label': 'Membership', 'hero.title': 'Register as a member',
@@ -476,7 +471,8 @@
       'form.email': 'Email address', 'form.mobile': 'Mobile number',
       'form.agree1a': 'I agree to the', 'form.agree1link': 'track regulations',
       'form.agree1b': 'of RC045 and declare that I have read and understood them.',
-      'form.agree2': 'I agree to the membership fee obligation and will transfer the amount due as soon as possible to the bank account below.',
+      'form.agree2': 'I agree to the membership fee obligation and will transfer the amount due as soon as possible to',
+      'form.agree2b': 'in the name of RC045, quoting my first and last name plus "contributie RC045 {jaar}".',
       'iban.title': 'Payment details', 'iban.name': 'In the name of RC045',
       'iban.ref': 'Please include: first name + last name + "contributie RC045 2026"',
       'faq.title': 'Frequently asked questions',
@@ -497,12 +493,9 @@
       'contrib.december': 'If you register in December, you only pay the €10 one-time registration fee now. The membership fee for 2027 does not need to be transferred yet.',
     },
     de: {
-      'nav.back': '← Zurück zur Website',
       'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
-      'nav.location': 'Standort', 'nav.photobook': 'Fotobuch', 'nav.question': 'Contact', 'nav.join': 'Mitglied werden', 'nav.story': 'Unsere Geschichte',
-      'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
-      'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.photobook': 'Fotobuch', 'footer.board': 'Vorstand & Organisation',
-      'footer.photos': 'Fotos', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
+      'nav.location': 'Standort', 'nav.photobook': 'Fotobuch', 'nav.contact': 'Kontakt', 'nav.join': 'Mitglied werden', 'footer.credit': 'Website von Pascal Jaminon', 'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
+      'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.photobook': 'Fotobuch', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
       'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
       'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'footer.sponsors.title': 'Mit Dank an unsere Sponsoren', 'guest.tag': 'Gastfahren',
       'hero.label': 'Mitgliedschaft', 'hero.title': 'Als Mitglied anmelden',
@@ -518,7 +511,8 @@
       'form.email': 'E-Mail-Adresse', 'form.mobile': 'Handynummer',
       'form.agree1a': 'Ich stimme dem', 'form.agree1link': 'Streckenreglement',
       'form.agree1b': 'von RC045 zu und erkläre, es gelesen und verstanden zu haben.',
-      'form.agree2': 'Ich stimme der Beitragspflicht zu und werde den fälligen Betrag schnellstmöglich auf das untenstehende Konto überweisen.',
+      'form.agree2': 'Ich stimme der Beitragspflicht zu und überweise den fälligen Betrag schnellstmöglich an',
+      'form.agree2b': 'lautend auf RC045, unter Angabe meines Vor- und Nachnamens sowie "contributie RC045 {jaar}".',
       'iban.title': 'Zahlungsdaten', 'iban.name': 'Auf den Namen RC045',
       'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 2026"',
       'faq.title': 'Häufig gestellte Fragen',
