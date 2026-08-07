@@ -142,6 +142,8 @@ img { max-width: 100%; height: auto; display: block; }
 .footer-col ul a { font-size: 14px; transition: color 0.2s; }
 
 .footer-col ul a:hover { color: var(--teal); }
+.footer-credit-link { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255,255,255,0.35); transition: text-decoration-color 0.2s; }
+.footer-credit-link:hover { text-decoration-color: currentColor; }
 
 .footer-bottom { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
 
