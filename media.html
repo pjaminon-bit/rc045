@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+l<!DOCTYPE html>
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -335,6 +335,10 @@ window.addEventListener('scroll', function() {
   function renderSponsorCta() {
     var el = document.getElementById('footer-sponsors-cta');
     if (!el) return;
+    // setLang() kan hier al langskomen voordat sponsorCtaDefault verderop in
+    // het script is toegekend (bij een andere starttaal dan Nederlands).
+    // Dan gewoon stoppen: de fetch van sponsors.json roept dit later opnieuw aan.
+    if (!sponsorCtaDefault) return;
     var bron = sponsorCtaData || sponsorCtaDefault;
     var tekst = bron[currentLang] || bron.nl || sponsorCtaDefault[currentLang] || sponsorCtaDefault.nl;
     var keyword = sponsorCtaKeyword[currentLang] || sponsorCtaKeyword.nl;
