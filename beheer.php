@@ -255,7 +255,8 @@ $contactStandaard = [
   'adres_postcode_plaats' => '6464 EZ Eygelshoven',
   'openingstijden' => [
     'woensdag' => 'Woensdagavond bij voldoende animo',
-    // 'status' bepaalt of de dag open is of dicht, en met welke melding.
+    // 'status' bepaalt of de dag normaal open is, alleen voor leden open is of
+    // dicht is, en met welke melding.
     // 'status_tot' is het moment waarop die melding vanzelf vervalt: de
     // betreffende dag om 20:00. De van/tot blijven altijd bewaard.
     'zaterdag' => ['van' => '10:00', 'tot' => '15:00', 'status' => 'open', 'status_tot' => ''],
@@ -373,6 +374,7 @@ function contactTijdOpties() {
 function contactStatusOpties() {
   return [
     'open' => 'Open (normale tijden)',
+    'leden' => '👥 Alleen open voor leden',
     'gesloten' => '⛔ Gesloten',
     'onderhoud' => '🔧 Gesloten i.v.m. onderhoud',
     'weer' => '🌧️ Gesloten i.v.m. slecht weer',
@@ -1123,14 +1125,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           $melding['contact'] = 'Opgeslagen. De contactgegevens en openingstijden op de website zijn bijgewerkt.';
           $meldingType['contact'] = 'ok';
           // In het logboek is vooral terug te willen zien wanneer een dag is
-          // gesloten of weer is vrijgegeven, dus dat komt er los bij.
-          $dichteDagen = [];
+          // gesloten, alleen voor leden open staat of weer is vrijgegeven, dus
+          // dat komt er los bij.
+          $afwijkendeDagen = [];
           foreach (['zaterdag', 'zondag'] as $dag) {
             $status = $contactData['openingstijden'][$dag]['status'] ?? 'open';
-            if ($status !== 'open') $dichteDagen[] = $dag . ' (' . $status . ')';
+            if ($status !== 'open') $afwijkendeDagen[] = $dag . ' (' . $status . ')';
           }
           $logTekst = 'contactgegevens bijgewerkt';
-          $logTekst .= $dichteDagen ? ', gesloten: ' . implode(' + ', $dichteDagen) : ', beide dagen open';
+          $logTekst .= $afwijkendeDagen ? ', afwijkende stand: ' . implode(' + ', $afwijkendeDagen) : ', beide dagen normaal open';
           schrijfLog($logBestand, $huidigeGebruiker, 'contact', $logTekst);
         } else {
           $melding['contact'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
@@ -2635,7 +2638,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <option value="<?php echo $waarde; ?>" <?php if (($contactData['openingstijden'][$dag]['status'] ?? 'open') === $waarde) echo 'selected'; ?>><?php echo htmlspecialchars($label); ?></option>
               <?php endforeach; ?>
             </select>
-            <p class="hint">Staat dit op een gesloten-stand, dan wordt de tijd op de website doorgestreept getoond met de melding eronder, automatisch in alle talen. De tijden hierboven blijven bewaard, dus daarna zet je de dag gewoon weer op open. Ook de open/gesloten-melding bovenaan de homepage houdt hier rekening mee.<br>De melding vervalt vanzelf op de betreffende dag om 20:00, dus vergeten terug te zetten kan geen kwaad.<?php
+            <p class="hint">Staat dit op een gesloten-stand, dan wordt de tijd op de website doorgestreept getoond met de reden eronder, automatisch in alle talen. Bij <strong>Alleen open voor leden</strong> blijft de tijd gewoon leesbaar staan en komt er alleen een melding onder: de baan is die dag immers open, maar niet voor gasten. De tijden hierboven blijven in beide gevallen bewaard, dus daarna zet je de dag gewoon weer op open. Ook de open/gesloten-melding bovenaan de homepage houdt hier rekening mee.<br>De melding vervalt vanzelf op de betreffende dag om 20:00, dus vergeten terug te zetten kan geen kwaad.<?php
               $vervalTekst = contactVervalTekst($contactData['openingstijden'][$dag]['status_tot'] ?? '');
               if ($vervalTekst) echo ' <strong>Deze melding verdwijnt ' . htmlspecialchars($vervalTekst) . '.</strong>';
             ?></p>
