@@ -123,6 +123,10 @@
     
     .status-closed::before { content: ''; width: 7px; height: 7px; background: #EF4444; border-radius: 50%; }
     
+    .status-members { display: inline-flex; align-items: center; gap: 6px; color: var(--teal-dark); font-size: 13px; font-weight: 600; margin-top: 2px; }
+    
+    .status-members::before { content: ''; width: 7px; height: 7px; background: var(--teal); border-radius: 50%; }
+    
     .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.6s ease, transform 0.6s ease; }
     
     .reveal.visible { opacity: 1; transform: translateY(0); }
@@ -407,12 +411,22 @@
     
     .hours-row.is-gesloten .hours-closed-note { display: block; }
     
+    /* Alleen open voor leden is geen sluiting: de baan is die dag gewoon open,
+       maar niet voor gasten. De tijd blijft daarom leesbaar staan (geen
+       doorhaling) en de markering is teal in plaats van rust, zodat het
+       zichtbaar iets anders is dan een gesloten dag. */
+    .hours-row.is-leden { align-items: flex-start; background: rgba(58,122,119,0.08); border-left: 3px solid var(--teal); margin-left: -28px; margin-right: -28px; padding-left: 25px; padding-right: 28px; }
+    
+    .hours-row.is-leden .hours-closed-note { display: block; background: var(--teal); }
+    
     /* Zelfde melding in de info-balk bovenaan. Daar is bewust geen achtergrond
        en randje gebruikt: dat blok is een smalle strook van drie kolommen en
        wordt daar te zwaar van. */
     .info-value .tijd-gesloten { text-decoration: line-through; text-decoration-color: var(--rust); text-decoration-thickness: 2px; color: var(--muted); }
     
     .info-closed-note { display: block; width: fit-content; margin-top: 4px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 100px; background: var(--rust); color: var(--white); }
+    
+    .info-closed-note.is-leden { background: var(--teal); }
     
     .hours-note { font-size: 13px; color: var(--muted); margin-top: 14px; padding: 12px; background: var(--teal-light); border-radius: 8px; line-height: 1.5; }
     
@@ -1189,7 +1203,7 @@
       'rule7.title': 'We rijden nooit op het asfalt', 'rule7.text': 'Het is verboden om te rijden op het asfalt. Van de kantine naar het rijderspodium rijd je stapvoets.', 'rules.link': 'Volledig (statutair) baanreglement lezen →',
       'loc.label': 'Bezoek ons', 'loc.title': 'Hoe vind je ons?',
       'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
-      'hours.closed': 'gesloten', 'hours.closed.maintenance': 'gesloten i.v.m. onderhoud', 'hours.closed.weather': 'gesloten i.v.m. slecht weer',
+      'hours.closed': 'gesloten', 'hours.closed.maintenance': 'gesloten i.v.m. onderhoud', 'hours.closed.weather': 'gesloten i.v.m. slecht weer', 'hours.members': 'alleen open voor leden',
       'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.',
       'hours.weather': '❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
       'addr.title': 'Adres', 'addr.text': 'Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.',
@@ -1205,7 +1219,7 @@
       'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.photobook': 'Fotoboek', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
       'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
       'footer.credit': 'Website door Pascal Jaminon', 'footer.made': 'Gemaakt met ❤️ voor onze hobby', 'footer.sponsors.title': 'Met dank aan onze sponsoren',
-      'status.open': 'Nu open', 'status.closed': 'Nu gesloten',
+      'status.open': 'Nu open', 'status.closed': 'Nu gesloten', 'status.members': 'Nu open voor leden',
       'meta.description': 'RC045 – Bashers of the South: een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners en ervaren hobbyisten, jong en oud.'
     },
     en: {
@@ -1257,7 +1271,7 @@
       'rule7.title': 'We never ride on the asphalt', 'rule7.text': 'It is forbidden to ride on the asphalt. From the canteen to the driver\'s platform, you ride at walking pace.', 'rules.link': 'Read the full (statutory) track regulations →',
       'loc.label': 'Visit us', 'loc.title': 'How to find us?',
       'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
-      'hours.closed': 'closed', 'hours.closed.maintenance': 'closed for maintenance', 'hours.closed.weather': 'closed due to bad weather',
+      'hours.closed': 'closed', 'hours.closed.maintenance': 'closed for maintenance', 'hours.closed.weather': 'closed due to bad weather', 'hours.members': 'open to members only',
       'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance.',
       'hours.weather': '❗ In bad weather we may decide to close early or not open at all.',
       'addr.title': 'Address', 'addr.text': 'Our track is on the Kok Lexmond site, follow the RC045 arrows on arrival.',
@@ -1273,7 +1287,7 @@
       'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.photobook': 'Photo book', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
       'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
       'footer.credit': 'Website by Pascal Jaminon', 'footer.made': 'Made with ❤️ for our hobby', 'footer.sponsors.title': 'With thanks to our sponsors',
-      'status.open': 'Now open', 'status.closed': 'Now closed',
+      'status.open': 'Now open', 'status.closed': 'Now closed', 'status.members': 'Now open for members',
       'meta.description': 'RC045 – Bashers of the South: a friendly club in South Limburg for fans of electric radio controlled cars. For beginners and experienced hobbyists, young and old.'
     },
     de: {
@@ -1325,7 +1339,7 @@
       'rule7.title': 'Wir fahren nie auf dem Asphalt', 'rule7.text': 'Es ist verboten, auf dem Asphalt zu fahren. Von der Kantine zum Fahrerpodium fährst du Schrittgeschwindigkeit.', 'rules.link': 'Vollständiges (satzungsgemäßes) Streckenreglement lesen →',
       'loc.label': 'Besuche uns', 'loc.title': 'Wie findest du uns?',
       'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
-      'hours.closed': 'geschlossen', 'hours.closed.maintenance': 'wegen Wartung geschlossen', 'hours.closed.weather': 'wegen schlechtem Wetter geschlossen',
+      'hours.closed': 'geschlossen', 'hours.closed.maintenance': 'wegen Wartung geschlossen', 'hours.closed.weather': 'wegen schlechtem Wetter geschlossen', 'hours.members': 'nur für Mitglieder geöffnet',
       'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen.',
       'hours.weather': '❗ Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
       'addr.title': 'Adresse', 'addr.text': 'Unsere Strecke liegt auf dem Gelände von Kok Lexmond, folge beim Ankommen den RC045-Schildern.',
@@ -1341,7 +1355,7 @@
       'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.photobook': 'Fotobuch', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
       'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
       'footer.credit': 'Website von Pascal Jaminon', 'footer.made': 'Gemacht mit ❤️ für unser Hobby', 'footer.sponsors.title': 'Mit Dank an unsere Sponsoren',
-      'status.open': 'Jetzt geöffnet', 'status.closed': 'Jetzt geschlossen',
+      'status.open': 'Jetzt geöffnet', 'status.closed': 'Jetzt geschlossen', 'status.members': 'Jetzt für Mitglieder geöffnet',
       'meta.description': 'RC045 – Bashers of the South: ein geselliger Verein in Süd-Limburg für Freunde elektrisch angetriebener, ferngesteuerter Autos. Für Anfänger und erfahrene Hobbyisten, jung und alt.'
     }
   };
@@ -1531,11 +1545,19 @@
     const zondag = vanTotUren(oh.zondag) || { van: 10, tot: 15 };
     // Staat de dag in beheer.php op gesloten (om welke reden dan ook), dan is
     // die dag altijd dicht, ongeacht de tijden die eronder bewaard blijven.
-    const zaterdagDicht = dagStatus(oh.zaterdag) !== 'open';
-    const zondagDicht = dagStatus(oh.zondag) !== 'open';
+    // Staat hij op 'alleen leden', dan is de baan wel open binnen de tijden,
+    // maar niet voor gasten; dat krijgt een eigen melding.
+    const zaterdagStand = dagStatus(oh.zaterdag);
+    const zondagStand = dagStatus(oh.zondag);
+    const zaterdagDicht = isDicht(zaterdagStand);
+    const zondagDicht = isDicht(zondagStand);
     const isOpen = (day === 3 && time >= 19 && time < 22) || (day === 6 && !zaterdagDicht && time >= zaterdag.van && time < zaterdag.tot) || (day === 0 && !zondagDicht && time >= zondag.van && time < zondag.tot);
+    const alleenLeden = isOpen && ((day === 6 && zaterdagStand === 'leden') || (day === 0 && zondagStand === 'leden'));
     const el = document.getElementById('status-indicator');
-    if (isOpen) {
+    if (alleenLeden) {
+      el.className = 'status-members';
+      el.textContent = t['status.members'];
+    } else if (isOpen) {
       el.className = 'status-open';
       el.textContent = t['status.open'];
     } else {
@@ -1975,23 +1997,28 @@
     if (!vanTot || !vanTot.van || !vanTot.tot) return '';
     return vanTot.van + ' – ' + vanTot.tot;
   }
-  // De dagstand komt uit beheer.php: 'open', 'gesloten', 'onderhoud' of 'weer'.
-  // Alles wat niet 'open' is, wordt op de site als gesloten getoond met de
-  // bijbehorende melding.
-  var statusSleutels = { gesloten: 'hours.closed', onderhoud: 'hours.closed.maintenance', weer: 'hours.closed.weather' };
+  // De dagstand komt uit beheer.php: 'open', 'leden', 'gesloten', 'onderhoud'
+  // of 'weer'. 'leden' betekent dat de baan die dag wel open is, maar alleen
+  // voor leden; de andere afwijkende standen zijn echte sluitingen.
+  var statusSleutels = { leden: 'hours.members', gesloten: 'hours.closed', onderhoud: 'hours.closed.maintenance', weer: 'hours.closed.weather' };
   // Het icoon staat los van de vertalingen, zodat het maar op één plek hoeft
   // te staan en in alle drie de talen hetzelfde is.
-  var statusIconen = { gesloten: '⛔', onderhoud: '🔧', weer: '🌧️' };
+  var statusIconen = { leden: '👥', gesloten: '⛔', onderhoud: '🔧', weer: '🌧️' };
+  // Alleen deze standen betekenen dat de baan dicht is. 'leden' hoort daar
+  // bewust niet bij: die dag telt gewoon als open, met een melding erbij.
+  function isDicht(status) {
+    return status === 'gesloten' || status === 'onderhoud' || status === 'weer';
+  }
   function dagStatus(dag) {
     var status = (dag && dag.status) || '';
-    if (status !== 'gesloten' && status !== 'onderhoud' && status !== 'weer') {
+    if (!statusSleutels[status]) {
       // Bestanden van vóór het keuzemenu hadden alleen een onderhoudsvinkje.
       if (dag && dag.gesloten) status = 'onderhoud';
       else return 'open';
     }
     // beheer.php zet er een vervalmoment bij: de betreffende dag om 20:00.
-    // Daarna verdwijnt de melding vanzelf, zodat een sluiting niet blijft
-    // staan als iemand vergeet hem terug te zetten. Staat er niets, dan blijft
+    // Daarna verdwijnt de melding vanzelf, zodat een afwijkende stand niet
+    // blijft staan als iemand vergeet hem terug te zetten. Staat er niets, dan blijft
     // de melding staan tot hij handmatig wordt weggehaald.
     if (dag && dag.status_tot) {
       var verval = new Date(dag.status_tot);
@@ -2004,31 +2031,34 @@
     return (statusIconen[status] ? statusIconen[status] + ' ' : '') + dagTekst + ' ' + tekst;
   }
   // Vult een regel in de info-balk: "Zaterdag 10:00 – 15:00". Is de dag dicht,
-  // dan wordt de tijd doorgestreept en komt de melding eronder te staan.
+  // dan wordt de tijd doorgestreept en komt de melding eronder te staan. Bij
+  // 'alleen leden' blijft de tijd normaal staan en komt alleen de melding erbij.
   function zetInfoTijd(id, dagTekst, tijdTekst, status, t) {
     var el = document.getElementById(id);
     if (!el || !tijdTekst) return;
-    var dicht = status !== 'open';
+    var dicht = isDicht(status);
     el.textContent = '';
     el.appendChild(document.createTextNode(dagTekst + ' '));
     var tijd = document.createElement('span');
     tijd.textContent = tijdTekst;
     if (dicht) tijd.className = 'tijd-gesloten';
     el.appendChild(tijd);
-    if (dicht) {
+    if (status !== 'open') {
       var melding = document.createElement('span');
-      melding.className = 'info-closed-note';
+      melding.className = 'info-closed-note' + (status === 'leden' ? ' is-leden' : '');
       melding.textContent = statusTekst(status, dagTekst, t);
       el.appendChild(melding);
     }
   }
   // Zet de markering en de melding op een regel in de openingstijden-kaart.
   function zetHoursRij(rijId, meldingId, dagTekst, status, t) {
-    var dicht = status !== 'open';
     var rij = document.getElementById(rijId);
-    if (rij) rij.classList.toggle('is-gesloten', dicht);
+    if (rij) {
+      rij.classList.toggle('is-gesloten', isDicht(status));
+      rij.classList.toggle('is-leden', status === 'leden');
+    }
     var melding = document.getElementById(meldingId);
-    if (melding && dicht) melding.textContent = statusTekst(status, dagTekst, t);
+    if (melding && status !== 'open') melding.textContent = statusTekst(status, dagTekst, t);
   }
   // Houdt de openingstijden in de structured data gelijk aan contact.json.
   // Alleen dagen met een echte begin- en eindtijd komen erin; woensdag is
