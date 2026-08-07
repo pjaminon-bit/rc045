@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+l<!DOCTYPE html>
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -519,6 +519,10 @@ function renderAlbumDetail(slug) {
       video.controls = true;
       video.preload = 'metadata';
       video.playsInline = true;
+      if (foto.width && foto.height) {
+        video.width = foto.width;
+        video.height = foto.height;
+      }
       if (foto.poster) video.poster = 'images/fotoboek/' + encodeURIComponent(album.slug) + '/thumbs/' + encodeURIComponent(foto.poster);
       var bron = document.createElement('source');
       bron.src = 'images/fotoboek/' + encodeURIComponent(album.slug) + '/' + encodeURIComponent(foto.file);
@@ -547,6 +551,13 @@ function renderAlbumDetail(slug) {
     img.alt = bijschrift;
     img.loading = 'lazy';
     img.decoding = 'async';
+    // Afmetingen meegeven zodat de browser de ruimte al reserveert voordat de
+    // thumb binnen is. De thumb heeft dezelfde verhouding als het origineel,
+    // dus de waarden uit fotoboek.json kloppen. Voorkomt springen in het raster.
+    if (foto.width && foto.height) {
+      img.width = foto.width;
+      img.height = foto.height;
+    }
     link.appendChild(img);
 
     photoGrid.appendChild(link);
