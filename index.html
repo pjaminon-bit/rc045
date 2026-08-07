@@ -1688,8 +1688,12 @@
       carImages.forEach((img, n) => img.classList.toggle('active', n === carIndex));
       carDots.forEach((dot, n) => dot.classList.toggle('active', n === carIndex));
     }
+    var beperkteBeweging = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
     function startAutoplay() {
       if (carInterval) return;
+      // Geen automatisch doorschuiven als de bezoeker "verminder beweging" aan heeft staan.
+      // Pijlen en bolletjes blijven gewoon werken.
+      if (beperkteBeweging && beperkteBeweging.matches) return;
       carInterval = setInterval(() => showSlide(carIndex + 1), 5000);
     }
     function stopAutoplay() {
