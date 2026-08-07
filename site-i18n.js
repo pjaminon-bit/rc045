@@ -25,3 +25,54 @@ function updateInternalLinks(lang) {
       a.setAttribute('href', newHref);
     });
   }
+
+// Taalkeuze als uitklapmenu. De knoppen in het menu roepen nog steeds setLang()
+// aan via hun onclick, dit stuk regelt alleen openen, sluiten en het bijwerken
+// van de knop bovenin.
+(function () {
+  function init() {
+    var wrap = document.getElementById('lang-switch');
+    if (!wrap) return;
+    var trigger = wrap.querySelector('.lang-trigger');
+    var vlag = wrap.querySelector('.lang-trigger-flag');
+    var code = wrap.querySelector('.lang-trigger-code');
+    var opties = wrap.querySelectorAll('.lang-flag');
+
+    function toonKeuze() {
+      var actief = wrap.querySelector('.lang-flag.active') || opties[0];
+      if (!actief) return;
+      vlag.textContent = actief.getAttribute('data-vlag') || '';
+      code.textContent = actief.getAttribute('data-code') || '';
+    }
+
+    function zetOpen(aan) {
+      wrap.classList.toggle('open', aan);
+      trigger.setAttribute('aria-expanded', aan ? 'true' : 'false');
+    }
+
+    trigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      zetOpen(!wrap.classList.contains('open'));
+    });
+
+    Array.prototype.forEach.call(opties, function (btn) {
+      // Het onclick attribuut (setLang) draait als eerste, daarna pas dit.
+      btn.addEventListener('click', function () {
+        zetOpen(false);
+        toonKeuze();
+      });
+    });
+
+    function buitenaf(e) { if (!wrap.contains(e.target)) zetOpen(false); }
+    document.addEventListener('click', buitenaf);
+    document.addEventListener('touchstart', buitenaf, { passive: true });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.key === 'Esc') { zetOpen(false); trigger.focus(); }
+    });
+
+    toonKeuze();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
