@@ -375,6 +375,7 @@ function contactStatusOpties() {
   return [
     'open' => 'Open (normale tijden)',
     'animo' => '🤝 Alleen bij voldoende animo',
+    'animo_leden' => '🤝 Alleen bij voldoende animo, en alleen voor leden',
     'leden' => '👥 Alleen open voor leden',
     'gesloten' => '⛔ Gesloten',
     'onderhoud' => '🔧 Gesloten i.v.m. onderhoud',
@@ -386,7 +387,7 @@ function contactStatusOpties() {
 // vervallen. De overige standen zijn tijdelijke afwijkingen en krijgen wel een
 // vervalmoment mee.
 function contactVasteStanden() {
-  return ['open', 'animo'];
+  return ['open', 'animo', 'animo_leden'];
 }
 
 // Het moment waarop een tijdelijke melding vanzelf vervalt: de eerstvolgende
@@ -2651,7 +2652,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <option value="<?php echo $waarde; ?>" <?php if (($contactData['openingstijden'][$dag]['status'] ?? 'open') === $waarde) echo 'selected'; ?>><?php echo htmlspecialchars($label); ?></option>
               <?php endforeach; ?>
             </select>
-            <p class="hint">Staat dit op een gesloten-stand, dan wordt de tijd op de website doorgestreept getoond met de reden eronder, automatisch in alle talen. Bij <strong>Alleen open voor leden</strong> en <strong>Alleen bij voldoende animo</strong> blijft de tijd gewoon leesbaar staan en komt er alleen een melding onder: de baan is die dag immers open, alleen niet voor iedereen of niet gegarandeerd. De tijden hierboven blijven in alle gevallen bewaard.<br>Een gesloten- of leden-stand vervalt vanzelf na afloop van de betreffende dag, dus vergeten terug te zetten kan geen kwaad. <strong>Alleen bij voldoende animo</strong> blijft wel staan: dat hoort bij de vaste opzet van woensdag en is geen tijdelijke afwijking. Ook de open/gesloten-melding bovenaan de homepage houdt hier rekening mee.<?php
+            <p class="hint">Staat dit op een gesloten-stand, dan wordt de tijd op de website doorgestreept getoond met de reden eronder, automatisch in alle talen. Bij de leden- en animo-standen blijft de tijd gewoon leesbaar staan en komt er alleen een melding onder: de baan is die dag immers open, alleen niet voor iedereen of niet gegarandeerd. De tijden hierboven blijven in alle gevallen bewaard.<br>Een gesloten-stand en <strong>Alleen open voor leden</strong> vervallen vanzelf na afloop van de betreffende dag, dus vergeten terug te zetten kan geen kwaad. De twee animo-standen blijven wel staan: die horen bij de vaste opzet van woensdag en zijn geen tijdelijke afwijking. Ook de open/gesloten-melding bovenaan de homepage houdt hier rekening mee.<?php
               $vervalTekst = contactVervalTekst($contactData['openingstijden'][$dag]['status_tot'] ?? '');
               if ($vervalTekst) echo ' <strong>Deze melding verdwijnt ' . htmlspecialchars($vervalTekst) . '.</strong>';
             ?></p>
