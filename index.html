@@ -2009,9 +2009,15 @@
   function isDicht(status) {
     return status === 'gesloten' || status === 'onderhoud' || status === 'weer';
   }
+  // Elke stand die van "normaal open" afwijkt. Dit is bewust een functie en
+  // geen lookup in statusSleutels: updateStatus() draait al bij het laden van
+  // de pagina, dus voordat de var hierboven een waarde heeft gekregen.
+  function isAfwijkend(status) {
+    return status === 'leden' || isDicht(status);
+  }
   function dagStatus(dag) {
     var status = (dag && dag.status) || '';
-    if (!statusSleutels[status]) {
+    if (!isAfwijkend(status)) {
       // Bestanden van vóór het keuzemenu hadden alleen een onderhoudsvinkje.
       if (dag && dag.gesloten) status = 'onderhoud';
       else return 'open';
