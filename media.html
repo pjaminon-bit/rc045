@@ -104,10 +104,17 @@
       <li class="nav-cta"><a href="index.html#contact" data-i18n="nav.contact">Contact</a></li>
       <li class="nav-lid"><a href="aanmelden.html" data-i18n="nav.join">Lid worden</a></li>
     </ul>
-    <div class="lang-flags">
-      <button class="lang-flag active" onclick="setLang('nl')" title="Nederlands" aria-label="Nederlands" aria-pressed="true">🇳🇱</button>
-      <button class="lang-flag" onclick="setLang('en')" title="English" aria-label="English" aria-pressed="false">🇬🇧</button>
-      <button class="lang-flag" onclick="setLang('de')" title="Deutsch" aria-label="Deutsch" aria-pressed="false">🇩🇪</button>
+    <div class="lang-switch" id="lang-switch">
+      <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Taal / Language / Sprache">
+        <span class="lang-trigger-flag" aria-hidden="true">🇳🇱</span>
+        <span class="lang-trigger-code">NL</span>
+        <span class="lang-chevron" aria-hidden="true"></span>
+      </button>
+      <div class="lang-menu">
+        <button class="lang-flag active" onclick="setLang('nl')" data-vlag="🇳🇱" data-code="NL" title="Nederlands" aria-label="Nederlands" aria-pressed="true"><span class="lang-menu-flag" aria-hidden="true">🇳🇱</span>Nederlands</button>
+        <button class="lang-flag" onclick="setLang('en')" data-vlag="🇬🇧" data-code="EN" title="English" aria-label="English" aria-pressed="false"><span class="lang-menu-flag" aria-hidden="true">🇬🇧</span>English</button>
+        <button class="lang-flag" onclick="setLang('de')" data-vlag="🇩🇪" data-code="DE" title="Deutsch" aria-label="Deutsch" aria-pressed="false"><span class="lang-menu-flag" aria-hidden="true">🇩🇪</span>Deutsch</button>
+      </div>
     </div>
     <button class="nav-hamburger" id="hamburger" aria-label="Menu openen" aria-expanded="false" aria-controls="nav-links">
       <span></span><span></span><span></span>
