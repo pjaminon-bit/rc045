@@ -56,6 +56,12 @@ $logBestand   = __DIR__ . '/beheer-log.json';
 $loginPogingenBestand = __DIR__ . '/beheer-login-pogingen.json';
 $dataMap      = __DIR__ . '/data';
 
+// Ledenadministratie. De opslag en de hulpfuncties staan in een apart
+// bestand, omdat aanmelden-ontvangst.php ze ook nodig heeft. Zie de
+// toelichting bovenin dat bestand voor waar het ledenbestand staat en
+// waarom het niet in data/ hoort.
+require_once __DIR__ . '/leden-opslag.php';
+
 // Lockout bij te veel mislukte inlogpogingen (per gebruikersnaam, of
 // "beheerder" voor het beheerderswachtwoord): na $loginLockoutDrempel
 // mislukte pogingen binnen $loginLockoutVenster wordt verder inloggen voor
@@ -1855,6 +1861,275 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         }
       }
     }
+  } elseif ($formulier === 'leden_opslaan') {
+    // Eén lid opslaan: bestaand lid bijwerken, of een nieuw lid toevoegen.
+    // Na afloop een redirect (Post-Redirect-Get), zodat vernieuwen van de
+    // pagina niet nog een keer opslaat.
+    $ledenData = ledenLees();
+    $id = trim($_POST['lid_id'] ?? '');
+    $index = null;
+    foreach ($ledenData['leden'] as $i => $l) {
+      if (($l['id'] ?? '') === $id) { $index = $i; break; }
+    }
+
+    $voornaam = trim($_POST['voornaam'] ?? '');
+    $achternaam = trim($_POST['achternaam'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+
+    if ($voornaam === '' && $achternaam === '') {
+      $melding['leden'] = 'Vul minstens een voor- of achternaam in.';
+      $meldingType['leden'] = 'fout';
+    } elseif ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $melding['leden'] = 'Dat mailadres ziet er niet geldig uit.';
+      $meldingType['leden'] = 'fout';
+    } else {
+      $invoer = [];
+      foreach (['voornaam','tussenvoegsel','achternaam','geboortedatum','straat','huisnummer',
+                'postcode','gemeente','land','telefoon','email','status','inschrijfdatum',
+                'opmerking','taken','transponder','auto','nummer'] as $veld) {
+        if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
+      }
+      $invoer['whatsapp'] = isset($_POST['whatsapp']);
+
+      $bestaand = $index === null ? null : $ledenData['leden'][$index];
+      $lid = ledenNormaliseer($invoer, $bestaand);
+
+      if ($index === null) {
+        if ((int) $lid['nummer'] === 0) $lid['nummer'] = ledenVolgendNummer($ledenData);
+        if ($lid['inschrijfdatum'] === '') $lid['inschrijfdatum'] = date('Y-m-d');
+      }
+
+      // Contributieregels: één blok per jaar, plus een leeg blok om een
+      // nieuw jaar toe te voegen. Een blok met een leeg jaartal wordt
+      // overgeslagen, een bestaand jaar met het vinkje "verwijderen" gaat eruit.
+      $regels = isset($_POST['contributie']) && is_array($_POST['contributie']) ? $_POST['contributie'] : [];
+      foreach ($regels as $regel) {
+        $jaar = (int) ($regel['jaar'] ?? 0);
+        if ($jaar < 2000 || $jaar > 2099) continue;
+        if (!empty($regel['verwijderen'])) {
+          unset($lid['contributie'][(string) $jaar]);
+          continue;
+        }
+        $lid = ledenZetContributie($lid, $jaar, $regel);
+      }
+
+      if ($index === null) {
+        $ledenData['leden'][] = $lid;
+        $ledenData['volgnummer'] = max((int) $ledenData['volgnummer'], (int) $lid['nummer']);
+        $actie = 'toegevoegd';
+      } else {
+        $ledenData['leden'][$index] = $lid;
+        $actie = 'bijgewerkt';
+      }
+
+      if (ledenSchrijf($ledenData)) {
+        schrijfLog($logBestand, $huidigeGebruiker, 'leden', $actie . ': ' . ledenVolledigeNaam($lid) . ' (nr ' . $lid['nummer'] . ')');
+        $_SESSION['flash']['leden'] = ['tekst' => 'Lid ' . $actie . ': ' . ledenVolledigeNaam($lid) . '.', 'type' => 'ok'];
+        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        header('Location: beheer.php#leden');
+        exit;
+      }
+      $melding['leden'] = 'Opslaan mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+      $meldingType['leden'] = 'fout';
+    }
+
+  } elseif ($formulier === 'leden_verwijderen') {
+    $ledenData = ledenLees();
+    $id = trim($_POST['lid_id'] ?? '');
+    $naam = '';
+    $over = [];
+    foreach ($ledenData['leden'] as $l) {
+      if (($l['id'] ?? '') === $id) { $naam = ledenVolledigeNaam($l); continue; }
+      $over[] = $l;
+    }
+    if ($naam === '') {
+      $melding['leden'] = 'Dat lid bestaat niet (meer).';
+      $meldingType['leden'] = 'fout';
+    } else {
+      $ledenData['leden'] = $over;
+      if (ledenSchrijf($ledenData)) {
+        schrijfLog($logBestand, $huidigeGebruiker, 'leden', 'verwijderd: ' . $naam);
+        $_SESSION['flash']['leden'] = ['tekst' => 'Lid verwijderd: ' . $naam . '. Terugzetten kan via een back-up.', 'type' => 'ok'];
+        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        header('Location: beheer.php#leden');
+        exit;
+      }
+      $melding['leden'] = 'Verwijderen mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+      $meldingType['leden'] = 'fout';
+    }
+
+  } elseif ($formulier === 'leden_status') {
+    // Snelle statuswijziging vanuit het overzicht, zonder het hele
+    // bewerkformulier te openen.
+    $ledenData = ledenLees();
+    $id = trim($_POST['lid_id'] ?? '');
+    $nieuw = $_POST['status'] ?? '';
+    $statussen = ledenStatussen();
+    if (!isset($statussen[$nieuw])) {
+      $melding['leden'] = 'Onbekende status.';
+      $meldingType['leden'] = 'fout';
+    } else {
+      foreach ($ledenData['leden'] as $i => $l) {
+        if (($l['id'] ?? '') !== $id) continue;
+        $ledenData['leden'][$i]['status'] = $nieuw;
+        $ledenData['leden'][$i]['gewijzigd'] = date('c');
+        if (ledenSchrijf($ledenData)) {
+          schrijfLog($logBestand, $huidigeGebruiker, 'leden', 'status ' . ledenVolledigeNaam($l) . ' -> ' . $statussen[$nieuw]);
+          $_SESSION['flash']['leden'] = ['tekst' => ledenVolledigeNaam($l) . ' staat nu op "' . $statussen[$nieuw] . '".', 'type' => 'ok'];
+          if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+          header('Location: beheer.php#leden');
+          exit;
+        }
+        break;
+      }
+      $melding['leden'] = 'Wijzigen mislukt.';
+      $meldingType['leden'] = 'fout';
+    }
+
+  } elseif ($formulier === 'leden_export') {
+    // Het hele ledenbestand als CSV, met puntkomma's zodat Excel in het
+    // Nederlands het zonder importwizard opent, en een BOM zodat accenten
+    // goed doorkomen.
+    $ledenData = ledenLees();
+    $jaren = [];
+    foreach ($ledenData['leden'] as $l) {
+      foreach (array_keys($l['contributie'] ?? []) as $j) $jaren[$j] = true;
+    }
+    $jaren = array_keys($jaren);
+    sort($jaren);
+    if (count($jaren) === 0) $jaren = [(string) date('Y')];
+
+    $statussen = ledenStatussen();
+    $cStatussen = ledenContributieStatussen();
+    // De rekentabel wordt pas verderop in dit bestand ingelezen, na de
+    // afhandeling van formulieren. Voor de kolom "Jeugdlid" hebben we de
+    // leeftijdsgrens hier al nodig, dus die halen we los op.
+    $exportRekentabel = $rekentabelStandaard;
+    if (file_exists($rekentabelBestand)) {
+      $exportJson = json_decode(file_get_contents($rekentabelBestand), true);
+      if (is_array($exportJson)) $exportRekentabel = array_merge($rekentabelStandaard, $exportJson);
+    }
+    $exportJeugdTot = (int) $exportRekentabel['jeugd_leeftijd_tot'];
+    $kop = ['nummer','Voornaam','Tussenvoegsel','Achternaam','Geboortedatum','leeftijd','straat','huisnummer','postcode','gemeente','land','Telefoon / Whatsapp','mailadres','Status','Jeugdlid','Inschrijfdatum','Opmerking','Taken','Toegevoegd Whatsapp','Transponder','Auto'];
+    foreach ($jaren as $j) {
+      $kop[] = 'Contributie ' . $j . ' status';
+      $kop[] = 'Contributiebedrag ' . $j;
+      $kop[] = 'Inschrijfgeld ' . $j;
+      $kop[] = 'Betaald op ' . $j;
+    }
+
+    $uit = fopen('php://temp', 'r+');
+    fputcsv($uit, $kop, ';');
+    $gesorteerd = $ledenData['leden'];
+    usort($gesorteerd, function ($a, $b) { return ledenSorteernaam($a) <=> ledenSorteernaam($b); });
+    foreach ($gesorteerd as $l) {
+      $leeftijd = ledenLeeftijd($l['geboortedatum'] ?? '');
+      $jeugd = ledenIsJeugd($l, $exportJeugdTot, date('Y'));
+      $rij = [
+        $l['nummer'] ?? '', $l['voornaam'] ?? '', $l['tussenvoegsel'] ?? '', $l['achternaam'] ?? '',
+        $l['geboortedatum'] ?? '', $leeftijd === null ? '' : $leeftijd,
+        $l['straat'] ?? '', $l['huisnummer'] ?? '', $l['postcode'] ?? '', $l['gemeente'] ?? '', $l['land'] ?? '',
+        $l['telefoon'] ?? '', $l['email'] ?? '',
+        $statussen[$l['status'] ?? ''] ?? '', $jeugd === null ? '' : ($jeugd ? 'ja' : 'nee'),
+        $l['inschrijfdatum'] ?? '', $l['opmerking'] ?? '', $l['taken'] ?? '',
+        empty($l['whatsapp']) ? 'nee' : 'ja', $l['transponder'] ?? '', $l['auto'] ?? '',
+      ];
+      foreach ($jaren as $j) {
+        $c = $l['contributie'][$j] ?? null;
+        $rij[] = $c ? ($cStatussen[$c['status']] ?? $c['status']) : '';
+        $rij[] = ($c && $c['bedrag'] !== null) ? number_format((float) $c['bedrag'], 2, ',', '') : '';
+        $rij[] = ($c && $c['inschrijfgeld'] !== null) ? number_format((float) $c['inschrijfgeld'], 2, ',', '') : '';
+        $rij[] = $c ? ($c['betaald_op'] ?? '') : '';
+      }
+      fputcsv($uit, $rij, ';');
+    }
+    rewind($uit);
+    $csv = stream_get_contents($uit);
+    fclose($uit);
+
+    schrijfLog($logBestand, $huidigeGebruiker, 'leden', 'export van ' . count($ledenData['leden']) . ' leden');
+    if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename="rc045-leden-' . date('Ymd') . '.csv"');
+    echo "\xEF\xBB\xBF" . $csv;
+    exit;
+
+  } elseif ($formulier === 'leden_import_lezen') {
+    // Stap 1 van de import: bestand inlezen, controleren en klaarzetten.
+    // Er wordt nog niets opgeslagen; dat gebeurt pas na bevestigen.
+    unset($_SESSION['leden_import']);
+    if (!isset($_FILES['csv']) || $_FILES['csv']['error'] !== UPLOAD_ERR_OK) {
+      $melding['leden'] = 'Geen bestand ontvangen. Is het groter dan de uploadlimiet van de server?';
+      $meldingType['leden'] = 'fout';
+    } elseif ($_FILES['csv']['size'] > 2 * 1024 * 1024) {
+      $melding['leden'] = 'Het bestand is groter dan 2 MB.';
+      $meldingType['leden'] = 'fout';
+    } else {
+      $inhoud = file_get_contents($_FILES['csv']['tmp_name']);
+      $gelezen = ledenCsvLezen($inhoud === false ? '' : $inhoud);
+      if (count($gelezen['rijen']) === 0) {
+        $melding['leden'] = 'Geen bruikbare regels gevonden. Controleer of de eerste regel de kolomnamen bevat.';
+        $meldingType['leden'] = 'fout';
+      } else {
+        $_SESSION['leden_import'] = $gelezen;
+        $melding['leden'] = count($gelezen['rijen']) . ' regels ingelezen. Controleer hieronder en bevestig.';
+        $meldingType['leden'] = 'ok';
+      }
+    }
+
+  } elseif ($formulier === 'leden_import_bevestigen') {
+    $gelezen = $_SESSION['leden_import'] ?? null;
+    if (!is_array($gelezen) || count($gelezen['rijen'] ?? []) === 0) {
+      $melding['leden'] = 'Er staat geen ingelezen bestand klaar. Kies het bestand opnieuw.';
+      $meldingType['leden'] = 'fout';
+    } else {
+      $ledenData = ledenLees();
+      $nieuw = 0; $bijgewerkt = 0;
+      foreach ($gelezen['rijen'] as $rij) {
+        $contributie = $rij['_contributie'] ?? [];
+        unset($rij['_contributie']);
+        $index = ledenZoekBestaande($ledenData, $rij);
+        $bestaand = $index === null ? null : $ledenData['leden'][$index];
+        $lid = ledenNormaliseer($rij, $bestaand);
+        $lid['bron'] = $index === null ? 'import' : ($lid['bron'] ?? 'import');
+        if ($index === null && (int) $lid['nummer'] === 0) {
+          $lid['nummer'] = ledenVolgendNummer($ledenData);
+        }
+        foreach ($contributie as $jaar => $regel) {
+          $lid = ledenZetContributie($lid, $jaar, [
+            'status'        => ledenContributieStatusUitTekst($regel['contributiestatus'] ?? ''),
+            'bedrag'        => str_replace(',', '.', (string) ($regel['contributiebedrag'] ?? '')),
+            'inschrijfgeld' => str_replace(',', '.', (string) ($regel['inschrijfgeld'] ?? '')),
+            'betaald_op'    => '',
+            'opmerking'     => '',
+          ]);
+        }
+        if ($index === null) {
+          $ledenData['leden'][] = $lid;
+          $ledenData['volgnummer'] = max((int) $ledenData['volgnummer'], (int) $lid['nummer']);
+          $nieuw++;
+        } else {
+          $ledenData['leden'][$index] = $lid;
+          $bijgewerkt++;
+        }
+      }
+      if (ledenSchrijf($ledenData)) {
+        unset($_SESSION['leden_import']);
+        schrijfLog($logBestand, $huidigeGebruiker, 'leden', "import: $nieuw nieuw, $bijgewerkt bijgewerkt");
+        $_SESSION['flash']['leden'] = ['tekst' => "Import klaar: $nieuw nieuwe leden, $bijgewerkt bijgewerkt. De vorige versie staat in de back-ups.", 'type' => 'ok'];
+        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        header('Location: beheer.php#leden');
+        exit;
+      }
+      $melding['leden'] = 'Import mislukt bij het opslaan. Er is niets gewijzigd.';
+      $meldingType['leden'] = 'fout';
+    }
+
+  } elseif ($formulier === 'leden_import_annuleren') {
+    unset($_SESSION['leden_import']);
+    $melding['leden'] = 'Import geannuleerd.';
+    $meldingType['leden'] = 'ok';
+
   }
 
   if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
@@ -2033,6 +2308,79 @@ $inschrijfkosten = (float) $rekentabelData['inschrijfkosten'];
 $tabelJeugd  = rekentabelProRata((float) $rekentabelData['jeugd_jaarbedrag']);
 $tabelSenior = rekentabelProRata((float) $rekentabelData['senior_jaarbedrag']);
 
+// ===== Ledenadministratie =====
+// Het ledenbestand staat buiten data/ omdat het persoonsgegevens bevat;
+// zie leden-opslag.php. Hier alleen inlezen en klaarzetten voor het
+// tabblad Leden: de lijst op achternaam, de tellingen per status, en
+// eventueel het ene lid dat via ?lid=... bewerkt wordt.
+$ledenData = ledenLees();
+$ledenLijst = $ledenData['leden'];
+usort($ledenLijst, function ($a, $b) { return ledenSorteernaam($a) <=> ledenSorteernaam($b); });
+
+$ledenStatusLabels = ledenStatussen();
+$ledenContributieLabels = ledenContributieStatussen();
+$ledenJaar = (int) $rekentabelData['jaar'];
+$ledenJeugdTot = (int) $rekentabelData['jeugd_leeftijd_tot'];
+
+$ledenTellingen = [];
+foreach (array_keys($ledenStatusLabels) as $s) $ledenTellingen[$s] = 0;
+foreach ($ledenLijst as $l) {
+  $s = $l['status'] ?? 'verificatie';
+  if (isset($ledenTellingen[$s])) $ledenTellingen[$s]++;
+}
+
+// ?lid=nieuw opent een leeg formulier, ?lid=<id> een bestaand lid.
+$ledenBewerkId = isset($_GET['lid']) ? trim((string) $_GET['lid']) : '';
+$ledenBewerkLid = null;
+$ledenBewerkNieuw = false;
+if ($ledenBewerkId === 'nieuw') {
+  $ledenBewerkNieuw = true;
+  $ledenBewerkLid = ledenNormaliseer(['status' => 'verificatie', 'inschrijfdatum' => date('Y-m-d')]);
+  $ledenBewerkLid['nummer'] = ledenVolgendNummer($ledenData);
+} elseif ($ledenBewerkId !== '') {
+  foreach ($ledenLijst as $l) {
+    if (($l['id'] ?? '') === $ledenBewerkId) { $ledenBewerkLid = $l; break; }
+  }
+}
+
+// Contributieblokken voor het bewerkformulier: de bestaande jaren, en
+// altijd één leeg blok erbij om een nieuw jaar toe te voegen.
+$ledenBewerkContributie = [];
+if ($ledenBewerkLid !== null) {
+  foreach ($ledenBewerkLid['contributie'] as $jaar => $regel) {
+    $regel['jaar'] = $jaar;
+    $ledenBewerkContributie[] = $regel;
+  }
+  $volgendJaar = count($ledenBewerkContributie) === 0 ? (string) $ledenJaar : '';
+  $ledenBewerkContributie[] = ['jaar' => $volgendJaar, 'status' => 'open', 'bedrag' => null,
+                               'inschrijfgeld' => null, 'betaald_op' => '', 'opmerking' => ''];
+}
+
+// Voorstel voor het contributiebedrag, zodat het bestuur niet hoeft te
+// rekenen. Alleen een hint; het bedrag blijft handmatig aan te passen
+// voor bijvoorbeeld pro rata bij instappen halverwege het jaar.
+function ledenBedragVoorstel($lid, $jaar, $rekentabelData) {
+  $jeugd = ledenIsJeugd($lid, (int) $rekentabelData['jeugd_leeftijd_tot'], $jaar);
+  if ($jeugd === null) return null;
+  return (float) ($jeugd ? $rekentabelData['jeugd_jaarbedrag'] : $rekentabelData['senior_jaarbedrag']);
+}
+
+$ledenImport = isset($_SESSION['leden_import']) && is_array($_SESSION['leden_import']) ? $_SESSION['leden_import'] : null;
+
+// Dubbele lidnummers. Kan gebeuren als er handmatig een lid is toegevoegd
+// (dat krijgt het eerstvolgende vrije nummer) en er daarna een import komt
+// waarin dat nummer al aan iemand anders vastzit. Geen fout die iets kapot
+// maakt, maar wel iets om te weten, dus komt er een melding bovenaan de lijst.
+$ledenNummerTelling = [];
+foreach ($ledenLijst as $l) {
+  $n = (int) ($l['nummer'] ?? 0);
+  if ($n <= 0) continue;
+  $ledenNummerTelling[$n] = ($ledenNummerTelling[$n] ?? 0) + 1;
+}
+$ledenDubbeleNummers = array_keys(array_filter($ledenNummerTelling, function ($aantal) { return $aantal > 1; }));
+sort($ledenDubbeleNummers);
+
+
 $fotoboekData = ['albums' => []];
 if (file_exists($fotoboekBestand)) {
   $json = json_decode(file_get_contents($fotoboekBestand), true);
@@ -2138,6 +2486,47 @@ if ($isMaster && file_exists($logBestand)) {
     .menu-item:hover { background: var(--teal-light); color: var(--teal-dark); }
     .menu-item.actief { background: var(--teal); color: white; }
     .tab-paneel { display: none; flex-direction: column; gap: 16px; }
+
+    /* ===== Ledenadministratie ===== */
+    .leden-kop { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--dark); margin: 24px 0 6px; }
+    .leden-telling { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .leden-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 700; white-space: nowrap; background: #EEE; color: #444; }
+    .lb-verificatie { background: #FEF3C7; color: #92400E; }
+    .lb-wacht_op_betaling { background: #FDE7D9; color: #8B3319; }
+    .lb-actief { background: #E8F5E9; color: #1B5E20; }
+    .lb-opgezegd { background: #ECEFF1; color: #455A64; }
+    .lb-geweigerd { background: #FDECEA; color: #7B241C; }
+    .cb-open { background: #FEF3C7; color: #92400E; }
+    .cb-betaald { background: #E8F5E9; color: #1B5E20; }
+    .cb-kwijtgescholden { background: #E3F2FD; color: #0D47A1; }
+    .cb-vervallen { background: #ECEFF1; color: #455A64; }
+    .leden-filters { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .leden-filters input[type="search"] { flex: 1 1 260px; }
+    .leden-filters select { flex: 0 1 200px; }
+    .leden-tabel-wrap { overflow-x: auto; }
+    .leden-tabel { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .leden-tabel th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 8px 10px; border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+    .leden-tabel td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .leden-tabel tbody tr:hover { background: var(--teal-light); }
+    .leden-tabel .knop-klein { color: var(--teal-dark); display: inline-block; text-decoration: none; }
+    .leden-tabel .knop-klein:hover { background: var(--teal-light); border-color: var(--teal); }
+    .leden-contact { font-size: 12px; color: var(--muted); word-break: break-word; }
+    .leden-contact a { color: var(--teal-dark); }
+    .leden-leeg { color: var(--muted); font-style: italic; }
+    .leden-bedrag { color: var(--muted); margin-left: 4px; }
+    .leden-bron { display: block; font-size: 11px; color: var(--muted); }
+    .leden-vink { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+    .leden-vink input { width: auto; margin: 0; }
+    .leden-vink-weg { grid-column: 1 / -1; font-size: 13px; color: var(--rust); }
+    .leden-contributie { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+    .leden-contributie .veld { margin-bottom: 0; }
+    .leden-import-knoppen { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .leden-import-knoppen form { margin: 0; }
+    .leden-import-knoppen button { width: auto; }
+    @media (max-width: 700px) {
+      .leden-contributie { grid-template-columns: 1fr; }
+    }
+
     .item-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
     .item-lijst .item-blok { margin-bottom: 0; }
     .fotoboek-foto-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
@@ -2253,6 +2642,7 @@ if ($isMaster && file_exists($logBestand)) {
       <button type="button" class="menu-item" data-tab="contact">Contact</button>
       <button type="button" class="menu-item" data-tab="media">Media</button>
       <button type="button" class="menu-item" data-tab="fotoboek">Fotoboek</button>
+      <button type="button" class="menu-item" data-tab="leden">Leden</button>
       <?php if ($isMaster): ?>
       <button type="button" class="menu-item" data-tab="gebruikers">Gebruikers</button>
       <button type="button" class="menu-item" data-tab="log">Log</button>
@@ -3125,6 +3515,368 @@ if ($isMaster && file_exists($logBestand)) {
 
     <?php endif; ?>
 
+    <div class="tab-paneel" id="tab-leden">
+    <!-- ===== LEDENADMINISTRATIE ===== -->
+
+    <?php if ($ledenBewerkLid !== null): ?>
+    <div class="kaart" id="leden-bewerken">
+      <div class="kaart-header">
+        <div>
+          <h1><?php echo $ledenBewerkNieuw ? 'Nieuw lid' : 'Lid bewerken'; ?></h1>
+          <p class="sub"><?php echo $ledenBewerkNieuw ? 'Vul in wat je hebt. Alleen een naam is verplicht, de rest kan later.' : htmlspecialchars(ledenVolledigeNaam($ledenBewerkLid)); ?></p>
+        </div>
+        <a class="knop-klein" href="beheer.php#leden">Sluiten</a>
+      </div>
+
+      <?php if (isset($melding['leden'])): ?>
+        <div class="melding <?php echo $meldingType['leden']; ?>"><?php echo htmlspecialchars($melding['leden']); ?></div>
+      <?php endif; ?>
+
+      <form method="post" action="beheer.php#leden">
+        <input type="hidden" name="formulier" value="leden_opslaan">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+        <input type="hidden" name="lid_id" value="<?php echo $ledenBewerkNieuw ? '' : htmlspecialchars($ledenBewerkLid['id']); ?>">
+
+        <div class="rij-3">
+          <div class="veld">
+            <label for="lid-nummer">Lidnummer</label>
+            <input type="number" id="lid-nummer" name="nummer" min="0" step="1" value="<?php echo htmlspecialchars((string) $ledenBewerkLid['nummer']); ?>">
+          </div>
+          <div class="veld">
+            <label for="lid-status">Status</label>
+            <select id="lid-status" name="status">
+              <?php foreach ($ledenStatusLabels as $sleutel => $label): ?>
+                <option value="<?php echo htmlspecialchars($sleutel); ?>" <?php echo $ledenBewerkLid['status'] === $sleutel ? 'selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="veld">
+            <label for="lid-inschrijfdatum">Inschrijfdatum</label>
+            <input type="date" id="lid-inschrijfdatum" name="inschrijfdatum" value="<?php echo htmlspecialchars($ledenBewerkLid['inschrijfdatum']); ?>">
+          </div>
+        </div>
+
+        <div class="rij-3">
+          <div class="veld">
+            <label for="lid-voornaam">Voornaam</label>
+            <input type="text" id="lid-voornaam" name="voornaam" maxlength="60" value="<?php echo htmlspecialchars($ledenBewerkLid['voornaam']); ?>">
+          </div>
+          <div class="veld">
+            <label for="lid-tussenvoegsel">Tussenvoegsel</label>
+            <input type="text" id="lid-tussenvoegsel" name="tussenvoegsel" maxlength="30" value="<?php echo htmlspecialchars($ledenBewerkLid['tussenvoegsel']); ?>">
+          </div>
+          <div class="veld">
+            <label for="lid-achternaam">Achternaam</label>
+            <input type="text" id="lid-achternaam" name="achternaam" maxlength="80" value="<?php echo htmlspecialchars($ledenBewerkLid['achternaam']); ?>">
+          </div>
+        </div>
+
+        <div class="rij-3">
+          <div class="veld">
+            <label for="lid-geboortedatum">Geboortedatum</label>
+            <input type="date" id="lid-geboortedatum" name="geboortedatum" value="<?php echo htmlspecialchars($ledenBewerkLid['geboortedatum']); ?>">
+            <?php
+              $bewerkLeeftijd = ledenLeeftijd($ledenBewerkLid['geboortedatum']);
+              $bewerkJeugd = ledenIsJeugd($ledenBewerkLid, $ledenJeugdTot, $ledenJaar);
+            ?>
+            <p class="hint">
+              <?php if ($bewerkLeeftijd === null): ?>
+                Leeftijd en jeugd of senior worden hieruit berekend.
+              <?php else: ?>
+                Nu <?php echo $bewerkLeeftijd; ?> jaar, op 1 januari <?php echo $ledenJaar; ?> <?php echo $bewerkJeugd ? 'jeugdlid' : 'senior'; ?>.
+              <?php endif; ?>
+            </p>
+          </div>
+          <div class="veld">
+            <label for="lid-telefoon">Telefoon / WhatsApp</label>
+            <input type="text" id="lid-telefoon" name="telefoon" maxlength="40" value="<?php echo htmlspecialchars($ledenBewerkLid['telefoon']); ?>">
+          </div>
+          <div class="veld">
+            <label for="lid-email">Mailadres</label>
+            <input type="email" id="lid-email" name="email" maxlength="120" value="<?php echo htmlspecialchars($ledenBewerkLid['email']); ?>">
+          </div>
+        </div>
+
+        <div class="rij-3">
+          <div class="veld">
+            <label for="lid-straat">Straat</label>
+            <input type="text" id="lid-straat" name="straat" maxlength="100" value="<?php echo htmlspecialchars($ledenBewerkLid['straat']); ?>">
+          </div>
+          <div class="veld">
+            <label for="lid-huisnummer">Huisnummer</label>
+            <input type="text" id="lid-huisnummer" name="huisnummer" maxlength="20" value="<?php echo htmlspecialchars($ledenBewerkLid['huisnummer']); ?>">
+          </div>
+          <div class="veld">
+            <label for="lid-postcode">Postcode</label>
+            <input type="text" id="lid-postcode" name="postcode" maxlength="20" value="<?php echo htmlspecialchars($ledenBewerkLid['postcode']); ?>">
+          </div>
+        </div>
+
+        <div class="rij-3">
+          <div class="veld">
+            <label for="lid-gemeente">Gemeente</label>
+            <input type="text" id="lid-gemeente" name="gemeente" maxlength="80" value="<?php echo htmlspecialchars($ledenBewerkLid['gemeente']); ?>">
+          </div>
+          <div class="veld">
+            <label for="lid-land">Land</label>
+            <input type="text" id="lid-land" name="land" maxlength="40" value="<?php echo htmlspecialchars($ledenBewerkLid['land']); ?>">
+          </div>
+          <div class="veld">
+            <label for="lid-transponder">Transponder</label>
+            <input type="text" id="lid-transponder" name="transponder" maxlength="60" value="<?php echo htmlspecialchars($ledenBewerkLid['transponder']); ?>">
+          </div>
+        </div>
+
+        <div class="rij-3">
+          <div class="veld">
+            <label for="lid-auto">Auto</label>
+            <input type="text" id="lid-auto" name="auto" maxlength="120" value="<?php echo htmlspecialchars($ledenBewerkLid['auto']); ?>">
+          </div>
+          <div class="veld">
+            <label for="lid-taken">Taken</label>
+            <input type="text" id="lid-taken" name="taken" maxlength="300" value="<?php echo htmlspecialchars($ledenBewerkLid['taken']); ?>">
+          </div>
+          <div class="veld">
+            <label>In de WhatsAppgroep</label>
+            <label class="leden-vink"><input type="checkbox" name="whatsapp" value="1" <?php echo !empty($ledenBewerkLid['whatsapp']) ? 'checked' : ''; ?>> Toegevoegd</label>
+          </div>
+        </div>
+
+        <div class="veld">
+          <label for="lid-opmerking">Opmerking</label>
+          <textarea id="lid-opmerking" name="opmerking" maxlength="1000" style="min-height:70px;"><?php echo htmlspecialchars($ledenBewerkLid['opmerking']); ?></textarea>
+        </div>
+
+        <h2 class="leden-kop">Contributie per jaar</h2>
+        <p class="hint">Een lege regel met een jaartal erin voegt een nieuw jaar toe. Het voorstel komt uit de rekentabel; pas het bedrag aan als iemand halverwege het jaar instapt.</p>
+
+        <?php foreach ($ledenBewerkContributie as $ci => $regel): ?>
+          <div class="leden-contributie">
+            <div class="veld">
+              <label for="lid-c-jaar-<?php echo $ci; ?>">Jaar</label>
+              <input type="number" id="lid-c-jaar-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][jaar]" min="2000" max="2099" step="1" value="<?php echo htmlspecialchars((string) $regel['jaar']); ?>">
+            </div>
+            <div class="veld">
+              <label for="lid-c-status-<?php echo $ci; ?>">Status</label>
+              <select id="lid-c-status-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][status]">
+                <?php foreach ($ledenContributieLabels as $sleutel => $label): ?>
+                  <option value="<?php echo htmlspecialchars($sleutel); ?>" <?php echo ($regel['status'] ?? 'open') === $sleutel ? 'selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="veld">
+              <label for="lid-c-bedrag-<?php echo $ci; ?>">Bedrag</label>
+              <?php $voorstel = $regel['jaar'] === '' ? null : ledenBedragVoorstel($ledenBewerkLid, (int) $regel['jaar'], $rekentabelData); ?>
+              <input type="number" id="lid-c-bedrag-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][bedrag]" min="0" step="0.01" value="<?php echo $regel['bedrag'] === null ? '' : htmlspecialchars((string) $regel['bedrag']); ?>" placeholder="<?php echo $voorstel === null ? '' : htmlspecialchars(number_format($voorstel, 2, '.', '')); ?>">
+            </div>
+            <div class="veld">
+              <label for="lid-c-inschrijf-<?php echo $ci; ?>">Inschrijfgeld</label>
+              <input type="number" id="lid-c-inschrijf-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][inschrijfgeld]" min="0" step="0.01" value="<?php echo $regel['inschrijfgeld'] === null ? '' : htmlspecialchars((string) $regel['inschrijfgeld']); ?>" placeholder="<?php echo htmlspecialchars(number_format((float) $rekentabelData['inschrijfkosten'], 2, '.', '')); ?>">
+            </div>
+            <div class="veld">
+              <label for="lid-c-betaald-<?php echo $ci; ?>">Betaald op</label>
+              <input type="date" id="lid-c-betaald-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][betaald_op]" value="<?php echo htmlspecialchars((string) ($regel['betaald_op'] ?? '')); ?>">
+            </div>
+            <div class="veld">
+              <label for="lid-c-opm-<?php echo $ci; ?>">Opmerking</label>
+              <input type="text" id="lid-c-opm-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][opmerking]" maxlength="300" value="<?php echo htmlspecialchars((string) ($regel['opmerking'] ?? '')); ?>">
+            </div>
+            <?php if ($regel['jaar'] !== ''): ?>
+              <label class="leden-vink leden-vink-weg"><input type="checkbox" name="contributie[<?php echo $ci; ?>][verwijderen]" value="1"> Dit jaar verwijderen</label>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+
+        <button type="submit">Lid opslaan</button>
+      </form>
+
+      <?php if (!$ledenBewerkNieuw): ?>
+        <form method="post" action="beheer.php#leden" onsubmit="return confirm('Dit lid definitief verwijderen? De vorige versie blijft in de back-ups staan.');" style="margin-top:14px;">
+          <input type="hidden" name="formulier" value="leden_verwijderen">
+          <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+          <input type="hidden" name="lid_id" value="<?php echo htmlspecialchars($ledenBewerkLid['id']); ?>">
+          <button type="submit" class="knop-klein">Lid verwijderen</button>
+        </form>
+      <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
+    <div class="kaart">
+      <div class="kaart-header">
+        <div>
+          <h1>Leden</h1>
+          <p class="sub"><?php echo count($ledenLijst); ?> leden in het bestand. Leeftijd en jeugd of senior worden berekend uit de geboortedatum, dus die kloppen vanzelf altijd.</p>
+        </div>
+        <a class="knop-toevoegen" href="beheer.php?lid=nieuw#leden">Nieuw lid</a>
+      </div>
+
+      <?php if (isset($melding['leden']) && $ledenBewerkLid === null): ?>
+        <div class="melding <?php echo $meldingType['leden']; ?>"><?php echo htmlspecialchars($melding['leden']); ?></div>
+      <?php endif; ?>
+
+      <?php if (count($ledenDubbeleNummers) > 0): ?>
+        <div class="melding fout">Let op: lidnummer <?php echo htmlspecialchars(implode(', ', $ledenDubbeleNummers)); ?> komt meer dan een keer voor. Pas het aan bij de betreffende leden.</div>
+      <?php endif; ?>
+
+      <div class="leden-telling">
+        <?php foreach ($ledenStatusLabels as $sleutel => $label): ?>
+          <span class="leden-badge lb-<?php echo htmlspecialchars($sleutel); ?>"><?php echo htmlspecialchars($label); ?>: <?php echo $ledenTellingen[$sleutel]; ?></span>
+        <?php endforeach; ?>
+      </div>
+
+      <?php if (count($ledenLijst) === 0): ?>
+        <p class="hint">Nog geen leden. Voeg er een toe met de knop hierboven, of lees het Excel-bestand in via de import onderaan deze pagina.</p>
+      <?php else: ?>
+        <div class="leden-filters">
+          <input type="search" id="leden-zoek" placeholder="Zoek op naam, mailadres, telefoon of lidnummer" aria-label="Zoeken in leden">
+          <select id="leden-filter-status" aria-label="Filteren op status">
+            <option value="">Alle statussen</option>
+            <?php foreach ($ledenStatusLabels as $sleutel => $label): ?>
+              <option value="<?php echo htmlspecialchars($sleutel); ?>"><?php echo htmlspecialchars($label); ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="leden-tabel-wrap">
+          <table class="leden-tabel" id="leden-tabel">
+            <thead>
+              <tr>
+                <th>Nr</th>
+                <th>Naam</th>
+                <th>Leeftijd</th>
+                <th>Status</th>
+                <th>Contributie <?php echo $ledenJaar; ?></th>
+                <th>Contact</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($ledenLijst as $l): ?>
+                <?php
+                  $leeftijd = ledenLeeftijd($l['geboortedatum'] ?? '');
+                  $jeugd = ledenIsJeugd($l, $ledenJeugdTot, $ledenJaar);
+                  $c = $l['contributie'][(string) $ledenJaar] ?? null;
+                  $zoek = strtolower(ledenVolledigeNaam($l) . ' ' . ($l['email'] ?? '') . ' ' . ($l['telefoon'] ?? '') . ' ' . ($l['nummer'] ?? '') . ' ' . ($l['gemeente'] ?? ''));
+                ?>
+                <tr data-status="<?php echo htmlspecialchars($l['status'] ?? ''); ?>" data-zoek="<?php echo htmlspecialchars($zoek); ?>">
+                  <td><?php echo htmlspecialchars((string) ($l['nummer'] ?? '')); ?></td>
+                  <td>
+                    <strong><?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?></strong>
+                    <?php if (($l['bron'] ?? '') === 'aanmeldformulier'): ?><span class="leden-bron">via formulier</span><?php endif; ?>
+                  </td>
+                  <td><?php echo $leeftijd === null ? '&mdash;' : ($leeftijd . ($jeugd ? ' (jeugd)' : '')); ?></td>
+                  <td><span class="leden-badge lb-<?php echo htmlspecialchars($l['status'] ?? ''); ?>"><?php echo htmlspecialchars($ledenStatusLabels[$l['status'] ?? ''] ?? '?'); ?></span></td>
+                  <td>
+                    <?php if ($c === null): ?>
+                      <span class="leden-leeg">niet ingevuld</span>
+                    <?php else: ?>
+                      <span class="leden-badge cb-<?php echo htmlspecialchars($c['status']); ?>"><?php echo htmlspecialchars($ledenContributieLabels[$c['status']] ?? $c['status']); ?></span>
+                      <?php if ($c['bedrag'] !== null): ?>
+                        <span class="leden-bedrag">&euro;<?php echo htmlspecialchars(number_format((float) $c['bedrag'], 2, ',', '.')); ?></span>
+                      <?php endif; ?>
+                    <?php endif; ?>
+                  </td>
+                  <td class="leden-contact">
+                    <?php if (($l['email'] ?? '') !== ''): ?><a href="mailto:<?php echo htmlspecialchars($l['email']); ?>"><?php echo htmlspecialchars($l['email']); ?></a><br><?php endif; ?>
+                    <?php echo htmlspecialchars($l['telefoon'] ?? ''); ?>
+                  </td>
+                  <td><a class="knop-klein" href="beheer.php?lid=<?php echo urlencode($l['id']); ?>#leden">Bewerken</a></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+          <p class="hint" id="leden-geen-resultaat" hidden>Geen leden gevonden met deze zoekopdracht.</p>
+        </div>
+      <?php endif; ?>
+    </div>
+
+    <div class="kaart">
+      <h1>Importeren en exporteren</h1>
+      <p class="sub">Voor het overzetten van het Excel-bestand, en om af en toe een kopie voor jezelf te maken.</p>
+
+      <?php if ($ledenImport !== null): ?>
+        <h2 class="leden-kop">Controleren voor het opslaan</h2>
+        <p class="hint">Er is nog niets gewijzigd. Regels die overeenkomen met een bestaand lid (zelfde mailadres, of zelfde naam en geboortedatum) worden bijgewerkt in plaats van dubbel toegevoegd.</p>
+
+        <?php
+          $importNieuw = 0; $importBij = 0;
+          $importControle = ledenLees();
+          foreach ($ledenImport['rijen'] as $rij) {
+            if (ledenZoekBestaande($importControle, $rij) === null) $importNieuw++; else $importBij++;
+          }
+          $onbekendeKolommen = [];
+          $berekendeKolommen = [];
+          foreach ($ledenImport['kolommen'] as $k) {
+            if ($k['veld'] === null) $onbekendeKolommen[] = $k['kop'];
+            elseif ($k['veld'] === '_berekend') $berekendeKolommen[] = $k['kop'];
+          }
+        ?>
+        <div class="leden-telling">
+          <span class="leden-badge lb-actief"><?php echo $importNieuw; ?> nieuw</span>
+          <span class="leden-badge lb-verificatie"><?php echo $importBij; ?> bijgewerkt</span>
+        </div>
+        <?php if (count($berekendeKolommen) > 0): ?>
+          <p class="hint">Niet overgenomen omdat de beheerpagina ze zelf uitrekent: <?php echo htmlspecialchars(implode(', ', $berekendeKolommen)); ?>.</p>
+        <?php endif; ?>
+        <?php if (count($onbekendeKolommen) > 0): ?>
+          <p class="hint">Deze kolommen zijn niet herkend en worden overgeslagen: <?php echo htmlspecialchars(implode(', ', $onbekendeKolommen)); ?>.</p>
+        <?php endif; ?>
+
+        <div class="leden-tabel-wrap">
+          <table class="leden-tabel">
+            <thead><tr><th>Naam</th><th>Geboortedatum</th><th>Mailadres</th><th>Gemeente</th><th>Wordt</th></tr></thead>
+            <tbody>
+              <?php foreach (array_slice($ledenImport['rijen'], 0, 25) as $rij): ?>
+                <tr>
+                  <td><strong><?php echo htmlspecialchars(ledenVolledigeNaam($rij)); ?></strong></td>
+                  <td><?php echo htmlspecialchars(ledenParseDatum($rij['geboortedatum'] ?? '')); ?></td>
+                  <td><?php echo htmlspecialchars($rij['email'] ?? ''); ?></td>
+                  <td><?php echo htmlspecialchars($rij['gemeente'] ?? ''); ?></td>
+                  <td><?php echo ledenZoekBestaande($importControle, $rij) === null ? 'toegevoegd' : 'bijgewerkt'; ?></td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+        <?php if (count($ledenImport['rijen']) > 25): ?>
+          <p class="hint">Eerste 25 van <?php echo count($ledenImport['rijen']); ?> regels getoond.</p>
+        <?php endif; ?>
+
+        <div class="leden-import-knoppen">
+          <form method="post" action="beheer.php#leden">
+            <input type="hidden" name="formulier" value="leden_import_bevestigen">
+            <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+            <button type="submit">Import definitief opslaan</button>
+          </form>
+          <form method="post" action="beheer.php#leden">
+            <input type="hidden" name="formulier" value="leden_import_annuleren">
+            <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+            <button type="submit" class="knop-klein">Annuleren</button>
+          </form>
+        </div>
+      <?php else: ?>
+        <form method="post" action="beheer.php#leden" enctype="multipart/form-data">
+          <input type="hidden" name="formulier" value="leden_import_lezen">
+          <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+          <div class="veld">
+            <label for="leden-csv">CSV-bestand</label>
+            <input type="file" id="leden-csv" name="csv" accept=".csv,text/csv">
+            <p class="hint">Sla het Excel-bestand op als CSV. Puntkomma of komma als scheidingsteken maakt niet uit, en een bestand dat Excel in de Windows-codering heeft weggeschreven wordt automatisch omgezet. De eerste regel moet de kolomnamen bevatten. Na het inlezen krijg je eerst een overzicht te zien; er wordt pas opgeslagen als je dat bevestigt.</p>
+          </div>
+          <button type="submit">Bestand inlezen</button>
+        </form>
+      <?php endif; ?>
+
+      <h2 class="leden-kop">Exporteren</h2>
+      <p class="hint">Een CSV met alle leden en alle contributiejaren, in dezelfde kolommen als het Excel-bestand. Let op waar je die kopie laat: er staan persoonsgegevens in.</p>
+      <form method="post" action="beheer.php#leden">
+        <input type="hidden" name="formulier" value="leden_export">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+        <button type="submit" class="knop-klein">Download CSV</button>
+      </form>
+    </div>
+    </div>
+
     <div class="tab-paneel" id="tab-rekentabel">
     <!-- ===== REKENTABEL CONTRIBUTIE (bewerkbaar) ===== -->
     <div class="kaart">
@@ -3711,6 +4463,34 @@ if ($isMaster && file_exists($logBestand)) {
         });
       });
       document.addEventListener('click', paneelSluiten);
+    })();
+    // ===== Zoeken en filteren in de ledenlijst =====
+    // In de pagina zelf, zodat er niet bij elke toetsaanslag herladen hoeft
+    // te worden. Zonder JavaScript blijft gewoon de hele lijst zichtbaar.
+    (function () {
+      var zoek = document.getElementById('leden-zoek');
+      var filter = document.getElementById('leden-filter-status');
+      var tabel = document.getElementById('leden-tabel');
+      if (!zoek || !filter || !tabel) return;
+      var rijen = tabel.querySelectorAll('tbody tr');
+      var geenResultaat = document.getElementById('leden-geen-resultaat');
+
+      function filteren() {
+        var term = zoek.value.trim().toLowerCase();
+        var status = filter.value;
+        var zichtbaar = 0;
+        Array.prototype.forEach.call(rijen, function (rij) {
+          var pastTekst = term === '' || (rij.getAttribute('data-zoek') || '').indexOf(term) !== -1;
+          var pastStatus = status === '' || rij.getAttribute('data-status') === status;
+          var toon = pastTekst && pastStatus;
+          rij.hidden = !toon;
+          if (toon) zichtbaar++;
+        });
+        if (geenResultaat) geenResultaat.hidden = zichtbaar !== 0;
+      }
+
+      zoek.addEventListener('input', filteren);
+      filter.addEventListener('change', filteren);
     })();
   </script>
   <?php endif; ?>
