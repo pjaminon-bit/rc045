@@ -94,7 +94,7 @@
 <nav class="nav" id="main-nav">
 <div class="nav-inner">
 <a href="index.html" class="nav-logo">
-<img src="rc045-logo.png" alt="RC045 logo">
+<img width="400" height="423" src="rc045-logo.png" alt="RC045 logo">
 <div><span class="nav-logo-text">RC045</span></div>
 </a>
 <ul class="nav-links" id="nav-links">
@@ -145,24 +145,24 @@
 <div class="photos-title" data-i18n="photos.title">Foto's door de jaren heen</div>
 <div class="ontstaan-grid">
 <div class="ontstaan-photo-wrap tall">
-<img src="images/basherbaaneersteaanleg.jpg" alt="Eerste aanleg van de RC045 baan" class="ontstaan-photo lightbox-trigger">
+<img width="1024" height="768" src="images/basherbaaneersteaanleg.jpg" alt="Eerste aanleg van de RC045 baan" class="ontstaan-photo lightbox-trigger">
 </div>
 <div class="ontstaan-photo-wrap">
-<img src="images/basherbaaneersteaanleghek.jpg" alt="Plaatsen van het hek tijdens de eerste aanleg" class="ontstaan-photo lightbox-trigger">
+<img width="960" height="640" src="images/basherbaaneersteaanleghek.jpg" alt="Plaatsen van het hek tijdens de eerste aanleg" class="ontstaan-photo lightbox-trigger">
 </div>
 <div class="ontstaan-photo-wrap">
-<img src="images/basherbaaneersteaanleglucht.jpg" alt="Luchtfoto van de eerste aanleg van de baan" class="ontstaan-photo lightbox-trigger">
+<img width="1024" height="768" src="images/basherbaaneersteaanleglucht.jpg" alt="Luchtfoto van de eerste aanleg van de baan" class="ontstaan-photo lightbox-trigger">
 </div>
 </div>
 <div class="ontstaan-grid">
 <div class="ontstaan-photo-wrap tall">
-<img src="images/basherbaaneersteaanlegmaaien.jpg" alt="Maaien tijdens de eerste aanleg van de baan" class="ontstaan-photo lightbox-trigger">
+<img width="2000" height="934" src="images/basherbaaneersteaanlegmaaien.jpg" alt="Maaien tijdens de eerste aanleg van de baan" class="ontstaan-photo lightbox-trigger">
 </div>
 <div class="ontstaan-photo-wrap">
-<img src="images/basherbaaneersteaanlegtrack.jpg" alt="Aanleg van het parcours" class="ontstaan-photo lightbox-trigger">
+<img width="899" height="1599" src="images/basherbaaneersteaanlegtrack.jpg" alt="Aanleg van het parcours" class="ontstaan-photo lightbox-trigger">
 </div>
 <div class="ontstaan-photo-wrap">
-<img src="images/crawlerbaaneersteaanleg.jpg" alt="Eerste aanleg van de crawlerbaan" class="ontstaan-photo lightbox-trigger">
+<img width="1600" height="1066" src="images/crawlerbaaneersteaanleg.jpg" alt="Eerste aanleg van de crawlerbaan" class="ontstaan-photo lightbox-trigger">
 </div>
 </div>
 </main>
@@ -170,7 +170,7 @@
 <div class="footer-inner">
 <div class="footer-top">
 <div class="footer-brand">
-<img src="rc045-logo.png" alt="RC045">
+<img width="400" height="423" src="rc045-logo.png" alt="RC045">
 <p data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
 <div class="footer-social">
 <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook" id="footer-facebook-link">
@@ -392,6 +392,16 @@ function closeLightbox() { lightbox.classList.remove('open'); document.body.styl
         img.src = 'images/sponsors/' + encodeURIComponent(sp.logo) + versie;
         img.alt = sp.name;
         img.className = 'footer-sponsor-logo';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        // Afmetingen van het logobestand staan in sponsors.json (beheer.php leest
+        // ze uit bij het opslaan). Daarmee reserveert de browser meteen de juiste
+        // breedte, zodat de footer niet verspringt zodra de logo's binnen zijn.
+        // Oudere regels zonder die velden blijven gewoon werken.
+        if (sp.width > 0 && sp.height > 0) {
+          img.width = sp.width;
+          img.height = sp.height;
+        }
 
         var kaart = document.createElement('div');
         kaart.className = 'footer-sponsor-card';
