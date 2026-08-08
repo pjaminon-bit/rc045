@@ -167,7 +167,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 .footer-sponsors-cta a:hover { color: #fff; }
 
-.footer-brand img { height: 44px; margin-bottom: 16px; }
+.footer-brand img { height: 44px; width: auto; margin-bottom: 16px; }
 
 .footer-brand p { font-size: 14px; line-height: 1.7; max-width: 280px; }
 
