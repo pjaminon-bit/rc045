@@ -167,6 +167,58 @@
           .footer-top { grid-template-columns: 1fr; gap: 32px; }
           .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
         }
+    /* ===== BEDANKT-OVERLAY (verschijnt na een geslaagde aanmelding) ===== */
+    /* Dit is een laag binnen de pagina zelf, geen nieuw browservenster,
+       dus popupblokkers spelen hier geen rol. */
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(30,44,19,0.55); backdrop-filter: blur(3px); align-items: center; justify-content: center; padding: 24px; }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-card { position: relative; background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); box-shadow: 0 20px 60px rgba(0,0,0,0.30); width: 100%; max-width: 560px; max-height: calc(100vh - 48px); overflow-y: auto; overscroll-behavior: contain; padding: 40px 36px 32px; text-align: center; animation: modalIn 0.28s ease; }
+
+    @keyframes modalIn { from { opacity: 0; transform: translateY(16px) scale(0.98); } to { opacity: 1; transform: none; } }
+
+    .modal-close { position: absolute; top: 10px; right: 12px; background: none; border: none; font-size: 26px; line-height: 1; color: var(--muted); cursor: pointer; padding: 4px 10px; border-radius: 8px; transition: background 0.15s, color 0.15s; }
+
+    .modal-close:hover { background: var(--bg); color: var(--dark); }
+
+    .modal-icon { font-size: 56px; margin-bottom: 16px; }
+
+    .modal-card h2 { font-size: 28px; font-weight: 800; color: var(--dark); margin-bottom: 12px; }
+
+    .modal-sub { font-size: 15px; color: var(--muted); line-height: 1.7; }
+
+    .modal-stappen { display: flex; flex-direction: column; gap: 12px; text-align: left; margin-top: 24px; }
+
+    .modal-stap { display: flex; gap: 12px; align-items: flex-start; }
+
+    .modal-stap-num { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--teal); color: white; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+    .modal-stap-text { font-size: 14px; color: var(--text); line-height: 1.6; }
+
+    .modal-card .iban-card { text-align: left; margin-top: 24px; }
+
+    .modal-card .iban-copy-wrap { flex-wrap: wrap; }
+
+    .modal-btns { display: flex; gap: 10px; margin-top: 24px; }
+
+    .modal-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 18px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent; }
+
+    .modal-btn-primary { background: var(--teal); color: white; }
+
+    .modal-btn-primary:hover { background: var(--teal-dark); }
+
+    .modal-btn-outline { background: none; border-color: var(--border); color: var(--text); }
+
+    .modal-btn-outline:hover { background: var(--bg); }
+
+    @media (max-width: 560px) {
+          .modal-overlay { padding: 12px; }
+          .modal-card { padding: 32px 20px 24px; max-height: calc(100vh - 24px); }
+          .modal-card h2 { font-size: 23px; }
+          .modal-card .iban-number { font-size: 17px; letter-spacing: 0.05em; }
+          .modal-btns { flex-direction: column; }
+        }
   </style>
   <script data-goatcounter="https://rc045.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
@@ -338,7 +390,7 @@
       <div class="akkoord-group" style="margin-top: 10px;">
         <input type="checkbox" id="akkoord-betaling" name="akkoord_betaling" value="ja">
         <label for="akkoord-betaling">
-          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong>NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".</span> <span style="color:var(--teal);">*</span>
+          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong>NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button" data-i18n="iban.copy">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".</span> <span style="color:var(--teal);">*</span>
         </label>
       </div>
 
@@ -415,6 +467,50 @@
   </div>
 </footer>
 
+<!-- Bedankt-overlay. Wordt geopend door openBedankt() zodra het formulier
+     succesvol is verstuurd. Staat standaard verborgen via .modal-overlay. -->
+<div class="modal-overlay" id="bedankt-modal" role="dialog" aria-modal="true" aria-labelledby="bedankt-modal-title">
+  <div class="modal-card">
+    <button type="button" class="modal-close" id="bedankt-close" aria-label="Sluiten">&times;</button>
+
+    <div class="modal-icon" aria-hidden="true">🏎️</div>
+    <h2 id="bedankt-modal-title" data-i18n="bedankt.title">Welkom bij RC045!</h2>
+    <p class="modal-sub" data-i18n="bedankt.sub">Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.</p>
+
+    <div class="modal-stappen">
+      <div class="modal-stap">
+        <div class="modal-stap-num" aria-hidden="true">1</div>
+        <div class="modal-stap-text" data-i18n="bedankt.stap1">Maak de contributie over via onderstaande gegevens. Vermeld je naam duidelijk.</div>
+      </div>
+      <div class="modal-stap">
+        <div class="modal-stap-num" aria-hidden="true">2</div>
+        <div class="modal-stap-text" data-i18n="bedankt.stap2">Wacht op bevestiging van het bestuur per e-mail of WhatsApp.</div>
+      </div>
+      <div class="modal-stap">
+        <div class="modal-stap-num" aria-hidden="true">3</div>
+        <div class="modal-stap-text" data-i18n="bedankt.stap3">Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!</div>
+      </div>
+    </div>
+
+    <div class="iban-card">
+      <h4 data-i18n="iban.title">Betalingsgegevens</h4>
+      <div class="iban-copy-wrap">
+        <div class="iban-number">NL51 RABO 0367 6153 63</div>
+        <button type="button" class="iban-copy-btn" data-i18n="iban.copy">📋 Kopieer</button>
+      </div>
+      <div class="iban-detail">
+        <span data-i18n="iban.name">T.n.v. RC045</span><br>
+        <span data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"</span>
+      </div>
+    </div>
+
+    <div class="modal-btns">
+      <a href="index.html" class="modal-btn modal-btn-primary" data-i18n="bedankt.home">🏠 Naar de hoofdpagina</a>
+      <a href="index.html#locatie" class="modal-btn modal-btn-outline" data-i18n="bedankt.location">📍 Hoe kom ik er?</a>
+    </div>
+  </div>
+</div>
+
 <script src="site-i18n.js"></script>
   <script>
   // ===== VERTALINGEN =====
@@ -440,7 +536,16 @@
       'form.agree2': 'Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar',
       'form.agree2b': 't.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".',
       'iban.title': 'Betalingsgegevens', 'iban.name': 'T.n.v. RC045',
-      'iban.ref': 'Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 2026"',
+      'iban.ref': 'Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"',
+      'iban.copy': '📋 Kopieer', 'iban.copied': 'Gekopieerd!',
+      'bedankt.title': 'Welkom bij RC045!',
+      'bedankt.sub': 'Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.',
+      'bedankt.stap1': 'Maak de contributie over via onderstaande gegevens. Vermeld je naam duidelijk.',
+      'bedankt.stap2': 'Wacht op bevestiging van het bestuur per e-mail of WhatsApp.',
+      'bedankt.stap3': 'Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!',
+      'bedankt.home': '🏠 Naar de hoofdpagina', 'bedankt.location': '📍 Hoe kom ik er?',
+      'bedankt.close': 'Sluiten',
+      'form.sent': '✓ Aanmelding verzonden',
       'faq.title': 'Veelgestelde vragen',
       'form.submit': 'Aanmelden bij RC045 →',
       'err.required': 'Dit veld is verplicht',
@@ -479,7 +584,16 @@
       'form.agree2': 'I agree to the membership fee obligation and will transfer the amount due as soon as possible to',
       'form.agree2b': 'in the name of RC045, quoting my first and last name plus "contributie RC045 {jaar}".',
       'iban.title': 'Payment details', 'iban.name': 'In the name of RC045',
-      'iban.ref': 'Please include: first name + last name + "contributie RC045 2026"',
+      'iban.ref': 'Please include: first name + last name + "contributie RC045 {jaar}"',
+      'iban.copy': '📋 Copy', 'iban.copied': 'Copied!',
+      'bedankt.title': 'Welcome to RC045!',
+      'bedankt.sub': 'Your registration has been received. The board will contact you as soon as possible to confirm your membership.',
+      'bedankt.stap1': 'Transfer the membership fee using the details below. Include your name clearly.',
+      'bedankt.stap2': 'Wait for confirmation from the board by email or WhatsApp.',
+      'bedankt.stap3': 'You are very welcome at our track once your membership is confirmed!',
+      'bedankt.home': '🏠 Go to the homepage', 'bedankt.location': '📍 How to find us?',
+      'bedankt.close': 'Close',
+      'form.sent': '✓ Registration sent',
       'faq.title': 'Frequently asked questions',
       'form.submit': 'Register with RC045 →',
       'err.required': 'This field is required',
@@ -518,7 +632,16 @@
       'form.agree2': 'Ich stimme der Beitragspflicht zu und überweise den fälligen Betrag schnellstmöglich an',
       'form.agree2b': 'lautend auf RC045, unter Angabe meines Vor- und Nachnamens sowie "contributie RC045 {jaar}".',
       'iban.title': 'Zahlungsdaten', 'iban.name': 'Auf den Namen RC045',
-      'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 2026"',
+      'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 {jaar}"',
+      'iban.copy': '📋 Kopieren', 'iban.copied': 'Kopiert!',
+      'bedankt.title': 'Willkommen bei RC045!',
+      'bedankt.sub': 'Deine Anmeldung ist eingegangen. Der Vorstand meldet sich so schnell wie möglich bei dir, um deine Mitgliedschaft zu bestätigen.',
+      'bedankt.stap1': 'Überweise den Mitgliedsbeitrag mit den untenstehenden Angaben. Gib deinen Namen deutlich an.',
+      'bedankt.stap2': 'Warte auf die Bestätigung des Vorstands per E-Mail oder WhatsApp.',
+      'bedankt.stap3': 'Du bist herzlich willkommen auf unserer Strecke, sobald deine Mitgliedschaft bestätigt ist!',
+      'bedankt.home': '🏠 Zur Hauptseite', 'bedankt.location': '📍 Wie komme ich hin?',
+      'bedankt.close': 'Schließen',
+      'form.sent': '✓ Anmeldung gesendet',
       'faq.title': 'Häufig gestellte Fragen',
       'form.submit': 'Bei RC045 anmelden →',
       'err.required': 'Dieses Feld ist erforderlich',
@@ -613,6 +736,8 @@
     const activeBtn = document.querySelector(`.lang-flag[onclick="setLang('${lang}')"]`);
     activeBtn.classList.add('active');
     activeBtn.setAttribute('aria-pressed', 'true');
+    var sluitKnop = document.getElementById('bedankt-close');
+    if (sluitKnop) sluitKnop.setAttribute('aria-label', t['bedankt.close'] || 'Sluiten');
     document.documentElement.lang = lang;
     localStorage.setItem('rc045_lang', lang);
     const currentUrl = new URL(window.location.href);
@@ -831,7 +956,19 @@
         headers: { 'Accept': 'application/json' }
       });
       if (res.ok) {
-        window.location.href = 'bedankt.html';
+        var tt = i18n[currentLang] || i18n.nl;
+        // Knop blijft uitgeschakeld staan, zodat er niet twee keer wordt verzonden.
+        btn.setAttribute('data-i18n', 'form.sent');
+        btn.textContent = tt['form.sent'];
+        btn.disabled = true;
+        // Bevestiging blijft ook in de pagina staan nadat de overlay is gesloten.
+        formSuccess.style.display = 'block';
+        // Voorheen telde GoatCounter de weergave van bedankt.html als aanmelding.
+        // De overlay is geen paginaweergave, dus die telling gebeurt nu hier.
+        if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+          window.goatcounter.count({ path: 'aanmelding-verzonden', title: 'Aanmelding verzonden', event: true });
+        }
+        openBedankt();
       } else {
         throw new Error();
       }
@@ -932,14 +1069,69 @@
   window.addEventListener('scroll', function() {
     backToTop.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
-  // ===== IBAN KOPIEER KNOP =====
+  // ===== BEDANKT-OVERLAY =====
+  // Een laag binnen de pagina, geen apart venster: popupblokkers grijpen hier
+  // niet in. Valt terug op bedankt.html als de overlay om wat voor reden dan
+  // ook niet in de pagina staat.
+  var bedanktModal = document.getElementById('bedankt-modal');
+  var bedanktVorigeFocus = null;
+
+  function openBedankt() {
+    if (!bedanktModal) { window.location.href = 'bedankt.html'; return; }
+    bedanktVorigeFocus = document.activeElement;
+    bedanktModal.classList.add('open');
+    document.body.style.overflow = 'hidden'; // achtergrond niet mee laten scrollen
+    var sluit = document.getElementById('bedankt-close');
+    if (sluit) sluit.focus();
+    document.addEventListener('keydown', bedanktToetsen);
+  }
+
+  function sluitBedankt() {
+    if (!bedanktModal) return;
+    bedanktModal.classList.remove('open');
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', bedanktToetsen);
+    if (bedanktVorigeFocus && typeof bedanktVorigeFocus.focus === 'function') bedanktVorigeFocus.focus();
+  }
+
+  function bedanktToetsen(e) {
+    if (e.key === 'Escape') { sluitBedankt(); return; }
+    if (e.key !== 'Tab') return;
+    // Focus binnen de overlay houden zolang die openstaat
+    var velden = bedanktModal.querySelectorAll('button, a[href]');
+    if (!velden.length) return;
+    var eerste = velden[0];
+    var laatste = velden[velden.length - 1];
+    if (e.shiftKey && document.activeElement === eerste) { e.preventDefault(); laatste.focus(); }
+    else if (!e.shiftKey && document.activeElement === laatste) { e.preventDefault(); eerste.focus(); }
+  }
+
+  if (bedanktModal) {
+    document.getElementById('bedankt-close').addEventListener('click', sluitBedankt);
+    // Klik naast de kaart sluit de overlay
+    bedanktModal.addEventListener('click', function(e) { if (e.target === bedanktModal) sluitBedankt(); });
+  }
+
+  // ===== IBAN KOPIEER KNOP (formulier en overlay) =====
   document.querySelectorAll('.iban-copy-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-      navigator.clipboard.writeText('NL51 RABO 0367 6153 63').then(() => {
-        const orig = btn.textContent;
-        btn.textContent = '✓ Gekopieerd!';
+      var t = i18n[currentLang] || i18n.nl;
+      var orig = btn.textContent;
+      var gelukt = function() {
+        btn.textContent = '✓ ' + (t['iban.copied'] || 'Gekopieerd!');
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+      };
+      navigator.clipboard.writeText('NL51 RABO 0367 6153 63').then(gelukt).catch(function() {
+        // Terugval voor browsers zonder clipboard-API (of zonder https)
+        var hulp = document.createElement('textarea');
+        hulp.value = 'NL51 RABO 0367 6153 63';
+        hulp.style.position = 'fixed';
+        hulp.style.opacity = '0';
+        document.body.appendChild(hulp);
+        hulp.select();
+        try { document.execCommand('copy'); gelukt(); } catch (err) { /* stil falen */ }
+        document.body.removeChild(hulp);
       });
     });
   });
