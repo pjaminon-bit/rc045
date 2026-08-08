@@ -31,12 +31,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <style>
-    body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: #292524; background: #FAF6EC; min-height: 100vh; display: flex; flex-direction: column; }
+  <style>body { min-height: 100vh; display: flex; flex-direction: column; }
     
-    h1, h2, h3 { font-family: 'Poppins', sans-serif; line-height: 1.2; }
-    
-    .nav { background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+    h1, h2, h3 { font-family: 'Poppins', sans-serif; line-height: 1.2; }.nav { position: static; }
     
     .nav-back { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--muted); transition: background 0.15s, color 0.15s; }
     
@@ -86,9 +83,7 @@
     
     .btn-outline { background: transparent; color: var(--teal-dark); border: 1.5px solid var(--teal); }
     
-    .btn-outline:hover { background: var(--teal-light); }
-    
-    .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 32px 24px; text-align: center; font-size: 13px; }
+    .btn-outline:hover { background: var(--teal-light); }.footer { padding: 32px 24px; text-align: center; font-size: 13px; }
     
     .footer a { color: var(--teal); }
     
@@ -303,12 +298,6 @@
       vulTokensInDOM();
     })
     .catch(function() { /* standaardwaarde blijft gelden */ });
-
-  // ===== TERUG NAAR BOVEN =====
-  const backToTop = document.getElementById('backToTop');
-  window.addEventListener('scroll', function() {
-    backToTop.classList.toggle('visible', window.scrollY > 400);
-  }, { passive: true });
 </script>
 
 </body>
