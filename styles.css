@@ -219,3 +219,123 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .page-hero h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; color: white; margin-bottom: 12px; }
 
 a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+
+/* ===================================================================
+   DONKERE MODUS
+   ===================================================================
+   Alles staat in dit bestand, de pagina's zelf hoeven niet aangepast.
+   site-i18n.js zet data-thema="licht" of "donker" op het <html> element
+   en zet ook de knop in de navigatiebalk. De systeeminstelling van het
+   apparaat is de standaard; de knop kan die overschrijven.
+
+   Waarom een los data-thema in plaats van alleen prefers-color-scheme:
+   zo staat elke regel hieronder maar een keer in het bestand. De site
+   draait toch al volledig op JavaScript (taal, openingstijden, agenda,
+   sponsors), dus dat is geen extra beperking.
+
+   Let op: --dark blijft in beide standen donker. Die variabele is de
+   achtergrond van de hero, het reglementblok en de footer, en die horen
+   donker te zijn. Voor tekst die in de lichte stand --dark gebruikt is
+   --heading toegevoegd; die regels staan verderop bij elkaar.
+   ------------------------------------------------------------------- */
+
+:root { color-scheme: light; --heading: var(--dark); }
+
+:root[data-thema="donker"] {
+      color-scheme: dark;
+      --bg: #14180F; --white: #1C2116; --cream: #232A1B; --border: #2E3626;
+      --text: #E3DFD1; --muted: #98A18C; --heading: #F2EEE2;
+      --teal: #458E8A; --teal-dark: #7FC2BE; --teal-light: #1B2C2B;
+      --gold: #D3A72B; --gold-light: #262112; --rust: #C25A3B;
+      --green: #4ADE80;
+      --shadow: 0 4px 20px rgba(0,0,0,0.45); --shadow-hover: 0 8px 32px rgba(0,0,0,0.60);
+    }
+
+/* De body-regel staat op elke pagina hardgecodeerd (#292524 op #FAF6EC),
+   dus die moet hier met een zwaardere selector overschreven worden. */
+:root[data-thema="donker"] body { color: var(--text); background: var(--bg); }
+
+/* Navigatiebalk en uitgeklapt mobiel menu staan ook per pagina vast. */
+:root[data-thema="donker"] .nav { background: rgba(20,24,15,0.95); }
+:root[data-thema="donker"] .nav-links.open { background: rgba(20,24,15,0.98); }
+
+/* Tekst die in de lichte stand var(--dark) is. Niet in deze lijst:
+   .announce-bar, .hours-row.is-animo .hours-closed-note en
+   .info-closed-note.is-animo, want die staan op een gouden vlak en
+   moeten juist donkere tekst houden. */
+:root[data-thema="donker"] .nav-logo-text,
+:root[data-thema="donker"] .section-title,
+:root[data-thema="donker"] .feature-card h4,
+:root[data-thema="donker"] .agenda-card h3,
+:root[data-thema="donker"] .nieuws-card h3,
+:root[data-thema="donker"] .iban-card h4,
+:root[data-thema="donker"] .iban-number,
+:root[data-thema="donker"] .faq-title,
+:root[data-thema="donker"] .modal-card h2,
+:root[data-thema="donker"] .modal-close:hover,
+:root[data-thema="donker"] .artikel-title,
+:root[data-thema="donker"] .sub-artikel-title,
+:root[data-thema="donker"] .story-card strong,
+:root[data-thema="donker"] .bedankt-card h1,
+:root[data-thema="donker"] .stap-text strong,
+:root[data-thema="donker"] .media-title,
+:root[data-thema="donker"] .album-detail-title { color: var(--heading); }
+
+/* Witte tekst op een roestkleurig vlak. --white is in de donkere stand
+   het kaartvlak geworden, dus deze twee moeten expliciet licht blijven. */
+:root[data-thema="donker"] .hours-closed-note,
+:root[data-thema="donker"] .info-closed-note { color: #F7F4EA; }
+
+/* Hover op de primaire knoppen gaat in de donkere stand juist dieper in
+   plaats van lichter, anders wordt witte tekst onleesbaar. */
+:root[data-thema="donker"] .btn-primary:hover,
+:root[data-thema="donker"] .modal-btn-primary:hover,
+:root[data-thema="donker"] .nav-links .nav-lid a:hover,
+:root[data-thema="donker"] .nav-links .nav-lid.nav-active a:hover,
+:root[data-thema="donker"] .back-to-top:hover { background: #2F6A66; }
+
+/* De sponsorkaartjes in de footer blijven licht: de meeste logo's zijn
+   donkere PNG's zonder eigen achtergrond. */
+:root[data-thema="donker"] .footer-sponsor-card { background: #F2EDE0; }
+
+/* .btn-white houdt een witte achtergrond (hij staat op de donkere
+   uitgelichte prijskaart). De tekst daarop is var(--teal-dark), en die
+   wordt in de donkere stand juist licht, dus hier terug naar donker. */
+:root[data-thema="donker"] .btn-white { color: #2D6260; }
+
+/* Statuskleuren en meldingen (per pagina hardgecodeerd). */
+:root[data-thema="donker"] .status-open { color: #4ADE80; }
+:root[data-thema="donker"] .status-closed { color: #F19393; }
+:root[data-thema="donker"] .status-closed::before { background: #F19393; }
+:root[data-thema="donker"] .status-animo { color: #D3A72B; }
+:root[data-thema="donker"] .agenda-card-tag.wedstrijd { background: rgba(194,90,59,0.20); color: #E9A78F; }
+:root[data-thema="donker"] .jeugdlid-badge.jeugd,
+:root[data-thema="donker"] .melding.warning { background: rgba(211,167,43,0.16); color: #E5C25A; }
+:root[data-thema="donker"] .melding.error { background: rgba(220,38,38,0.16); color: #F19393; }
+:root[data-thema="donker"] .field-error { color: #F19393; }
+:root[data-thema="donker"] .input-error { border-color: #E06767 !important; }
+:root[data-thema="donker"] .location-map { background: var(--cream); }
+
+/* Foto's blijven onaangeroerd, op volle sterkte, in beide standen.
+   Alleen de kaart van OpenStreetMap wordt gedempt, want dat is een felwit
+   vlak dat anders midden op een donkere pagina staat te schijnen. */
+:root[data-thema="donker"] .location-map iframe { filter: brightness(0.82) contrast(1.06); }
+
+/* ===== KNOP VOOR DE THEMAKEUZE (gezet door site-i18n.js) ===== */
+.nav-tools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.thema-switch {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 33px; padding: 0; flex-shrink: 0;
+      border-radius: 8px; line-height: 1;
+      border: 1px solid var(--border); background: var(--white);
+      font-size: 15px; color: var(--text); cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+.thema-switch:hover { background: var(--teal-light); border-color: var(--teal); }
+
+@media (max-width: 480px) {
+  .nav-tools { gap: 6px; }
+  .thema-switch { width: 33px; }
+}
