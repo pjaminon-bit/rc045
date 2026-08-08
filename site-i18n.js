@@ -76,3 +76,86 @@ function updateInternalLinks(lang) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
+
+// ===== THEMAKEUZE (licht / donker) =====
+// Zet data-thema op <html> en plaatst zelf een knop naast de taalkiezer, zodat
+// geen enkele pagina aangepast hoeft te worden. Drie standen: systeem (volgt de
+// instelling van het apparaat), licht en donker. De keuze staat in localStorage,
+// net als de taal. Alle kleuren horen bij dit thema staan in styles.css.
+(function () {
+  var SLEUTEL = 'rc045_thema';
+  var STANDEN = ['systeem', 'licht', 'donker'];
+  var ICONEN = { systeem: '\uD83C\uDF13', licht: '\u2600\uFE0F', donker: '\uD83C\uDF19' };
+  var TEKST = {
+    nl: { systeem: 'Thema: systeem', licht: 'Thema: licht', donker: 'Thema: donker' },
+    en: { systeem: 'Theme: system', licht: 'Theme: light', donker: 'Theme: dark' },
+    de: { systeem: 'Thema: System', licht: 'Thema: hell', donker: 'Thema: dunkel' }
+  };
+  var donkerQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  var knop = null;
+
+  function gekozenStand() {
+    var opgeslagen = null;
+    try { opgeslagen = localStorage.getItem(SLEUTEL); } catch (e) { /* privémodus */ }
+    return STANDEN.indexOf(opgeslagen) === -1 ? 'systeem' : opgeslagen;
+  }
+
+  // Vertaalt de gekozen stand naar wat er daadwerkelijk getoond wordt.
+  function toepassen() {
+    var stand = gekozenStand();
+    var donker = stand === 'donker' || (stand === 'systeem' && donkerQuery && donkerQuery.matches);
+    document.documentElement.setAttribute('data-thema', donker ? 'donker' : 'licht');
+    werkKnopBij(stand);
+  }
+
+  function werkKnopBij(stand) {
+    if (!knop) return;
+    var taal = document.documentElement.lang;
+    var tekst = (TEKST[taal] || TEKST.nl)[stand];
+    knop.textContent = ICONEN[stand];
+    knop.setAttribute('aria-label', tekst);
+    knop.setAttribute('title', tekst);
+  }
+
+  function volgende() {
+    var nu = STANDEN.indexOf(gekozenStand());
+    var nieuw = STANDEN[(nu + 1) % STANDEN.length];
+    try { localStorage.setItem(SLEUTEL, nieuw); } catch (e) { /* privémodus */ }
+    toepassen();
+  }
+
+  function init() {
+    var taalKiezer = document.getElementById('lang-switch');
+    if (taalKiezer && taalKiezer.parentNode) {
+      // Taalkiezer en themaknop samen in een omhulsel, zodat de navigatiebalk
+      // evenveel directe kinderen houdt en de verdeling niet verschuift.
+      var omhulsel = document.createElement('div');
+      omhulsel.className = 'nav-tools';
+      knop = document.createElement('button');
+      knop.type = 'button';
+      knop.className = 'thema-switch';
+      knop.addEventListener('click', volgende);
+      taalKiezer.parentNode.insertBefore(omhulsel, taalKiezer);
+      omhulsel.appendChild(knop);
+      omhulsel.appendChild(taalKiezer);
+
+      // Label meeveranderen als de bezoeker van taal wisselt.
+      Array.prototype.forEach.call(taalKiezer.querySelectorAll('.lang-flag'), function (b) {
+        b.addEventListener('click', function () { werkKnopBij(gekozenStand()); });
+      });
+    }
+    toepassen();
+  }
+
+  // Zo vroeg mogelijk toepassen, nog voor de rest van de pagina klaar is.
+  toepassen();
+
+  // Meeveranderen als de systeeminstelling wisselt en de bezoeker op 'systeem' staat.
+  if (donkerQuery) {
+    if (donkerQuery.addEventListener) donkerQuery.addEventListener('change', toepassen);
+    else if (donkerQuery.addListener) donkerQuery.addListener(toepassen);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
