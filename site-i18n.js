@@ -159,3 +159,164 @@ function updateInternalLinks(lang) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
+
+// ===== MOBIEL MENU =====
+// Stond eerder op zes pagina's apart, met kleine onderlinge verschillen: op
+// twee pagina's werd aria-expanded niet bijgewerkt en op een pagina ontbrak
+// { passive: true } bij de scroll-listener. Nu overal gelijk.
+(function () {
+  function init() {
+    var knop = document.getElementById('hamburger');
+    var links = document.querySelector('.nav-links');
+    var balk = document.getElementById('main-nav');
+    if (!knop || !links) return;
+
+    knop.addEventListener('click', function () {
+      var open = links.classList.toggle('open');
+      knop.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    function sluit() {
+      links.classList.remove('open');
+      knop.setAttribute('aria-expanded', 'false');
+    }
+
+    window.addEventListener('scroll', sluit, { passive: true });
+    document.addEventListener('touchstart', function (e) {
+      if (balk && !balk.contains(e.target)) sluit();
+    }, { passive: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+// ===== TERUG NAAR BOVEN =====
+(function () {
+  function init() {
+    var knop = document.getElementById('backToTop');
+    if (!knop) return;
+    window.addEventListener('scroll', function () {
+      knop.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+// ===== SPONSORS IN DE FOOTER (data/sponsors.json, bijwerken via beheer.php) =====
+// De "sponsor worden?"-tekst onder de logo's is vertaald met NL-terugval. Het
+// woord "contactformulier" (of de vertaling ervan) wordt automatisch een link;
+// dat gebeurt puur op basis van dat woord in de tekst.
+// renderSponsorCta staat bewust buiten de functie hieronder: elke pagina roept
+// hem aan vanuit setLang(), zodat de tekst bij een taalwissel meegaat.
+var sponsorCtaData = null;
+var sponsorCtaDefault = {
+  nl: 'Sponsor worden? Neem contact op via het contactformulier.',
+  en: 'Want to become a sponsor? Get in touch via the contact form.',
+  de: 'Sponsor werden? Kontaktieren Sie uns über das Kontaktformular.'
+};
+var sponsorCtaKeyword = { nl: 'contactformulier', en: 'contact form', de: 'Kontaktformular' };
+// Op de homepage staat het contactformulier op dezelfde pagina, elders niet.
+var sponsorContactLink = (function () {
+  var bestand = window.location.pathname.split('/').pop();
+  return (bestand === '' || bestand === 'index.html') ? '#contact' : 'index.html#contact';
+})();
+
+function sponsorTaal() {
+  // currentLang hoort bij het paginascript, dat pas na dit bestand draait.
+  // Zolang dat er nog niet is, terugvallen op het lang-attribuut.
+  try {
+    if (typeof currentLang === 'string' && currentLang) return currentLang;
+  } catch (e) { /* nog niet gedefinieerd */ }
+  return document.documentElement.lang || 'nl';
+}
+
+function renderSponsorCta() {
+  var el = document.getElementById('footer-sponsors-cta');
+  if (!el) return;
+  var taal = sponsorTaal();
+  var bron = sponsorCtaData || sponsorCtaDefault;
+  var tekst = bron[taal] || bron.nl || sponsorCtaDefault[taal] || sponsorCtaDefault.nl;
+  var keyword = sponsorCtaKeyword[taal] || sponsorCtaKeyword.nl;
+  el.textContent = '';
+  var idx = tekst.toLowerCase().indexOf(keyword.toLowerCase());
+  if (idx === -1) {
+    el.textContent = tekst;
+    return;
+  }
+  el.appendChild(document.createTextNode(tekst.slice(0, idx)));
+  var a = document.createElement('a');
+  a.href = sponsorContactLink;
+  a.textContent = tekst.slice(idx, idx + keyword.length);
+  el.appendChild(a);
+  el.appendChild(document.createTextNode(tekst.slice(idx + keyword.length)));
+}
+
+(function () {
+  if (!document.getElementById('footer-sponsors-cta') && !document.getElementById('sponsors-grid')) return;
+
+  fetch('data/sponsors.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (d && d.cta) sponsorCtaData = d.cta;
+      renderSponsorCta();
+
+      if (!d || !Array.isArray(d.items) || d.items.length === 0) return;
+      var grid = document.getElementById('sponsors-grid');
+      if (!grid) return;
+      var versie = d.updated ? ('?v=' + encodeURIComponent(d.updated)) : '';
+
+      d.items.forEach(function (sp) {
+        if (!sp || !sp.name || !sp.logo) return;
+
+        var img = document.createElement('img');
+        img.src = 'images/sponsors/' + encodeURIComponent(sp.logo) + versie;
+        img.alt = sp.name;
+        img.className = 'footer-sponsor-logo';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        // Afmetingen staan in sponsors.json (beheer.php leest ze uit bij het
+        // opslaan). Daarmee reserveert de browser meteen de juiste breedte, zodat
+        // de footer niet verspringt zodra de logo's binnen zijn. Oudere regels
+        // zonder die velden blijven gewoon werken.
+        if (sp.width > 0 && sp.height > 0) {
+          img.width = sp.width;
+          img.height = sp.height;
+        }
+
+        var kaart = document.createElement('div');
+        kaart.className = 'footer-sponsor-card';
+        kaart.appendChild(img);
+
+        if (sp.url && /^https?:\/\//i.test(sp.url)) {
+          var link = document.createElement('a');
+          link.href = sp.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.style.display = 'contents';
+          link.appendChild(kaart);
+          grid.appendChild(link);
+        } else {
+          grid.appendChild(kaart);
+        }
+      });
+    })
+    .catch(function () { renderSponsorCta(); });
+})();
+
+// ===== FACEBOOK-LINK IN DE FOOTER (data/contact.json) =====
+// De homepage haalt contact.json toch al op voor de openingstijden en zet de
+// link daar zelf; die zet rc045EigenContact zodat we hier niet dubbel ophalen.
+(function () {
+  function init() {
+    if (window.rc045EigenContact) return;
+    var el = document.getElementById('footer-facebook-link');
+    if (!el) return;
+    fetch('data/contact.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { if (d && d.facebook) el.href = d.facebook; })
+      .catch(function () {});
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
