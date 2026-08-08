@@ -3955,8 +3955,14 @@ if ($isMaster && file_exists($logBestand)) {
   <?php if ($ingelogd): ?>
   <script>
     (function() {
-      var tabs = ['mededeling', 'nieuws', 'agenda', 'faq', 'sponsors', 'contact', 'media', 'fotoboek'<?php if ($isMaster): ?>, 'gebruikers', 'log', 'backups'<?php endif; ?>, 'rekentabel'];
+      // De lijst met tabbladen komt uit de menuknoppen zelf. Stond hier
+      // eerder als vaste lijst, met als gevolg dat een nieuw tabblad wel een
+      // knop en een paneel had maar niet openging omdat het niet in de lijst
+      // stond. Zo kunnen die twee niet meer uit elkaar lopen.
       var menuItems = document.querySelectorAll('.menu-item');
+      var tabs = Array.prototype.map.call(menuItems, function (btn) {
+        return btn.getAttribute('data-tab');
+      });
 
       function toonTab(naam) {
         if (tabs.indexOf(naam) === -1) naam = tabs[0];
