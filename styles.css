@@ -6,6 +6,8 @@
       --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
       --cream: #EDE3C0; --border: #DDD8C0; --bg: #FAF6EC;
       --white: #FFFFFF; --green: #22C55E;
+      --text-body: #292524;
+      --nav-bg: rgba(255,251,247,0.95); --nav-bg-open: rgba(255,251,247,0.98);
       --radius: 12px; --shadow: 0 4px 20px rgba(0,0,0,0.08); --shadow-hover: 0 8px 32px rgba(0,0,0,0.14);
     }
 
@@ -218,7 +220,34 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 .page-hero h1 { font-size: clamp(28px, 4vw, 48px); font-weight: 800; color: white; margin-bottom: 12px; }
 
-a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 4px; }
+
+/* ===================================================================
+   BASIS VAN ELKE PAGINA
+   ===================================================================
+   Deze regels stonden tot nu toe in de <style> van elke pagina apart,
+   zes of zeven keer hetzelfde. Nu een keer hier. Pagina's die iets
+   afwijkends nodig hebben (bedankt.html, de hoogte van de page-hero op
+   aanmelden.html) zetten alleen dat ene verschil nog in hun eigen blok;
+   dat blok komt na dit bestand en wint dus vanzelf.
+   ------------------------------------------------------------------- */
+
+body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: var(--text-body); background: var(--bg); }
+
+.nav { position: sticky; top: 0; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+
+.footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 48px 24px 32px; }
+
+.page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 280px; display: flex; align-items: center; justify-content: center; }
+
+.page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.7; }
+
+@media (max-width: 700px) {
+  .nav-links { display: none; }
+  .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: var(--nav-bg-open); border-bottom: 1px solid var(--border); padding: 12px 24px 20px; gap: 4px; z-index: 99; }
+  .nav-hamburger { display: flex; }
+  .footer-top { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+}
 
 /* ===================================================================
    DONKERE MODUS
@@ -245,19 +274,13 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-
       color-scheme: dark;
       --bg: #14180F; --white: #1C2116; --cream: #232A1B; --border: #2E3626;
       --text: #E3DFD1; --muted: #98A18C; --heading: #F2EEE2;
+      --text-body: #E3DFD1;
+      --nav-bg: rgba(20,24,15,0.95); --nav-bg-open: rgba(20,24,15,0.98);
       --teal: #458E8A; --teal-dark: #7FC2BE; --teal-light: #1B2C2B;
       --gold: #D3A72B; --gold-light: #262112; --rust: #C25A3B;
       --green: #4ADE80;
       --shadow: 0 4px 20px rgba(0,0,0,0.45); --shadow-hover: 0 8px 32px rgba(0,0,0,0.60);
     }
-
-/* De body-regel staat op elke pagina hardgecodeerd (#292524 op #FAF6EC),
-   dus die moet hier met een zwaardere selector overschreven worden. */
-:root[data-thema="donker"] body { color: var(--text); background: var(--bg); }
-
-/* Navigatiebalk en uitgeklapt mobiel menu staan ook per pagina vast. */
-:root[data-thema="donker"] .nav { background: rgba(20,24,15,0.95); }
-:root[data-thema="donker"] .nav-links.open { background: rgba(20,24,15,0.98); }
 
 /* Tekst die in de lichte stand var(--dark) is. Niet in deze lijst:
    .announce-bar, .hours-row.is-animo .hours-closed-note en
