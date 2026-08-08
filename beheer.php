@@ -499,6 +499,20 @@ function lijstDataBackups($backupMap, $basisnaam) {
   return $resultaat;
 }
 
+// Leest de afmetingen van een sponsorlogo dat al op de server staat. Die gaan
+// mee in sponsors.json, zodat de website width/height op het <img> kan zetten
+// en de footer niet verspringt terwijl de logo's laden. Bestaat het bestand
+// niet (meer), dan komen er nullen uit en laat de website de attributen weg.
+function sponsorLogoAfmetingen($bestandsnaam) {
+  global $sponsorMap;
+  if ($bestandsnaam === '') return ['width' => 0, 'height' => 0];
+  $pad = $sponsorMap . '/' . $bestandsnaam;
+  if (!is_file($pad)) return ['width' => 0, 'height' => 0];
+  $info = @getimagesize($pad);
+  if ($info === false) return ['width' => 0, 'height' => 0];
+  return ['width' => (int) $info[0], 'height' => (int) $info[1]];
+}
+
 // Verwerkt (optioneel) een geüpload sponsorlogo. Zonder nieuw bestand blijft
 // het huidige logo staan. Bij een nieuw bestand: alleen PNG/JPG/WEBP, max 1MB,
 // en een echte afbeelding (gecontroleerd met getimagesize, niet alleen de
@@ -507,7 +521,10 @@ function lijstDataBackups($backupMap, $basisnaam) {
 function verwerkSponsorLogo($bestandVeld, $slotIndex, $huidig) {
   global $sponsorMap;
   if (!isset($_FILES[$bestandVeld]) || $_FILES[$bestandVeld]['error'] === UPLOAD_ERR_NO_FILE) {
-    return ['ok' => true, 'logo' => $huidig];
+    // Geen nieuwe upload: afmetingen alsnog van het bestaande bestand lezen,
+    // zodat oudere regels zonder die velden bij de eerstvolgende opslag
+    // vanzelf worden aangevuld.
+    return ['ok' => true, 'logo' => $huidig] + sponsorLogoAfmetingen($huidig);
   }
   $bestand = $_FILES[$bestandVeld];
   if ($bestand['error'] === UPLOAD_ERR_INI_SIZE || $bestand['error'] === UPLOAD_ERR_FORM_SIZE) {
@@ -537,7 +554,7 @@ function verwerkSponsorLogo($bestandVeld, $slotIndex, $huidig) {
   if (!move_uploaded_file($bestand['tmp_name'], $sponsorMap . '/' . $bestandsnaam)) {
     return ['ok' => false, 'fout' => 'opslaan van het logo op de server is mislukt.'];
   }
-  return ['ok' => true, 'logo' => $bestandsnaam];
+  return ['ok' => true, 'logo' => $bestandsnaam, 'width' => (int) $info[0], 'height' => (int) $info[1]];
 }
 
 // ===== Fotoboek: albums en foto's =====
@@ -1072,7 +1089,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         break;
       }
 
-      $items[] = ['name' => $naam, 'url' => $url, 'logo' => $resultaat['logo']];
+      $items[] = [
+        'name'   => $naam,
+        'url'    => $url,
+        'logo'   => $resultaat['logo'],
+        'width'  => (int) ($resultaat['width'] ?? 0),
+        'height' => (int) ($resultaat['height'] ?? 0),
+      ];
     }
 
     if ($sponsorFout) {
