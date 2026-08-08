@@ -243,7 +243,7 @@
 <nav class="nav" id="main-nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <img src="rc045-logo.png" alt="RC045 logo">
+      <img width="400" height="423" src="rc045-logo.png" alt="RC045 logo">
       <div>
         <span class="nav-logo-text">RC045</span>
       </div>
@@ -432,7 +432,7 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <img src="rc045-logo.png" alt="RC045">
+        <img width="400" height="423" src="rc045-logo.png" alt="RC045">
         <p data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
         <div class="footer-social">
           <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook" id="footer-facebook-link">
@@ -1204,6 +1204,16 @@
         img.src = 'images/sponsors/' + encodeURIComponent(sp.logo) + versie;
         img.alt = sp.name;
         img.className = 'footer-sponsor-logo';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        // Afmetingen van het logobestand staan in sponsors.json (beheer.php leest
+        // ze uit bij het opslaan). Daarmee reserveert de browser meteen de juiste
+        // breedte, zodat de footer niet verspringt zodra de logo's binnen zijn.
+        // Oudere regels zonder die velden blijven gewoon werken.
+        if (sp.width > 0 && sp.height > 0) {
+          img.width = sp.width;
+          img.height = sp.height;
+        }
 
         var kaart = document.createElement('div');
         kaart.className = 'footer-sponsor-card';
