@@ -31,15 +31,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
   <style>
-    body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; color: #292524; background: #FAF6EC; }
-    
-    .nav { position: sticky; top: 0; z-index: 100; background: rgba(255,251,247,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
-    
-    .page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 280px; display: flex; align-items: center; justify-content: center; }
     
     .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/crawlergroep.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
-    
-    .page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.7; }
     
     .main { max-width: 990px; margin: 0 auto; padding: 56px 24px 80px; }
     
@@ -71,14 +64,7 @@
     
     .media-unavailable-tag { display: inline-block; font-size: 11px; font-weight: 700; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 100px; padding: 2px 10px; margin-bottom: 16px; }
     
-    .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 48px 24px 32px; }
-    
     @media (max-width: 700px) {
-      .nav-links { display: none; }
-      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0; background: rgba(255,251,247,0.98); border-bottom: 1px solid var(--border); padding: 12px 24px 20px; gap: 4px; z-index: 99; }
-      .nav-hamburger { display: flex; }
-      .footer-top { grid-template-columns: 1fr; gap: 32px; }
-      .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
       .media-grid { grid-template-columns: 1fr; }
       .media-card { flex-direction: column; gap: 16px; padding: 20px; }
     }
@@ -298,123 +284,12 @@ function setLang(lang) {
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 if (currentLang !== 'nl') setLang(currentLang);
 else updateInternalLinks('nl');
-document.getElementById('hamburger').addEventListener('click', function() {
-  const isOpen = document.querySelector('.nav-links').classList.toggle('open');
-  this.setAttribute('aria-expanded', isOpen);
-});
-window.addEventListener('scroll', function() { document.querySelector('.nav-links').classList.remove('open'); }, { passive: true });
-document.addEventListener('touchstart', function(e) {
-  const nav = document.getElementById('main-nav');
-  if (!nav.contains(e.target)) document.querySelector('.nav-links').classList.remove('open');
-});
 const heroBg = document.getElementById('hero-bg');
 window.addEventListener('scroll', function() {
   const scrollY = window.scrollY;
   if (scrollY < window.innerHeight * 1.2) heroBg.style.transform = `translateY(${scrollY * 0.5}px)`;
 }, { passive: true });
-const backToTop = document.getElementById('backToTop');
-window.addEventListener('scroll', function() {
-  backToTop.classList.toggle('visible', window.scrollY > 400);
-}, { passive: true });
-
-  // ===== SPONSORS (data/sponsors.json, bijwerken via beheer.php) =====
-  // sponsorCtaData/renderSponsorCta(): de "sponsor worden?"-tekst onder de
-  // logo's, vertaald per taal met NL-terugval. Het woord "contactformulier"
-  // (of de vertaling ervan) wordt automatisch een link naar het
-  // contactformulier op de homepage; dat gebeurt puur op basis van dat woord
-  // in de tekst.
-  var sponsorCtaData = null;
-  var sponsorCtaDefault = {
-    nl: 'Sponsor worden? Neem contact op via het contactformulier.',
-    en: 'Want to become a sponsor? Get in touch via the contact form.',
-    de: 'Sponsor werden? Kontaktieren Sie uns über das Kontaktformular.'
-  };
-  var sponsorCtaKeyword = { nl: 'contactformulier', en: 'contact form', de: 'Kontaktformular' };
-  var sponsorContactLink = 'index.html#contact';
-
-  function renderSponsorCta() {
-    var el = document.getElementById('footer-sponsors-cta');
-    if (!el) return;
-    // setLang() kan hier al langskomen voordat sponsorCtaDefault verderop in
-    // het script is toegekend (bij een andere starttaal dan Nederlands).
-    // Dan gewoon stoppen: de fetch van sponsors.json roept dit later opnieuw aan.
-    if (!sponsorCtaDefault) return;
-    var bron = sponsorCtaData || sponsorCtaDefault;
-    var tekst = bron[currentLang] || bron.nl || sponsorCtaDefault[currentLang] || sponsorCtaDefault.nl;
-    var keyword = sponsorCtaKeyword[currentLang] || sponsorCtaKeyword.nl;
-    el.textContent = '';
-    var idx = tekst.toLowerCase().indexOf(keyword.toLowerCase());
-    if (idx === -1) {
-      el.textContent = tekst;
-      return;
-    }
-    el.appendChild(document.createTextNode(tekst.slice(0, idx)));
-    var a = document.createElement('a');
-    a.href = sponsorContactLink;
-    a.textContent = tekst.slice(idx, idx + keyword.length);
-    el.appendChild(a);
-    el.appendChild(document.createTextNode(tekst.slice(idx + keyword.length)));
-  }
-
-  fetch('data/sponsors.json', { cache: 'no-store' })
-    .then(function(r) { return r.ok ? r.json() : null; })
-    .then(function(d) {
-      if (d && d.cta) sponsorCtaData = d.cta;
-      renderSponsorCta();
-
-      if (!d || !Array.isArray(d.items) || d.items.length === 0) return;
-      var grid = document.getElementById('sponsors-grid');
-      if (!grid) return;
-      var versie = d.updated ? ('?v=' + encodeURIComponent(d.updated)) : '';
-
-      d.items.forEach(function(sp) {
-        if (!sp || !sp.name || !sp.logo) return;
-
-        var img = document.createElement('img');
-        img.src = 'images/sponsors/' + encodeURIComponent(sp.logo) + versie;
-        img.alt = sp.name;
-        img.className = 'footer-sponsor-logo';
-        img.loading = 'lazy';
-        img.decoding = 'async';
-        // Afmetingen van het logobestand staan in sponsors.json (beheer.php leest
-        // ze uit bij het opslaan). Daarmee reserveert de browser meteen de juiste
-        // breedte, zodat de footer niet verspringt zodra de logo's binnen zijn.
-        // Oudere regels zonder die velden blijven gewoon werken.
-        if (sp.width > 0 && sp.height > 0) {
-          img.width = sp.width;
-          img.height = sp.height;
-        }
-
-        var kaart = document.createElement('div');
-        kaart.className = 'footer-sponsor-card';
-        kaart.appendChild(img);
-
-        if (sp.url && /^https?:\/\//i.test(sp.url)) {
-          var link = document.createElement('a');
-          link.href = sp.url;
-          link.target = '_blank';
-          link.rel = 'noopener noreferrer';
-          link.style.display = 'contents';
-          link.appendChild(kaart);
-          grid.appendChild(link);
-        } else {
-          grid.appendChild(kaart);
-        }
-      });
-    })
-    .catch(function() { renderSponsorCta(); });
-
-  // ===== FOOTER FACEBOOK-LINK (data/contact.json, bijwerken via beheer.php) =====
-  fetch('data/contact.json', { cache: 'no-store' })
-    .then(function(r) { return r.ok ? r.json() : null; })
-    .then(function(d) {
-      if (!d || !d.facebook) return;
-      var el = document.getElementById('footer-facebook-link');
-      if (el) el.href = d.facebook;
-    })
-    .catch(function() {});
-
-  // ===== MEDIA / PERSBERICHTEN (data/media.json, bijwerken via beheer.php) =====
+// ===== MEDIA / PERSBERICHTEN (data/media.json, bijwerken via beheer.php) =====
   // Nederlands is verplicht per kaart; Engels/Duits vallen terug op Nederlands
   // als het bestuur die niet heeft ingevuld. renderMedia() tekent opnieuw bij
   // elke taalwissel (aangeroepen vanuit setLang), zodat de datumnotatie klopt.
