@@ -951,6 +951,14 @@
           window.goatcounter.count({ path: 'aanmelding-verzonden', title: 'Aanmelding verzonden', event: true });
         }
         openBedankt();
+        // Daarnaast naar onze eigen server, zodat de aanmelding meteen in het
+        // ledenbestand komt met de status "in verificatie". Bewust pas hier,
+        // na Formspree: gaat dit mis, dan staat de aanmelding nog steeds in de
+        // mail aan het bestuur en merkt de bezoeker er niets van.
+        fetch('aanmelden-ontvangst.php', {
+          method: 'POST',
+          body: new FormData(form)
+        }).catch(function() { /* stil falen, de mail is al onderweg */ });
       } else {
         throw new Error();
       }
