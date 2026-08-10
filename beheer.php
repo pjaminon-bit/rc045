@@ -2738,7 +2738,11 @@ if ($isMaster && file_exists($logBestand)) {
     .multiselect-acties button:hover { background: var(--teal-light); }
     .knop-klein { width: auto; background: none; border: 1px solid var(--border); color: var(--rust); font-size: 13px; font-weight: 600; padding: 6px 12px; white-space: nowrap; }
     .knop-klein:hover { background: #FDECEA; border-color: #F5B7B1; }
-    .kaart-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    /* .sub binnen kaart-header staat zelf op margin-bottom 0 (geen extra
+       ruimte tussen titel+tekst en de knop ernaast in dezelfde rij), maar
+       zonder eigen margin-bottom hier plakte alles wat na de header komt
+       (melding, formulier) daardoor direct tegen de tekst aan. */
+    .kaart-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
     .kaart-header h1 { margin-bottom: 4px; }
     .kaart-header .sub { margin-bottom: 0; }
     .knop-toevoegen { width: auto; background: var(--gold); color: var(--dark); font-size: 14px; font-weight: 700; padding: 11px 20px; white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 8px rgba(200,154,26,0.35); }
