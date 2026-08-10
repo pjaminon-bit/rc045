@@ -973,9 +973,71 @@ $ingelogd = $configOk && isset($_SESSION['gebruiker']);
 $huidigeGebruiker = $_SESSION['gebruiker'] ?? '';
 $isMaster = $ingelogd && !empty($_SESSION['is_master']);
 
+// ===== Rechten per gebruiker =====
+// Alle beheer-onderdelen die je per gewone gebruiker aan/uit kan zetten.
+// Gebruikers, Log en Back-ups horen hier bewust niet bij: die blijven altijd
+// beheerder-only, dat is geen instelling die je per gebruiker kan weggeven.
+$beheerTabsAlle = [
+  'mededeling' => 'Openingstijden',
+  'nieuws'     => 'Nieuws',
+  'agenda'     => 'Agenda',
+  'faq'        => 'Vragen',
+  'sponsors'   => 'Sponsors',
+  'contact'    => 'Contact',
+  'media'      => 'Media',
+  'fotoboek'   => 'Fotoboek',
+  'leden'      => 'Leden',
+  'rekentabel' => 'Rekentabel',
+];
+
+// Het eigen gebruikersrecord opzoeken (voor de rechten hieronder). Alleen
+// nodig voor gewone gebruikers, de beheerder (master) mag toch altijd alles.
+$huidigeGebruikerRecord = null;
+if ($ingelogd && !$isMaster) {
+  foreach (laadGebruikers($usersBestand) as $g) {
+    if (isset($g['gebruikersnaam']) && strcasecmp($g['gebruikersnaam'], $huidigeGebruiker) === 0) {
+      $huidigeGebruikerRecord = $g;
+      break;
+    }
+  }
+}
+
+// Welke tabs mag deze sessie zien/opslaan? Master: alles. Gewone gebruiker
+// zonder 'tabs'-veld (nog nooit ingesteld via Gebruikers): ook alles, net als
+// voor deze functie bestond, zodat bestaande gebruikers niet ineens buiten
+// de deur staan. Pas als er via Gebruikers expliciet een selectie is
+// opgeslagen, geldt die beperking.
+if ($isMaster) {
+  $toegestaneTabs = array_keys($beheerTabsAlle);
+} elseif ($huidigeGebruikerRecord && isset($huidigeGebruikerRecord['tabs']) && is_array($huidigeGebruikerRecord['tabs'])) {
+  $toegestaneTabs = array_values(array_intersect(array_keys($beheerTabsAlle), $huidigeGebruikerRecord['tabs']));
+} else {
+  $toegestaneTabs = array_keys($beheerTabsAlle);
+}
+
+// Welk formulier hoort bij welk tabblad, om save-acties ook serverside te
+// blokkeren voor een tabblad waar iemand geen toegang toe heeft. Dit is de
+// echte beveiliging; het menu en de tabbladen hieronder verbergen dingen
+// alleen aan de oppervlakte, iemand die het hash-adres (#leden e.d.) direct
+// intypt mag zonder deze check nog steeds gewoon opslaan.
+$formulierTab = [
+  'actueel' => 'mededeling', 'agenda' => 'agenda', 'faq' => 'faq', 'sponsors' => 'sponsors',
+  'contact' => 'contact', 'media' => 'media', 'nieuws' => 'nieuws', 'rekentabel' => 'rekentabel',
+  'fotoboek_album_aanmaken' => 'fotoboek', 'fotoboek_album_bewerken' => 'fotoboek',
+  'leden_opslaan' => 'leden', 'leden_verwijderen' => 'leden', 'leden_status' => 'leden',
+  'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
+  'leden_import_annuleren' => 'leden',
+];
+
 // ===== Inhoud opslaan (openingstijden / agenda / faq / sponsors / gebruikers) =====
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
   $formulier = $_POST['formulier'] ?? '';
+  if (isset($formulierTab[$formulier]) && !in_array($formulierTab[$formulier], $toegestaneTabs, true)) {
+    // Geen toegang tot dit tabblad: net doen alsof er geen bekend formulier
+    // is binnengekomen, dan gebeurt er verderop simpelweg niets.
+    schrijfLog($logBestand, $huidigeGebruiker, 'toegang_geweigerd', $formulier);
+    $formulier = '';
+  }
 
   // Eén lock over het hele opslaan-blok: van inlezen van het huidige JSON-bestand
   // tot wegschrijven van de nieuwe versie. Zonder dit zouden twee gelijktijdige
@@ -1794,6 +1856,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $nieuweNaam = trim($_POST['nieuwe_gebruikersnaam'] ?? '');
     $nieuwWachtwoord = $_POST['nieuw_wachtwoord'] ?? '';
     $nieuwWachtwoordHerhaald = $_POST['nieuw_wachtwoord_herhaald'] ?? '';
+    // Alleen bekende tabsleutels overnemen; onbekende waarden (geknoei met
+    // het formulier) worden gewoon genegeerd.
+    $gekozenTabs = array_values(array_intersect(array_keys($beheerTabsAlle), (array) ($_POST['tabs'] ?? [])));
 
     if ($nieuweNaam === '' || !preg_match('/^[a-zA-Z0-9._-]{2,30}$/', $nieuweNaam)) {
       $melding['gebruikers'] = 'Gebruikersnaam moet 2 tot 30 tekens zijn: letters, cijfers, punt, streepje of underscore.';
@@ -1812,6 +1877,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $bestondAl = false;
       foreach ($gebruikers as &$g) {
         if (strcasecmp($g['gebruikersnaam'], $nieuweNaam) === 0) {
+          // Alleen het wachtwoord: de toegang van een bestaande gebruiker
+          // pas je hierboven per gebruiker aan, niet hier. Dit formulier
+          // toont altijd alles aangevinkt (het is het "nieuwe gebruiker"-
+          // formulier), dus zou anders per ongeluk bestaande beperkingen
+          // resetten bij een simpele wachtwoord-reset.
           $g['hash'] = password_hash($nieuwWachtwoord, PASSWORD_DEFAULT);
           $bestondAl = true;
           break;
@@ -1819,7 +1889,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       }
       unset($g);
       if (!$bestondAl) {
-        $gebruikers[] = ['gebruikersnaam' => $nieuweNaam, 'hash' => password_hash($nieuwWachtwoord, PASSWORD_DEFAULT), 'aangemaakt' => date('c')];
+        $gebruikers[] = ['gebruikersnaam' => $nieuweNaam, 'hash' => password_hash($nieuwWachtwoord, PASSWORD_DEFAULT), 'aangemaakt' => date('c'), 'tabs' => $gekozenTabs];
       }
       if (schrijfGebruikers($usersBestand, $gebruikers)) {
         $melding['gebruikers'] = $bestondAl ? ('Wachtwoord van "' . $nieuweNaam . '" is bijgewerkt.') : ('Gebruiker "' . $nieuweNaam . '" is aangemaakt.');
@@ -1829,6 +1899,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $melding['gebruikers'] = 'Opslaan mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
         $meldingType['gebruikers'] = 'fout';
       }
+    }
+
+  } elseif ($formulier === 'gebruiker_tabs_bijwerken' && $isMaster) {
+    // Alleen de toegang aanpassen, los van het wachtwoord: dit is de knop
+    // per gebruiker in het overzicht, niet het formulier hieronder.
+    $doelNaam = trim($_POST['gebruikersnaam'] ?? '');
+    $gekozenTabs = array_values(array_intersect(array_keys($beheerTabsAlle), (array) ($_POST['tabs'] ?? [])));
+    $gebruikers = laadGebruikers($usersBestand);
+    $gevonden = false;
+    foreach ($gebruikers as &$g) {
+      if (isset($g['gebruikersnaam']) && strcasecmp($g['gebruikersnaam'], $doelNaam) === 0) {
+        $g['tabs'] = $gekozenTabs;
+        $gevonden = true;
+        break;
+      }
+    }
+    unset($g);
+    if (!$gevonden) {
+      $melding['gebruikers'] = 'Gebruiker niet gevonden.';
+      $meldingType['gebruikers'] = 'fout';
+    } elseif (schrijfGebruikers($usersBestand, $gebruikers)) {
+      $melding['gebruikers'] = 'Toegang van "' . $doelNaam . '" is bijgewerkt.';
+      $meldingType['gebruikers'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'toegang_bijgewerkt', $doelNaam . ': ' . ($gekozenTabs ? implode(', ', $gekozenTabs) : 'geen tabs'));
+    } else {
+      $melding['gebruikers'] = 'Opslaan mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+      $meldingType['gebruikers'] = 'fout';
     }
 
   } elseif ($formulier === 'gebruiker_verwijderen' && $isMaster) {
@@ -2535,15 +2632,19 @@ if ($isMaster && file_exists($logBestand)) {
     .menu-item { width: 100%; text-align: left; flex: 0 0 auto; background: none; border: none; padding: 8px 12px; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
     .menu-item:hover { background: var(--teal-light); color: var(--teal-dark); }
     .menu-item.actief { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 2px 0 0 var(--teal); }
+    .beheer-menu-knop { display: none; }
     @media (max-width: 860px) {
-      /* Op smalle schermen geen tweede kolom, en geen uitwaaierende tabs
-         over meerdere rommelige regels: één rij die je opzij kunt vegen,
-         net als een tabbalk in een app. */
+      /* Op smalle schermen geen tweede kolom, en het menu wordt een
+         hamburger: dichtgeklapt standaard, open je hem dan valt hij als
+         paneel open onder de knop, net als het mobiele menu op de
+         hoofdsite. */
       .beheer-layout { flex-direction: column; }
-      .menu { position: static; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; flex: 0 0 auto; max-height: none; margin: 0 0 4px; border-radius: 10px; scrollbar-width: none; }
-      .menu::-webkit-scrollbar { display: none; }
-      .menu-item { width: auto; flex: 0 0 auto; white-space: nowrap; text-align: center; }
-      .menu-item.actief { box-shadow: inset 0 -2px 0 var(--teal); }
+      .beheer-menu-knop { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; }
+      .beheer-menu-knop .streepjes { font-size: 18px; line-height: 1; }
+      .menu { position: static; display: none; flex-direction: column; gap: 2px; width: 100%; flex: 0 0 auto; max-height: 60vh; overflow-y: auto; background: var(--white); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 24px rgba(0,0,0,0.12); padding: 8px; margin: 4px 0; }
+      .menu.open { display: flex; }
+      .menu-item { width: 100%; text-align: left; }
+      .menu-item.actief { box-shadow: inset 2px 0 0 var(--teal); }
     }
     .tab-paneel { display: none; flex-direction: column; gap: 16px; }
 
@@ -2597,10 +2698,15 @@ if ($isMaster && file_exists($logBestand)) {
     .ingelogd-balk a:hover { text-decoration: underline; }
     .link-knop { width: auto; background: none; border: none; padding: 0; margin: 0; font: inherit; font-weight: 600; color: var(--teal-dark); text-decoration: none; cursor: pointer; }
     .link-knop:hover { text-decoration: underline; background: none; }
-    .gebruiker-rij { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+    .gebruiker-rij { display: flex; flex-direction: column; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .gebruiker-rij:last-child { border-bottom: none; }
     .gebruiker-rij form { margin: 0; }
+    .gebruiker-rij-boven { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
     .gebruiker-sinds { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+    .gebruiker-tabs-form { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; background: var(--bg); border-radius: 8px; padding: 10px; }
+    .gebruiker-tabs-form .veld { margin: 0; }
+    .gebruiker-tabs-form select { width: auto; min-width: 170px; }
+    @media (max-width: 480px) { .gebruiker-tabs-form { align-items: stretch; } .gebruiker-tabs-form select { width: 100%; } }
     .knop-klein { width: auto; background: none; border: 1px solid var(--border); color: var(--rust); font-size: 13px; font-weight: 600; padding: 6px 12px; white-space: nowrap; }
     .knop-klein:hover { background: #FDECEA; border-color: #F5B7B1; }
     .kaart-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
@@ -2694,26 +2800,26 @@ if ($isMaster && file_exists($logBestand)) {
     <?php endif; ?>
 
     <div class="beheer-layout">
-    <nav class="menu">
-      <button type="button" class="menu-item" data-tab="mededeling">Openingstijden</button>
-      <button type="button" class="menu-item" data-tab="nieuws">Nieuws</button>
-      <button type="button" class="menu-item" data-tab="agenda">Agenda</button>
-      <button type="button" class="menu-item" data-tab="faq">Vragen</button>
-      <button type="button" class="menu-item" data-tab="sponsors">Sponsors</button>
-      <button type="button" class="menu-item" data-tab="contact">Contact</button>
-      <button type="button" class="menu-item" data-tab="media">Media</button>
-      <button type="button" class="menu-item" data-tab="fotoboek">Fotoboek</button>
-      <button type="button" class="menu-item" data-tab="leden">Leden</button>
-      <?php if ($isMaster): ?>
+    <button type="button" class="beheer-menu-knop" id="beheer-menu-knop" aria-expanded="false" aria-controls="beheer-menu">
+      <span id="beheer-menu-huidig">Menu</span>
+      <span class="streepjes" aria-hidden="true">☰</span>
+    </button>
+    <nav class="menu" id="beheer-menu">
+      <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
+        <?php if (in_array($tabSleutel, $toegestaneTabs, true)): ?>
+      <button type="button" class="menu-item" data-tab="<?php echo $tabSleutel; ?>"><?php echo htmlspecialchars($tabLabel); ?></button>
+        <?php endif; ?>
+        <?php if ($tabSleutel === 'leden' && $isMaster): ?>
       <button type="button" class="menu-item" data-tab="gebruikers">Gebruikers</button>
       <button type="button" class="menu-item" data-tab="log">Log</button>
       <button type="button" class="menu-item" data-tab="backups">Back-ups</button>
-      <?php endif; ?>
-      <button type="button" class="menu-item" data-tab="rekentabel">Rekentabel</button>
+        <?php endif; ?>
+      <?php endforeach; ?>
     </nav>
 
     <div class="beheer-inhoud">
 
+    <?php if (in_array('mededeling', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-mededeling">
     <!-- ===== AFWIJKENDE OPENINGSTIJDEN ===== -->
     <div class="kaart">
@@ -2741,6 +2847,9 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <?php endif; ?>
+
+    <?php if (in_array('nieuws', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-nieuws">
     <!-- ===== NIEUWS / UPDATES (blok op de homepage) ===== -->
     <div class="kaart">
@@ -2835,6 +2944,9 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <?php endif; ?>
+
+    <?php if (in_array('agenda', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-agenda">
     <!-- ===== AGENDA ===== -->
     <div class="kaart">
@@ -2945,6 +3057,9 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <?php endif; ?>
+
+    <?php if (in_array('faq', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-faq">
     <!-- ===== VEELGESTELDE VRAGEN ===== -->
     <div class="kaart">
@@ -3017,6 +3132,9 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <?php endif; ?>
+
+    <?php if (in_array('sponsors', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-sponsors">
     <!-- ===== SPONSORS ===== -->
     <div class="kaart">
@@ -3085,6 +3203,9 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <?php endif; ?>
+
+    <?php if (in_array('contact', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-contact">
     <!-- ===== CONTACT & OPENINGSTIJDEN ===== -->
     <div class="kaart kaart-smal">
@@ -3166,6 +3287,9 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <?php endif; ?>
+
+    <?php if (in_array('media', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-media">
     <!-- ===== MEDIA / PERSBERICHTEN ===== -->
     <div class="kaart">
@@ -3271,6 +3395,9 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <?php endif; ?>
+
+    <?php if (in_array('fotoboek', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-fotoboek">
     <!-- ===== FOTOBOEK ===== -->
     <div class="kaart">
@@ -3462,6 +3589,8 @@ if ($isMaster && file_exists($logBestand)) {
     <?php endforeach; ?>
     </div>
 
+    <?php endif; ?>
+
     <?php if ($isMaster): ?>
 
     <div class="tab-paneel" id="tab-gebruikers">
@@ -3478,18 +3607,41 @@ if ($isMaster && file_exists($logBestand)) {
         <p class="hint">Nog geen gebruikers aangemaakt.</p>
       <?php else: ?>
         <?php foreach ($gebruikersLijst as $g): ?>
+          <?php
+            // Geen 'tabs'-veld opgeslagen (nog nooit ingesteld) betekent
+            // hier, net als bij het bepalen van de echte rechten hierboven,
+            // volledige toegang: alle vinkjes staan dan aan.
+            $gHeeftBeperking = isset($g['tabs']) && is_array($g['tabs']);
+          ?>
           <div class="gebruiker-rij">
-            <div>
-              <strong><?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?></strong>
-              <?php if (!empty($g['aangemaakt'])): ?>
-                <span class="gebruiker-sinds">sinds <?php echo htmlspecialchars(date('d-m-Y', strtotime($g['aangemaakt']))); ?></span>
-              <?php endif; ?>
+            <div class="gebruiker-rij-boven">
+              <div>
+                <strong><?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?></strong>
+                <?php if (!empty($g['aangemaakt'])): ?>
+                  <span class="gebruiker-sinds">sinds <?php echo htmlspecialchars(date('d-m-Y', strtotime($g['aangemaakt']))); ?></span>
+                <?php endif; ?>
+              </div>
+              <form method="post" action="beheer.php#gebruikers" onsubmit="return confirm('Gebruiker &quot;<?php echo htmlspecialchars($g['gebruikersnaam'] ?? '', ENT_QUOTES); ?>&quot; verwijderen?');">
+                <input type="hidden" name="formulier" value="gebruiker_verwijderen">
+                <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+                <input type="hidden" name="gebruikersnaam" value="<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>">
+                <button type="submit" class="knop-klein">Verwijderen</button>
+              </form>
             </div>
-            <form method="post" action="beheer.php#gebruikers" onsubmit="return confirm('Gebruiker &quot;<?php echo htmlspecialchars($g['gebruikersnaam'] ?? '', ENT_QUOTES); ?>&quot; verwijderen?');">
-              <input type="hidden" name="formulier" value="gebruiker_verwijderen">
+            <form method="post" action="beheer.php#gebruikers" class="gebruiker-tabs-form">
+              <input type="hidden" name="formulier" value="gebruiker_tabs_bijwerken">
               <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
               <input type="hidden" name="gebruikersnaam" value="<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>">
-              <button type="submit" class="knop-klein">Verwijderen</button>
+              <div class="veld">
+                <label for="gebruiker-tabs-<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>">Toegang tot</label>
+                <select id="gebruiker-tabs-<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>" name="tabs[]" multiple size="<?php echo count($beheerTabsAlle); ?>">
+                  <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
+                    <option value="<?php echo $tabSleutel; ?>" <?php if (!$gHeeftBeperking || in_array($tabSleutel, $g['tabs'], true)) echo 'selected'; ?>><?php echo htmlspecialchars($tabLabel); ?></option>
+                  <?php endforeach; ?>
+                </select>
+                <p class="hint">Ctrl (Windows) of Cmd (Mac) ingedrukt houden om meerdere te kiezen, of los te maken.</p>
+              </div>
+              <button type="submit" class="knop-klein">Toegang opslaan</button>
             </form>
           </div>
         <?php endforeach; ?>
@@ -3514,6 +3666,15 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="veld">
           <label for="nieuw-wachtwoord-herhaald">Wachtwoord herhalen</label>
           <input type="password" id="nieuw-wachtwoord-herhaald" name="nieuw_wachtwoord_herhaald" autocomplete="new-password" required>
+        </div>
+        <div class="veld">
+          <label for="nieuwe-gebruiker-tabs">Toegang tot</label>
+          <select id="nieuwe-gebruiker-tabs" name="tabs[]" multiple size="<?php echo count($beheerTabsAlle); ?>">
+            <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
+              <option value="<?php echo $tabSleutel; ?>" selected><?php echo htmlspecialchars($tabLabel); ?></option>
+            <?php endforeach; ?>
+          </select>
+          <p class="hint">Standaard staat alles aan. Ctrl (Windows) of Cmd (Mac) ingedrukt houden om er een paar los te maken. Geldt alleen bij het aanmaken van een nieuwe gebruiker; bij een bestaande gebruikersnaam (wachtwoord-reset) blijft de huidige toegang ongewijzigd, pas die hierboven per gebruiker aan.</p>
         </div>
         <button type="submit">Gebruiker opslaan</button>
       </form>
@@ -3587,6 +3748,7 @@ if ($isMaster && file_exists($logBestand)) {
 
     <?php endif; ?>
 
+    <?php if (in_array('leden', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-leden">
     <!-- ===== LEDENADMINISTRATIE ===== -->
 
@@ -3949,6 +4111,9 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <?php endif; ?>
+
+    <?php if (in_array('rekentabel', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-rekentabel">
     <!-- ===== REKENTABEL CONTRIBUTIE (bewerkbaar) ===== -->
     <div class="kaart">
@@ -4018,6 +4183,8 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     </div>
 
+    <?php endif; ?>
+
     <a class="terug" href="index.html">Naar de website</a>
 
     </div>
@@ -4039,6 +4206,29 @@ if ($isMaster && file_exists($logBestand)) {
         return btn.getAttribute('data-tab');
       });
 
+      // ===== Hamburger (alleen zichtbaar op smalle schermen, zie CSS) =====
+      var menuNav = document.getElementById('beheer-menu');
+      var menuKnop = document.getElementById('beheer-menu-knop');
+      var menuHuidigLabel = document.getElementById('beheer-menu-huidig');
+
+      function sluitMobielMenu() {
+        if (menuNav) menuNav.classList.remove('open');
+        if (menuKnop) menuKnop.setAttribute('aria-expanded', 'false');
+      }
+
+      if (menuKnop && menuNav) {
+        menuKnop.addEventListener('click', function() {
+          var open = menuNav.classList.toggle('open');
+          menuKnop.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        // Ergens anders op de pagina klikken terwijl het paneel open staat: dicht.
+        document.addEventListener('click', function(e) {
+          if (!menuNav.classList.contains('open')) return;
+          if (menuNav.contains(e.target) || menuKnop.contains(e.target)) return;
+          sluitMobielMenu();
+        });
+      }
+
       function toonTab(naam) {
         if (tabs.indexOf(naam) === -1) naam = tabs[0];
         tabs.forEach(function(t) {
@@ -4046,7 +4236,9 @@ if ($isMaster && file_exists($logBestand)) {
           if (paneel) paneel.style.display = (t === naam) ? 'flex' : 'none';
         });
         menuItems.forEach(function(btn) {
-          btn.classList.toggle('actief', btn.getAttribute('data-tab') === naam);
+          var actief = btn.getAttribute('data-tab') === naam;
+          btn.classList.toggle('actief', actief);
+          if (actief && menuHuidigLabel) menuHuidigLabel.textContent = btn.textContent.trim();
         });
       }
 
@@ -4055,6 +4247,7 @@ if ($isMaster && file_exists($logBestand)) {
           var naam = btn.getAttribute('data-tab');
           history.replaceState(null, '', '#' + naam);
           toonTab(naam);
+          sluitMobielMenu();
           btn.scrollIntoView({ block: 'nearest', inline: 'center' });
         });
       });
