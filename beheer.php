@@ -3599,7 +3599,7 @@ $ledenJeugdTot = (int) $rekentabelData['jeugd_leeftijd_tot'];
 $ledenTellingen = [];
 foreach (array_keys($ledenStatusLabels) as $s) $ledenTellingen[$s] = 0;
 foreach ($ledenLijst as $l) {
-  $s = $l['status'] ?? 'verificatie';
+  $s = $l['status'] ?? 'nieuw';
   if (isset($ledenTellingen[$s])) $ledenTellingen[$s]++;
 }
 
@@ -3609,7 +3609,7 @@ $ledenBewerkLid = null;
 $ledenBewerkNieuw = false;
 if ($ledenBewerkId === 'nieuw') {
   $ledenBewerkNieuw = true;
-  $ledenBewerkLid = ledenNormaliseer(['status' => 'verificatie', 'inschrijfdatum' => date('Y-m-d')]);
+  $ledenBewerkLid = ledenNormaliseer(['status' => 'nieuw', 'inschrijfdatum' => date('Y-m-d')]);
   $ledenBewerkLid['nummer'] = ledenVolgendNummer($ledenData);
 } elseif ($ledenBewerkId !== '') {
   foreach ($ledenLijst as $l) {
@@ -3802,6 +3802,7 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-kop { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--dark); margin: 24px 0 6px; }
     .leden-telling { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
     .leden-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 700; white-space: nowrap; background: #EEE; color: #444; }
+    .lb-nieuw { background: #EDE7F6; color: #4527A0; }
     .lb-verificatie { background: #FEF3C7; color: #92400E; }
     .lb-wacht_op_betaling { background: #FDE7D9; color: #8B3319; }
     .lb-actief { background: #E8F5E9; color: #1B5E20; }
@@ -3817,6 +3818,11 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-tabel-wrap { overflow-x: auto; }
     .leden-tabel { width: 100%; border-collapse: collapse; font-size: 13px; }
     .leden-tabel th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 8px 10px; border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+    .leden-tabel th[data-kolom] { cursor: pointer; user-select: none; }
+    .leden-tabel th[data-kolom]:hover, .leden-tabel th[data-kolom]:focus-visible { color: var(--teal-dark); }
+    .leden-tabel th[data-kolom]::after { content: '\2195'; display: inline-block; margin-left: 5px; opacity: 0.35; font-size: 10px; }
+    .leden-tabel th[data-kolom].leden-sorteer-op::after { content: '\2191'; opacity: 1; }
+    .leden-tabel th[data-kolom].leden-sorteer-op.leden-sorteer-aflopend::after { content: '\2193'; }
     .leden-tabel td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
     .leden-tabel tbody tr:hover { background: var(--teal-light); }
     .leden-tabel .knop-klein { color: var(--teal-dark); display: inline-block; text-decoration: none; }
@@ -5527,24 +5533,34 @@ if ($isMaster && file_exists($logBestand)) {
           <table class="leden-tabel" id="leden-tabel">
             <thead>
               <tr>
-                <th>Nr</th>
-                <th>Naam</th>
-                <th>Leeftijd</th>
-                <th>Status</th>
-                <th>Contributie <?php echo $ledenJaar; ?></th>
-                <th>Contact</th>
+                <th data-kolom="nr" role="button" tabindex="0">Nr</th>
+                <th data-kolom="naam" role="button" tabindex="0">Naam</th>
+                <th data-kolom="leeftijd" role="button" tabindex="0">Leeftijd</th>
+                <th data-kolom="status" role="button" tabindex="0">Status</th>
+                <th data-kolom="contributie" role="button" tabindex="0">Contributie <?php echo $ledenJaar; ?></th>
+                <th data-kolom="contact" role="button" tabindex="0">Contact</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
+              <?php $ledenStatusVolgorde = array_flip(array_keys($ledenStatusLabels)); ?>
               <?php foreach ($ledenLijst as $l): ?>
                 <?php
                   $leeftijd = ledenLeeftijd($l['geboortedatum'] ?? '');
                   $jeugd = ledenIsJeugd($l, $ledenJeugdTot, $ledenJaar);
                   $c = $l['contributie'][(string) $ledenJaar] ?? null;
                   $zoek = strtolower(ledenVolledigeNaam($l) . ' ' . ($l['email'] ?? '') . ' ' . ($l['telefoon'] ?? '') . ' ' . ($l['nummer'] ?? '') . ' ' . ($l['gemeente'] ?? ''));
+                  $sorteerStatus = $ledenStatusVolgorde[$l['status'] ?? ''] ?? 999;
+                  $sorteerContributie = ($c !== null && $c['bedrag'] !== null) ? (float) $c['bedrag'] : -1;
+                  $sorteerContact = strtolower(trim((($l['email'] ?? '') !== '') ? $l['email'] : ($l['telefoon'] ?? '')));
                 ?>
-                <tr data-status="<?php echo htmlspecialchars($l['status'] ?? ''); ?>" data-zoek="<?php echo htmlspecialchars($zoek); ?>">
+                <tr data-status="<?php echo htmlspecialchars($l['status'] ?? ''); ?>" data-zoek="<?php echo htmlspecialchars($zoek); ?>"
+                    data-sort-nr="<?php echo (int) ($l['nummer'] ?? 0); ?>"
+                    data-sort-naam="<?php echo htmlspecialchars(ledenSorteernaam($l)); ?>"
+                    data-sort-leeftijd="<?php echo $leeftijd === null ? -1 : (int) $leeftijd; ?>"
+                    data-sort-status="<?php echo (int) $sorteerStatus; ?>"
+                    data-sort-contributie="<?php echo htmlspecialchars((string) $sorteerContributie); ?>"
+                    data-sort-contact="<?php echo htmlspecialchars($sorteerContact); ?>">
                   <td><?php echo htmlspecialchars((string) ($l['nummer'] ?? '')); ?></td>
                   <td>
                     <strong><?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?></strong>
@@ -6442,6 +6458,59 @@ if ($isMaster && file_exists($logBestand)) {
 
       zoek.addEventListener('input', filteren);
       filter.addEventListener('change', filteren);
+
+      // ===== Sorteren op kolom =====
+      // Klik op een kolomkop sorteert erop; nog een keer klikken keert de
+      // volgorde om. Werkt los van het zoeken/filteren hierboven, want dat
+      // verbergt alleen rijen (hidden) en verandert de volgorde niet.
+      var tbody = tabel.querySelector('tbody');
+      var koppen = tabel.querySelectorAll('thead th[data-kolom]');
+      var sorteerKolom = null;
+      var sorteerRichting = 1; // 1 = oplopend, -1 = aflopend
+
+      function sorteerWaarde(rij, kolom) {
+        return rij.getAttribute('data-sort-' + kolom) || '';
+      }
+
+      function vergelijkRijen(a, b) {
+        var wa = sorteerWaarde(a, sorteerKolom);
+        var wb = sorteerWaarde(b, sorteerKolom);
+        var na = parseFloat(wa);
+        var nb = parseFloat(wb);
+        var beideGetallen = wa !== '' && wb !== '' && !isNaN(na) && !isNaN(nb);
+        if (beideGetallen) return (na - nb) * sorteerRichting;
+        return wa.localeCompare(wb, 'nl') * sorteerRichting;
+      }
+
+      function sorteerTabel() {
+        if (!sorteerKolom) return;
+        var volgorde = Array.prototype.slice.call(rijen).sort(vergelijkRijen);
+        volgorde.forEach(function (rij) { tbody.appendChild(rij); });
+      }
+
+      Array.prototype.forEach.call(koppen, function (kop) {
+        function activeer() {
+          var kolom = kop.getAttribute('data-kolom');
+          if (sorteerKolom === kolom) {
+            sorteerRichting = sorteerRichting * -1;
+          } else {
+            sorteerKolom = kolom;
+            sorteerRichting = 1;
+          }
+          Array.prototype.forEach.call(koppen, function (k) {
+            k.classList.remove('leden-sorteer-op', 'leden-sorteer-aflopend');
+            k.removeAttribute('aria-sort');
+          });
+          kop.classList.add('leden-sorteer-op');
+          if (sorteerRichting === -1) kop.classList.add('leden-sorteer-aflopend');
+          kop.setAttribute('aria-sort', sorteerRichting === 1 ? 'ascending' : 'descending');
+          sorteerTabel();
+        }
+        kop.addEventListener('click', activeer);
+        kop.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activeer(); }
+        });
+      });
     })();
   </script>
   <?php endif; ?>

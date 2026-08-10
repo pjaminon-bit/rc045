@@ -5,7 +5,7 @@
 // aanmelden.html stuurt het formulier eerst naar Formspree (daar komt
 // de mail aan het bestuur vandaan) en daarna nog een keer hierheen.
 // Deze pagina zet de aanmelding in het ledenbestand met de status
-// "In verificatie", want of er betaald is weten we op dat moment nog
+// "Nieuw", want of er betaald is weten we op dat moment nog
 // niet. Gaat het hier mis, dan staat de aanmelding nog steeds in de
 // mail van Formspree; er raakt dus nooit iets kwijt.
 //
@@ -126,7 +126,7 @@ $lid = ledenNormaliseer([
   'land'           => $_POST['land'] ?? '',
   'telefoon'       => $telefoon,
   'email'          => $email,
-  'status'         => 'verificatie',
+  'status'         => 'nieuw',
   'inschrijfdatum' => date('Y-m-d'),
 ]);
 

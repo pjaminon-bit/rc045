@@ -39,6 +39,7 @@ function ledenBackupMap() {
 
 function ledenStatussen() {
   return [
+    'nieuw'             => 'Nieuw',
     'verificatie'       => 'In verificatie',
     'wacht_op_betaling' => 'Wacht op betaling',
     'actief'            => 'Actief lid',
@@ -236,7 +237,7 @@ function ledenNormaliseer($invoer, $bestaand = null) {
   if (array_key_exists('status', $invoer) && isset($statussen[$invoer['status']])) {
     $lid['status'] = $invoer['status'];
   } elseif (!isset($lid['status']) || !isset($statussen[$lid['status']])) {
-    $lid['status'] = 'verificatie';
+    $lid['status'] = 'nieuw';
   }
 
   if (!isset($lid['id']) || $lid['id'] === '') $lid['id'] = ledenNieuwId();
