@@ -115,18 +115,18 @@
 <div class="page-hero-content">
 <div class="section-label" data-i18n="hero.label">Onze geschiedenis</div>
 <h1 data-i18n="hero.title">Het ontstaan van RC045</h1>
-<p data-i18n="hero.sub">Van een vakantie met vrienden tot een bloeiende vereniging, dit is ons verhaal.</p>
+<p id="ont-hero-sub" data-i18n="hero.sub">Van een vakantie met vrienden tot een bloeiende vereniging, dit is ons verhaal.</p>
 </div>
 </div>
 <main class="main" id="main-content">
 <div class="story-card">
-<p data-i18n="story.p1">In 2020 zijn de oorspronkelijke oprichters samen op vakantie geweest, waarbij ook enkele RC-auto's werden meegenomen. Het RC-virus werd al snel overgedragen, en kort na deze vakantie had iedereen al één of meerdere RC-auto's aangeschaft.</p>
-<p data-i18n="story.p2">Tijdens de zoektocht naar een locatie om te kunnen rijden kwamen wij al snel uit op het grasveld bij sportpark Strijthagen (naast het MTB parcours). Al snel bleek dat hier meer hobbyisten met hun RC-auto hun rondje kwamen rijden.</p>
-<p data-i18n="story.p3">Dit groeide al snel uit tot een wekelijkse samenkomst op zondag, en de groep hobbyisten én toeschouwers werd steeds groter.</p>
-<p data-i18n="story.p4">We kregen ook steeds meer aandacht van de media, o.a. RTV Parkstad, Omroep Landgraaf en L1 hebben ons één of meerdere keren bezocht en hebben eraan meegeholpen dat onze activiteiten steeds meer bekendheid kregen.</p>
-<p data-i18n="story.p5">Door de steeds groter wordende belangstelling en omdat wij één en ander op een goede, gezellige en veilige manier wilden faciliteren hebben wij al snel onze vereniging RC045 opgericht.</p>
-<p data-i18n="story.p6">In 2022 kregen we de mogelijkheid om een mooi stukje terrein in Eygelshoven te huren. Na heel hard ploeteren konden we daar eindelijk onze RC-baan realiseren.</p>
-<p data-i18n="story.p7">Nog steeds voegen we optimalisaties en veranderingen door aan onze baan, het is nooit af.</p>
+<p id="ont-story-p1" data-i18n="story.p1">In 2020 zijn de oorspronkelijke oprichters samen op vakantie geweest, waarbij ook enkele RC-auto's werden meegenomen. Het RC-virus werd al snel overgedragen, en kort na deze vakantie had iedereen al één of meerdere RC-auto's aangeschaft.</p>
+<p id="ont-story-p2" data-i18n="story.p2">Tijdens de zoektocht naar een locatie om te kunnen rijden kwamen wij al snel uit op het grasveld bij sportpark Strijthagen (naast het MTB parcours). Al snel bleek dat hier meer hobbyisten met hun RC-auto hun rondje kwamen rijden.</p>
+<p id="ont-story-p3" data-i18n="story.p3">Dit groeide al snel uit tot een wekelijkse samenkomst op zondag, en de groep hobbyisten én toeschouwers werd steeds groter.</p>
+<p id="ont-story-p4" data-i18n="story.p4">We kregen ook steeds meer aandacht van de media, o.a. RTV Parkstad, Omroep Landgraaf en L1 hebben ons één of meerdere keren bezocht en hebben eraan meegeholpen dat onze activiteiten steeds meer bekendheid kregen.</p>
+<p id="ont-story-p5" data-i18n="story.p5">Door de steeds groter wordende belangstelling en omdat wij één en ander op een goede, gezellige en veilige manier wilden faciliteren hebben wij al snel onze vereniging RC045 opgericht.</p>
+<p id="ont-story-p6" data-i18n="story.p6">In 2022 kregen we de mogelijkheid om een mooi stukje terrein in Eygelshoven te huren. Na heel hard ploeteren konden we daar eindelijk onze RC-baan realiseren.</p>
+<p id="ont-story-p7" data-i18n="story.p7">Nog steeds voegen we optimalisaties en veranderingen door aan onze baan, het is nooit af.</p>
 </div>
 <div class="photos-title" data-i18n="photos.title">Foto's door de jaren heen</div>
 <div class="ontstaan-grid">
@@ -286,7 +286,35 @@ else currentUrl.searchParams.set('lang', lang);
 history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
 updateInternalLinks(lang);
 renderSponsorCta();
+renderOntstaanTekst();
 }
+// ===== TEKST "HET ONTSTAAN" (data/ontstaan.json, bijwerken via beheer.php) =====
+// De ondertitel en de zeven alinea's stonden hiervoor vast in dit bestand.
+// De Nederlandse tekst blijft hier ook als vangnet staan (zichtbaar zolang
+// het JSON-bestand leeg is of niet laadt), maar data/ontstaan.json overschrijft
+// die zodra het bestaat. Leeg gelaten EN/DE valt terug op de Nederlandse tekst,
+// zelfde patroon als bij de homepage.
+var ontstaanData = null;
+var ontstaanVelden = ['hero_sub', 'story_p1', 'story_p2', 'story_p3', 'story_p4', 'story_p5', 'story_p6', 'story_p7'];
+function renderOntstaanTekst() {
+if (!ontstaanData) return;
+ontstaanVelden.forEach(function (veld) {
+var bron = ontstaanData[veld];
+if (!bron) return;
+var tekst = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
+if (!tekst) return;
+var el = document.getElementById('ont-' + veld.replace(/_/g, '-'));
+if (el) el.textContent = tekst;
+});
+}
+fetch('data/ontstaan.json', { cache: 'no-store' })
+.then(function (r) { return r.ok ? r.json() : null; })
+.then(function (d) {
+if (!d) return;
+ontstaanData = d;
+renderOntstaanTekst();
+})
+.catch(function () {});
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 if (currentLang !== 'nl') setLang(currentLang);
 else updateInternalLinks('nl');

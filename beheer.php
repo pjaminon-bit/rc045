@@ -96,6 +96,7 @@ $mediaBestand    = $dataMap . '/media.json';
 $nieuwsBestand    = $dataMap . '/nieuws.json';
 $rekentabelBestand = $dataMap . '/rekentabel.json';
 $homepageBestand   = $dataMap . '/homepage.json';
+$ontstaanBestand   = $dataMap . '/ontstaan.json';
 
 // Alle bestanden die automatisch back-upt worden (zie maakDataBackup()),
 // gebruikt door het tabblad "Back-ups" en de backup_herstellen-actie
@@ -104,6 +105,7 @@ $homepageBestand   = $dataMap . '/homepage.json';
 // rest via het generieke schrijfJson.
 $dataBackupBestanden = [
   'homepage'   => ['label' => 'Homepage teksten', 'pad' => $homepageBestand, 'schrijffunctie' => 'schrijfJson'],
+  'ontstaan'   => ['label' => 'Ontstaan (geschiedenis)', 'pad' => $ontstaanBestand, 'schrijffunctie' => 'schrijfJson'],
   'mededeling' => ['label' => 'Openingstijden', 'pad' => $actueelBestand, 'schrijffunctie' => 'schrijfJson'],
   'agenda'     => ['label' => 'Agenda', 'pad' => $agendaBestand, 'schrijffunctie' => 'schrijfJson'],
   'faq'        => ['label' => 'Vragen (FAQ)', 'pad' => $faqBestand, 'schrijffunctie' => 'schrijfJson'],
@@ -433,6 +435,55 @@ $homepageStandaard = [
     'nl' => "Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.",
     'en' => "Pro-rata membership: you only pay for the remaining months of the year.",
     'de' => "Anteilige Mitgliedschaft: Du zahlst nur für die verbleibenden Monate des Jahres.",
+  ],
+];
+
+// Standaardinhoud voor de "Ontstaan"-pagina, alleen gebruikt zolang
+// data/ontstaan.json nog niet bestaat. De Nederlandse tekst is de tekst die
+// nu al vast in ontstaan.html staat (en dus standaard te zien is, want deze
+// pagina toont NL zonder setLang aan te roepen); Engels en Duits komen uit
+// hetzelfde i18n-blok in ontstaan.html. Zo verandert er niets aan wat
+// bezoekers zien totdat iemand dit tabblad gebruikt.
+$ontstaanStandaard = [
+  'hero_sub' => [
+    'nl' => "Van een vakantie met vrienden tot een bloeiende vereniging, dit is ons verhaal.",
+    'en' => "From a holiday with friends to a thriving club, this is our story.",
+    'de' => "Von einem Urlaub mit Freunden zu einem blühenden Verein, das ist unsere Geschichte.",
+  ],
+  'story_p1' => [
+    'nl' => "In 2020 zijn de oorspronkelijke oprichters samen op vakantie geweest, waarbij ook enkele RC-auto's werden meegenomen. Het RC-virus werd al snel overgedragen, en kort na deze vakantie had iedereen al één of meerdere RC-auto's aangeschaft.",
+    'en' => "In 2020 the original founders went on holiday together, bringing along a few RC cars. The RC virus spread quickly, and shortly after this holiday everyone already had one or more RC cars of their own.",
+    'de' => "Im Jahr 2020 waren die ursprünglichen Gründer gemeinsam im Urlaub und hatten dabei auch einige RC-Autos mitgenommen. Das RC-Virus wurde schnell übertragen, und kurz nach diesem Urlaub hatte bereits jeder eines oder mehrere RC-Autos gekauft.",
+  ],
+  'story_p2' => [
+    'nl' => "Tijdens de zoektocht naar een locatie om te kunnen rijden kwamen wij al snel uit op het grasveld bij sportpark Strijthagen (naast het MTB parcours). Al snel bleek dat hier meer hobbyisten met hun RC-auto hun rondje kwamen rijden.",
+    'en' => "While searching for a location to drive, we soon found the grass field at Sportpark Strijthagen (next to the MTB course). It quickly became clear that other hobbyists were already coming there with their RC cars too.",
+    'de' => "Bei der Suche nach einem Ort zum Fahren landeten wir schnell auf der Wiese beim Sportpark Strijthagen (neben der MTB-Strecke). Schnell stellte sich heraus, dass auch andere Hobbyisten hier mit ihren RC-Autos ihre Runden drehten.",
+  ],
+  'story_p3' => [
+    'nl' => "Dit groeide al snel uit tot een wekelijkse samenkomst op zondag, en de groep hobbyisten én toeschouwers werd steeds groter.",
+    'en' => "This soon grew into a weekly gathering on Sundays, and the group of hobbyists and spectators kept getting bigger.",
+    'de' => "Daraus wuchs schnell ein wöchentliches Treffen sonntags, und die Gruppe von Hobbyisten und Zuschauern wurde immer größer.",
+  ],
+  'story_p4' => [
+    'nl' => "We kregen ook steeds meer aandacht van de media, o.a. RTV Parkstad, Omroep Landgraaf en L1 hebben ons één of meerdere keren bezocht en hebben eraan meegeholpen dat onze activiteiten steeds meer bekendheid kregen.",
+    'en' => "We also received more and more media attention. RTV Parkstad, Omroep Landgraaf, and L1 visited us on several occasions and helped our activities become increasingly well known.",
+    'de' => "Wir bekamen auch immer mehr Aufmerksamkeit von den Medien, u.a. haben uns RTV Parkstad, Omroep Landgraaf und L1 mehrmals besucht und dazu beigetragen, dass unsere Aktivitäten immer bekannter wurden.",
+  ],
+  'story_p5' => [
+    'nl' => "Door de steeds groter wordende belangstelling en omdat wij één en ander op een goede, gezellige en veilige manier wilden faciliteren hebben wij al snel onze vereniging RC045 opgericht.",
+    'en' => "Because of the growing interest, and because we wanted to facilitate everything in a proper, friendly, and safe way, we soon founded our club RC045.",
+    'de' => "Wegen des wachsenden Interesses und weil wir alles auf eine gute, gesellige und sichere Weise gestalten wollten, gründeten wir bald unseren Verein RC045.",
+  ],
+  'story_p6' => [
+    'nl' => "In 2022 kregen we de mogelijkheid om een mooi stukje terrein in Eygelshoven te huren. Na heel hard ploeteren konden we daar eindelijk onze RC-baan realiseren.",
+    'en' => "In 2022 we got the opportunity to rent a beautiful piece of land in Eygelshoven. After a lot of hard work, we were finally able to build our RC track there.",
+    'de' => "Im Jahr 2022 bekamen wir die Möglichkeit, ein schönes Stück Gelände in Eygelshoven zu mieten. Nach harter Arbeit konnten wir dort endlich unsere RC-Strecke verwirklichen.",
+  ],
+  'story_p7' => [
+    'nl' => "Nog steeds voegen we optimalisaties en veranderingen door aan onze baan, het is nooit af.",
+    'en' => "We are still adding improvements and changes to our track, it is never truly finished.",
+    'de' => "Wir fügen unserer Strecke noch immer Verbesserungen und Änderungen hinzu, sie ist nie wirklich fertig.",
   ],
 ];
 
@@ -1068,6 +1119,7 @@ $isMaster = $ingelogd && !empty($_SESSION['is_master']);
 // beheerder-only, dat is geen instelling die je per gebruiker kan weggeven.
 $beheerTabsAlle = [
   'homepage'   => 'Homepage',
+  'ontstaan'   => 'Ontstaan',
   'mededeling' => 'Openingstijden',
   'nieuws'     => 'Nieuws',
   'agenda'     => 'Agenda',
@@ -1120,6 +1172,19 @@ $homepageGroepen = [
   '"Lidmaatschap"' => ['pricing_sub', 'guest_text', 'guest_note', 'member_text', 'member_note'],
 ];
 
+// Velden van het tabblad Ontstaan: zelfde opzet als $homepageVelden. Geen
+// aparte groepen-lijst nodig, dit tabblad is één doorlopend verhaal.
+$ontstaanVelden = [
+  'hero_sub' => ['Ondertitel boven het verhaal', 'tekst'],
+  'story_p1' => ['Alinea 1: het begin (2020, vakantie)', 'blok'],
+  'story_p2' => ['Alinea 2: de zoektocht naar een locatie', 'blok'],
+  'story_p3' => ['Alinea 3: het wekelijkse samenkomen', 'blok'],
+  'story_p4' => ['Alinea 4: media-aandacht', 'blok'],
+  'story_p5' => ['Alinea 5: oprichting van de vereniging', 'blok'],
+  'story_p6' => ['Alinea 6: de baan in Eygelshoven (2022)', 'blok'],
+  'story_p7' => ['Alinea 7: nog steeds in ontwikkeling', 'blok'],
+];
+
 // Het eigen gebruikersrecord opzoeken (voor de rechten hieronder). Alleen
 // nodig voor gewone gebruikers, de beheerder (master) mag toch altijd alles.
 $huidigeGebruikerRecord = null;
@@ -1154,6 +1219,7 @@ $formulierTab = [
   'actueel' => 'mededeling', 'agenda' => 'agenda', 'faq' => 'faq', 'sponsors' => 'sponsors',
   'contact' => 'contact', 'media' => 'media', 'nieuws' => 'nieuws', 'rekentabel' => 'rekentabel',
   'homepage' => 'homepage',
+  'ontstaan' => 'ontstaan',
   'fotoboek_album_aanmaken' => 'fotoboek', 'fotoboek_album_bewerken' => 'fotoboek',
   'leden_opslaan' => 'leden', 'leden_verwijderen' => 'leden', 'leden_status' => 'leden',
   'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
@@ -1527,6 +1593,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       $melding['homepage'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['homepage'] = 'fout';
+    }
+
+  } elseif ($formulier === 'ontstaan') {
+    $nieuweOntstaanData = [];
+    foreach ($ontstaanVelden as $veld => $info) {
+      $maxLengte = $info[1] === 'tekst' ? 150 : 600;
+      $nieuweOntstaanData[$veld] = [
+        'nl' => kort($_POST['ont'][$veld]['nl'] ?? '', $maxLengte),
+        'en' => kort($_POST['ont'][$veld]['en'] ?? '', $maxLengte),
+        'de' => kort($_POST['ont'][$veld]['de'] ?? '', $maxLengte),
+      ];
+    }
+    if (schrijfJson($ontstaanBestand, $nieuweOntstaanData)) {
+      $ontstaanData = $nieuweOntstaanData;
+      $melding['ontstaan'] = 'Opgeslagen. De pagina "Het ontstaan" gebruikt meteen deze tekst.';
+      $meldingType['ontstaan'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'ontstaan', 'teksten bijgewerkt');
+    } else {
+      $melding['ontstaan'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+      $meldingType['ontstaan'] = 'fout';
     }
 
   } elseif ($formulier === 'rekentabel') {
@@ -2603,6 +2689,11 @@ if (file_exists($homepageBestand)) {
   $json = json_decode(file_get_contents($homepageBestand), true);
   if (is_array($json)) $homepageData = array_merge($homepageStandaard, $json);
 }
+$ontstaanData = $ontstaanStandaard;
+if (file_exists($ontstaanBestand)) {
+  $json = json_decode(file_get_contents($ontstaanBestand), true);
+  if (is_array($json)) $ontstaanData = array_merge($ontstaanStandaard, $json);
+}
 
 // ===== Ledenadministratie =====
 // Het ledenbestand staat buiten data/ omdat het persoonsgegevens bevat;
@@ -3064,6 +3155,55 @@ if ($isMaster && file_exists($logBestand)) {
           <?php endif; ?>
         </div>
       <?php endforeach; ?>
+    </form>
+    </div>
+    <?php endif; ?>
+
+    <?php if (in_array('ontstaan', $toegestaneTabs, true)): ?>
+    <div class="tab-paneel" id="tab-ontstaan">
+    <!-- ===== ONTSTAAN (GESCHIEDENIS) ===== -->
+    <div class="kaart">
+      <h1>Ontstaan</h1>
+      <p class="sub">De tekst op de pagina "Het ontstaan": de ondertitel boven het verhaal en de zeven alinea's van het verhaal zelf.</p>
+
+      <?php if (isset($melding['ontstaan'])): ?>
+        <div class="melding <?php echo $meldingType['ontstaan']; ?>"><?php echo htmlspecialchars($melding['ontstaan']); ?></div>
+      <?php endif; ?>
+
+      <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
+        Nederlands is verplicht per veld. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+      </div>
+    </div>
+
+    <form method="post" action="beheer.php#ontstaan">
+      <input type="hidden" name="formulier" value="ontstaan">
+      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+      <div class="kaart">
+        <h1>Verhaal</h1>
+        <?php foreach ($ontstaanVelden as $veld => $info): ?>
+          <?php
+            $ontLabel = $info[0];
+            $ontType = $info[1];
+            $ontHuidig = $ontstaanData[$veld] ?? ['nl' => '', 'en' => '', 'de' => ''];
+          ?>
+          <div class="veld">
+            <label for="ont-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($ontLabel); ?></label>
+            <div class="rij-3">
+              <?php if ($ontType === 'tekst'): ?>
+                <input type="text" id="ont-<?php echo $veld; ?>-nl" name="ont[<?php echo $veld; ?>][nl]" maxlength="150" placeholder="Nederlands" value="<?php echo htmlspecialchars($ontHuidig['nl'] ?? ''); ?>">
+                <input type="text" id="ont-<?php echo $veld; ?>-en" name="ont[<?php echo $veld; ?>][en]" maxlength="150" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($ontHuidig['en'] ?? ''); ?>">
+                <input type="text" id="ont-<?php echo $veld; ?>-de" name="ont[<?php echo $veld; ?>][de]" maxlength="150" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($ontHuidig['de'] ?? ''); ?>">
+              <?php else: ?>
+                <textarea id="ont-<?php echo $veld; ?>-nl" name="ont[<?php echo $veld; ?>][nl]" maxlength="600" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($ontHuidig['nl'] ?? ''); ?></textarea>
+                <textarea id="ont-<?php echo $veld; ?>-en" name="ont[<?php echo $veld; ?>][en]" maxlength="600" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($ontHuidig['en'] ?? ''); ?></textarea>
+                <textarea id="ont-<?php echo $veld; ?>-de" name="ont[<?php echo $veld; ?>][de]" maxlength="600" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($ontHuidig['de'] ?? ''); ?></textarea>
+              <?php endif; ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+        <button type="submit">Ontstaan opslaan</button>
+      </div>
     </form>
     </div>
     <?php endif; ?>
