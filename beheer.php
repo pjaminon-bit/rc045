@@ -3831,6 +3831,7 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-tabel th[data-kolom].leden-sorteer-op.leden-sorteer-aflopend::after { content: '\2193'; }
     .leden-tabel td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
     .leden-tabel tbody tr:hover { background: var(--teal-light); }
+    .leden-tabel tbody tr[data-href] { cursor: pointer; }
     .leden-tabel .knop-klein { color: var(--teal-dark); display: inline-block; text-decoration: none; }
     .leden-tabel .knop-klein:hover { background: var(--teal-light); border-color: var(--teal); }
     .leden-contact { font-size: 12px; color: var(--muted); word-break: break-word; }
@@ -5561,6 +5562,7 @@ if ($isMaster && file_exists($logBestand)) {
                   $sorteerContact = strtolower(trim((($l['email'] ?? '') !== '') ? $l['email'] : ($l['telefoon'] ?? '')));
                 ?>
                 <tr data-status="<?php echo htmlspecialchars($l['status'] ?? ''); ?>" data-zoek="<?php echo htmlspecialchars($zoek); ?>"
+                    data-href="beheer.php?lid=<?php echo urlencode($l['id']); ?>#leden"
                     data-sort-nr="<?php echo (int) ($l['nummer'] ?? 0); ?>"
                     data-sort-naam="<?php echo htmlspecialchars(ledenSorteernaam($l)); ?>"
                     data-sort-leeftijd="<?php echo $leeftijd === null ? -1 : (int) $leeftijd; ?>"
@@ -6537,6 +6539,16 @@ if ($isMaster && file_exists($logBestand)) {
         kop.addEventListener('keydown', function (e) {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activeer(); }
         });
+      });
+
+      // ===== Klikken op een rij opent de bewerkpagina =====
+      // Behalve als er op een link binnen de rij geklikt wordt (mailadres,
+      // of de "Bewerken"-link zelf): die doen dan gewoon hun eigen ding.
+      tbody.addEventListener('click', function (e) {
+        if (e.target.closest('a')) return;
+        var rij = e.target.closest('tr[data-href]');
+        if (!rij) return;
+        window.location.href = rij.getAttribute('data-href');
       });
     })();
   </script>
