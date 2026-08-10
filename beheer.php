@@ -1384,7 +1384,7 @@ $homepageVelden = [
   'pricing_sub'  => ['"Lidmaatschap": introtekst boven de twee kaarten', 'blok'],
   'guest_title'  => ['"Lidmaatschap": titel bij Gastrijden ("Kom eens gastrijden!")', 'tekst'],
   'guest_text'   => ['"Lidmaatschap": omschrijving bij Gastrijden', 'blok'],
-  'guest_note'   => ['"Lidmaatschap": kleine notitie onder Gastrijden (een 2e regel op een nieuwe regel wordt automatisch als opvallend blokje getoond)', 'blok'],
+  'guest_note'   => ['"Lidmaatschap": kleine notitie onder Gastrijden', 'blok', 'Zet een tweede regel (Enter) voor een apart, opvallend blokje, bijvoorbeeld voor de melding over groepen van 4+.'],
   'member_title' => ['"Lidmaatschap": titel bij het lidmaatschap ("Word lid van RC045")', 'tekst'],
   'member_text'  => ['"Lidmaatschap": omschrijving bij het lidmaatschap', 'blok'],
   'member_note'  => ['"Lidmaatschap": kleine notitie onder het lidmaatschap', 'blok'],
@@ -3485,6 +3485,9 @@ if ($isMaster && file_exists($logBestand)) {
                   <textarea id="hp-<?php echo $veld; ?>-de" name="hp[<?php echo $veld; ?>][de]" maxlength="600" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['de'] ?? ''); ?></textarea>
                 <?php endif; ?>
               </div>
+              <?php if (isset($hpInfo[2])): ?>
+                <p class="hint"><?php echo htmlspecialchars($hpInfo[2]); ?></p>
+              <?php endif; ?>
             </div>
           <?php endforeach; ?>
           <?php if ($homepageGroepIndex === $homepageAantalGroepen): ?>
