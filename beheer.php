@@ -95,6 +95,7 @@ $contactBestand  = $dataMap . '/contact.json';
 $mediaBestand    = $dataMap . '/media.json';
 $nieuwsBestand    = $dataMap . '/nieuws.json';
 $rekentabelBestand = $dataMap . '/rekentabel.json';
+$homepageBestand   = $dataMap . '/homepage.json';
 
 // Alle bestanden die automatisch back-upt worden (zie maakDataBackup()),
 // gebruikt door het tabblad "Back-ups" en de backup_herstellen-actie
@@ -102,6 +103,7 @@ $rekentabelBestand = $dataMap . '/rekentabel.json';
 // weer wordt weggeschreven: gebruikers.json gaat via schrijfGebruikers, de
 // rest via het generieke schrijfJson.
 $dataBackupBestanden = [
+  'homepage'   => ['label' => 'Homepage teksten', 'pad' => $homepageBestand, 'schrijffunctie' => 'schrijfJson'],
   'mededeling' => ['label' => 'Openingstijden', 'pad' => $actueelBestand, 'schrijffunctie' => 'schrijfJson'],
   'agenda'     => ['label' => 'Agenda', 'pad' => $agendaBestand, 'schrijffunctie' => 'schrijfJson'],
   'faq'        => ['label' => 'Vragen (FAQ)', 'pad' => $faqBestand, 'schrijffunctie' => 'schrijfJson'],
@@ -345,6 +347,93 @@ $rekentabelStandaard = [
   'jeugd_jaarbedrag' => 50,
   'senior_jaarbedrag' => 100,
   'jeugd_leeftijd_tot' => 15,
+];
+
+// Standaardinhoud voor de homepage-teksten, alleen gebruikt zolang
+// data/homepage.json nog niet bestaat. Zelfde tekst als voorheen hardcoded
+// in index.html stond (NL/EN/DE), zodat er bij de allereerste keer laden
+// niets verandert aan wat bezoekers zien totdat iemand dit tabblad
+// gebruikt.
+$homepageStandaard = [
+  'hero_intro' => [
+    'nl' => "Wij zijn een gezellige vereniging uit het zuiden van Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners én ervaren hobbyisten. Jong én oud.",
+    'en' => "We are a friendly club from the south of Limburg for enthusiasts of electrically powered, radio-controlled cars. For beginners and experienced hobbyists alike. Young and old.",
+    'de' => "Wir sind ein freundlicher Verein aus dem Süden von Limburg für Liebhaber von elektrisch angetriebenen, ferngesteuerten Autos. Für Anfänger und erfahrene Hobbyisten. Jung und Alt.",
+  ],
+  'about_p1' => [
+    'nl' => "RC045 is een actieve vereniging voor liefhebbers van radiografisch bestuurbare auto's. We rijden met elektrische RC-auto's in alle schalen. Of je nu net begint of al jaren rijdt: bij ons ben je welkom.",
+    'en' => "RC045 is an active club for enthusiasts of radio-controlled cars. We drive electric RC cars in all scales. Whether you're just starting out or have been racing for years: you're welcome here.",
+    'de' => "RC045 ist ein aktiver Verein für Liebhaber von ferngesteuerten Autos. Wir fahren elektrische RC-Autos in allen Maßstäben. Ob Anfänger oder Erfahrener, bei uns bist du willkommen.",
+  ],
+  'about_p2' => [
+    'nl' => "We beschikken over een eigen baan in Eygelshoven, op het terrein van Kok Lexmond. Naast de basher baan hebben we ook een enorm crawler-parcours en een jump-track.",
+    'en' => "We have our own track in Eygelshoven, on the grounds of Kok Lexmond. Besides the basher track, we also have a huge crawler course and a jump track.",
+    'de' => "Wir haben eine eigene Strecke in Eygelshoven auf dem Gelände von Kok Lexmond. Neben der Basher-Strecke gibt es auch einen riesigen Crawler-Parcours und eine Sprungstrecke.",
+  ],
+  'feat1_title' => ['nl' => 'Alleen elektrisch', 'en' => 'Electric only', 'de' => 'Nur elektrisch'],
+  'feat1_text' => [
+    'nl' => "Nitro en benzine zijn niet toegestaan. Alle electrische auto's zijn welkom!",
+    'en' => "Nitro and petrol are not allowed. All electric cars are welcome!",
+    'de' => "Nitro und Benzin sind nicht erlaubt. Alle elektrischen Autos sind willkommen!",
+  ],
+  'feat2_title' => ['nl' => 'Crawler-baan', 'en' => 'Crawler track', 'de' => 'Crawler-Strecke'],
+  'feat2_text' => [
+    'nl' => "Speciaal terrein voor crawlers en uitdagende obstakels, we breiden ons parcours regelmatig uit",
+    'en' => "Dedicated terrain for crawlers and challenging obstacles, we regularly expand the course.",
+    'de' => "Spezielles Gelände für Crawler und anspruchsvolle Hindernisse, wir erweitern den Parcours regelmäßig.",
+  ],
+  'feat3_title' => ['nl' => 'Jump-track', 'en' => 'Jump track', 'de' => 'Sprungstrecke'],
+  'feat3_text' => [
+    'nl' => "Volle gas over de schans! Voor wie van actie houdt",
+    'en' => "Full throttle over the ramp! For those who love action.",
+    'de' => "Vollgas über die Rampe! Für alle, die Action lieben.",
+  ],
+  'feat4_title' => ['nl' => 'Voor iedereen', 'en' => 'For everyone', 'de' => 'Für alle'],
+  'feat4_text' => [
+    'nl' => "Vanaf 4 jaar is iedereen welkom!",
+    'en' => "From age 4, everyone is welcome!",
+    'de' => "Ab 4 Jahren ist jeder willkommen!",
+  ],
+  'track_p1' => [
+    'nl' => "Ons terrein bevindt zich op het perceel van Kok Lexmond in Eygelshoven (Kerkrade). We beschikken over meerdere banen: een race-circuit, een crawler-parcours, en een jump-track voor de echte thrill-seekers.",
+    'en' => "Our grounds are located on the Kok Lexmond site in Eygelshoven (Kerkrade). We have multiple tracks: a race circuit, a crawler course, and a jump track for the real thrill-seekers.",
+    'de' => "Unser Gelände befindet sich auf dem Kok Lexmond Grundstück in Eygelshoven (Kerkrade). Wir haben mehrere Strecken: einen Rennkurs, einen Crawler-Parcours und eine Sprungstrecke für echte Adrenalin-Junkies.",
+  ],
+  'track_p2' => [
+    'nl' => "Volg bij aankomst de pijlen met het RC045-logo en je ziet ons vanzelf. Er is voldoende gratis parkeergelegenheid.",
+    'en' => "Follow the RC045 arrows on arrival and you'll find us easily. There is plenty of free parking.",
+    'de' => "Folge beim Ankommen den RC045-Schildern und du findest uns sofort. Es gibt ausreichend kostenlose Parkplätze.",
+  ],
+  'track_f1' => ['nl' => "Race-circuit voor buggy's, truggies en meer", 'en' => "Race circuit for buggies, truggies and more", 'de' => "Rennstrecke für Buggys, Truggies und mehr"],
+  'track_f2' => ['nl' => "Off-road crawler-parcours", 'en' => "Off-road crawler course", 'de' => "Offroad-Crawler-Parcours"],
+  'track_f3' => ['nl' => "Jump-track met schans", 'en' => "Jump track with ramp", 'de' => "Sprungstrecke mit Rampe"],
+  'track_f4' => ['nl' => "Kantine & werkruimte aanwezig", 'en' => "Canteen & workshop available", 'de' => "Kantine & Werkraum vorhanden"],
+  'track_f5' => ['nl' => "Voldoende parkeerruimte", 'en' => "Ample parking", 'de' => "Ausreichend Parkplätze"],
+  'pricing_sub' => [
+    'nl' => "Je kunt altijd eerst als gast komen rijden om te ervaren of het iets voor jou is. Daarna kun je eventueel lid worden en volop genieten van onze banen.",
+    'en' => "You can always come as a guest first to see if it suits you. After that, you can become a member and enjoy our tracks to the fullest.",
+    'de' => "Du kannst zunächst als Gast fahren, um zu sehen, ob es dir gefällt. Danach kannst du Mitglied werden und unsere Strecken in vollen Zügen genießen.",
+  ],
+  'guest_text' => [
+    'nl' => "Rij een hele dag mee op onze baan zonder lidmaatschap. Check onze openingstijden en kom gewoon langs, meld je wel even bij een (bestuurs)lid als je er bent!",
+    'en' => "Ride all day on our track without a membership. Check our opening hours and just show up, and check in with a club member when you arrive!",
+    'de' => "Fahre einen ganzen Tag auf unserer Strecke ohne Mitgliedschaft. Schau einfach vorbei, melde dich beim Ankommen kurz bei einem Vereinsmitglied!",
+  ],
+  'guest_note' => [
+    'nl' => "Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.",
+    'en' => "Supervision by a parent or guardian required for under 16. Not available during private or members-only events.",
+    'de' => "Begleitung durch Elternteil oder Erziehungsberechtigte für unter 16 Jahre erforderlich. Nicht möglich bei geschlossenen Veranstaltungen.",
+  ],
+  'member_text' => [
+    'nl' => "Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.",
+    'en' => "Unlimited riding on all tracks, access to the group app, sharing knowledge with fellow hobbyists, and always someone to help you out.",
+    'de' => "Unbegrenztes Fahren auf allen Strecken, Zugang zur Gruppen-App, Wissensaustausch mit Gleichgesinnten und immer jemand zum Helfen.",
+  ],
+  'member_note' => [
+    'nl' => "Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.",
+    'en' => "Pro-rata membership: you only pay for the remaining months of the year.",
+    'de' => "Anteilige Mitgliedschaft: Du zahlst nur für die verbleibenden Monate des Jahres.",
+  ],
 ];
 
 // Zet een volledig jaarbedrag om in de pro-rata maandtabel die de rekentabel
@@ -978,6 +1067,7 @@ $isMaster = $ingelogd && !empty($_SESSION['is_master']);
 // Gebruikers, Log en Back-ups horen hier bewust niet bij: die blijven altijd
 // beheerder-only, dat is geen instelling die je per gebruiker kan weggeven.
 $beheerTabsAlle = [
+  'homepage'   => 'Homepage',
   'mededeling' => 'Openingstijden',
   'nieuws'     => 'Nieuws',
   'agenda'     => 'Agenda',
@@ -988,6 +1078,46 @@ $beheerTabsAlle = [
   'fotoboek'   => 'Fotoboek',
   'leden'      => 'Leden',
   'rekentabel' => 'Rekentabel',
+];
+
+// Velden van het tabblad Homepage: sleutel => [label voor in het formulier,
+// 'tekst' (kort, één regel) of 'blok' (langere alinea/textarea)]. Eén lijst,
+// gebruikt bij zowel opslaan als het formulier zelf, zodat die twee nooit
+// uit elkaar kunnen lopen.
+$homepageVelden = [
+  'hero_intro'   => ['Intro boven aan de pagina (onder het logo)', 'blok'],
+  'about_p1'     => ['"Wie zijn wij": eerste alinea', 'blok'],
+  'about_p2'     => ['"Wie zijn wij": tweede alinea', 'blok'],
+  'feat1_title'  => ['"Wie zijn wij": kaartje 1, titel', 'tekst'],
+  'feat1_text'   => ['"Wie zijn wij": kaartje 1, tekst', 'blok'],
+  'feat2_title'  => ['"Wie zijn wij": kaartje 2, titel', 'tekst'],
+  'feat2_text'   => ['"Wie zijn wij": kaartje 2, tekst', 'blok'],
+  'feat3_title'  => ['"Wie zijn wij": kaartje 3, titel', 'tekst'],
+  'feat3_text'   => ['"Wie zijn wij": kaartje 3, tekst', 'blok'],
+  'feat4_title'  => ['"Wie zijn wij": kaartje 4, titel', 'tekst'],
+  'feat4_text'   => ['"Wie zijn wij": kaartje 4, tekst', 'blok'],
+  'track_p1'     => ['"De baan": eerste alinea', 'blok'],
+  'track_p2'     => ['"De baan": tweede alinea', 'blok'],
+  'track_f1'     => ['"De baan": kenmerk 1', 'tekst'],
+  'track_f2'     => ['"De baan": kenmerk 2', 'tekst'],
+  'track_f3'     => ['"De baan": kenmerk 3', 'tekst'],
+  'track_f4'     => ['"De baan": kenmerk 4', 'tekst'],
+  'track_f5'     => ['"De baan": kenmerk 5', 'tekst'],
+  'pricing_sub'  => ['"Lidmaatschap": introtekst boven de twee kaarten', 'blok'],
+  'guest_text'   => ['"Lidmaatschap": omschrijving bij Gastrijden', 'blok'],
+  'guest_note'   => ['"Lidmaatschap": kleine notitie onder Gastrijden', 'blok'],
+  'member_text'  => ['"Lidmaatschap": omschrijving bij het lidmaatschap', 'blok'],
+  'member_note'  => ['"Lidmaatschap": kleine notitie onder het lidmaatschap', 'blok'],
+];
+// Zelfde velden, gegroepeerd per kaart voor het formulier. Een aparte lijst
+// in plaats van in $homepageVelden zelf, want de volgorde en groepering is
+// puur voor de weergave, de opslaglogica hierboven werkt gewoon de hele
+// platte lijst af.
+$homepageGroepen = [
+  'Hero' => ['hero_intro'],
+  '"Wie zijn wij"' => ['about_p1', 'about_p2', 'feat1_title', 'feat1_text', 'feat2_title', 'feat2_text', 'feat3_title', 'feat3_text', 'feat4_title', 'feat4_text'],
+  '"De baan"' => ['track_p1', 'track_p2', 'track_f1', 'track_f2', 'track_f3', 'track_f4', 'track_f5'],
+  '"Lidmaatschap"' => ['pricing_sub', 'guest_text', 'guest_note', 'member_text', 'member_note'],
 ];
 
 // Het eigen gebruikersrecord opzoeken (voor de rechten hieronder). Alleen
@@ -1023,6 +1153,7 @@ if ($isMaster) {
 $formulierTab = [
   'actueel' => 'mededeling', 'agenda' => 'agenda', 'faq' => 'faq', 'sponsors' => 'sponsors',
   'contact' => 'contact', 'media' => 'media', 'nieuws' => 'nieuws', 'rekentabel' => 'rekentabel',
+  'homepage' => 'homepage',
   'fotoboek_album_aanmaken' => 'fotoboek', 'fotoboek_album_bewerken' => 'fotoboek',
   'leden_opslaan' => 'leden', 'leden_verwijderen' => 'leden', 'leden_status' => 'leden',
   'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
@@ -1376,6 +1507,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       $melding['nieuws'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['nieuws'] = 'fout';
+    }
+
+  } elseif ($formulier === 'homepage') {
+    $nieuweHomepageData = [];
+    foreach ($homepageVelden as $veld => $info) {
+      $maxLengte = $info[1] === 'tekst' ? 100 : 600;
+      $nieuweHomepageData[$veld] = [
+        'nl' => kort($_POST['hp'][$veld]['nl'] ?? '', $maxLengte),
+        'en' => kort($_POST['hp'][$veld]['en'] ?? '', $maxLengte),
+        'de' => kort($_POST['hp'][$veld]['de'] ?? '', $maxLengte),
+      ];
+    }
+    if (schrijfJson($homepageBestand, $nieuweHomepageData)) {
+      $homepageData = $nieuweHomepageData;
+      $melding['homepage'] = 'Opgeslagen. De homepage gebruikt meteen deze tekst.';
+      $meldingType['homepage'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'homepage', 'teksten bijgewerkt');
+    } else {
+      $melding['homepage'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+      $meldingType['homepage'] = 'fout';
     }
 
   } elseif ($formulier === 'rekentabel') {
@@ -2444,6 +2595,15 @@ $inschrijfkosten = (float) $rekentabelData['inschrijfkosten'];
 $tabelJeugd  = rekentabelProRata((float) $rekentabelData['jeugd_jaarbedrag']);
 $tabelSenior = rekentabelProRata((float) $rekentabelData['senior_jaarbedrag']);
 
+// Homepage-teksten: zolang data/homepage.json nog niet bestaat, toont het
+// formulier $homepageStandaard (de tekst die nu al op de site staat), zodat
+// er bij de eerste keer opslaan niets per ongeluk leeggemaakt wordt.
+$homepageData = $homepageStandaard;
+if (file_exists($homepageBestand)) {
+  $json = json_decode(file_get_contents($homepageBestand), true);
+  if (is_array($json)) $homepageData = array_merge($homepageStandaard, $json);
+}
+
 // ===== Ledenadministratie =====
 // Het ledenbestand staat buiten data/ omdat het persoonsgegevens bevat;
 // zie leden-opslag.php. Hier alleen inlezen en klaarzetten voor het
@@ -2851,6 +3011,62 @@ if ($isMaster && file_exists($logBestand)) {
     </nav>
 
     <div class="beheer-inhoud">
+
+    <?php if (in_array('homepage', $toegestaneTabs, true)): ?>
+    <div class="tab-paneel" id="tab-homepage">
+    <!-- ===== HOMEPAGE TEKSTEN ===== -->
+    <div class="kaart">
+      <h1>Homepage teksten</h1>
+      <p class="sub">De tekstblokken op de hoofdpagina: de intro boven aan, "Wie zijn wij", "De baan" en de omschrijvingen bij Lidmaatschap. De prijzen zelf staan bij Rekentabel.</p>
+
+      <?php if (isset($melding['homepage'])): ?>
+        <div class="melding <?php echo $meldingType['homepage']; ?>"><?php echo htmlspecialchars($melding['homepage']); ?></div>
+      <?php endif; ?>
+
+      <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
+        Nederlands is verplicht per veld. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+      </div>
+    </div>
+
+    <form method="post" action="beheer.php#homepage">
+      <input type="hidden" name="formulier" value="homepage">
+      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+      <?php $homepageGroepIndex = 0; $homepageAantalGroepen = count($homepageGroepen); ?>
+      <?php foreach ($homepageGroepen as $homepageGroepNaam => $homepageVeldSleutels): ?>
+        <?php $homepageGroepIndex++; ?>
+        <div class="kaart">
+          <h1><?php echo htmlspecialchars($homepageGroepNaam); ?></h1>
+          <?php foreach ($homepageVeldSleutels as $veld): ?>
+            <?php
+              $hpInfo = $homepageVelden[$veld];
+              $hpLabel = $hpInfo[0];
+              $hpType = $hpInfo[1];
+              $hpHuidig = $homepageData[$veld] ?? ['nl' => '', 'en' => '', 'de' => ''];
+            ?>
+            <div class="veld">
+              <label for="hp-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($hpLabel); ?></label>
+              <div class="rij-3">
+                <?php if ($hpType === 'tekst'): ?>
+                  <input type="text" id="hp-<?php echo $veld; ?>-nl" name="hp[<?php echo $veld; ?>][nl]" maxlength="100" placeholder="Nederlands" value="<?php echo htmlspecialchars($hpHuidig['nl'] ?? ''); ?>">
+                  <input type="text" id="hp-<?php echo $veld; ?>-en" name="hp[<?php echo $veld; ?>][en]" maxlength="100" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($hpHuidig['en'] ?? ''); ?>">
+                  <input type="text" id="hp-<?php echo $veld; ?>-de" name="hp[<?php echo $veld; ?>][de]" maxlength="100" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($hpHuidig['de'] ?? ''); ?>">
+                <?php else: ?>
+                  <textarea id="hp-<?php echo $veld; ?>-nl" name="hp[<?php echo $veld; ?>][nl]" maxlength="600" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['nl'] ?? ''); ?></textarea>
+                  <textarea id="hp-<?php echo $veld; ?>-en" name="hp[<?php echo $veld; ?>][en]" maxlength="600" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['en'] ?? ''); ?></textarea>
+                  <textarea id="hp-<?php echo $veld; ?>-de" name="hp[<?php echo $veld; ?>][de]" maxlength="600" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['de'] ?? ''); ?></textarea>
+                <?php endif; ?>
+              </div>
+            </div>
+          <?php endforeach; ?>
+          <?php if ($homepageGroepIndex === $homepageAantalGroepen): ?>
+            <button type="submit">Homepage teksten opslaan</button>
+          <?php endif; ?>
+        </div>
+      <?php endforeach; ?>
+    </form>
+    </div>
+    <?php endif; ?>
 
     <?php if (in_array('mededeling', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-mededeling">
