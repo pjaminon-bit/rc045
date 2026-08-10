@@ -100,6 +100,8 @@ $ontstaanBestand   = $dataMap . '/ontstaan.json';
 $baanreglementBestand = $dataMap . '/baanreglement.json';
 $bedanktBestand    = $dataMap . '/bedankt.json';
 $aanmeldenBestand  = $dataMap . '/aanmelden.json';
+$mediaTekstBestand = $dataMap . '/media-pagina.json';
+$fotoboekTekstBestand = $dataMap . '/fotoboek-pagina.json';
 
 // Alle bestanden die automatisch back-upt worden (zie maakDataBackup()),
 // gebruikt door het tabblad "Back-ups" en de backup_herstellen-actie
@@ -112,6 +114,8 @@ $dataBackupBestanden = [
   'baanreglement' => ['label' => 'Baanreglement', 'pad' => $baanreglementBestand, 'schrijffunctie' => 'schrijfJson'],
   'bedankt'    => ['label' => 'Bedankt-pagina (betaalgegevens)', 'pad' => $bedanktBestand, 'schrijffunctie' => 'schrijfJson'],
   'aanmelden'  => ['label' => 'Aanmelden (pagina)', 'pad' => $aanmeldenBestand, 'schrijffunctie' => 'schrijfJson'],
+  'media_pagina' => ['label' => 'Media (paginatekst)', 'pad' => $mediaTekstBestand, 'schrijffunctie' => 'schrijfJson'],
+  'fotoboek_pagina' => ['label' => 'Fotoboek (paginatekst)', 'pad' => $fotoboekTekstBestand, 'schrijffunctie' => 'schrijfJson'],
   'mededeling' => ['label' => 'Openingstijden', 'pad' => $actueelBestand, 'schrijffunctie' => 'schrijfJson'],
   'agenda'     => ['label' => 'Agenda', 'pad' => $agendaBestand, 'schrijffunctie' => 'schrijfJson'],
   'faq'        => ['label' => 'Vragen (FAQ)', 'pad' => $faqBestand, 'schrijffunctie' => 'schrijfJson'],
@@ -1070,6 +1074,25 @@ $aanmeldenGroepen = [
   'FAQ' => ['faq_title'],
 ];
 
+// Standaardinhoud voor de ondertitel op media.html en fotoboek.html, alleen
+// gebruikt zolang de bijbehorende bestanden nog niet bestaan. Los van
+// media.json/fotoboek.json (de lijst met items/albums), want dit is puur de
+// vaste tekst bovenaan de pagina.
+$mediaTekstStandaard = [
+  'hero_sub' => [
+    'nl' => "Voordat wij een eigen baan hadden, gaf de media ons veelvuldig aandacht. Hier vind je een overzicht van die berichtgevingen.",
+    'en' => "Before we had our own track, the media paid us frequent attention. Here you will find an overview of those features.",
+    'de' => "Bevor wir eine eigene Strecke hatten, schenkten uns die Medien häufig Aufmerksamkeit. Hier findest du eine Übersicht dieser Berichterstattungen.",
+  ],
+];
+$fotoboekTekstStandaard = [
+  'hero_sub' => [
+    'nl' => "Foto's van onze evenementen en banen, gerangschikt per album. Klik op een album om de foto's te bekijken.",
+    'en' => "Photos from our events and tracks, sorted by album. Click an album to view the photos.",
+    'de' => "Fotos von unseren Veranstaltungen und Strecken, sortiert nach Album. Klicke auf ein Album, um die Fotos anzusehen.",
+  ],
+];
+
 // Zet een volledig jaarbedrag om in de pro-rata maandtabel die de rekentabel
 // en de contributiecalculator op aanmelden.html gebruiken: bij inschrijving
 // in maand $m betaal je (12 - $m) twaalfde deel van het jaarbedrag, naar
@@ -1916,6 +1939,8 @@ $formulierTab = [
   'baanreglement' => 'baanreglement',
   'bedankt' => 'bedankt',
   'aanmelden' => 'aanmelden',
+  'media_tekst' => 'media',
+  'fotoboek_tekst' => 'fotoboek',
   'fotoboek_album_aanmaken' => 'fotoboek', 'fotoboek_album_bewerken' => 'fotoboek',
   'leden_opslaan' => 'leden', 'leden_verwijderen' => 'leden', 'leden_status' => 'leden',
   'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
@@ -2381,6 +2406,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       $melding['aanmelden'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['aanmelden'] = 'fout';
+    }
+
+  } elseif ($formulier === 'media_tekst') {
+    $nieuweMediaTekstData = [
+      'hero_sub' => [
+        'nl' => kort($_POST['mt']['hero_sub']['nl'] ?? '', 400),
+        'en' => kort($_POST['mt']['hero_sub']['en'] ?? '', 400),
+        'de' => kort($_POST['mt']['hero_sub']['de'] ?? '', 400),
+      ],
+    ];
+    if (schrijfJson($mediaTekstBestand, $nieuweMediaTekstData)) {
+      $mediaTekstData = $nieuweMediaTekstData;
+      $melding['media_tekst'] = 'Opgeslagen. De media-pagina gebruikt meteen deze tekst.';
+      $meldingType['media_tekst'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'media_tekst', 'ondertitel bijgewerkt');
+    } else {
+      $melding['media_tekst'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+      $meldingType['media_tekst'] = 'fout';
+    }
+
+  } elseif ($formulier === 'fotoboek_tekst') {
+    $nieuweFotoboekTekstData = [
+      'hero_sub' => [
+        'nl' => kort($_POST['ft']['hero_sub']['nl'] ?? '', 400),
+        'en' => kort($_POST['ft']['hero_sub']['en'] ?? '', 400),
+        'de' => kort($_POST['ft']['hero_sub']['de'] ?? '', 400),
+      ],
+    ];
+    if (schrijfJson($fotoboekTekstBestand, $nieuweFotoboekTekstData)) {
+      $fotoboekTekstData = $nieuweFotoboekTekstData;
+      $melding['fotoboek_tekst'] = 'Opgeslagen. De fotoboek-pagina gebruikt meteen deze tekst.';
+      $meldingType['fotoboek_tekst'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'fotoboek_tekst', 'ondertitel bijgewerkt');
+    } else {
+      $melding['fotoboek_tekst'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+      $meldingType['fotoboek_tekst'] = 'fout';
     }
 
   } elseif ($formulier === 'rekentabel') {
@@ -3478,6 +3539,16 @@ $aanmeldenData = $aanmeldenStandaard;
 if (file_exists($aanmeldenBestand)) {
   $json = json_decode(file_get_contents($aanmeldenBestand), true);
   if (is_array($json)) $aanmeldenData = array_merge($aanmeldenStandaard, $json);
+}
+$mediaTekstData = $mediaTekstStandaard;
+if (file_exists($mediaTekstBestand)) {
+  $json = json_decode(file_get_contents($mediaTekstBestand), true);
+  if (is_array($json)) $mediaTekstData = array_merge($mediaTekstStandaard, $json);
+}
+$fotoboekTekstData = $fotoboekTekstStandaard;
+if (file_exists($fotoboekTekstBestand)) {
+  $json = json_decode(file_get_contents($fotoboekTekstBestand), true);
+  if (is_array($json)) $fotoboekTekstData = array_merge($fotoboekTekstStandaard, $json);
 }
 
 // ===== Ledenadministratie =====
@@ -4668,13 +4739,8 @@ if ($isMaster && file_exists($logBestand)) {
     <div class="tab-paneel" id="tab-media">
     <!-- ===== MEDIA / PERSBERICHTEN ===== -->
     <div class="kaart">
-      <div class="kaart-header">
-        <div>
-          <h1>Media / persberichten</h1>
-          <p class="sub">De lijst met persaandacht op de media-pagina. Laat een Nederlandse titel leeg om die kaart te verbergen.</p>
-        </div>
-        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('media-lijst', 'Item')">+ Media-item toevoegen</button>
-      </div>
+      <h1>Media</h1>
+      <p class="sub">De ondertitel bovenaan de pagina en de lijst met persaandacht. Laat een Nederlandse titel bij een item leeg om die kaart te verbergen.</p>
 
       <?php if (isset($melding['media'])): ?>
         <div class="melding <?php echo $meldingType['media']; ?>"><?php echo htmlspecialchars($melding['media']); ?></div>
@@ -4682,6 +4748,33 @@ if ($isMaster && file_exists($logBestand)) {
 
       <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
         Nederlands is verplicht per kaart. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+      </div>
+    </div>
+
+    <div class="kaart">
+      <h1>Ondertitel bovenaan de pagina</h1>
+      <?php if (isset($melding['media_tekst'])): ?>
+        <div class="melding <?php echo $meldingType['media_tekst']; ?>"><?php echo htmlspecialchars($melding['media_tekst']); ?></div>
+      <?php endif; ?>
+      <form method="post" action="beheer.php#media">
+        <input type="hidden" name="formulier" value="media_tekst">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+        <div class="veld">
+          <label for="mt-hero-sub-nl">Tekst onder de titel "Media"</label>
+          <div class="rij-3">
+            <textarea id="mt-hero-sub-nl" name="mt[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
+            <textarea id="mt-hero-sub-en" name="mt[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['en'] ?? ''); ?></textarea>
+            <textarea id="mt-hero-sub-de" name="mt[hero_sub][de]" maxlength="400" placeholder="Deutsch (optional)" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['de'] ?? ''); ?></textarea>
+          </div>
+        </div>
+        <button type="submit">Ondertitel opslaan</button>
+      </form>
+    </div>
+
+    <div class="kaart">
+      <div class="kaart-header">
+        <h1>Media-items</h1>
+        <button type="button" class="knop-toevoegen" onclick="itemBlokToevoegen('media-lijst', 'Item')">+ Media-item toevoegen</button>
       </div>
 
       <form method="post" action="beheer.php#media">
@@ -4775,6 +4868,26 @@ if ($isMaster && file_exists($logBestand)) {
     <?php if (in_array('fotoboek', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-fotoboek">
     <!-- ===== FOTOBOEK ===== -->
+    <div class="kaart">
+      <h1>Ondertitel bovenaan de pagina</h1>
+      <?php if (isset($melding['fotoboek_tekst'])): ?>
+        <div class="melding <?php echo $meldingType['fotoboek_tekst']; ?>"><?php echo htmlspecialchars($melding['fotoboek_tekst']); ?></div>
+      <?php endif; ?>
+      <form method="post" action="beheer.php#fotoboek">
+        <input type="hidden" name="formulier" value="fotoboek_tekst">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+        <div class="veld">
+          <label for="ft-hero-sub-nl">Tekst onder de titel "Fotoboek"</label>
+          <div class="rij-3">
+            <textarea id="ft-hero-sub-nl" name="ft[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
+            <textarea id="ft-hero-sub-en" name="ft[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['en'] ?? ''); ?></textarea>
+            <textarea id="ft-hero-sub-de" name="ft[hero_sub][de]" maxlength="400" placeholder="Deutsch (optional)" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['de'] ?? ''); ?></textarea>
+          </div>
+        </div>
+        <button type="submit">Ondertitel opslaan</button>
+      </form>
+    </div>
+
     <div class="kaart">
       <h1>Nieuw album</h1>
       <p class="sub">Maak een album aan, daarna kun je er hieronder foto's aan toevoegen.</p>

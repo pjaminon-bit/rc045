@@ -139,7 +139,7 @@
   <div class="page-hero-content">
     <div class="section-label" data-i18n="hero.label">Fotoboek</div>
     <h1 data-i18n="hero.title">Fotoboek</h1>
-    <p data-i18n="hero.sub">Foto's van onze evenementen en banen, gerangschikt per album. Klik op een album om de foto's te bekijken.</p>
+    <p id="ft-hero-sub" data-i18n="hero.sub">Foto's van onze evenementen en banen, gerangschikt per album. Klik op een album om de foto's te bekijken.</p>
   </div>
 </div>
 <main class="main" id="main-content">
@@ -279,7 +279,27 @@ function setLang(lang) {
   updateInternalLinks(lang);
   renderFotoboekView();
   renderSponsorCta();
+  renderFotoboekTekst();
 }
+// ===== ONDERTITEL (data/fotoboek-pagina.json, bewerkbaar via beheer.php) =====
+var fotoboekTekstData = null;
+function renderFotoboekTekst() {
+  if (!fotoboekTekstData) return;
+  var bron = fotoboekTekstData.hero_sub;
+  if (!bron) return;
+  var tekst = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
+  if (!tekst) return;
+  var el = document.getElementById('ft-hero-sub');
+  if (el) el.textContent = tekst;
+}
+fetch('data/fotoboek-pagina.json', { cache: 'no-store' })
+  .then(function (r) { return r.ok ? r.json() : null; })
+  .then(function (d) {
+    if (!d) return;
+    fotoboekTekstData = d;
+    renderFotoboekTekst();
+  })
+  .catch(function () {});
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 if (currentLang !== 'nl') setLang(currentLang);
 else updateInternalLinks('nl');

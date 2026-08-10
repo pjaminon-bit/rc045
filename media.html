@@ -113,7 +113,7 @@
   <div class="page-hero-content">
     <div class="section-label" data-i18n="hero.label">Over ons</div>
     <h1 data-i18n="hero.title">Media</h1>
-    <p data-i18n="hero.sub">Voordat wij een eigen baan hadden, gaf de media ons veelvuldig aandacht. Hier vind je een overzicht van die berichtgevingen.</p>
+    <p id="mt-hero-sub" data-i18n="hero.sub">Voordat wij een eigen baan hadden, gaf de media ons veelvuldig aandacht. Hier vind je een overzicht van die berichtgevingen.</p>
   </div>
 </div>
 <main class="main" id="main-content">
@@ -280,7 +280,27 @@ function setLang(lang) {
   updateInternalLinks(lang);
   renderMedia();
   renderSponsorCta();
+  renderMediaTekst();
 }
+// ===== ONDERTITEL (data/media-pagina.json, bewerkbaar via beheer.php) =====
+var mediaTekstData = null;
+function renderMediaTekst() {
+  if (!mediaTekstData) return;
+  var bron = mediaTekstData.hero_sub;
+  if (!bron) return;
+  var tekst = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
+  if (!tekst) return;
+  var el = document.getElementById('mt-hero-sub');
+  if (el) el.textContent = tekst;
+}
+fetch('data/media-pagina.json', { cache: 'no-store' })
+  .then(function (r) { return r.ok ? r.json() : null; })
+  .then(function (d) {
+    if (!d) return;
+    mediaTekstData = d;
+    renderMediaTekst();
+  })
+  .catch(function () {});
 document.getElementById('footer-year').textContent = new Date().getFullYear();
 if (currentLang !== 'nl') setLang(currentLang);
 else updateInternalLinks('nl');
