@@ -1189,6 +1189,37 @@ function kort($tekst, $max) {
   return function_exists('mb_substr') ? mb_substr($tekst, 0, $max) : substr($tekst, 0, $max);
 }
 
+// Vult $standaard aan met wat er al is opgeslagen in $opgeslagen, maar laat
+// een leeg opgeslagen veld NOOIT een goedgevulde standaardtekst overschrijven.
+// array_merge() deed dat namelijk wel: als een veld ooit een keer leeg is
+// opgeslagen (bv. omdat het formulier op dat moment nog niet compleet was),
+// bleef het voorgoed leeg in beheer, ook nadat de standaardtekst in de code
+// later weer goed gevuld werd. Dit is de fix voor dat probleem.
+function vulStandaardAan($standaard, $opgeslagen) {
+  if (!is_array($opgeslagen)) return $standaard;
+  $resultaat = $standaard;
+  foreach ($standaard as $sleutel => $default) {
+    if (!array_key_exists($sleutel, $opgeslagen)) continue;
+    $waarde = $opgeslagen[$sleutel];
+    if (is_array($default)) {
+      // Veld met nl/en/de: per taal apart bekijken, lege taal = standaard
+      // erin laten staan in plaats van leegmaken.
+      if (!is_array($waarde)) continue;
+      foreach ($default as $taal => $standaardTekst) {
+        if (isset($waarde[$taal]) && is_string($waarde[$taal]) && trim($waarde[$taal]) !== '') {
+          $resultaat[$sleutel][$taal] = $waarde[$taal];
+        }
+      }
+    } else {
+      // Los tekstveld (bv. iban_number): alleen overnemen als niet leeg.
+      if (is_string($waarde) && trim($waarde) !== '') {
+        $resultaat[$sleutel] = $waarde;
+      }
+    }
+  }
+  return $resultaat;
+}
+
 // Datum tonen als dd/mm/jjjj in beheer-formulieren, opgeslagen blijft overal
 // gewoon yyyy-mm-dd (ISO), want daar rekent de rest van de site (homepage,
 // sortering, leeftijdsberekening) mee. Was eerst alleen voor Agenda, geldt nu
@@ -3518,37 +3549,37 @@ $tabelSenior = rekentabelProRata((float) $rekentabelData['senior_jaarbedrag']);
 $homepageData = $homepageStandaard;
 if (file_exists($homepageBestand)) {
   $json = json_decode(file_get_contents($homepageBestand), true);
-  if (is_array($json)) $homepageData = array_merge($homepageStandaard, $json);
+  if (is_array($json)) $homepageData = vulStandaardAan($homepageStandaard, $json);
 }
 $ontstaanData = $ontstaanStandaard;
 if (file_exists($ontstaanBestand)) {
   $json = json_decode(file_get_contents($ontstaanBestand), true);
-  if (is_array($json)) $ontstaanData = array_merge($ontstaanStandaard, $json);
+  if (is_array($json)) $ontstaanData = vulStandaardAan($ontstaanStandaard, $json);
 }
 $baanreglementData = $baanreglementStandaard;
 if (file_exists($baanreglementBestand)) {
   $json = json_decode(file_get_contents($baanreglementBestand), true);
-  if (is_array($json)) $baanreglementData = array_merge($baanreglementStandaard, $json);
+  if (is_array($json)) $baanreglementData = vulStandaardAan($baanreglementStandaard, $json);
 }
 $bedanktData = $bedanktStandaard;
 if (file_exists($bedanktBestand)) {
   $json = json_decode(file_get_contents($bedanktBestand), true);
-  if (is_array($json)) $bedanktData = array_merge($bedanktStandaard, $json);
+  if (is_array($json)) $bedanktData = vulStandaardAan($bedanktStandaard, $json);
 }
 $aanmeldenData = $aanmeldenStandaard;
 if (file_exists($aanmeldenBestand)) {
   $json = json_decode(file_get_contents($aanmeldenBestand), true);
-  if (is_array($json)) $aanmeldenData = array_merge($aanmeldenStandaard, $json);
+  if (is_array($json)) $aanmeldenData = vulStandaardAan($aanmeldenStandaard, $json);
 }
 $mediaTekstData = $mediaTekstStandaard;
 if (file_exists($mediaTekstBestand)) {
   $json = json_decode(file_get_contents($mediaTekstBestand), true);
-  if (is_array($json)) $mediaTekstData = array_merge($mediaTekstStandaard, $json);
+  if (is_array($json)) $mediaTekstData = vulStandaardAan($mediaTekstStandaard, $json);
 }
 $fotoboekTekstData = $fotoboekTekstStandaard;
 if (file_exists($fotoboekTekstBestand)) {
   $json = json_decode(file_get_contents($fotoboekTekstBestand), true);
-  if (is_array($json)) $fotoboekTekstData = array_merge($fotoboekTekstStandaard, $json);
+  if (is_array($json)) $fotoboekTekstData = vulStandaardAan($fotoboekTekstStandaard, $json);
 }
 
 // ===== Ledenadministratie =====
