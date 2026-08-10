@@ -97,6 +97,7 @@ $nieuwsBestand    = $dataMap . '/nieuws.json';
 $rekentabelBestand = $dataMap . '/rekentabel.json';
 $homepageBestand   = $dataMap . '/homepage.json';
 $ontstaanBestand   = $dataMap . '/ontstaan.json';
+$baanreglementBestand = $dataMap . '/baanreglement.json';
 
 // Alle bestanden die automatisch back-upt worden (zie maakDataBackup()),
 // gebruikt door het tabblad "Back-ups" en de backup_herstellen-actie
@@ -106,6 +107,7 @@ $ontstaanBestand   = $dataMap . '/ontstaan.json';
 $dataBackupBestanden = [
   'homepage'   => ['label' => 'Homepage teksten', 'pad' => $homepageBestand, 'schrijffunctie' => 'schrijfJson'],
   'ontstaan'   => ['label' => 'Ontstaan (geschiedenis)', 'pad' => $ontstaanBestand, 'schrijffunctie' => 'schrijfJson'],
+  'baanreglement' => ['label' => 'Baanreglement', 'pad' => $baanreglementBestand, 'schrijffunctie' => 'schrijfJson'],
   'mededeling' => ['label' => 'Openingstijden', 'pad' => $actueelBestand, 'schrijffunctie' => 'schrijfJson'],
   'agenda'     => ['label' => 'Agenda', 'pad' => $agendaBestand, 'schrijffunctie' => 'schrijfJson'],
   'faq'        => ['label' => 'Vragen (FAQ)', 'pad' => $faqBestand, 'schrijffunctie' => 'schrijfJson'],
@@ -484,6 +486,131 @@ $ontstaanStandaard = [
     'nl' => "Nog steeds voegen we optimalisaties en veranderingen door aan onze baan, het is nooit af.",
     'en' => "We are still adding improvements and changes to our track, it is never truly finished.",
     'de' => "Wir fügen unserer Strecke noch immer Verbesserungen und Änderungen hinzu, sie ist nie wirklich fertig.",
+  ],
+];
+
+// Standaardinhoud voor het Baanreglement, alleen gebruikt zolang
+// data/baanreglement.json nog niet bestaat. De Nederlandse tekst is exact de
+// tekst die nu al vast in baanreglement.html staat; Engels en Duits komen uit
+// hetzelfde i18n-blok. Per artikel is de inhoud (voorheen losse bullets/
+// subartikelen/alinea's) samengevoegd tot een lopende tekst, met een lege
+// regel tussen elk onderdeel: dat wordt bij het opslaan weer als losse
+// alinea's op de pagina getoond.
+$baanreglementStandaard = [
+  'hero_sub' => [
+    'nl' => "Dit reglement is in het leven geroepen om onze hobby veilig uit te oefenen. Met het betreden van het RC045-terrein ga je akkoord met de inhoud van dit reglement.",
+    'en' => "These regulations were created to ensure our hobby can be practised safely. By entering the RC045 grounds, you agree to the contents of these regulations.",
+    'de' => "Dieses Reglement wurde erstellt, um unser Hobby sicher ausüben zu können. Mit dem Betreten des RC045-Geländes stimmst du dem Inhalt dieses Reglements zu.",
+  ],
+  'intro_bold' => [
+    'nl' => "Belangrijk:",
+    'en' => "Important:",
+    'de' => "Wichtig:",
+  ],
+  'intro_text' => [
+    'nl' => "Er zal niet worden gediscussieerd over de inhoud van dit reglement. Het niet correct opvolgen van deze regels kan leiden tot een reprimande van het bestuur in welke aard dan ook (e.e.a. conform de notarieel vastgelegde statuten).",
+    'en' => "These regulations are not open for discussion. Failure to comply may result in a reprimand from the board in any form (in accordance with the notarially recorded statutes).",
+    'de' => "Über den Inhalt dieses Reglements wird nicht diskutiert. Die Nichteinhaltung dieser Regeln kann zu einer Abmahnung durch den Vorstand jeglicher Art führen (gemäß den notariell festgelegten Statuten).",
+  ],
+  'a1_title' => [
+    'nl' => "Openingstijden van de baan",
+    'en' => "Track Opening Hours",
+    'de' => "Öffnungszeiten der Strecke",
+  ],
+  'a1_body' => [
+    'nl' => "Woensdagavond 18:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)\n\nZaterdag 10:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)\n\nZondag 10:00 uur tot einde\n\nTot einde wil zeggen dat bij onvoldoende animo het RC045-terrein zal worden gesloten door de sleutelhouder. Sluiting van het RC045-terrein zal ook via de WhatsApp groep van RC045 worden gecommuniceerd.",
+    'en' => "Wednesday evening from 18:00 until close (subject to sufficient interest and weather conditions)\n\nSaturday from 10:00 until close (subject to sufficient interest and weather conditions)\n\nSunday from 10:00 until close\n\n\"Until close\" means the RC045 grounds will be closed by the key holder if there is insufficient interest. Closure will also be communicated via the RC045 WhatsApp group.",
+    'de' => "Mittwochabend ab 18:00 Uhr bis Ende (bei ausreichend Interesse und abhängig vom Wetter)\n\nSamstag ab 10:00 Uhr bis Ende (bei ausreichend Interesse und abhängig vom Wetter)\n\nSonntag ab 10:00 Uhr bis Ende\n\n\"Bis Ende\" bedeutet, dass das RC045-Gelände bei unzureichendem Interesse vom Schlüsselträger geschlossen wird. Die Schließung des RC045-Geländes wird auch über die WhatsApp-Gruppe von RC045 kommuniziert.",
+  ],
+  'a2_title' => [
+    'nl' => "Veiligheid",
+    'en' => "Safety",
+    'de' => "Sicherheit",
+  ],
+  'a2_body' => [
+    'nl' => "2.1 Rijderspodium\n\nHet is verboden voor niet-rijders zich op de baan te bevinden. Alleen rijders bevinden zich op de baan (rijderspodium). Aangewezen personen met een hesje mogen op de baan zijn in de rol van baanmeester. Kijkers dienen achter de draad te staan.\n\nDe definitie van rijder is een lid of gastrijder die op dat moment een RC-auto bestuurt.\n\n2.2 Jumptrack\n\nBij de jumptrack mogen alleen aangewezen personen rondom de schans staan. Rijders staan altijd aan de voorzijde. Indien er een auto beschadigd of stuk gaat zal deze door een baanmeester worden opgehaald. Wanneer een baanmeester een signaal geeft of gaat bewegen stopt iedereen met rijden.\n\n2.3 Crawlerbaan\n\nBij en op de crawlerbaan mogen rijders langs het parcours lopen. Kijkers blijven op een gepaste afstand. Wanneer de rijder aangeeft dat iemand opzij moet of van een hindernis af moet dient men hier gehoor aan te geven.\n\nDe crawlerbaan is hoofdzakelijk alleen toegankelijk voor leden en gastrijders. Zonder toestemming van het bestuur is het betreden van de crawlerbaan verboden. Op de crawlerbaan is het alleen toegestaan om met crawler auto's deel te nemen. Kraton, X-Max en dergelijke zijn hier niet toegestaan.\n\n2.4 Accu's en apparatuur\n\nAuto's moeten technisch goed functioneren en alles moet goed vastzitten. Accu's worden buiten geladen en niet in de kantine of op het rijderspodium. Laad-apparatuur is veilig en voorzien van een goed functionerende stekker en stekkermaterialen.\n\n2.5 Rijden op asfalt\n\nHet is niet toegestaan buiten de baan op het asfalt te rijden. Voor het hekwerk gedoseerd rijden met veiligheid op de eerste plaats (alleen rechtstreeks van de baan naar werktafel of v.v.).\n\n2.6 Aansprakelijkheid\n\nHet betreden van het RC045-terrein is op eigen risico. Wij zijn niet aansprakelijk voor diefstal of andere schades aan bv. auto's of materiaal. Dit geldt ook bij schades die onderling veroorzaakt worden op en rondom de banen.\n\n2.7 Verantwoordelijkheid gasten\n\nIeder lid is verantwoordelijk voor het gedrag en de acties van zijn/haar gasten en/of bezoekers.",
+    'en' => "2.1 Driver's Platform\n\nNon-drivers are not permitted on the track. Only drivers are allowed on the track (driver's platform). Designated persons wearing a vest may be on the track in the role of track marshal. Spectators must stand behind the barrier.\n\nA driver is defined as a member or guest rider who is actively controlling an RC car at that moment.\n\n2.2 Jump Track\n\nOnly designated persons may stand around the jump ramp. Drivers always stand at the front. If a car is damaged or breaks down, it will be retrieved by a track marshal. When a track marshal gives a signal or begins to move, everyone must stop driving.\n\n2.3 Crawler Track\n\nDrivers may walk alongside the crawler course. Spectators must keep a safe distance. When a driver indicates that someone needs to move aside or step away from an obstacle, this must be respected.\n\nThe crawler track is primarily accessible to members and guest riders only, for safety reasons due to the rough terrain. Entering the crawler track without permission from the board is prohibited. Only crawler vehicles may participate on the crawler track. Kraton, X-Max and similar vehicles are not permitted here.\n\n2.4 Batteries and Equipment\n\nVehicles must be in good technical working order and everything must be securely fastened. Batteries are charged outside only, not in the canteen or on the driver's platform. Charging equipment must be safe and fitted with a properly functioning plug and connector.\n\n2.5 Riding on Asphalt\n\nIt is not permitted to ride on the asphalt outside the designated track area. Near the fence, ride carefully with safety as the top priority (only directly from the track to the work table or vice versa).\n\n2.6 Liability\n\nEntering the RC045 grounds is at your own risk. We are not liable for theft or other damage to vehicles or equipment. This also applies to damage caused between participants on and around the tracks.\n\n2.7 Responsibility for Guests\n\nEach member is responsible for the behaviour and actions of their guests and/or visitors.",
+    'de' => "2.1 Fahrerpodium\n\nEs ist Nicht-Fahrern verboten, sich auf der Strecke aufzuhalten. Nur Fahrer befinden sich auf der Strecke (Fahrerpodium). Ausgewiesene Personen mit einer Weste dürfen als Streckenmarschall auf der Strecke sein. Zuschauer müssen hinter der Absperrung stehen.\n\nAls Fahrer gilt ein Mitglied oder Gastfahrer, der zu diesem Zeitpunkt ein RC-Auto steuert.\n\n2.2 Sprungstrecke\n\nBei der Sprungstrecke dürfen nur ausgewiesene Personen rund um die Rampe stehen. Fahrer stehen immer an der Vorderseite. Wenn ein Auto beschädigt wird oder kaputt geht, wird es von einem Streckenmarschall abgeholt. Wenn ein Streckenmarschall ein Signal gibt oder sich bewegt, hört jeder mit dem Fahren auf.\n\n2.3 Crawler-Strecke\n\nAuf und an der Crawler-Strecke dürfen Fahrer entlang des Parcours laufen. Zuschauer halten einen angemessenen Abstand. Wenn der Fahrer angibt, dass jemand zur Seite treten oder von einem Hindernis absteigen soll, muss dem Folge geleistet werden.\n\nDie Crawler-Strecke ist hauptsächlich nur für Mitglieder und Gastfahrer zugänglich. Das Betreten der Crawler-Strecke ohne Genehmigung des Vorstands ist verboten. Auf der Crawler-Strecke dürfen nur Crawler-Fahrzeuge teilnehmen. Kraton, X-Max und ähnliche sind hier nicht erlaubt.\n\n2.4 Akkus und Ausrüstung\n\nFahrzeuge müssen technisch einwandfrei funktionieren und alles muss fest sitzen. Akkus werden nur draußen geladen, nicht in der Kantine oder auf dem Fahrerpodium. Ladegeräte sind sicher und mit einem einwandfrei funktionierenden Stecker und Steckermaterial ausgestattet.\n\n2.5 Fahren auf Asphalt\n\nEs ist nicht erlaubt, außerhalb der Strecke auf dem Asphalt zu fahren. Vor dem Zaun dosiert fahren mit Sicherheit an erster Stelle (nur direkt von der Strecke zum Werktisch oder umgekehrt).\n\n2.6 Haftung\n\nDas Betreten des RC045-Geländes erfolgt auf eigene Gefahr. Wir haften nicht für Diebstahl oder andere Schäden an z.B. Fahrzeugen oder Material. Dies gilt auch für Schäden, die gegenseitig auf und um die Strecken verursacht werden.\n\n2.7 Verantwortung für Gäste\n\nJedes Mitglied ist verantwortlich für das Verhalten und die Handlungen seiner Gäste und/oder Besucher.",
+  ],
+  'a3_title' => [
+    'nl' => "Gastrijders",
+    'en' => "Guest Riders",
+    'de' => "Gastfahrer",
+  ],
+  'a3_body' => [
+    'nl' => "Een gastrijder moet zich altijd aanmelden bij een bestuurslid of sleuteldrager. De baanregels moeten worden besproken met de gastrijder. Ieder verenigingslid moet zorgdragen dat een gastrijder op de hoogte is van de geldende regels. Gastrijders krijgen het reglement.",
+    'en' => "A guest rider must always check in with a board member or key holder. The track rules must be discussed with the guest rider. Every club member must ensure that a guest rider is informed of the applicable rules. Guest riders will receive a copy of the regulations.",
+    'de' => "Ein Gastfahrer muss sich immer bei einem Vorstandsmitglied oder Schlüsselträger anmelden. Die Streckenregeln müssen mit dem Gastfahrer besprochen werden. Jedes Vereinsmitglied muss dafür sorgen, dass ein Gastfahrer über die geltenden Regeln informiert ist. Gastfahrer erhalten das Reglement.",
+  ],
+  'a4_title' => [
+    'nl' => "Baanmeester",
+    'en' => "Track Marshal",
+    'de' => "Streckenmarschall",
+  ],
+  'a4_body' => [
+    'nl' => "De aangewezen baanmeester is herkenbaar door een oranje hesje en heeft op het moment dat hij op de baan staat de leiding. Dat wil zeggen dat alles wat hij zegt moet worden uitgevoerd. Het stil leggen van een race dient per direct opgevolgd te worden.\n\nDe baanmeester kan uit meerdere personen bestaan. Het is een roulerende taak en ieder lid zal zijn rol hierin nemen.",
+    'en' => "The designated track marshal is recognisable by an orange vest and has authority when on the track. This means that everything they say must be followed. Stopping a race must be complied with immediately.\n\nThere may be multiple track marshals. It is a rotating role and every member will take on this responsibility.",
+    'de' => "Der ausgewiesene Streckenmarschall ist an einer orangenen Weste erkennbar und hat die Leitung, wenn er sich auf der Strecke befindet. Das bedeutet, dass alles, was er sagt, ausgeführt werden muss. Das Stoppen eines Rennens muss sofort befolgt werden.\n\nEs kann mehrere Streckenmarschälle geben. Es ist eine rotierende Aufgabe und jedes Mitglied wird seine Rolle darin übernehmen.",
+  ],
+  'a5_title' => [
+    'nl' => "Rijden en gebruik van brandstof",
+    'en' => "Driving and Fuel Use",
+    'de' => "Fahren und Kraftstoffnutzung",
+  ],
+  'a5_body' => [
+    'nl' => "Nitro en benzine zijn niet toegestaan. Alleen elektrisch aangedreven voertuigen zijn welkom op ons terrein.",
+    'en' => "Nitro and petrol are not permitted. Only electrically powered vehicles are welcome on our grounds.",
+    'de' => "Nitro und Benzin sind nicht erlaubt. Nur elektrisch angetriebene Fahrzeuge sind auf unserem Gelände willkommen.",
+  ],
+  'a6_title' => [
+    'nl' => "Verdovende middelen",
+    'en' => "Narcotics",
+    'de' => "Betäubungsmittel",
+  ],
+  'a6_body' => [
+    'nl' => "Het is verboden op en rond de baan verdovende middelen te gebruiken.",
+    'en' => "The use of narcotics on and around the track is prohibited.",
+    'de' => "Es ist verboten, auf und um die Strecke Betäubungsmittel zu verwenden.",
+  ],
+  'a7_title' => [
+    'nl' => "Roken en drank",
+    'en' => "Smoking and Alcohol",
+    'de' => "Rauchen und Alkohol",
+  ],
+  'a7_body' => [
+    'nl' => "Het is niet toegestaan te roken of te drinken op de baan. Alcoholhoudende dranken zijn tijdens openingstijden verboden op het gehele terrein.",
+    'en' => "Smoking and drinking on the track are not permitted. Alcoholic beverages are prohibited on the entire grounds during opening hours.",
+    'de' => "Es ist nicht erlaubt, auf der Strecke zu rauchen oder zu trinken. Alkoholische Getränke sind während der Öffnungszeiten auf dem gesamten Gelände verboten.",
+  ],
+  'a8_title' => [
+    'nl' => "Opruimen",
+    'en' => "Tidying Up",
+    'de' => "Aufräumen",
+  ],
+  'a8_body' => [
+    'nl' => "8.1 Terrein netjes houden\n\nIeder lid en gastrijder verplicht zich tot het opruimen en netjes houden van ons terrein. Zwerfafval moet worden voorkomen, waar nodig ruimen we dit met z'n allen op. Afval doen we scheiden in de daarvoor aangewezen prullenbakken en zakken. De kantine wordt door iedereen opgeruimd en schoongemaakt.\n\n8.2 Chemisch afval\n\nElke rijder is verplicht milieubelastende materialen mee naar huis te nemen en zelf in te leveren als chemisch afval (bv. een defecte accu).",
+    'en' => "8.1 Keeping the Grounds Tidy\n\nEvery member and guest rider is obliged to help clean up and keep our grounds tidy. Litter must be avoided and we all clean it up together when needed. Waste is separated into the designated bins and bags. The canteen is cleaned up by everyone.\n\n8.2 Chemical Waste\n\nEvery rider is obliged to take environmentally hazardous materials home and dispose of them as chemical waste themselves (e.g. a defective battery).",
+    'de' => "8.1 Gelände sauber halten\n\nJedes Mitglied und jeder Gastfahrer verpflichtet sich, unser Gelände aufzuräumen und sauber zu halten. Müll muss vermieden werden; wenn nötig, räumen wir ihn gemeinsam auf. Abfall wird in die dafür vorgesehenen Müllbehälter und Säcke getrennt. Die Kantine wird von allen aufgeräumt und gereinigt.\n\n8.2 Chemischer Abfall\n\nJeder Fahrer ist verpflichtet, umweltbelastende Materialien mit nach Hause zu nehmen und selbst als Sondermüll zu entsorgen (z.B. ein defekter Akku).",
+  ],
+  'a9_title' => [
+    'nl' => "AVG",
+    'en' => "GDPR",
+    'de' => "DSGVO",
+  ],
+  'a9_body' => [
+    'nl' => "Bij het betreden van het RC045-terrein stem je in met het delen van foto's en video's op social media.",
+    'en' => "By entering the RC045 grounds, you consent to the sharing of photos and videos on social media.",
+    'de' => "Mit dem Betreten des RC045-Geländes stimmst du der Veröffentlichung von Fotos und Videos in sozialen Medien zu.",
+  ],
+  'a10_title' => [
+    'nl' => "Het bestuur",
+    'en' => "The Board",
+    'de' => "Der Vorstand",
+  ],
+  'a10_body' => [
+    'nl' => "Indien er een geschil ontstaat over bovengenoemde regels moet dit met het bestuur worden besproken. Een uitspraak van het bestuur is bindend en niet discutabel. Eventuele wijzigingen worden gecommuniceerd via de nieuwsbrief of in een ALV.",
+    'en' => "If a dispute arises regarding the above rules, it must be discussed with the board. A decision by the board is binding and not open to discussion. Any changes will be communicated via the newsletter or at a general meeting.",
+    'de' => "Wenn ein Streit über die oben genannten Regeln entsteht, muss dieser mit dem Vorstand besprochen werden. Eine Entscheidung des Vorstands ist bindend und nicht diskutierbar. Etwaige Änderungen werden über den Newsletter oder in einer Hauptversammlung kommuniziert.",
   ],
 ];
 
@@ -1120,6 +1247,7 @@ $isMaster = $ingelogd && !empty($_SESSION['is_master']);
 $beheerTabsAlle = [
   'homepage'   => 'Homepage',
   'ontstaan'   => 'Ontstaan',
+  'baanreglement' => 'Baanreglement',
   'mededeling' => 'Openingstijden',
   'nieuws'     => 'Nieuws',
   'agenda'     => 'Agenda',
@@ -1184,6 +1312,49 @@ $ontstaanVelden = [
   'story_p6' => ['Alinea 6: de baan in Eygelshoven (2022)', 'blok'],
   'story_p7' => ['Alinea 7: nog steeds in ontwikkeling', 'blok'],
 ];
+// Velden van het tabblad Baanreglement. Per artikel één titelveld en één
+// tekstvak met de volledige inhoud (was voorheen losse bullets/subartikelen/
+// alinea's, nu één doorlopende tekst per artikel: een lege regel ertussen
+// wordt bij het tonen weer als aparte alinea behandeld).
+$baanreglementVelden = [
+  'hero_sub' => ['Ondertitel boven de pagina', 'tekst'],
+  'intro_bold' => ['Vet woord vooraan de introtekst (bijv. "Belangrijk:")', 'tekst'],
+  'intro_text' => ['Introtekst', 'blok'],
+  'a1_title' => ['Artikel 1: titel', 'tekst'],
+  'a1_body' => ['Artikel 1 (Openingstijden van de baan): inhoud', 'blok'],
+  'a2_title' => ['Artikel 2: titel', 'tekst'],
+  'a2_body' => ['Artikel 2 (Veiligheid): inhoud', 'blok'],
+  'a3_title' => ['Artikel 3: titel', 'tekst'],
+  'a3_body' => ['Artikel 3 (Gastrijders): inhoud', 'blok'],
+  'a4_title' => ['Artikel 4: titel', 'tekst'],
+  'a4_body' => ['Artikel 4 (Baanmeester): inhoud', 'blok'],
+  'a5_title' => ['Artikel 5: titel', 'tekst'],
+  'a5_body' => ['Artikel 5 (Rijden en gebruik van brandstof): inhoud', 'blok'],
+  'a6_title' => ['Artikel 6: titel', 'tekst'],
+  'a6_body' => ['Artikel 6 (Verdovende middelen): inhoud', 'blok'],
+  'a7_title' => ['Artikel 7: titel', 'tekst'],
+  'a7_body' => ['Artikel 7 (Roken en drank): inhoud', 'blok'],
+  'a8_title' => ['Artikel 8: titel', 'tekst'],
+  'a8_body' => ['Artikel 8 (Opruimen): inhoud', 'blok'],
+  'a9_title' => ['Artikel 9: titel', 'tekst'],
+  'a9_body' => ['Artikel 9 (AVG): inhoud', 'blok'],
+  'a10_title' => ['Artikel 10: titel', 'tekst'],
+  'a10_body' => ['Artikel 10 (Het bestuur): inhoud', 'blok'],
+];
+// Zelfde velden, gegroepeerd per artikel voor het formulier.
+$baanreglementGroepen = [
+  'Intro' => ['hero_sub', 'intro_bold', 'intro_text'],
+  'Artikel 1' => ['a1_title', 'a1_body'],
+  'Artikel 2' => ['a2_title', 'a2_body'],
+  'Artikel 3' => ['a3_title', 'a3_body'],
+  'Artikel 4' => ['a4_title', 'a4_body'],
+  'Artikel 5' => ['a5_title', 'a5_body'],
+  'Artikel 6' => ['a6_title', 'a6_body'],
+  'Artikel 7' => ['a7_title', 'a7_body'],
+  'Artikel 8' => ['a8_title', 'a8_body'],
+  'Artikel 9' => ['a9_title', 'a9_body'],
+  'Artikel 10' => ['a10_title', 'a10_body'],
+];
 
 // Het eigen gebruikersrecord opzoeken (voor de rechten hieronder). Alleen
 // nodig voor gewone gebruikers, de beheerder (master) mag toch altijd alles.
@@ -1220,6 +1391,7 @@ $formulierTab = [
   'contact' => 'contact', 'media' => 'media', 'nieuws' => 'nieuws', 'rekentabel' => 'rekentabel',
   'homepage' => 'homepage',
   'ontstaan' => 'ontstaan',
+  'baanreglement' => 'baanreglement',
   'fotoboek_album_aanmaken' => 'fotoboek', 'fotoboek_album_bewerken' => 'fotoboek',
   'leden_opslaan' => 'leden', 'leden_verwijderen' => 'leden', 'leden_status' => 'leden',
   'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
@@ -1613,6 +1785,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       $melding['ontstaan'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['ontstaan'] = 'fout';
+    }
+
+  } elseif ($formulier === 'baanreglement') {
+    $nieuweBaanreglementData = [];
+    foreach ($baanreglementVelden as $veld => $info) {
+      $maxLengte = $info[1] === 'tekst' ? 200 : 3000;
+      $nieuweBaanreglementData[$veld] = [
+        'nl' => kort($_POST['br'][$veld]['nl'] ?? '', $maxLengte),
+        'en' => kort($_POST['br'][$veld]['en'] ?? '', $maxLengte),
+        'de' => kort($_POST['br'][$veld]['de'] ?? '', $maxLengte),
+      ];
+    }
+    if (schrijfJson($baanreglementBestand, $nieuweBaanreglementData)) {
+      $baanreglementData = $nieuweBaanreglementData;
+      $melding['baanreglement'] = 'Opgeslagen. Het baanreglement gebruikt meteen deze tekst.';
+      $meldingType['baanreglement'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'baanreglement', 'teksten bijgewerkt');
+    } else {
+      $melding['baanreglement'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+      $meldingType['baanreglement'] = 'fout';
     }
 
   } elseif ($formulier === 'rekentabel') {
@@ -2696,6 +2888,11 @@ if (file_exists($ontstaanBestand)) {
   $json = json_decode(file_get_contents($ontstaanBestand), true);
   if (is_array($json)) $ontstaanData = array_merge($ontstaanStandaard, $json);
 }
+$baanreglementData = $baanreglementStandaard;
+if (file_exists($baanreglementBestand)) {
+  $json = json_decode(file_get_contents($baanreglementBestand), true);
+  if (is_array($json)) $baanreglementData = array_merge($baanreglementStandaard, $json);
+}
 
 // ===== Ledenadministratie =====
 // Het ledenbestand staat buiten data/ omdat het persoonsgegevens bevat;
@@ -3206,6 +3403,62 @@ if ($isMaster && file_exists($logBestand)) {
         <?php endforeach; ?>
         <button type="submit">Ontstaan opslaan</button>
       </div>
+    </form>
+    </div>
+    <?php endif; ?>
+
+    <?php if (in_array('baanreglement', $toegestaneTabs, true)): ?>
+    <div class="tab-paneel" id="tab-baanreglement">
+    <!-- ===== BAANREGLEMENT ===== -->
+    <div class="kaart">
+      <h1>Baanreglement</h1>
+      <p class="sub">De ondertitel, de introtekst en de tien artikelen van het baanreglement. Per artikel is er één tekstvak: gebruik een lege regel om alinea's te scheiden.</p>
+
+      <?php if (isset($melding['baanreglement'])): ?>
+        <div class="melding <?php echo $meldingType['baanreglement']; ?>"><?php echo htmlspecialchars($melding['baanreglement']); ?></div>
+      <?php endif; ?>
+
+      <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
+        Nederlands is verplicht per veld. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+      </div>
+    </div>
+
+    <form method="post" action="beheer.php#baanreglement">
+      <input type="hidden" name="formulier" value="baanreglement">
+      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+      <?php $brGroepIndex = 0; $brAantalGroepen = count($baanreglementGroepen); ?>
+      <?php foreach ($baanreglementGroepen as $brGroepNaam => $brVeldSleutels): ?>
+        <?php $brGroepIndex++; ?>
+        <div class="kaart">
+          <h1><?php echo htmlspecialchars($brGroepNaam); ?></h1>
+          <?php foreach ($brVeldSleutels as $veld): ?>
+            <?php
+              $brInfo = $baanreglementVelden[$veld];
+              $brLabel = $brInfo[0];
+              $brType = $brInfo[1];
+              $brHuidig = $baanreglementData[$veld] ?? ['nl' => '', 'en' => '', 'de' => ''];
+            ?>
+            <div class="veld">
+              <label for="br-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($brLabel); ?></label>
+              <div class="rij-3">
+                <?php if ($brType === 'tekst'): ?>
+                  <input type="text" id="br-<?php echo $veld; ?>-nl" name="br[<?php echo $veld; ?>][nl]" maxlength="200" placeholder="Nederlands" value="<?php echo htmlspecialchars($brHuidig['nl'] ?? ''); ?>">
+                  <input type="text" id="br-<?php echo $veld; ?>-en" name="br[<?php echo $veld; ?>][en]" maxlength="200" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($brHuidig['en'] ?? ''); ?>">
+                  <input type="text" id="br-<?php echo $veld; ?>-de" name="br[<?php echo $veld; ?>][de]" maxlength="200" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($brHuidig['de'] ?? ''); ?>">
+                <?php else: ?>
+                  <textarea id="br-<?php echo $veld; ?>-nl" name="br[<?php echo $veld; ?>][nl]" maxlength="3000" placeholder="Nederlands" style="min-height:140px;"><?php echo htmlspecialchars($brHuidig['nl'] ?? ''); ?></textarea>
+                  <textarea id="br-<?php echo $veld; ?>-en" name="br[<?php echo $veld; ?>][en]" maxlength="3000" placeholder="English (optioneel)" style="min-height:140px;"><?php echo htmlspecialchars($brHuidig['en'] ?? ''); ?></textarea>
+                  <textarea id="br-<?php echo $veld; ?>-de" name="br[<?php echo $veld; ?>][de]" maxlength="3000" placeholder="Deutsch (optional)" style="min-height:140px;"><?php echo htmlspecialchars($brHuidig['de'] ?? ''); ?></textarea>
+                <?php endif; ?>
+              </div>
+            </div>
+          <?php endforeach; ?>
+          <?php if ($brGroepIndex === $brAantalGroepen): ?>
+            <button type="submit">Baanreglement opslaan</button>
+          <?php endif; ?>
+        </div>
+      <?php endforeach; ?>
     </form>
     </div>
     <?php endif; ?>
