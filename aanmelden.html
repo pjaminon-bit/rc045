@@ -264,9 +264,9 @@
   <div class="page-hero-bg" id="hero-bg"></div>
   <div class="page-hero-gradient"></div>
   <div class="page-hero-content">
-    <div class="section-label" data-i18n="hero.label">Lidmaatschap</div>
-    <h1 data-i18n="hero.title">Aanmelden als lid</h1>
-    <p data-i18n="hero.sub">Vul het formulier in om je aan te melden bij RC045. Na ontvangst nemen we zo snel mogelijk contact met je op.</p>
+    <div class="section-label" id="am-hero-label" data-i18n="hero.label">Lidmaatschap</div>
+    <h1 id="am-hero-title" data-i18n="hero.title">Aanmelden als lid</h1>
+    <p id="am-hero-sub" data-i18n="hero.sub">Vul het formulier in om je aan te melden bij RC045. Na ontvangst nemen we zo snel mogelijk contact met je op.</p>
   </div>
 </div>
 
@@ -275,9 +275,9 @@
 
   <!-- Contributie berekening -->
   <div class="contributie-card" id="contributie-card">
-    <h3 data-i18n="contrib.title">Jouw contributie {jaar}</h3>
+    <h3 id="am-contrib-title" data-i18n="contrib.title">Jouw contributie {jaar}</h3>
     <div id="contributie-content">
-      <p class="contributie-placeholder" data-i18n="contrib.placeholder">Vul je geboortedatum in om de contributie te berekenen.</p>
+      <p class="contributie-placeholder" id="am-contrib-placeholder" data-i18n="contrib.placeholder">Vul je geboortedatum in om de contributie te berekenen.</p>
     </div>
   </div>
 
@@ -290,7 +290,7 @@
       </div>
 
       <!-- Persoonsgegevens -->
-      <div class="form-section-title" data-i18n="form.personal">Persoonsgegevens</div>
+      <div class="form-section-title" id="am-form-personal" data-i18n="form.personal">Persoonsgegevens</div>
       <div class="form-grid">
         <div class="form-group">
           <label for="voornaam"><span data-i18n="form.firstname">Voornaam</span> <span class="req">*</span></label>
@@ -311,7 +311,7 @@
       </div>
 
       <!-- Adres -->
-      <div class="form-section-title" data-i18n="form.address">Adresgegevens</div>
+      <div class="form-section-title" id="am-form-address" data-i18n="form.address">Adresgegevens</div>
       <div class="form-grid">
         <div class="form-group">
           <label for="straat"><span data-i18n="form.street">Straat</span> <span class="req">*</span></label>
@@ -345,7 +345,7 @@
       </div>
 
       <!-- Contactgegevens -->
-      <div class="form-section-title" data-i18n="form.contact">Contactgegevens</div>
+      <div class="form-section-title" id="am-form-contact" data-i18n="form.contact">Contactgegevens</div>
       <div class="form-grid">
         <div class="form-group full">
           <label for="email"><span data-i18n="form.email">E-mailadres</span></label>
@@ -375,7 +375,7 @@
       <input type="hidden" id="contributiebedrag-hidden" name="contributiebedrag">
 
       <!-- Akkoord -->
-      <div class="form-section-title" data-i18n="form.agreement">Akkoordverklaring</div>
+      <div class="form-section-title" id="am-form-agreement" data-i18n="form.agreement">Akkoordverklaring</div>
       <div class="akkoord-group">
         <input type="checkbox" id="akkoord-reglement" name="akkoord_reglement" value="ja">
         <label for="akkoord-reglement">
@@ -385,7 +385,7 @@
       <div class="akkoord-group" style="margin-top: 10px;">
         <input type="checkbox" id="akkoord-betaling" name="akkoord_betaling" value="ja">
         <label for="akkoord-betaling">
-          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong>NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button" data-i18n="iban.copy">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".</span> <span style="color:var(--teal);">*</span>
+          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong id="am-iban-number-inline">NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button" data-i18n="iban.copy">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".</span> <span style="color:var(--teal);">*</span>
         </label>
       </div>
 
@@ -393,8 +393,8 @@
       <div class="melding warning" id="akkoord-warning" style="margin-top:12px;"><span data-i18n="warn.agree">⚠️ Je dient akkoord te gaan met beide verklaringen om je te kunnen aanmelden.</span></div>
       <div class="melding error" id="form-error" style="margin-top:12px;"><span data-i18n="warn.error">❌ Er ging iets mis. Probeer het opnieuw of mail naar bestuur@rc045.nl</span></div>
       <div class="melding success" id="form-success" style="margin-top:12px;">
-        <span data-i18n="success.title">✅ Aanmelding ontvangen! We nemen zo snel mogelijk contact met je op.</span><br><br>
-        <span style="font-size:14px; font-weight:400;"><span data-i18n="success.sub">Vergeet niet de contributie over te maken via de betalingsinstructies hierboven.</span></span>
+        <span id="am-success-title" data-i18n="success.title">✅ Aanmelding ontvangen! We nemen zo snel mogelijk contact met je op.</span><br><br>
+        <span style="font-size:14px; font-weight:400;"><span id="am-success-sub" data-i18n="success.sub">Vergeet niet de contributie over te maken via de betalingsinstructies hierboven.</span></span>
       </div>
 
       <button type="submit" class="btn btn-primary" id="submit-btn" data-i18n="form.submit">Aanmelden bij RC045 →</button>
@@ -403,7 +403,7 @@
   </div>
 
   <div class="faq-card" id="faq-card">
-    <div class="faq-title" data-i18n="faq.title">Veelgestelde vragen</div>
+    <div class="faq-title" id="am-faq-title" data-i18n="faq.title">Veelgestelde vragen</div>
     <div id="faq-items">
       <!-- Vragen worden hier ingevuld vanuit data/faq.json, bij te werken via beheer.php -->
     </div>
@@ -470,38 +470,38 @@
 
     <div class="modal-icon" aria-hidden="true">🏎️</div>
     <h2 id="bedankt-modal-title" data-i18n="bedankt.title">Welkom bij RC045!</h2>
-    <p class="modal-sub" data-i18n="bedankt.sub">Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.</p>
+    <p class="modal-sub" id="bd-sub" data-i18n="bedankt.sub">Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.</p>
 
     <div class="modal-stappen">
       <div class="modal-stap">
         <div class="modal-stap-num" aria-hidden="true">1</div>
-        <div class="modal-stap-text" data-i18n="bedankt.stap1">Maak de contributie over via onderstaande gegevens. Vermeld je naam duidelijk.</div>
+        <div class="modal-stap-text" id="bd-stap1" data-i18n="bedankt.stap1">Maak de contributie over via onderstaande gegevens. Vermeld je naam duidelijk.</div>
       </div>
       <div class="modal-stap">
         <div class="modal-stap-num" aria-hidden="true">2</div>
-        <div class="modal-stap-text" data-i18n="bedankt.stap2">Wacht op bevestiging van het bestuur per e-mail of WhatsApp.</div>
+        <div class="modal-stap-text" id="bd-stap2" data-i18n="bedankt.stap2">Wacht op bevestiging van het bestuur per e-mail of WhatsApp.</div>
       </div>
       <div class="modal-stap">
         <div class="modal-stap-num" aria-hidden="true">3</div>
-        <div class="modal-stap-text" data-i18n="bedankt.stap3">Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!</div>
+        <div class="modal-stap-text" id="bd-stap3" data-i18n="bedankt.stap3">Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!</div>
       </div>
     </div>
 
     <div class="iban-card">
-      <h4 data-i18n="iban.title">Betalingsgegevens</h4>
+      <h4 id="bd-iban-title" data-i18n="iban.title">Betalingsgegevens</h4>
       <div class="iban-copy-wrap">
-        <div class="iban-number">NL51 RABO 0367 6153 63</div>
+        <div class="iban-number" id="am-iban-number-modal">NL51 RABO 0367 6153 63</div>
         <button type="button" class="iban-copy-btn" data-i18n="iban.copy">📋 Kopieer</button>
       </div>
       <div class="iban-detail">
-        <span data-i18n="iban.name">T.n.v. RC045</span><br>
-        <span data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"</span>
+        <span id="bd-iban-name" data-i18n="iban.name">T.n.v. RC045</span><br>
+        <span id="bd-iban-ref" data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"</span>
       </div>
     </div>
 
     <div class="modal-btns">
-      <a href="index.html" class="modal-btn modal-btn-primary" data-i18n="bedankt.home">🏠 Naar de hoofdpagina</a>
-      <a href="index.html#locatie" class="modal-btn modal-btn-outline" data-i18n="bedankt.location">📍 Hoe kom ik er?</a>
+      <a href="index.html" class="modal-btn modal-btn-primary" id="bd-btn-home" data-i18n="bedankt.home">🏠 Naar de hoofdpagina</a>
+      <a href="index.html#locatie" class="modal-btn modal-btn-outline" id="bd-btn-location" data-i18n="bedankt.location">📍 Hoe kom ik er?</a>
     </div>
   </div>
 </div>
@@ -743,7 +743,79 @@
     berekenContributie();
     renderFaq();
     renderSponsorCta();
+    renderAanmeldenTekst();
+    renderBedanktModalTekst();
   }
+
+  // ===== TEKST AANMELDPAGINA (data/aanmelden.json, bewerkbaar via beheer.php) =====
+  // Hero, contributiekop, formulierkoppen, bevestigingsmelding en FAQ-titel
+  // stonden hiervoor vast in dit bestand. Die tekst blijft hier ook als
+  // vangnet staan, maar data/aanmelden.json overschrijft die zodra het
+  // bestaat. contrib_title bevat het {jaar}-token en loopt via
+  // vulRekentabelTokens(), net als de rest van de pagina.
+  var aanmeldenData = null;
+  var aanmeldenVelden = ['hero_label', 'hero_title', 'hero_sub', 'contrib_title', 'contrib_placeholder', 'form_personal', 'form_address', 'form_contact', 'form_agreement', 'success_title', 'success_sub', 'faq_title'];
+  function renderAanmeldenTekst() {
+    if (!aanmeldenData) return;
+    aanmeldenVelden.forEach(function (veld) {
+      var bron = aanmeldenData[veld];
+      if (!bron) return;
+      var tekst = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
+      if (!tekst) return;
+      var el = document.getElementById('am-' + veld.replace(/_/g, '-'));
+      if (el) el.textContent = vulRekentabelTokens(tekst);
+    });
+  }
+  fetch('data/aanmelden.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d) return;
+      aanmeldenData = d;
+      renderAanmeldenTekst();
+    })
+    .catch(function () {});
+
+  // ===== BEDANKT-OVERLAY EN IBAN (data/bedankt.json, bewerkbaar via beheer.php) =====
+  // De overlay die opent na een geslaagde aanmelding toont dezelfde tekst en
+  // betaalgegevens als bedankt.html, dus die lezen hier bewust hetzelfde
+  // bestand: één plek in beheer om de IBAN of tekst aan te passen, in plaats
+  // van twee plekken die uit elkaar kunnen gaan lopen. ibanRaw (zonder
+  // spaties) wordt ook gebruikt door de kopieerknoppen hieronder.
+  var bedanktModalData = null;
+  var ibanGeformatteerd = 'NL51 RABO 0367 6153 63';
+  var bedanktModalVelden = ['sub', 'stap1', 'stap2', 'stap3', 'iban_title', 'iban_name', 'iban_ref', 'btn_home', 'btn_location'];
+  function renderBedanktModalTekst() {
+    if (!bedanktModalData) return;
+    if (bedanktModalData.iban_number) {
+      ibanGeformatteerd = bedanktModalData.iban_number;
+      var inlineEl = document.getElementById('am-iban-number-inline');
+      if (inlineEl) inlineEl.textContent = ibanGeformatteerd;
+      var modalNumEl = document.getElementById('am-iban-number-modal');
+      if (modalNumEl) modalNumEl.textContent = ibanGeformatteerd;
+    }
+    var titelBron = bedanktModalData.title;
+    if (titelBron) {
+      var titel = (titelBron[currentLang] && String(titelBron[currentLang]).trim()) ? titelBron[currentLang] : (titelBron.nl || '');
+      var titelEl = document.getElementById('bedankt-modal-title');
+      if (titel && titelEl) titelEl.textContent = titel;
+    }
+    bedanktModalVelden.forEach(function (veld) {
+      var bron = bedanktModalData[veld];
+      if (!bron) return;
+      var tekst = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
+      if (!tekst) return;
+      var el = document.getElementById('bd-' + veld.replace(/_/g, '-'));
+      if (el) el.textContent = vulRekentabelTokens(tekst);
+    });
+  }
+  fetch('data/bedankt.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d) return;
+      bedanktModalData = d;
+      renderBedanktModalTekst();
+    })
+    .catch(function () {});
 
   document.getElementById('footer-year').textContent = new Date().getFullYear();
 
@@ -1098,6 +1170,9 @@
   }
 
   // ===== IBAN KOPIEER KNOP (formulier en overlay) =====
+  // Gebruikt ibanGeformatteerd (zie hierboven), dat wordt bijgewerkt zodra
+  // data/bedankt.json geladen is, zodat een gewijzigd IBAN-nummer via beheer
+  // ook meteen hier klopt.
   document.querySelectorAll('.iban-copy-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       var t = i18n[currentLang] || i18n.nl;
@@ -1107,10 +1182,10 @@
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
       };
-      navigator.clipboard.writeText('NL51 RABO 0367 6153 63').then(gelukt).catch(function() {
+      navigator.clipboard.writeText(ibanGeformatteerd).then(gelukt).catch(function() {
         // Terugval voor browsers zonder clipboard-API (of zonder https)
         var hulp = document.createElement('textarea');
-        hulp.value = 'NL51 RABO 0367 6153 63';
+        hulp.value = ibanGeformatteerd;
         hulp.style.position = 'fixed';
         hulp.style.opacity = '0';
         document.body.appendChild(hulp);

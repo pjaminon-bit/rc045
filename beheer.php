@@ -99,6 +99,7 @@ $homepageBestand   = $dataMap . '/homepage.json';
 $ontstaanBestand   = $dataMap . '/ontstaan.json';
 $baanreglementBestand = $dataMap . '/baanreglement.json';
 $bedanktBestand    = $dataMap . '/bedankt.json';
+$aanmeldenBestand  = $dataMap . '/aanmelden.json';
 
 // Alle bestanden die automatisch back-upt worden (zie maakDataBackup()),
 // gebruikt door het tabblad "Back-ups" en de backup_herstellen-actie
@@ -110,6 +111,7 @@ $dataBackupBestanden = [
   'ontstaan'   => ['label' => 'Ontstaan (geschiedenis)', 'pad' => $ontstaanBestand, 'schrijffunctie' => 'schrijfJson'],
   'baanreglement' => ['label' => 'Baanreglement', 'pad' => $baanreglementBestand, 'schrijffunctie' => 'schrijfJson'],
   'bedankt'    => ['label' => 'Bedankt-pagina (betaalgegevens)', 'pad' => $bedanktBestand, 'schrijffunctie' => 'schrijfJson'],
+  'aanmelden'  => ['label' => 'Aanmelden (pagina)', 'pad' => $aanmeldenBestand, 'schrijffunctie' => 'schrijfJson'],
   'mededeling' => ['label' => 'Openingstijden', 'pad' => $actueelBestand, 'schrijffunctie' => 'schrijfJson'],
   'agenda'     => ['label' => 'Agenda', 'pad' => $agendaBestand, 'schrijffunctie' => 'schrijfJson'],
   'faq'        => ['label' => 'Vragen (FAQ)', 'pad' => $faqBestand, 'schrijffunctie' => 'schrijfJson'],
@@ -980,6 +982,94 @@ $bedanktGroepen = [
   'Knoppen' => ['btn_home', 'btn_location'],
 ];
 
+// Standaardinhoud voor de pagina aanmelden.html, alleen gebruikt zolang
+// data/aanmelden.json nog niet bestaat. contrib.title bevat het {jaar}-token,
+// dat wordt op de pagina automatisch vervangen door het actuele
+// contributiejaar, net als bij de bedankt-pagina.
+$aanmeldenStandaard = [
+  'hero_label' => [
+    'nl' => "Lidmaatschap",
+    'en' => "Membership",
+    'de' => "Mitgliedschaft",
+  ],
+  'hero_title' => [
+    'nl' => "Aanmelden als lid",
+    'en' => "Register as a member",
+    'de' => "Als Mitglied anmelden",
+  ],
+  'hero_sub' => [
+    'nl' => "Vul het formulier in om je aan te melden bij RC045. Na ontvangst nemen we zo snel mogelijk contact met je op.",
+    'en' => "Fill in the form to register with RC045. We will contact you as soon as possible after receiving your registration.",
+    'de' => "Fülle das Formular aus, um dich bei RC045 anzumelden. Nach Eingang melden wir uns so schnell wie möglich bei dir.",
+  ],
+  'contrib_title' => [
+    'nl' => "Jouw contributie {jaar}",
+    'en' => "Your membership fee {jaar}",
+    'de' => "Dein Mitgliedsbeitrag {jaar}",
+  ],
+  'contrib_placeholder' => [
+    'nl' => "Vul je geboortedatum in om de contributie te berekenen.",
+    'en' => "Enter your date of birth to calculate the membership fee.",
+    'de' => "Gib dein Geburtsdatum ein, um den Mitgliedsbeitrag zu berechnen.",
+  ],
+  'form_personal' => [
+    'nl' => "Persoonsgegevens",
+    'en' => "Personal details",
+    'de' => "Persönliche Daten",
+  ],
+  'form_address' => [
+    'nl' => "Adresgegevens",
+    'en' => "Address details",
+    'de' => "Adressdaten",
+  ],
+  'form_contact' => [
+    'nl' => "Contactgegevens",
+    'en' => "Contact details",
+    'de' => "Kontaktdaten",
+  ],
+  'form_agreement' => [
+    'nl' => "Akkoordverklaring",
+    'en' => "Declaration of agreement",
+    'de' => "Einverständniserklärung",
+  ],
+  'success_title' => [
+    'nl' => "✅ Aanmelding ontvangen! We nemen zo snel mogelijk contact met je op.",
+    'en' => "✅ Registration received! We will contact you as soon as possible.",
+    'de' => "✅ Anmeldung erhalten! Wir werden uns so schnell wie möglich bei dir melden.",
+  ],
+  'success_sub' => [
+    'nl' => "Vergeet niet de contributie over te maken via de betalingsinstructies hierboven.",
+    'en' => "Don't forget to transfer the membership fee using the payment instructions above.",
+    'de' => "Vergiss nicht, den Mitgliedsbeitrag gemäß den obigen Zahlungsanweisungen zu überweisen.",
+  ],
+  'faq_title' => [
+    'nl' => "Veelgestelde vragen",
+    'en' => "Frequently asked questions",
+    'de' => "Häufig gestellte Fragen",
+  ],
+];
+$aanmeldenVelden = [
+  'hero_label' => ['Hero: sectielabel ("Lidmaatschap")', 'tekst'],
+  'hero_title' => ['Hero: titel', 'tekst'],
+  'hero_sub' => ['Hero: ondertitel', 'blok'],
+  'contrib_title' => ['Titel boven de contributie-berekening (laat {jaar} erin staan)', 'tekst'],
+  'contrib_placeholder' => ['Tekst voordat een geboortedatum is ingevuld', 'blok'],
+  'form_personal' => ['Formulier: kop "Persoonsgegevens"', 'tekst'],
+  'form_address' => ['Formulier: kop "Adresgegevens"', 'tekst'],
+  'form_contact' => ['Formulier: kop "Contactgegevens"', 'tekst'],
+  'form_agreement' => ['Formulier: kop "Akkoordverklaring"', 'tekst'],
+  'success_title' => ['Melding na versturen: titel', 'blok'],
+  'success_sub' => ['Melding na versturen: subtekst', 'blok'],
+  'faq_title' => ['Titel boven de veelgestelde vragen', 'tekst'],
+];
+$aanmeldenGroepen = [
+  'Hero' => ['hero_label', 'hero_title', 'hero_sub'],
+  'Contributie' => ['contrib_title', 'contrib_placeholder'],
+  'Formulier (koppen)' => ['form_personal', 'form_address', 'form_contact', 'form_agreement'],
+  'Bevestiging na versturen' => ['success_title', 'success_sub'],
+  'FAQ' => ['faq_title'],
+];
+
 // Zet een volledig jaarbedrag om in de pro-rata maandtabel die de rekentabel
 // en de contributiecalculator op aanmelden.html gebruiken: bij inschrijving
 // in maand $m betaal je (12 - $m) twaalfde deel van het jaarbedrag, naar
@@ -1615,6 +1705,7 @@ $beheerTabsAlle = [
   'ontstaan'   => 'Ontstaan',
   'baanreglement' => 'Baanreglement',
   'bedankt'    => 'Bedankt-pagina',
+  'aanmelden'  => 'Aanmelden',
   'mededeling' => 'Openingstijden',
   'nieuws'     => 'Nieuws',
   'agenda'     => 'Agenda',
@@ -1824,6 +1915,7 @@ $formulierTab = [
   'ontstaan' => 'ontstaan',
   'baanreglement' => 'baanreglement',
   'bedankt' => 'bedankt',
+  'aanmelden' => 'aanmelden',
   'fotoboek_album_aanmaken' => 'fotoboek', 'fotoboek_album_bewerken' => 'fotoboek',
   'leden_opslaan' => 'leden', 'leden_verwijderen' => 'leden', 'leden_status' => 'leden',
   'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
@@ -2269,6 +2361,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $melding['bedankt'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
         $meldingType['bedankt'] = 'fout';
       }
+    }
+
+  } elseif ($formulier === 'aanmelden') {
+    $nieuweAanmeldenData = [];
+    foreach ($aanmeldenVelden as $veld => $info) {
+      $maxLengte = $info[1] === 'tekst' ? 200 : 500;
+      $nieuweAanmeldenData[$veld] = [
+        'nl' => kort($_POST['am'][$veld]['nl'] ?? '', $maxLengte),
+        'en' => kort($_POST['am'][$veld]['en'] ?? '', $maxLengte),
+        'de' => kort($_POST['am'][$veld]['de'] ?? '', $maxLengte),
+      ];
+    }
+    if (schrijfJson($aanmeldenBestand, $nieuweAanmeldenData)) {
+      $aanmeldenData = $nieuweAanmeldenData;
+      $melding['aanmelden'] = 'Opgeslagen. De aanmeldpagina gebruikt meteen deze tekst.';
+      $meldingType['aanmelden'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'aanmelden', 'teksten bijgewerkt');
+    } else {
+      $melding['aanmelden'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+      $meldingType['aanmelden'] = 'fout';
     }
 
   } elseif ($formulier === 'rekentabel') {
@@ -3362,6 +3474,11 @@ if (file_exists($bedanktBestand)) {
   $json = json_decode(file_get_contents($bedanktBestand), true);
   if (is_array($json)) $bedanktData = array_merge($bedanktStandaard, $json);
 }
+$aanmeldenData = $aanmeldenStandaard;
+if (file_exists($aanmeldenBestand)) {
+  $json = json_decode(file_get_contents($aanmeldenBestand), true);
+  if (is_array($json)) $aanmeldenData = array_merge($aanmeldenStandaard, $json);
+}
 
 // ===== Ledenadministratie =====
 // Het ledenbestand staat buiten data/ omdat het persoonsgegevens bevat;
@@ -4014,6 +4131,64 @@ if ($isMaster && file_exists($logBestand)) {
       <?php endforeach; ?>
       <div class="kaart">
         <button type="submit">Bedankt-pagina opslaan</button>
+      </div>
+    </form>
+    </div>
+    <?php endif; ?>
+
+    <?php if (in_array('aanmelden', $toegestaneTabs, true)): ?>
+    <div class="tab-paneel" id="tab-aanmelden">
+    <!-- ===== AANMELDEN (PAGINA) ===== -->
+    <div class="kaart">
+      <h1>Aanmelden</h1>
+      <p class="sub">De vaste tekst op de aanmeldpagina: de hero, de kop boven de contributie-berekening, de formulierkoppen, de bevestiging na versturen en de FAQ-titel. De vragen zelf staan bij Vragen, de contributiebedragen bij Rekentabel.</p>
+
+      <?php if (isset($melding['aanmelden'])): ?>
+        <div class="melding <?php echo $meldingType['aanmelden']; ?>"><?php echo htmlspecialchars($melding['aanmelden']); ?></div>
+      <?php endif; ?>
+
+      <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
+        Nederlands is verplicht per veld. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+      </div>
+    </div>
+
+    <form method="post" action="beheer.php#aanmelden">
+      <input type="hidden" name="formulier" value="aanmelden">
+      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+      <?php $amGroepIndex = 0; $amAantalGroepen = count($aanmeldenGroepen); ?>
+      <?php foreach ($aanmeldenGroepen as $amGroepNaam => $amVeldSleutels): ?>
+        <?php $amGroepIndex++; ?>
+        <details class="kaart"<?php echo $amGroepIndex === 1 ? ' open' : ''; ?>>
+          <summary><?php echo htmlspecialchars($amGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($amVeldSleutels); ?> veld<?php echo count($amVeldSleutels) === 1 ? '' : 'en'; ?></span></summary>
+          <div class="kaart-uitklap-inhoud">
+          <?php foreach ($amVeldSleutels as $veld): ?>
+            <?php
+              $amInfo = $aanmeldenVelden[$veld];
+              $amLabel = $amInfo[0];
+              $amType = $amInfo[1];
+              $amHuidig = $aanmeldenData[$veld] ?? ['nl' => '', 'en' => '', 'de' => ''];
+            ?>
+            <div class="veld">
+              <label for="am-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($amLabel); ?></label>
+              <div class="rij-3">
+                <?php if ($amType === 'tekst'): ?>
+                  <input type="text" id="am-<?php echo $veld; ?>-nl" name="am[<?php echo $veld; ?>][nl]" maxlength="200" placeholder="Nederlands" value="<?php echo htmlspecialchars($amHuidig['nl'] ?? ''); ?>">
+                  <input type="text" id="am-<?php echo $veld; ?>-en" name="am[<?php echo $veld; ?>][en]" maxlength="200" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($amHuidig['en'] ?? ''); ?>">
+                  <input type="text" id="am-<?php echo $veld; ?>-de" name="am[<?php echo $veld; ?>][de]" maxlength="200" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($amHuidig['de'] ?? ''); ?>">
+                <?php else: ?>
+                  <textarea id="am-<?php echo $veld; ?>-nl" name="am[<?php echo $veld; ?>][nl]" maxlength="500" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($amHuidig['nl'] ?? ''); ?></textarea>
+                  <textarea id="am-<?php echo $veld; ?>-en" name="am[<?php echo $veld; ?>][en]" maxlength="500" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($amHuidig['en'] ?? ''); ?></textarea>
+                  <textarea id="am-<?php echo $veld; ?>-de" name="am[<?php echo $veld; ?>][de]" maxlength="500" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($amHuidig['de'] ?? ''); ?></textarea>
+                <?php endif; ?>
+              </div>
+            </div>
+          <?php endforeach; ?>
+          </div>
+        </details>
+      <?php endforeach; ?>
+      <div class="kaart">
+        <button type="submit">Aanmeldpagina opslaan</button>
       </div>
     </form>
     </div>
