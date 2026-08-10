@@ -3847,8 +3847,58 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-import-knoppen { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .leden-import-knoppen form { margin: 0; }
     .leden-import-knoppen button { width: auto; }
-    @media (max-width: 700px) {
+    /* Sorteren via een keuzelijst in plaats van via de kolomkoppen. Alleen
+       zichtbaar zodra de tabel op smalle schermen als kaarten wordt getoond,
+       want dan is er geen kolomkop meer om op te klikken. */
+    .leden-sorteer-mobiel { display: none; gap: 8px; }
+    .leden-sorteer-mobiel select { flex: 1 1 auto; }
+    .leden-sorteer-mobiel button { width: auto; flex: 0 0 46px; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); font-size: 15px; padding: 10px 0; }
+    .leden-sorteer-mobiel button:hover { background: var(--teal-light); border-color: var(--teal); color: var(--teal-dark); }
+    .leden-sorteer-mobiel button:disabled { opacity: 0.4; cursor: default; }
+    .leden-sorteer-mobiel button:disabled:hover { background: var(--bg); border-color: var(--border); color: var(--text); }
+    @media (max-width: 760px) {
+      /* Zes kolommen passen niet op een telefoon. In plaats van horizontaal
+         schuiven wordt elke rij een kaartje: naam als kop, daaronder de
+         overige velden met hun kolomnaam ervoor. De tabel blijft in de HTML
+         een tabel, zodat zoeken, filteren en sorteren onveranderd werken. */
+      .leden-tabel-wrap { overflow-x: visible; }
+      .leden-tabel, .leden-tabel tbody, .leden-tabel tr, .leden-tabel td { display: block; width: 100%; }
+      .leden-tabel thead { display: none; }
+      /* Flexkolom in plaats van gewoon block, zodat de naam met order:-1
+         bovenaan het kaartje komt te staan terwijl in de HTML de kolommen
+         in dezelfde volgorde blijven staan als de kolomkoppen. */
+      .leden-tabel tbody tr { display: flex; flex-direction: column; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: var(--bg); }
+      /* Zonder deze regel wint de display:block hierboven van het
+         hidden-attribuut waarmee het zoekfilter rijen wegzet. */
+      .leden-tabel tbody tr[hidden] { display: none; }
+      .leden-tabel tbody tr:hover { background: var(--bg); }
+      .leden-tabel td { padding: 4px 0; border-bottom: none; font-size: 14px; display: flex; gap: 10px; align-items: flex-start; }
+      .leden-tabel td::before { content: attr(data-label); flex: 0 0 84px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding-top: 3px; }
+      .leden-tabel td > .lc { flex: 1 1 auto; min-width: 0; }
+      .leden-tabel td.lc-kop { order: -1; display: flex; align-items: center; gap: 10px; font-size: 15px; padding: 0 0 8px; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
+      .leden-tabel td.lc-kop::before { display: none; }
+      /* Pijltje als hint dat je op het kaartje kunt tikken om te bewerken.
+         Alleen in de ledenlijst; de rijen in het importoverzicht zijn niet
+         aanklikbaar. */
+      #leden-tabel td.lc-kop::after { content: '\203A'; margin-left: auto; color: var(--muted); font-size: 20px; line-height: 1; }
+      .leden-tabel td.lc-actie { display: none; }
+      .leden-tabel .leden-contact { font-size: 14px; }
+      .leden-filters { flex-direction: column; align-items: stretch; }
+      .leden-filters input[type="search"], .leden-filters select { flex: 1 1 auto; width: 100%; }
+      .leden-sorteer-mobiel { display: flex; }
+      .leden-badge { font-size: 11px; padding: 3px 8px; }
+      .leden-import-knoppen { flex-direction: column; align-items: stretch; }
+      .leden-import-knoppen form, .leden-import-knoppen button { width: 100%; }
+      /* Twee kolommen in plaats van drie: jaar en status naast elkaar,
+         bedrag en inschrijfgeld naast elkaar. Zes velden onder elkaar per
+         contributiejaar wordt anders een erg lange lap op een telefoon. */
+      .leden-contributie { grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
+      .leden-contributie .veld-breed { grid-column: 1 / -1; }
+    }
+    @media (max-width: 380px) {
       .leden-contributie { grid-template-columns: 1fr; }
+      .leden-tabel td { display: block; }
+      .leden-tabel td::before { display: block; margin-bottom: 1px; padding-top: 0; }
     }
 
     .item-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
@@ -5476,7 +5526,7 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="lid-c-betaald-<?php echo $ci; ?>">Betaald op</label>
               <input type="text" inputmode="numeric" id="lid-c-betaald-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][betaald_op]" maxlength="10" placeholder="dd/mm/jjjj" value="<?php echo htmlspecialchars(datumWeergave((string) ($regel['betaald_op'] ?? ''))); ?>">
             </div>
-            <div class="veld">
+            <div class="veld veld-breed">
               <label for="lid-c-opm-<?php echo $ci; ?>">Opmerking</label>
               <input type="text" id="lid-c-opm-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][opmerking]" maxlength="300" value="<?php echo htmlspecialchars((string) ($regel['opmerking'] ?? '')); ?>">
             </div>
@@ -5534,6 +5584,18 @@ if ($isMaster && file_exists($logBestand)) {
               <option value="<?php echo htmlspecialchars($sleutel); ?>"><?php echo htmlspecialchars($label); ?></option>
             <?php endforeach; ?>
           </select>
+          <div class="leden-sorteer-mobiel">
+            <select id="leden-sorteer" aria-label="Sorteren op">
+              <option value="">Standaardvolgorde</option>
+              <option value="nr">Sorteer op nummer</option>
+              <option value="naam">Sorteer op naam</option>
+              <option value="leeftijd">Sorteer op leeftijd</option>
+              <option value="status">Sorteer op status</option>
+              <option value="contributie">Sorteer op contributie</option>
+              <option value="contact">Sorteer op contact</option>
+            </select>
+            <button type="button" id="leden-sorteer-richting" title="Volgorde omdraaien" aria-label="Volgorde omdraaien">&uarr;</button>
+          </div>
         </div>
 
         <div class="leden-tabel-wrap">
@@ -5569,14 +5631,15 @@ if ($isMaster && file_exists($logBestand)) {
                     data-sort-status="<?php echo (int) $sorteerStatus; ?>"
                     data-sort-contributie="<?php echo htmlspecialchars((string) $sorteerContributie); ?>"
                     data-sort-contact="<?php echo htmlspecialchars($sorteerContact); ?>">
-                  <td><?php echo htmlspecialchars((string) ($l['nummer'] ?? '')); ?></td>
-                  <td>
-                    <strong><?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?></strong>
-                    <?php if (($l['bron'] ?? '') === 'aanmeldformulier'): ?><span class="leden-bron">via formulier</span><?php endif; ?>
+                  <td data-label="Nr"><span class="lc"><?php echo htmlspecialchars((string) ($l['nummer'] ?? '')); ?></span></td>
+                  <td class="lc-kop">
+                    <span class="lc"><strong><?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?></strong>
+                    <?php if (($l['bron'] ?? '') === 'aanmeldformulier'): ?><span class="leden-bron">via formulier</span><?php endif; ?></span>
                   </td>
-                  <td><?php echo $leeftijd === null ? '&mdash;' : ($leeftijd . ($jeugd ? ' (jeugd)' : '')); ?></td>
-                  <td><span class="leden-badge lb-<?php echo htmlspecialchars($l['status'] ?? ''); ?>"><?php echo htmlspecialchars($ledenStatusLabels[$l['status'] ?? ''] ?? '?'); ?></span></td>
-                  <td>
+                  <td data-label="Leeftijd"><span class="lc"><?php echo $leeftijd === null ? '&mdash;' : ($leeftijd . ($jeugd ? ' (jeugd)' : '')); ?></span></td>
+                  <td data-label="Status"><span class="lc"><span class="leden-badge lb-<?php echo htmlspecialchars($l['status'] ?? ''); ?>"><?php echo htmlspecialchars($ledenStatusLabels[$l['status'] ?? ''] ?? '?'); ?></span></span></td>
+                  <td data-label="Contributie">
+                    <span class="lc">
                     <?php if ($c === null): ?>
                       <span class="leden-leeg">niet ingevuld</span>
                     <?php else: ?>
@@ -5585,12 +5648,15 @@ if ($isMaster && file_exists($logBestand)) {
                         <span class="leden-bedrag">&euro;<?php echo htmlspecialchars(number_format((float) $c['bedrag'], 2, ',', '.')); ?></span>
                       <?php endif; ?>
                     <?php endif; ?>
+                    </span>
                   </td>
-                  <td class="leden-contact">
+                  <td class="leden-contact" data-label="Contact">
+                    <span class="lc">
                     <?php if (($l['email'] ?? '') !== ''): ?><a href="mailto:<?php echo htmlspecialchars($l['email']); ?>"><?php echo htmlspecialchars($l['email']); ?></a><br><?php endif; ?>
                     <?php echo htmlspecialchars($l['telefoon'] ?? ''); ?>
+                    </span>
                   </td>
-                  <td><a class="knop-klein" href="beheer.php?lid=<?php echo urlencode($l['id']); ?>#leden">Bewerken</a></td>
+                  <td class="lc-actie"><a class="knop-klein" href="beheer.php?lid=<?php echo urlencode($l['id']); ?>#leden">Bewerken</a></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
@@ -5638,11 +5704,11 @@ if ($isMaster && file_exists($logBestand)) {
             <tbody>
               <?php foreach (array_slice($ledenImport['rijen'], 0, 25) as $rij): ?>
                 <tr>
-                  <td><strong><?php echo htmlspecialchars(ledenVolledigeNaam($rij)); ?></strong></td>
-                  <td><?php echo htmlspecialchars(ledenParseDatum($rij['geboortedatum'] ?? '')); ?></td>
-                  <td><?php echo htmlspecialchars($rij['email'] ?? ''); ?></td>
-                  <td><?php echo htmlspecialchars($rij['gemeente'] ?? ''); ?></td>
-                  <td><?php echo ledenZoekBestaande($importControle, $rij) === null ? 'toegevoegd' : 'bijgewerkt'; ?></td>
+                  <td class="lc-kop"><span class="lc"><strong><?php echo htmlspecialchars(ledenVolledigeNaam($rij)); ?></strong></span></td>
+                  <td data-label="Geboren"><span class="lc"><?php echo htmlspecialchars(ledenParseDatum($rij['geboortedatum'] ?? '')); ?></span></td>
+                  <td data-label="Mail"><span class="lc"><?php echo htmlspecialchars($rij['email'] ?? ''); ?></span></td>
+                  <td data-label="Gemeente"><span class="lc"><?php echo htmlspecialchars($rij['gemeente'] ?? ''); ?></span></td>
+                  <td data-label="Wordt"><span class="lc"><?php echo ledenZoekBestaande($importControle, $rij) === null ? 'toegevoegd' : 'bijgewerkt'; ?></span></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
@@ -6494,6 +6560,9 @@ if ($isMaster && file_exists($logBestand)) {
       // verbergt alleen rijen (hidden) en verandert de volgorde niet.
       var tbody = tabel.querySelector('tbody');
       var koppen = tabel.querySelectorAll('thead th[data-kolom]');
+      var sorteerKeuze = document.getElementById('leden-sorteer');
+      var sorteerKnop = document.getElementById('leden-sorteer-richting');
+      var oorspronkelijkeVolgorde = Array.prototype.slice.call(rijen);
       var sorteerKolom = null;
       var sorteerRichting = 1; // 1 = oplopend, -1 = aflopend
 
@@ -6512,34 +6581,59 @@ if ($isMaster && file_exists($logBestand)) {
       }
 
       function sorteerTabel() {
-        if (!sorteerKolom) return;
-        var volgorde = Array.prototype.slice.call(rijen).sort(vergelijkRijen);
+        var volgorde = sorteerKolom
+          ? Array.prototype.slice.call(rijen).sort(vergelijkRijen)
+          : oorspronkelijkeVolgorde;
         volgorde.forEach(function (rij) { tbody.appendChild(rij); });
+      }
+
+      // Zowel de kolomkoppen (breed scherm) als de keuzelijst eronder
+      // (smal scherm, waar de koppen verborgen zijn) komen hier uit, zodat
+      // de twee bedieningen elkaar niet tegenspreken.
+      function sorteringZetten(kolom, richting) {
+        sorteerKolom = kolom || null;
+        sorteerRichting = richting;
+        Array.prototype.forEach.call(koppen, function (k) {
+          var actief = k.getAttribute('data-kolom') === sorteerKolom;
+          k.classList.toggle('leden-sorteer-op', actief);
+          k.classList.toggle('leden-sorteer-aflopend', actief && sorteerRichting === -1);
+          if (actief) {
+            k.setAttribute('aria-sort', sorteerRichting === 1 ? 'ascending' : 'descending');
+          } else {
+            k.removeAttribute('aria-sort');
+          }
+        });
+        if (sorteerKeuze) sorteerKeuze.value = sorteerKolom || '';
+        if (sorteerKnop) {
+          sorteerKnop.innerHTML = sorteerRichting === 1 ? '&uarr;' : '&darr;';
+          sorteerKnop.disabled = sorteerKolom === null;
+        }
+        sorteerTabel();
       }
 
       Array.prototype.forEach.call(koppen, function (kop) {
         function activeer() {
           var kolom = kop.getAttribute('data-kolom');
-          if (sorteerKolom === kolom) {
-            sorteerRichting = sorteerRichting * -1;
-          } else {
-            sorteerKolom = kolom;
-            sorteerRichting = 1;
-          }
-          Array.prototype.forEach.call(koppen, function (k) {
-            k.classList.remove('leden-sorteer-op', 'leden-sorteer-aflopend');
-            k.removeAttribute('aria-sort');
-          });
-          kop.classList.add('leden-sorteer-op');
-          if (sorteerRichting === -1) kop.classList.add('leden-sorteer-aflopend');
-          kop.setAttribute('aria-sort', sorteerRichting === 1 ? 'ascending' : 'descending');
-          sorteerTabel();
+          sorteringZetten(kolom, sorteerKolom === kolom ? sorteerRichting * -1 : 1);
         }
         kop.addEventListener('click', activeer);
         kop.addEventListener('keydown', function (e) {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activeer(); }
         });
       });
+
+      if (sorteerKeuze) {
+        sorteerKeuze.addEventListener('change', function () {
+          sorteringZetten(sorteerKeuze.value, 1);
+        });
+      }
+      if (sorteerKnop) {
+        sorteerKnop.disabled = true;
+        sorteerKnop.addEventListener('click', function () {
+          if (!sorteerKolom) return;
+          sorteringZetten(sorteerKolom, sorteerRichting * -1);
+        });
+      }
 
       // ===== Klikken op een rij opent de bewerkpagina =====
       // Behalve als er op een link binnen de rij geklikt wordt (mailadres,
