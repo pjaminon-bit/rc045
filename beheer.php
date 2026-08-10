@@ -420,6 +420,11 @@ $homepageStandaard = [
     'en' => "You can always come as a guest first to see if it suits you. After that, you can become a member and enjoy our tracks to the fullest.",
     'de' => "Du kannst zunächst als Gast fahren, um zu sehen, ob es dir gefällt. Danach kannst du Mitglied werden und unsere Strecken in vollen Zügen genießen.",
   ],
+  'guest_title' => [
+    'nl' => "Kom eens gastrijden!",
+    'en' => "Come for a guest ride!",
+    'de' => "Komm mal als Gast fahren!",
+  ],
   'guest_text' => [
     'nl' => "Rij een hele dag mee op onze baan zonder lidmaatschap. Check onze openingstijden en kom gewoon langs, meld je wel even bij een (bestuurs)lid als je er bent!",
     'en' => "Ride all day on our track without a membership. Check our opening hours and just show up, and check in with a club member when you arrive!",
@@ -1301,6 +1306,7 @@ $homepageVelden = [
   'track_f4'     => ['"De baan": kenmerk 4', 'tekst'],
   'track_f5'     => ['"De baan": kenmerk 5', 'tekst'],
   'pricing_sub'  => ['"Lidmaatschap": introtekst boven de twee kaarten', 'blok'],
+  'guest_title'  => ['"Lidmaatschap": titel bij Gastrijden ("Kom eens gastrijden!")', 'tekst'],
   'guest_text'   => ['"Lidmaatschap": omschrijving bij Gastrijden', 'blok'],
   'guest_note'   => ['"Lidmaatschap": kleine notitie onder Gastrijden', 'blok'],
   'member_text'  => ['"Lidmaatschap": omschrijving bij het lidmaatschap', 'blok'],
@@ -1314,7 +1320,7 @@ $homepageGroepen = [
   'Hero' => ['hero_intro'],
   '"Wie zijn wij"' => ['about_p1', 'about_p2', 'feat1_title', 'feat1_text', 'feat2_title', 'feat2_text', 'feat3_title', 'feat3_text', 'feat4_title', 'feat4_text'],
   '"De baan"' => ['track_p1', 'track_p2', 'track_f1', 'track_f2', 'track_f3', 'track_f4', 'track_f5'],
-  '"Lidmaatschap"' => ['pricing_sub', 'guest_text', 'guest_note', 'member_text', 'member_note'],
+  '"Lidmaatschap"' => ['pricing_sub', 'guest_title', 'guest_text', 'guest_note', 'member_text', 'member_note'],
 ];
 
 // Velden van het tabblad Ontstaan: zelfde opzet als $homepageVelden. Geen
