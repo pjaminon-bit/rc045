@@ -2706,6 +2706,10 @@ if ($isMaster && file_exists($logBestand)) {
     .gebruiker-tabs-form .veld { margin: 0; }
     .gebruiker-tabs-form .multiselect { width: 220px; }
     @media (max-width: 480px) { .gebruiker-tabs-form { align-items: stretch; } .gebruiker-tabs-form .multiselect { width: 100%; } }
+    .backup-herstel-form { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+    .backup-herstel-form .veld { margin: 0; flex: 1 1 220px; }
+    .backup-herstel-form button { width: auto; }
+    @media (max-width: 480px) { .backup-herstel-form { align-items: stretch; } .backup-herstel-form .veld { flex-basis: 100%; } }
 
     /* ===== Multiselect (dropdown met zoekvak en vinkjes) =====
        Gebruikt bij "Toegang tot" per gebruiker. De echte keuzes zijn gewone
@@ -3782,20 +3786,22 @@ if ($isMaster && file_exists($logBestand)) {
         <?php if (count($getoondeBackups) === 0): ?>
           <p class="hint">Nog geen back-up van dit bestand.</p>
         <?php else: ?>
-          <?php foreach ($getoondeBackups as $b): ?>
-            <div class="gebruiker-rij">
-              <div><?php echo htmlspecialchars(date('d-m-Y H:i', $b['tijd'])); ?></div>
-              <form method="post" action="beheer.php#backups" onsubmit="return confirm('<?php echo htmlspecialchars($info['label'], ENT_QUOTES); ?> terugzetten naar de versie van <?php echo htmlspecialchars(date('d-m-Y H:i', $b['tijd']), ENT_QUOTES); ?>? De huidige versie wordt eerst zelf ook als back-up bewaard.');">
-                <input type="hidden" name="formulier" value="backup_herstellen">
-                <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
-                <input type="hidden" name="sleutel" value="<?php echo htmlspecialchars($sleutel); ?>">
-                <input type="hidden" name="backup_bestand" value="<?php echo htmlspecialchars($b['bestand']); ?>">
-                <button type="submit" class="knop-klein">Terugzetten</button>
-              </form>
+          <form method="post" action="beheer.php#backups" class="backup-herstel-form" onsubmit="return confirm('<?php echo htmlspecialchars($info['label'], ENT_QUOTES); ?> terugzetten naar de geselecteerde versie? De huidige versie wordt eerst zelf ook als back-up bewaard.');">
+            <input type="hidden" name="formulier" value="backup_herstellen">
+            <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+            <input type="hidden" name="sleutel" value="<?php echo htmlspecialchars($sleutel); ?>">
+            <div class="veld">
+              <label for="backup-kiezen-<?php echo $sleutel; ?>">Versie</label>
+              <select id="backup-kiezen-<?php echo $sleutel; ?>" name="backup_bestand">
+                <?php foreach ($getoondeBackups as $b): ?>
+                  <option value="<?php echo htmlspecialchars($b['bestand']); ?>"><?php echo htmlspecialchars(date('d-m-Y H:i', $b['tijd'])); ?></option>
+                <?php endforeach; ?>
+              </select>
             </div>
-          <?php endforeach; ?>
+            <button type="submit" class="knop-klein">Terugzetten</button>
+          </form>
           <?php if (count($volledigeBackupLijst) > count($getoondeBackups)): ?>
-            <p class="hint">Nieuwste 20 van de <?php echo count($volledigeBackupLijst); ?> getoond.</p>
+            <p class="hint">Nieuwste 20 van de <?php echo count($volledigeBackupLijst); ?> getoond, nieuwste bovenaan in de lijst.</p>
           <?php endif; ?>
         <?php endif; ?>
       </div>
