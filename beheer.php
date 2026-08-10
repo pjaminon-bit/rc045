@@ -2467,7 +2467,7 @@ if ($isMaster && file_exists($logBestand)) {
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 16px 40px; }
-    .wrap { width: 100%; max-width: 1200px; margin: 0; padding-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+    .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding-top: 24px; display: flex; flex-direction: column; gap: 16px; }
     .kaart { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; padding: 28px; }
     @media (max-width: 640px) { .kaart { padding: 20px; } }
     h1 { font-size: 20px; color: var(--dark); margin-bottom: 4px; }
