@@ -3801,16 +3801,19 @@ if ($isMaster && file_exists($logBestand)) {
     /* ===== Ledenadministratie ===== */
     .leden-kop { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--dark); margin: 24px 0 6px; }
     .leden-telling { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
-    .leden-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 700; white-space: nowrap; background: #EEE; color: #444; }
-    .leden-badge-klikbaar { border: none; font-family: inherit; cursor: pointer; box-shadow: 0 0 0 2px transparent; transition: box-shadow 0.1s; }
+    .leden-badge { display: inline-block; width: auto; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 700; white-space: nowrap; background: #EEE; color: #444; }
+    .leden-badge-klikbaar { width: auto; border: none; font-family: inherit; cursor: pointer; box-shadow: 0 0 0 2px transparent; transition: box-shadow 0.1s; }
     .leden-badge-klikbaar:hover { box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12); }
     .leden-badge-klikbaar[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--teal-dark); }
-    .lb-nieuw { background: #EDE7F6; color: #4527A0; }
-    .lb-verificatie { background: #FEF3C7; color: #92400E; }
-    .lb-wacht_op_betaling { background: #FDE7D9; color: #8B3319; }
-    .lb-actief { background: #E8F5E9; color: #1B5E20; }
-    .lb-opgezegd { background: #ECEFF1; color: #455A64; }
-    .lb-geweigerd { background: #FDECEA; color: #7B241C; }
+    /* .leden-badge herhaald in de selector: hogere specificiteit dan de
+       algemene "button" en "button:hover" regel hierboven, anders wint die
+       op de achtergrondkleur zodra een badge als knop wordt gehover. */
+    .leden-badge.lb-nieuw, .leden-badge.lb-nieuw:hover { background: #EDE7F6; color: #4527A0; }
+    .leden-badge.lb-verificatie, .leden-badge.lb-verificatie:hover { background: #FEF3C7; color: #92400E; }
+    .leden-badge.lb-wacht_op_betaling, .leden-badge.lb-wacht_op_betaling:hover { background: #FDE7D9; color: #8B3319; }
+    .leden-badge.lb-actief, .leden-badge.lb-actief:hover { background: #E8F5E9; color: #1B5E20; }
+    .leden-badge.lb-opgezegd, .leden-badge.lb-opgezegd:hover { background: #ECEFF1; color: #455A64; }
+    .leden-badge.lb-geweigerd, .leden-badge.lb-geweigerd:hover { background: #FDECEA; color: #7B241C; }
     .cb-open { background: #FEF3C7; color: #92400E; }
     .cb-betaald { background: #E8F5E9; color: #1B5E20; }
     .cb-kwijtgescholden { background: #E3F2FD; color: #0D47A1; }
