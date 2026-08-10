@@ -2521,10 +2521,15 @@ if ($isMaster && file_exists($logBestand)) {
     .taal-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
     .taal-label .optioneel { font-weight: 400; text-transform: none; letter-spacing: normal; }
     .kaart-smal { max-width: 440px; margin: 0 auto; }
-    .menu { position: sticky; top: 0; z-index: 10; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; background: rgba(250,246,236,0.95); backdrop-filter: blur(10px); padding: 10px 6px; margin: 0 -6px 4px; border-bottom: 1px solid var(--border); }
-    .menu-item { width: auto; flex: 0 0 auto; background: none; border: none; padding: 8px 16px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
+    /* Zelfde patroon als .nav-links op de hoofdsite: platte tekst, lichte
+       achtergrond bij hover, en bij het actieve tabblad een lichte
+       achtergrond met een dun streepje eronder in plaats van een dichte
+       gekleurde knop. Compacter dan de hoofdsite-nav omdat hier 13 tabs
+       op dezelfde rij moeten passen. */
+    .menu { position: sticky; top: 0; z-index: 10; display: flex; gap: 2px; flex-wrap: wrap; align-items: center; background: rgba(250,246,236,0.95); backdrop-filter: blur(10px); padding: 10px 6px; margin: 0 -6px 4px; border-bottom: 1px solid var(--border); }
+    .menu-item { width: auto; flex: 0 0 auto; background: none; border: none; padding: 6px 10px; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
     .menu-item:hover { background: var(--teal-light); color: var(--teal-dark); }
-    .menu-item.actief { background: var(--teal); color: white; }
+    .menu-item.actief { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
     .tab-paneel { display: none; flex-direction: column; gap: 16px; }
 
     /* ===== Ledenadministratie ===== */
