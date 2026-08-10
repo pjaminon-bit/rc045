@@ -443,6 +443,30 @@ function kort($tekst, $max) {
   return function_exists('mb_substr') ? mb_substr($tekst, 0, $max) : substr($tekst, 0, $max);
 }
 
+// Agenda: datum tonen als dd/mm/jjjj in het formulier, opgeslagen blijft
+// gewoon yyyy-mm-dd (ISO), want daar rekent de rest van de site (homepage,
+// sortering) mee.
+function agendaDatumWeergave($iso) {
+  if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', (string) $iso, $m)) {
+    return $m[3] . '/' . $m[2] . '/' . $m[1];
+  }
+  return '';
+}
+
+// Agenda: dd/mm/jjjj (of dd-mm-jjjj) uit het formulier terugzetten naar
+// yyyy-mm-dd. Ongeldige of lege invoer wordt gewoon een lege datum, net als
+// voorheen.
+function agendaDatumNaarIso($tekst) {
+  $tekst = trim((string) $tekst);
+  if (preg_match('#^(\d{2})[/-](\d{2})[/-](\d{4})$#', $tekst, $m)) {
+    $dag = (int) $m[1]; $maand = (int) $m[2]; $jaar = (int) $m[3];
+    if (checkdate($maand, $dag, $jaar)) {
+      return sprintf('%04d-%02d-%02d', $jaar, $maand, $dag);
+    }
+  }
+  return '';
+}
+
 // Zet een tijdgestempelde kopie van $pad in $backupMap voordat schrijfJson()
 // de huidige inhoud overschrijft, en ruimt daarna oude kopieën van datzelfde
 // bestand op (ouder dan $bewaardagen, met $maxPerBestand als hardstop).
@@ -990,31 +1014,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     }
 
   } elseif ($formulier === 'agenda') {
-    $events = [];
-    foreach (($_POST['agenda'] ?? []) as $rij) {
+    $ruw = [];
+    foreach (($_POST['agenda'] ?? []) as $idx => $rij) {
       $titelNl = kort($rij['title_nl'] ?? '', 80);
       if ($titelNl === '') continue; // NL titel is verplicht, anders wordt de kaart niet getoond
       $tag = $rij['tag'] ?? 'leden';
       if (!isset($agendaTags[$tag])) $tag = 'leden';
-      $datum = $rij['date'] ?? '';
-      if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datum)) $datum = '';
-      $events[] = [
-        'date' => $datum,
-        'tag'  => $tag,
-        'time' => kort($rij['time'] ?? '', 40),
-        'title' => [
-          'nl' => $titelNl,
-          'en' => kort($rij['title_en'] ?? '', 80),
-          'de' => kort($rij['title_de'] ?? '', 80),
+      $datum = agendaDatumNaarIso($rij['date'] ?? '');
+      // Gekozen positie uit de keuzelijst; bij ontbreken (zou niet moeten
+      // gebeuren) valt hij terug op de plek waar hij in het formulier stond.
+      $volgorde = is_numeric($rij['volgorde'] ?? null) ? (float) $rij['volgorde'] : (float) $idx;
+      $ruw[] = [
+        'volgorde' => $volgorde,
+        'orig' => (int) $idx,
+        'event' => [
+          'date' => $datum,
+          'tag'  => $tag,
+          'time' => kort($rij['time'] ?? '', 40),
+          'title' => [
+            'nl' => $titelNl,
+            'en' => kort($rij['title_en'] ?? '', 80),
+            'de' => kort($rij['title_de'] ?? '', 80),
+          ],
+          'desc' => [
+            'nl' => kort($rij['desc_nl'] ?? '', 200),
+            'en' => kort($rij['desc_en'] ?? '', 200),
+            'de' => kort($rij['desc_de'] ?? '', 200),
+          ],
+          'past' => !empty($rij['past']),
         ],
-        'desc' => [
-          'nl' => kort($rij['desc_nl'] ?? '', 200),
-          'en' => kort($rij['desc_en'] ?? '', 200),
-          'de' => kort($rij['desc_de'] ?? '', 200),
-        ],
-        'past' => !empty($rij['past']),
       ];
     }
+    // Sorteren op de gekozen volgorde uit de keuzelijst. Bij een gelijke
+    // waarde (bijv. je zet kaart 5 op "3" terwijl kaart 3 daar al staat)
+    // wint de kaart die je zelf net verplaatst hebt: die had oorspronkelijk
+    // de hoogste positie in het formulier, dus bij gelijke stand komt de
+    // hoogste oorspronkelijke positie eerst. Zo schuift de rest gewoon een
+    // plekje op, zoals bij het invoegen op een positie hoort te gaan.
+    usort($ruw, function($a, $b) {
+      return $a['volgorde'] <=> $b['volgorde'] ?: $b['orig'] <=> $a['orig'];
+    });
+    $events = array_map(function($r) { return $r['event']; }, $ruw);
     if (schrijfJson($agendaBestand, $events)) {
       $melding['agenda'] = 'Opgeslagen. De agenda op de homepage is bijgewerkt.';
       $meldingType['agenda'] = 'ok';
@@ -2801,11 +2841,20 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="item-blok-nr">
               Kaart <?php echo $i + 1; ?>
               <span class="afgelopen-badge" style="<?php echo empty($ev['past']) ? 'display:none;' : ''; ?>">Afgelopen</span>
+              <span style="margin-left:auto; display:flex; align-items:center; gap:6px; font-weight:400; text-transform:none; letter-spacing:normal;">
+                <label for="agenda-volgorde-<?php echo $i; ?>" style="margin:0;">Volgorde</label>
+                <select id="agenda-volgorde-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][volgorde]">
+                  <?php for ($p = 1; $p <= count($agendaData); $p++): ?>
+                    <option value="<?php echo $p; ?>" <?php if ($p === $i + 1) echo 'selected'; ?>><?php echo $p; ?></option>
+                  <?php endfor; ?>
+                </select>
+              </span>
             </div>
+            <p class="hint" style="margin-top:-8px; margin-bottom:12px;">Kies bij welk volgnummer deze kaart moet staan. Kaarten met dezelfde datum die na elkaar staan, komen op de website naast elkaar te staan.</p>
             <div class="rij-2">
               <div class="veld">
                 <label for="agenda-date-<?php echo $i; ?>">Datum</label>
-                <input type="date" id="agenda-date-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][date]" value="<?php echo htmlspecialchars($ev['date'] ?? ''); ?>">
+                <input type="text" inputmode="numeric" id="agenda-date-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(agendaDatumWeergave($ev['date'] ?? '')); ?>">
               </div>
               <div class="veld">
                 <label for="agenda-tag-<?php echo $i; ?>">Type</label>
@@ -4310,7 +4359,13 @@ if ($isMaster && file_exists($logBestand)) {
         }
         if (veld.id) veld.id = veld.id.replace(/-(\d+)$/, '-' + nieuweIndex);
 
-        if (veld.tagName === 'SELECT') {
+        // De agenda-volgordelijst wordt hierna apart bijgewerkt (opties
+        // moeten met het nieuwe totaal meegroeien), dus die slaan we hier over.
+        var isVolgordeSelect = veld.tagName === 'SELECT' && /\[volgorde\]$/.test(veld.name || '');
+
+        if (isVolgordeSelect) {
+          // niets doen, komt hierna aan de beurt
+        } else if (veld.tagName === 'SELECT') {
           veld.selectedIndex = 0;
         } else if (veld.type === 'checkbox' || veld.type === 'radio') {
           veld.checked = false;
@@ -4331,9 +4386,31 @@ if ($isMaster && file_exists($logBestand)) {
       if (nrLabel) nrLabel.textContent = labelPrefix + ' ' + (nieuweIndex + 1);
 
       lijst.appendChild(nieuw);
+      agendaVolgordeOpnieuwOpbouwen(lijst);
       nieuw.scrollIntoView({ block: 'center', behavior: 'smooth' });
       var eersteVeld = nieuw.querySelector('input, textarea');
       if (eersteVeld) eersteVeld.focus();
+    }
+
+    // Agenda: als er een nieuwe kaart bijkomt, moeten alle volgorde-
+    // keuzelijstjes een extra optie krijgen (het nieuwe totaal), en het
+    // zojuist toegevoegde (nog lege) blok krijgt standaard de laatste
+    // plek. Bestaande keuzes van andere kaarten blijven ongemoeid. Bij
+    // andere tabs dan Agenda vindt deze functie geen volgorde-select en
+    // doet dan simpelweg niets.
+    function agendaVolgordeOpnieuwOpbouwen(lijst) {
+      var selects = lijst.querySelectorAll('select[name$="[volgorde]"]');
+      if (selects.length === 0) return;
+      var totaal = selects.length;
+      selects.forEach(function(sel) {
+        for (var p = sel.options.length + 1; p <= totaal; p++) {
+          var optie = document.createElement('option');
+          optie.value = String(p);
+          optie.textContent = String(p);
+          sel.appendChild(optie);
+        }
+      });
+      selects[selects.length - 1].value = String(totaal);
     }
 
     // ===== Logboek: filter per kolom via een uitklapbaar vinkjeslijstje =====
