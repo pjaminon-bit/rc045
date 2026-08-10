@@ -80,12 +80,14 @@ function updateInternalLinks(lang) {
 // ===== THEMAKEUZE (licht / donker) =====
 // Zet data-thema op <html> en plaatst zelf een knop naast de taalkiezer, zodat
 // geen enkele pagina aangepast hoeft te worden. Drie standen: systeem (volgt de
-// instelling van het apparaat), licht en donker. De keuze staat in localStorage,
-// net als de taal. Alle kleuren horen bij dit thema staan in styles.css.
+// instelling van het apparaat), licht en donker. De keuze staat in sessionStorage,
+// zodat elk nieuw bezoek weer met de OS instelling begint en een eerdere
+// handmatige keuze niet voor altijd blijft hangen. Alle kleuren horen bij dit
+// thema staan in styles.css.
 (function () {
   var SLEUTEL = 'rc045_thema';
   var STANDEN = ['systeem', 'licht', 'donker'];
-  var ICONEN = { systeem: '\uD83C\uDF13', licht: '\u2600\uFE0F', donker: '\uD83C\uDF19' };
+  var ICONEN = { systeem: '🌓', licht: '☀️', donker: '🌙' };
   var TEKST = {
     nl: { systeem: 'Thema: systeem', licht: 'Thema: licht', donker: 'Thema: donker' },
     en: { systeem: 'Theme: system', licht: 'Theme: light', donker: 'Theme: dark' },
@@ -96,7 +98,7 @@ function updateInternalLinks(lang) {
 
   function gekozenStand() {
     var opgeslagen = null;
-    try { opgeslagen = localStorage.getItem(SLEUTEL); } catch (e) { /* privémodus */ }
+    try { opgeslagen = sessionStorage.getItem(SLEUTEL); } catch (e) { /* privémodus */ }
     return STANDEN.indexOf(opgeslagen) === -1 ? 'systeem' : opgeslagen;
   }
 
@@ -120,7 +122,7 @@ function updateInternalLinks(lang) {
   function volgende() {
     var nu = STANDEN.indexOf(gekozenStand());
     var nieuw = STANDEN[(nu + 1) % STANDEN.length];
-    try { localStorage.setItem(SLEUTEL, nieuw); } catch (e) { /* privémodus */ }
+    try { sessionStorage.setItem(SLEUTEL, nieuw); } catch (e) { /* privémodus */ }
     toepassen();
   }
 
