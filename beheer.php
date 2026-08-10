@@ -3802,6 +3802,9 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-kop { font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700; color: var(--dark); margin: 24px 0 6px; }
     .leden-telling { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
     .leden-badge { display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 12px; font-weight: 700; white-space: nowrap; background: #EEE; color: #444; }
+    .leden-badge-klikbaar { border: none; font-family: inherit; cursor: pointer; box-shadow: 0 0 0 2px transparent; transition: box-shadow 0.1s; }
+    .leden-badge-klikbaar:hover { box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12); }
+    .leden-badge-klikbaar[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--teal-dark); }
     .lb-nieuw { background: #EDE7F6; color: #4527A0; }
     .lb-verificatie { background: #FEF3C7; color: #92400E; }
     .lb-wacht_op_betaling { background: #FDE7D9; color: #8B3319; }
@@ -5512,7 +5515,7 @@ if ($isMaster && file_exists($logBestand)) {
 
       <div class="leden-telling">
         <?php foreach ($ledenStatusLabels as $sleutel => $label): ?>
-          <span class="leden-badge lb-<?php echo htmlspecialchars($sleutel); ?>"><?php echo htmlspecialchars($label); ?>: <?php echo $ledenTellingen[$sleutel]; ?></span>
+          <button type="button" class="leden-badge leden-badge-klikbaar lb-<?php echo htmlspecialchars($sleutel); ?>" data-status="<?php echo htmlspecialchars($sleutel); ?>" aria-pressed="false" title="Klik om alleen '<?php echo htmlspecialchars($label); ?>' te tonen"><?php echo htmlspecialchars($label); ?>: <?php echo $ledenTellingen[$sleutel]; ?></button>
         <?php endforeach; ?>
       </div>
 
@@ -6441,6 +6444,14 @@ if ($isMaster && file_exists($logBestand)) {
       if (!zoek || !filter || !tabel) return;
       var rijen = tabel.querySelectorAll('tbody tr');
       var geenResultaat = document.getElementById('leden-geen-resultaat');
+      var statusBadges = document.querySelectorAll('.leden-telling .leden-badge-klikbaar');
+
+      function badgesBijwerken() {
+        Array.prototype.forEach.call(statusBadges, function (badge) {
+          var actief = badge.getAttribute('data-status') === filter.value;
+          badge.setAttribute('aria-pressed', actief ? 'true' : 'false');
+        });
+      }
 
       function filteren() {
         var term = zoek.value.trim().toLowerCase();
@@ -6454,10 +6465,23 @@ if ($isMaster && file_exists($logBestand)) {
           if (toon) zichtbaar++;
         });
         if (geenResultaat) geenResultaat.hidden = zichtbaar !== 0;
+        badgesBijwerken();
       }
 
       zoek.addEventListener('input', filteren);
       filter.addEventListener('change', filteren);
+
+      // ===== Klikbare statusbadges bovenaan =====
+      // Klik op bijvoorbeeld "Nieuw: 3" zet het statusfilter hierboven op
+      // die status. Nog een keer klikken op dezelfde badge heft het filter
+      // weer op, net als "Alle statussen" kiezen in de vervolgkeuzelijst.
+      Array.prototype.forEach.call(statusBadges, function (badge) {
+        badge.addEventListener('click', function () {
+          var status = badge.getAttribute('data-status');
+          filter.value = (filter.value === status) ? '' : status;
+          filteren();
+        });
+      });
 
       // ===== Sorteren op kolom =====
       // Klik op een kolomkop sorteert erop; nog een keer klikken keert de
