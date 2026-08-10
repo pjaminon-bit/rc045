@@ -1,6 +1,24 @@
 RewriteEngine On
+# Beveiliging: deze bestanden bevatten het inloggegevens/logboek van beheer.php
+# (wachtwoord-hashes, gebruikersnamen, activiteitenlog) en mogen nooit
+# rechtstreeks via de URL opvraagbaar zijn. Ze staan niet in GitHub (zie
+# .gitignore) maar worden door beheer.php zelf op de server aangemaakt, dus
+# deze regel moet hier in de live .htaccess staan, niet alleen in de repo.
+RewriteRule ^beheer-(config\.php|users\.json|log\.json|login-pogingen\.json)$ - [F,L]
+# Back-ups van de databestanden (o.a. kopieën van beheer-users.json met
+# wachtwoord-hashes) mogen om dezelfde reden nooit rechtstreeks opvraagbaar
+# zijn. In tegenstelling tot data/ zelf (bewust wel publiek, zie fetch-calls
+# in de pagina's) is deze hele map altijd server-only.
+RewriteRule ^data-backups/ - [F,L]
+RewriteRule ^Over-ons/?$ /index.html#over-ons [R=301,L,NC,NE]
 
-# Tijdelijke testregel, later weer verwijderen
-RewriteRule ^testredirect$ https://www.google.com/ [R=301,L]
+# beheer.php bereikbaar maken als /beheer. Puur intern (geen R=301!): een
+# externe doorstuurregel greep ook het opslaan van de formulieren (POST naar
+# beheer.php) en zette die om in een nieuw GET-verzoek, waardoor ingevulde
+# data verloren ging en Strato er een kapotte http/443-url van maakte.
+RewriteRule ^beheer/?$ beheer.php [L]
 
-RewriteRule ^Over-ons/?$ /#overons [R=301,L,NC]
+# Ledenadministratie: nooit rechtstreeks opvraagbaar.
+<FilesMatch "^(leden-data\.php|leden-opslag\.php|aanmelden-pogingen\.php)$">
+  Require all denied
+</FilesMatch>
