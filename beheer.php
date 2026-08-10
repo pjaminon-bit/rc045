@@ -1641,8 +1641,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $nieuweData = [
         'jaar' => $jaar,
         'inschrijfkosten' => (float) $inschrijfkostenNieuw,
-        'jeugd_jaarbedrag' => (float) $jeugdJaarbedragNieuw,
-        'senior_jaarbedrag' => (float) $seniorJaarbedragNieuw,
+        // Jaarcontributie in hele euro's, ook als er via een handmatige
+        // post-request toch een bedrag met centen binnenkomt.
+        'jeugd_jaarbedrag' => (float) round((float) $jeugdJaarbedragNieuw),
+        'senior_jaarbedrag' => (float) round((float) $seniorJaarbedragNieuw),
         'jeugd_leeftijd_tot' => (int) $jeugdLeeftijdNieuw,
       ];
       if (schrijfJson($rekentabelBestand, $nieuweData)) {
@@ -2820,7 +2822,7 @@ if ($isMaster && file_exists($logBestand)) {
     h1 { font-size: 20px; color: var(--dark); margin-bottom: 4px; }
     .sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
     label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--dark); }
-    textarea, input[type="password"], input[type="text"], input[type="date"], select {
+    textarea, input[type="password"], input[type="text"], input[type="date"], input[type="number"], select {
       width: 100%; font-family: inherit; font-size: 16px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);
     }
     textarea { min-height: 100px; resize: vertical; }
@@ -4568,11 +4570,13 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="rij-2">
           <div class="veld">
             <label for="rekentabel-jeugd">Jaarcontributie jeugd</label>
-            <input type="number" id="rekentabel-jeugd" name="jeugd_jaarbedrag" min="0" step="0.01" value="<?php echo htmlspecialchars((string) $rekentabelData['jeugd_jaarbedrag']); ?>">
+            <input type="number" id="rekentabel-jeugd" name="jeugd_jaarbedrag" min="0" step="1" value="<?php echo htmlspecialchars((string) (int) round((float) $rekentabelData['jeugd_jaarbedrag'])); ?>">
+            <p class="hint">Hele euro's, geen centen.</p>
           </div>
           <div class="veld">
             <label for="rekentabel-senior">Jaarcontributie senior</label>
-            <input type="number" id="rekentabel-senior" name="senior_jaarbedrag" min="0" step="0.01" value="<?php echo htmlspecialchars((string) $rekentabelData['senior_jaarbedrag']); ?>">
+            <input type="number" id="rekentabel-senior" name="senior_jaarbedrag" min="0" step="1" value="<?php echo htmlspecialchars((string) (int) round((float) $rekentabelData['senior_jaarbedrag'])); ?>">
+            <p class="hint">Hele euro's, geen centen.</p>
           </div>
         </div>
         <p class="hint">De maandbedragen hieronder worden automatisch berekend als pro-rata deel van de jaarcontributie (hele euro's, naar boven/beneden afgerond). December is altijd alleen inschrijfkosten.</p>
