@@ -443,20 +443,20 @@ function kort($tekst, $max) {
   return function_exists('mb_substr') ? mb_substr($tekst, 0, $max) : substr($tekst, 0, $max);
 }
 
-// Agenda: datum tonen als dd/mm/jjjj in het formulier, opgeslagen blijft
+// Datum tonen als dd/mm/jjjj in beheer-formulieren, opgeslagen blijft overal
 // gewoon yyyy-mm-dd (ISO), want daar rekent de rest van de site (homepage,
-// sortering) mee.
-function agendaDatumWeergave($iso) {
+// sortering, leeftijdsberekening) mee. Was eerst alleen voor Agenda, geldt nu
+// voor elk datumveld in beheer.php: Nieuws, Media, Fotoboek, Leden.
+function datumWeergave($iso) {
   if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', (string) $iso, $m)) {
     return $m[3] . '/' . $m[2] . '/' . $m[1];
   }
   return '';
 }
 
-// Agenda: dd/mm/jjjj (of dd-mm-jjjj) uit het formulier terugzetten naar
-// yyyy-mm-dd. Ongeldige of lege invoer wordt gewoon een lege datum, net als
-// voorheen.
-function agendaDatumNaarIso($tekst) {
+// dd/mm/jjjj (of dd-mm-jjjj) uit een formulier terugzetten naar yyyy-mm-dd.
+// Ongeldige of lege invoer wordt gewoon een lege datum.
+function datumNaarIso($tekst) {
   $tekst = trim((string) $tekst);
   if (preg_match('#^(\d{2})[/-](\d{2})[/-](\d{4})$#', $tekst, $m)) {
     $dag = (int) $m[1]; $maand = (int) $m[2]; $jaar = (int) $m[3];
@@ -1082,7 +1082,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if ($titelNl === '') continue; // NL titel is verplicht, anders wordt de kaart niet getoond
       $tag = $rij['tag'] ?? 'leden';
       if (!isset($agendaTags[$tag])) $tag = 'leden';
-      $datum = agendaDatumNaarIso($rij['date'] ?? '');
+      $datum = datumNaarIso($rij['date'] ?? '');
       // Gekozen positie uit de keuzelijst; bij ontbreken (zou niet moeten
       // gebeuren) valt hij terug op de plek waar hij in het formulier stond.
       $volgorde = is_numeric($rij['volgorde'] ?? null) ? (float) $rij['volgorde'] : (float) $idx;
@@ -1298,8 +1298,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $mediaFout = 'Link bij "' . $titelNl . '" moet beginnen met http:// of https://.';
         break;
       }
-      $datum = $rij['date'] ?? '';
-      if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datum)) $datum = '';
+      $datum = datumNaarIso($rij['date'] ?? '');
       $icoon = ($rij['icoon'] ?? '📺') === '📰' ? '📰' : '📺';
       $items[] = [
         'date' => $datum,
@@ -1346,8 +1345,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $nieuwsFout = 'Link bij "' . $titelNl . '" moet beginnen met http:// of https://.';
         break;
       }
-      $datum = $rij['date'] ?? '';
-      if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datum)) $datum = '';
+      $datum = datumNaarIso($rij['date'] ?? '');
       $items[] = [
         'date' => $datum,
         'title' => [
@@ -1515,7 +1513,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $album['title']['en'] = kort($_POST['titel_en'] ?? '', 60);
       $album['title']['de'] = kort($_POST['titel_de'] ?? '', 60);
       $album['volgorde'] = is_numeric($_POST['volgorde'] ?? null) ? (float) $_POST['volgorde'] : ($album['volgorde'] ?? $albumIndex);
-      if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST['datum'] ?? '')) $album['date'] = $_POST['datum'];
+      $nieuweAlbumDatum = datumNaarIso($_POST['datum'] ?? '');
+      if ($nieuweAlbumDatum !== '') $album['date'] = $nieuweAlbumDatum;
       $album['verborgen'] = !empty($_POST['album_verborgen']);
       // Kort verhaal onder de titel: helemaal optioneel, mag ook leeggemaakt
       // worden (in tegenstelling tot de titel valt dit dus niet terug op de
@@ -2705,8 +2704,34 @@ if ($isMaster && file_exists($logBestand)) {
     .gebruiker-sinds { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
     .gebruiker-tabs-form { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; background: var(--bg); border-radius: 8px; padding: 10px; }
     .gebruiker-tabs-form .veld { margin: 0; }
-    .gebruiker-tabs-form select { width: auto; min-width: 170px; }
-    @media (max-width: 480px) { .gebruiker-tabs-form { align-items: stretch; } .gebruiker-tabs-form select { width: 100%; } }
+    .gebruiker-tabs-form .multiselect { width: 220px; }
+    @media (max-width: 480px) { .gebruiker-tabs-form { align-items: stretch; } .gebruiker-tabs-form .multiselect { width: 100%; } }
+
+    /* ===== Multiselect (dropdown met zoekvak en vinkjes) =====
+       Gebruikt bij "Toegang tot" per gebruiker. De echte keuzes zijn gewone
+       checkboxes die meegaan met het formulier; dit is alleen de schil
+       eromheen (knop, paneel, zoekvak, alles/niets). Kan overal opnieuw
+       gebruikt worden door dezelfde structuur neer te zetten, de JS werkt
+       automatisch voor elke ".multiselect" op de pagina. */
+    .multiselect { position: relative; width: 100%; }
+    .multiselect-trigger { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; font-family: inherit; font-size: 14px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); cursor: pointer; text-align: left; }
+    .multiselect-trigger:hover { border-color: var(--teal); }
+    .multiselect-trigger[aria-expanded="true"] { border-color: var(--teal); }
+    .multiselect-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .multiselect-pijl { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+    .multiselect-paneel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 25; width: 100%; min-width: 230px; background: var(--white); border: 1.5px solid var(--border); border-radius: 8px; box-shadow: 0 10px 28px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 300px; }
+    .multiselect-paneel[hidden] { display: none; }
+    .multiselect-zoek { border: none; border-bottom: 1px solid var(--border); border-radius: 8px 8px 0 0; font-size: 13px; padding: 10px 12px; background: var(--white); width: 100%; }
+    .multiselect-zoek:focus { outline: none; border-bottom-color: var(--teal); }
+    .multiselect-opties { overflow-y: auto; padding: 6px; flex: 1 1 auto; }
+    .multiselect-optie { display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 6px; font-size: 13px; font-weight: 400; color: var(--text); cursor: pointer; }
+    .multiselect-optie:hover { background: var(--teal-light); }
+    .multiselect-optie input { width: auto; accent-color: var(--teal); flex-shrink: 0; }
+    .multiselect-optie.verborgen { display: none; }
+    .multiselect-leeg { padding: 10px 6px; font-size: 13px; color: var(--muted); font-style: italic; }
+    .multiselect-acties { display: flex; gap: 6px; padding: 8px; border-top: 1px solid var(--border); }
+    .multiselect-acties button { width: auto; background: none; color: var(--teal); font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 6px; }
+    .multiselect-acties button:hover { background: var(--teal-light); }
     .knop-klein { width: auto; background: none; border: 1px solid var(--border); color: var(--rust); font-size: 13px; font-weight: 600; padding: 6px 12px; white-space: nowrap; }
     .knop-klein:hover { background: #FDECEA; border-color: #F5B7B1; }
     .kaart-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
@@ -2880,7 +2905,7 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="rij-2">
               <div class="veld">
                 <label for="nieuws-date-<?php echo $i; ?>">Datum</label>
-                <input type="date" id="nieuws-date-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][date]" value="<?php echo htmlspecialchars($ni['date'] ?? ''); ?>">
+                <input type="text" inputmode="numeric" id="nieuws-date-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($ni['date'] ?? '')); ?>">
               </div>
               <div class="veld">
                 <label for="nieuws-link-<?php echo $i; ?>">Link (optioneel)</label>
@@ -2989,7 +3014,7 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="rij-2">
               <div class="veld">
                 <label for="agenda-date-<?php echo $i; ?>">Datum</label>
-                <input type="text" inputmode="numeric" id="agenda-date-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(agendaDatumWeergave($ev['date'] ?? '')); ?>">
+                <input type="text" inputmode="numeric" id="agenda-date-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($ev['date'] ?? '')); ?>">
               </div>
               <div class="veld">
                 <label for="agenda-tag-<?php echo $i; ?>">Type</label>
@@ -3320,7 +3345,7 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="rij-3">
               <div class="veld">
                 <label for="media-date-<?php echo $i; ?>">Datum</label>
-                <input type="date" id="media-date-<?php echo $i; ?>" name="media[<?php echo $i; ?>][date]" value="<?php echo htmlspecialchars($mi['date'] ?? ''); ?>">
+                <input type="text" inputmode="numeric" id="media-date-<?php echo $i; ?>" name="media[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($mi['date'] ?? '')); ?>">
               </div>
               <div class="veld">
                 <label for="media-bron-<?php echo $i; ?>">Bron</label>
@@ -3467,7 +3492,7 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="rij-2">
             <div class="veld">
               <label for="fotoboek-<?php echo $slug; ?>-datum">Datum</label>
-              <input type="date" id="fotoboek-<?php echo $slug; ?>-datum" name="datum" value="<?php echo htmlspecialchars($album['date'] ?? ''); ?>">
+              <input type="text" inputmode="numeric" id="fotoboek-<?php echo $slug; ?>-datum" name="datum" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($album['date'] ?? '')); ?>">
               <p class="hint">Wordt getoond op de albumkaart op de website.</p>
             </div>
             <div class="veld">
@@ -3633,13 +3658,28 @@ if ($isMaster && file_exists($logBestand)) {
               <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
               <input type="hidden" name="gebruikersnaam" value="<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>">
               <div class="veld">
-                <label for="gebruiker-tabs-<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>">Toegang tot</label>
-                <select id="gebruiker-tabs-<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>" name="tabs[]" multiple size="<?php echo count($beheerTabsAlle); ?>">
-                  <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
-                    <option value="<?php echo $tabSleutel; ?>" <?php if (!$gHeeftBeperking || in_array($tabSleutel, $g['tabs'], true)) echo 'selected'; ?>><?php echo htmlspecialchars($tabLabel); ?></option>
-                  <?php endforeach; ?>
-                </select>
-                <p class="hint">Ctrl (Windows) of Cmd (Mac) ingedrukt houden om meerdere te kiezen, of los te maken.</p>
+                <label id="gebruiker-tabs-label-<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>">Toegang tot</label>
+                <div class="multiselect">
+                  <button type="button" class="multiselect-trigger" aria-expanded="false" aria-labelledby="gebruiker-tabs-label-<?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?>">
+                    <span class="multiselect-label">Alles</span>
+                    <span class="multiselect-pijl" aria-hidden="true">▾</span>
+                  </button>
+                  <div class="multiselect-paneel" hidden>
+                    <input type="text" class="multiselect-zoek" placeholder="Zoeken">
+                    <div class="multiselect-opties">
+                      <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
+                        <label class="multiselect-optie">
+                          <input type="checkbox" name="tabs[]" value="<?php echo $tabSleutel; ?>" <?php if (!$gHeeftBeperking || in_array($tabSleutel, $g['tabs'], true)) echo 'checked'; ?>>
+                          <span><?php echo htmlspecialchars($tabLabel); ?></span>
+                        </label>
+                      <?php endforeach; ?>
+                    </div>
+                    <div class="multiselect-acties">
+                      <button type="button" data-actie="alles">Alles</button>
+                      <button type="button" data-actie="niets">Niets</button>
+                    </div>
+                  </div>
+                </div>
               </div>
               <button type="submit" class="knop-klein">Toegang opslaan</button>
             </form>
@@ -3668,13 +3708,29 @@ if ($isMaster && file_exists($logBestand)) {
           <input type="password" id="nieuw-wachtwoord-herhaald" name="nieuw_wachtwoord_herhaald" autocomplete="new-password" required>
         </div>
         <div class="veld">
-          <label for="nieuwe-gebruiker-tabs">Toegang tot</label>
-          <select id="nieuwe-gebruiker-tabs" name="tabs[]" multiple size="<?php echo count($beheerTabsAlle); ?>">
-            <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
-              <option value="<?php echo $tabSleutel; ?>" selected><?php echo htmlspecialchars($tabLabel); ?></option>
-            <?php endforeach; ?>
-          </select>
-          <p class="hint">Standaard staat alles aan. Ctrl (Windows) of Cmd (Mac) ingedrukt houden om er een paar los te maken. Geldt alleen bij het aanmaken van een nieuwe gebruiker; bij een bestaande gebruikersnaam (wachtwoord-reset) blijft de huidige toegang ongewijzigd, pas die hierboven per gebruiker aan.</p>
+          <label id="nieuwe-gebruiker-tabs-label">Toegang tot</label>
+          <div class="multiselect">
+            <button type="button" class="multiselect-trigger" aria-expanded="false" aria-labelledby="nieuwe-gebruiker-tabs-label">
+              <span class="multiselect-label">Alles</span>
+              <span class="multiselect-pijl" aria-hidden="true">▾</span>
+            </button>
+            <div class="multiselect-paneel" hidden>
+              <input type="text" class="multiselect-zoek" placeholder="Zoeken">
+              <div class="multiselect-opties">
+                <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
+                  <label class="multiselect-optie">
+                    <input type="checkbox" name="tabs[]" value="<?php echo $tabSleutel; ?>" checked>
+                    <span><?php echo htmlspecialchars($tabLabel); ?></span>
+                  </label>
+                <?php endforeach; ?>
+              </div>
+              <div class="multiselect-acties">
+                <button type="button" data-actie="alles">Alles</button>
+                <button type="button" data-actie="niets">Niets</button>
+              </div>
+            </div>
+          </div>
+          <p class="hint">Standaard staat alles aan. Geldt alleen bij het aanmaken van een nieuwe gebruiker; bij een bestaande gebruikersnaam (wachtwoord-reset) blijft de huidige toegang ongewijzigd, pas die hierboven per gebruiker aan.</p>
         </div>
         <button type="submit">Gebruiker opslaan</button>
       </form>
@@ -3786,7 +3842,7 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
           <div class="veld">
             <label for="lid-inschrijfdatum">Inschrijfdatum</label>
-            <input type="date" id="lid-inschrijfdatum" name="inschrijfdatum" value="<?php echo htmlspecialchars($ledenBewerkLid['inschrijfdatum']); ?>">
+            <input type="text" inputmode="numeric" id="lid-inschrijfdatum" name="inschrijfdatum" maxlength="10" placeholder="dd/mm/jjjj" value="<?php echo htmlspecialchars(datumWeergave($ledenBewerkLid['inschrijfdatum'])); ?>">
           </div>
         </div>
 
@@ -3808,7 +3864,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="rij-3">
           <div class="veld">
             <label for="lid-geboortedatum">Geboortedatum</label>
-            <input type="date" id="lid-geboortedatum" name="geboortedatum" value="<?php echo htmlspecialchars($ledenBewerkLid['geboortedatum']); ?>">
+            <input type="text" inputmode="numeric" id="lid-geboortedatum" name="geboortedatum" maxlength="10" placeholder="dd/mm/jjjj" value="<?php echo htmlspecialchars(datumWeergave($ledenBewerkLid['geboortedatum'])); ?>">
             <?php
               $bewerkLeeftijd = ledenLeeftijd($ledenBewerkLid['geboortedatum']);
               $bewerkJeugd = ledenIsJeugd($ledenBewerkLid, $ledenJeugdTot, $ledenJaar);
@@ -3909,7 +3965,7 @@ if ($isMaster && file_exists($logBestand)) {
             </div>
             <div class="veld">
               <label for="lid-c-betaald-<?php echo $ci; ?>">Betaald op</label>
-              <input type="date" id="lid-c-betaald-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][betaald_op]" value="<?php echo htmlspecialchars((string) ($regel['betaald_op'] ?? '')); ?>">
+              <input type="text" inputmode="numeric" id="lid-c-betaald-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][betaald_op]" maxlength="10" placeholder="dd/mm/jjjj" value="<?php echo htmlspecialchars(datumWeergave((string) ($regel['betaald_op'] ?? ''))); ?>">
             </div>
             <div class="veld">
               <label for="lid-c-opm-<?php echo $ci; ?>">Opmerking</label>
@@ -4253,6 +4309,101 @@ if ($isMaster && file_exists($logBestand)) {
       });
 
       toonTab((location.hash || '').replace('#', ''));
+    })();
+
+    // ===== Multiselect (dropdown met zoekvak en vinkjes) =====
+    // Werkt voor elke ".multiselect" op de pagina onafhankelijk van elkaar,
+    // dus ook als er (zoals bij Gebruikers) meerdere op dezelfde pagina
+    // staan. De echte waarden zijn gewone checkboxes, dit is puur de schil
+    // eromheen: knop met "X geselecteerd", paneel met zoekvak en alles/niets.
+    (function () {
+      var instanties = Array.prototype.slice.call(document.querySelectorAll('.multiselect'));
+      if (instanties.length === 0) return;
+
+      function label(instantie) {
+        var vinkjes = Array.prototype.slice.call(instantie.querySelectorAll('.multiselect-optie input'));
+        var totaal = vinkjes.length;
+        var aan = vinkjes.filter(function (v) { return v.checked; }).length;
+        var el = instantie.querySelector('.multiselect-label');
+        if (!el) return;
+        if (totaal === 0) el.textContent = 'Geen opties';
+        else if (aan === totaal) el.textContent = 'Alles (' + totaal + ')';
+        else if (aan === 0) el.textContent = 'Niets geselecteerd';
+        else el.textContent = aan + ' van ' + totaal;
+      }
+
+      function sluiten(instantie) {
+        var paneel = instantie.querySelector('.multiselect-paneel');
+        var trigger = instantie.querySelector('.multiselect-trigger');
+        if (paneel) paneel.hidden = true;
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      }
+
+      function alleSluiten(behalve) {
+        instanties.forEach(function (i) { if (i !== behalve) sluiten(i); });
+      }
+
+      instanties.forEach(function (instantie) {
+        var trigger = instantie.querySelector('.multiselect-trigger');
+        var paneel = instantie.querySelector('.multiselect-paneel');
+        var zoek = instantie.querySelector('.multiselect-zoek');
+        var opties = Array.prototype.slice.call(instantie.querySelectorAll('.multiselect-optie'));
+        if (!trigger || !paneel) return;
+
+        label(instantie);
+
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var openen = paneel.hidden;
+          alleSluiten(instantie);
+          paneel.hidden = !openen;
+          trigger.setAttribute('aria-expanded', openen ? 'true' : 'false');
+          if (openen) {
+            if (zoek) {
+              zoek.value = '';
+              opties.forEach(function (o) { o.classList.remove('verborgen'); });
+              zoek.focus();
+            }
+          }
+        });
+
+        opties.forEach(function (optie) {
+          var vinkje = optie.querySelector('input');
+          if (vinkje) vinkje.addEventListener('change', function () { label(instantie); });
+        });
+
+        if (zoek) {
+          zoek.addEventListener('input', function () {
+            var term = zoek.value.trim().toLowerCase();
+            opties.forEach(function (optie) {
+              var tekst = optie.textContent.trim().toLowerCase();
+              optie.classList.toggle('verborgen', term !== '' && tekst.indexOf(term) === -1);
+            });
+          });
+          // Klikken/typen in het zoekvak mag het paneel niet laten sluiten
+          // via de document-click-listener hieronder.
+          zoek.addEventListener('click', function (e) { e.stopPropagation(); });
+        }
+
+        Array.prototype.slice.call(instantie.querySelectorAll('.multiselect-acties button')).forEach(function (knop) {
+          knop.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var aan = knop.getAttribute('data-actie') === 'alles';
+            opties.forEach(function (optie) {
+              if (optie.classList.contains('verborgen')) return; // alleen wat gefilterd zichtbaar is
+              var vinkje = optie.querySelector('input');
+              if (vinkje) vinkje.checked = aan;
+            });
+            label(instantie);
+          });
+        });
+      });
+
+      document.addEventListener('click', function (e) {
+        instanties.forEach(function (instantie) {
+          if (!instantie.contains(e.target)) sluiten(instantie);
+        });
+      });
     })();
 
     // ===== Fotoboek: foto's herordenen met de pijltjes =====
