@@ -2526,10 +2526,21 @@ if ($isMaster && file_exists($logBestand)) {
        achtergrond met een dun streepje eronder in plaats van een dichte
        gekleurde knop. Compacter dan de hoofdsite-nav omdat hier 13 tabs
        op dezelfde rij moeten passen. */
-    .menu { position: sticky; top: 0; z-index: 10; display: flex; gap: 2px; flex-wrap: wrap; align-items: center; background: rgba(250,246,236,0.95); backdrop-filter: blur(10px); padding: 10px 6px; margin: 0 -6px 4px; border-bottom: 1px solid var(--border); }
-    .menu-item { width: auto; flex: 0 0 auto; background: none; border: none; padding: 6px 10px; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
+    /* Menu als verticale kolom links, content ernaast. Op smalle schermen
+       (telefoon/tablet in portret) valt hij terug op een horizontale rij
+       bovenaan, anders is er te weinig breedte voor beide kolommen. */
+    .beheer-layout { display: flex; align-items: flex-start; gap: 24px; }
+    .beheer-inhoud { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+    .menu { position: sticky; top: 24px; z-index: 10; display: flex; flex-direction: column; gap: 2px; flex: 0 0 190px; width: 190px; align-self: flex-start; background: rgba(250,246,236,0.95); backdrop-filter: blur(10px); padding: 10px; border: 1px solid var(--border); border-radius: 12px; max-height: calc(100vh - 48px); overflow-y: auto; }
+    .menu-item { width: 100%; text-align: left; flex: 0 0 auto; background: none; border: none; padding: 8px 12px; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
     .menu-item:hover { background: var(--teal-light); color: var(--teal-dark); }
-    .menu-item.actief { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
+    .menu-item.actief { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 2px 0 0 var(--teal); }
+    @media (max-width: 860px) {
+      .beheer-layout { flex-direction: column; }
+      .menu { position: static; flex-direction: row; flex-wrap: wrap; width: 100%; flex: 0 0 auto; max-height: none; margin: 0 0 4px; }
+      .menu-item { width: auto; text-align: center; }
+      .menu-item.actief { box-shadow: inset 0 -2px 0 var(--teal); }
+    }
     .tab-paneel { display: none; flex-direction: column; gap: 16px; }
 
     /* ===== Ledenadministratie ===== */
@@ -2678,6 +2689,7 @@ if ($isMaster && file_exists($logBestand)) {
       <div class="melding <?php echo $meldingType['csrf']; ?>"><?php echo htmlspecialchars($melding['csrf']); ?></div>
     <?php endif; ?>
 
+    <div class="beheer-layout">
     <nav class="menu">
       <button type="button" class="menu-item" data-tab="mededeling">Openingstijden</button>
       <button type="button" class="menu-item" data-tab="nieuws">Nieuws</button>
@@ -2695,6 +2707,8 @@ if ($isMaster && file_exists($logBestand)) {
       <?php endif; ?>
       <button type="button" class="menu-item" data-tab="rekentabel">Rekentabel</button>
     </nav>
+
+    <div class="beheer-inhoud">
 
     <div class="tab-paneel" id="tab-mededeling">
     <!-- ===== AFWIJKENDE OPENINGSTIJDEN ===== -->
@@ -4001,6 +4015,9 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
 
     <a class="terug" href="index.html">Naar de website</a>
+
+    </div>
+    </div>
 
   <?php endif; ?>
 
