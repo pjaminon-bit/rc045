@@ -235,6 +235,10 @@
     
     .price-card.featured .price-note { color: rgba(255,255,255,0.5); }
     
+    .price-note-attentie { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--rust); background: var(--gold-light); border-radius: 8px; padding: 8px 10px; margin-top: 8px; line-height: 1.5; }
+    
+    .price-note-attentie:empty { display: none; }
+    
     .track { background: var(--white); }
     
     .track-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
@@ -760,6 +764,7 @@
         </ul>
         <a href="#contact" class="btn btn-primary" data-i18n="guest.btn">Kom gerust langs of stuur ons een berichtje →</a>
         <p class="price-note" id="hp-guest-note" data-i18n="guest.note">Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</p>
+        <p class="price-note-attentie" id="hp-guest-note-extra">👥 Kom je met 4 of meer personen? Meld je dan van te voren via het contactformulier of bestuur@rc045.nl</p>
       </div>
       <div class="price-card featured reveal reveal-delay-2">
         <div class="price-card-tag" data-i18n="member.tag">Lidmaatschap</div>
@@ -1749,6 +1754,17 @@
       if (!bron) return;
       var tekst = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
       if (!tekst) return;
+      // guest_note: een eventuele tweede regel (bijv. de "kom je met 4+
+      // personen"-melding) krijgt een eigen, opvallend blokje in plaats van
+      // stil op te gaan in de gewone kleine notitietekst.
+      if (veld === 'guest_note') {
+        var regels = tekst.split(/\r?\n/).map(function (r) { return r.trim(); }).filter(Boolean);
+        var basisEl = document.getElementById('hp-guest-note');
+        var extraEl = document.getElementById('hp-guest-note-extra');
+        if (basisEl) basisEl.textContent = regels[0] || '';
+        if (extraEl) extraEl.textContent = regels.length > 1 ? '👥 ' + regels.slice(1).join(' ') : '';
+        return;
+      }
       var el = document.getElementById('hp-' + veld.replace(/_/g, '-'));
       if (el) el.textContent = tekst;
     });
