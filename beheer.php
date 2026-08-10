@@ -415,6 +415,11 @@ $homepageStandaard = [
   'track_f3' => ['nl' => "Jump-track met schans", 'en' => "Jump track with ramp", 'de' => "Sprungstrecke mit Rampe"],
   'track_f4' => ['nl' => "Kantine & werkruimte aanwezig", 'en' => "Canteen & workshop available", 'de' => "Kantine & Werkraum vorhanden"],
   'track_f5' => ['nl' => "Voldoende parkeerruimte", 'en' => "Ample parking", 'de' => "Ausreichend Parkplätze"],
+  'pricing_title' => [
+    'nl' => "Lid worden of een keer komen kijken?",
+    'en' => "Become a member or come and have a look?",
+    'de' => "Mitglied werden oder einfach vorbeischauen?",
+  ],
   'pricing_sub' => [
     'nl' => "Je kunt altijd eerst als gast komen rijden om te ervaren of het iets voor jou is. Daarna kun je eventueel lid worden en volop genieten van onze banen.",
     'en' => "You can always come as a guest first to see if it suits you. After that, you can become a member and enjoy our tracks to the fullest.",
@@ -434,6 +439,11 @@ $homepageStandaard = [
     'nl' => "Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.",
     'en' => "Supervision by a parent or guardian required for under 16. Not available during private or members-only events.",
     'de' => "Begleitung durch Elternteil oder Erziehungsberechtigte für unter 16 Jahre erforderlich. Nicht möglich bei geschlossenen Veranstaltungen.",
+  ],
+  'member_title' => [
+    'nl' => "Word lid van RC045",
+    'en' => "Become a member of RC045",
+    'de' => "Werde Mitglied bei RC045",
   ],
   'member_text' => [
     'nl' => "Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.",
@@ -1305,10 +1315,12 @@ $homepageVelden = [
   'track_f3'     => ['"De baan": kenmerk 3', 'tekst'],
   'track_f4'     => ['"De baan": kenmerk 4', 'tekst'],
   'track_f5'     => ['"De baan": kenmerk 5', 'tekst'],
+  'pricing_title' => ['"Lidmaatschap": titel boven de twee kaarten', 'tekst'],
   'pricing_sub'  => ['"Lidmaatschap": introtekst boven de twee kaarten', 'blok'],
   'guest_title'  => ['"Lidmaatschap": titel bij Gastrijden ("Kom eens gastrijden!")', 'tekst'],
   'guest_text'   => ['"Lidmaatschap": omschrijving bij Gastrijden', 'blok'],
   'guest_note'   => ['"Lidmaatschap": kleine notitie onder Gastrijden', 'blok'],
+  'member_title' => ['"Lidmaatschap": titel bij het lidmaatschap ("Word lid van RC045")', 'tekst'],
   'member_text'  => ['"Lidmaatschap": omschrijving bij het lidmaatschap', 'blok'],
   'member_note'  => ['"Lidmaatschap": kleine notitie onder het lidmaatschap', 'blok'],
 ];
@@ -1320,7 +1332,7 @@ $homepageGroepen = [
   'Hero' => ['hero_intro'],
   '"Wie zijn wij"' => ['about_p1', 'about_p2', 'feat1_title', 'feat1_text', 'feat2_title', 'feat2_text', 'feat3_title', 'feat3_text', 'feat4_title', 'feat4_text'],
   '"De baan"' => ['track_p1', 'track_p2', 'track_f1', 'track_f2', 'track_f3', 'track_f4', 'track_f5'],
-  '"Lidmaatschap"' => ['pricing_sub', 'guest_title', 'guest_text', 'guest_note', 'member_text', 'member_note'],
+  '"Lidmaatschap"' => ['pricing_title', 'pricing_sub', 'guest_title', 'guest_text', 'guest_note', 'member_title', 'member_text', 'member_note'],
 ];
 
 // Velden van het tabblad Ontstaan: zelfde opzet als $homepageVelden. Geen
