@@ -2536,9 +2536,13 @@ if ($isMaster && file_exists($logBestand)) {
     .menu-item:hover { background: var(--teal-light); color: var(--teal-dark); }
     .menu-item.actief { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 2px 0 0 var(--teal); }
     @media (max-width: 860px) {
+      /* Op smalle schermen geen tweede kolom, en geen uitwaaierende tabs
+         over meerdere rommelige regels: één rij die je opzij kunt vegen,
+         net als een tabbalk in een app. */
       .beheer-layout { flex-direction: column; }
-      .menu { position: static; flex-direction: row; flex-wrap: wrap; width: 100%; flex: 0 0 auto; max-height: none; margin: 0 0 4px; }
-      .menu-item { width: auto; text-align: center; }
+      .menu { position: static; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; flex: 0 0 auto; max-height: none; margin: 0 0 4px; border-radius: 10px; scrollbar-width: none; }
+      .menu::-webkit-scrollbar { display: none; }
+      .menu-item { width: auto; flex: 0 0 auto; white-space: nowrap; text-align: center; }
       .menu-item.actief { box-shadow: inset 0 -2px 0 var(--teal); }
     }
     .tab-paneel { display: none; flex-direction: column; gap: 16px; }
