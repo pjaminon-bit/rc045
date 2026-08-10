@@ -3724,6 +3724,9 @@ if ($isMaster && file_exists($logBestand)) {
       width: 100%; font-family: inherit; font-size: 16px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);
     }
     textarea { min-height: 100px; resize: vertical; }
+    /* Bestandsvelden staan niet in de regel hierboven (ze krijgen geen kader),
+       maar moeten wel binnen hun kolom blijven bij een lange bestandsnaam. */
+    input[type="file"] { max-width: 100%; font-size: 14px; }
     textarea:focus, input:focus, select:focus { outline: none; border-color: var(--teal); }
     .veld { margin-bottom: 18px; }
     .hint { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
@@ -3745,7 +3748,7 @@ if ($isMaster && file_exists($logBestand)) {
     .logboek-filter-knop { font-size: 12px; font-weight: 400; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; cursor: pointer; margin-left: 4px; }
     .logboek-filter-knop:hover { background: var(--teal-light); color: var(--teal-dark); }
     .logboek-filter-knop.actief { background: var(--teal); color: white; border-color: var(--teal); }
-    .logboek-filter-paneel { position: absolute; top: 100%; left: 0; z-index: 20; background: var(--white); border: 1.5px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 10px; min-width: 200px; max-height: 260px; overflow-y: auto; font-weight: 400; font-size: 13px; }
+    .logboek-filter-paneel { position: absolute; top: 100%; left: 0; z-index: 20; max-width: calc(100vw - 40px); background: var(--white); border: 1.5px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 10px; min-width: 200px; max-height: 260px; overflow-y: auto; font-weight: 400; font-size: 13px; }
     .logboek-filter-paneel-acties { display: flex; gap: 10px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
     .logboek-filter-paneel-acties button { width: auto; background: none; color: var(--teal); font-size: 12px; font-weight: 700; padding: 0; }
     .logboek-filter-paneel-acties button:hover { text-decoration: underline; background: none; }
@@ -3901,12 +3904,14 @@ if ($isMaster && file_exists($logBestand)) {
       .leden-tabel td::before { display: block; margin-bottom: 1px; padding-top: 0; }
     }
 
-    .item-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+    /* min(...) erin: zonder dat blijft een kolom 340px breed ook als het
+       scherm smaller is, en schuift de hele pagina horizontaal weg. */
+    .item-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 16px; align-items: start; }
     .item-lijst .item-blok { margin-bottom: 0; }
-    .fotoboek-foto-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .fotoboek-foto-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 12px; }
     .fotoboek-foto-lijst .fotoboek-foto-blok { margin-bottom: 0; }
     #tab-mededeling { display: flex; }
-    .ingelogd-balk { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); }
+    .ingelogd-balk { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); }
     .ingelogd-balk a { color: var(--teal-dark); font-weight: 600; text-decoration: none; }
     .ingelogd-balk a:hover { text-decoration: underline; }
     .link-knop { width: auto; background: none; border: none; padding: 0; margin: 0; font: inherit; font-weight: 600; color: var(--teal-dark); text-decoration: none; cursor: pointer; }
@@ -3914,7 +3919,7 @@ if ($isMaster && file_exists($logBestand)) {
     .gebruiker-rij { display: flex; flex-direction: column; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--border); }
     .gebruiker-rij:last-child { border-bottom: none; }
     .gebruiker-rij form { margin: 0; }
-    .gebruiker-rij-boven { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .gebruiker-rij-boven { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
     .gebruiker-sinds { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
     .gebruiker-tabs-form { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; background: var(--bg); border-radius: 8px; padding: 10px; }
     .gebruiker-tabs-form .veld { margin: 0; }
@@ -3937,7 +3942,7 @@ if ($isMaster && file_exists($logBestand)) {
     .multiselect-trigger[aria-expanded="true"] { border-color: var(--teal); }
     .multiselect-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .multiselect-pijl { font-size: 11px; color: var(--muted); flex-shrink: 0; }
-    .multiselect-paneel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 25; width: 100%; min-width: 230px; background: var(--white); border: 1.5px solid var(--border); border-radius: 8px; box-shadow: 0 10px 28px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 300px; }
+    .multiselect-paneel { position: absolute; top: calc(100% + 4px); left: 0; z-index: 25; width: 100%; min-width: 230px; max-width: calc(100vw - 40px); background: var(--white); border: 1.5px solid var(--border); border-radius: 8px; box-shadow: 0 10px 28px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 300px; }
     .multiselect-paneel[hidden] { display: none; }
     .multiselect-zoek { border: none; border-bottom: 1px solid var(--border); border-radius: 8px 8px 0 0; font-size: 13px; padding: 10px 12px; background: var(--white); width: 100%; }
     .multiselect-zoek:focus { outline: none; border-bottom-color: var(--teal); }
@@ -3981,7 +3986,7 @@ if ($isMaster && file_exists($logBestand)) {
     .fotoboek-upload-blok { border-top: 1px dashed var(--border); padding-top: 14px; margin-top: 4px; }
     .fotoboek-verberg-blok { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
     .fotoboek-verwijder-blok { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px; }
-    .fotoboek-album-kop { display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; list-style-position: outside; }
+    .fotoboek-album-kop { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; list-style-position: outside; }
     .fotoboek-album-kop::-webkit-details-marker { margin-right: 8px; }
     .fotoboek-album-titel { font-size: 20px; font-weight: 700; color: var(--dark); }
     .fotoboek-album-volgnummer { font-size: 15px; font-weight: 400; color: var(--muted); margin-right: 8px; }
@@ -3991,6 +3996,38 @@ if ($isMaster && file_exists($logBestand)) {
     .fotoboek-voortgang-balk { width: 100%; height: 8px; border-radius: 100px; background: var(--teal-light); overflow: hidden; }
     .fotoboek-voortgang-vulling { height: 100%; width: 0%; background: var(--teal); border-radius: 100px; transition: width 0.2s ease; }
     .fotoboek-voortgang-tekst { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    /* ===== Smalle schermen: de rest van de beheerpagina =====
+       De losse onderdelen hebben hierboven hun eigen breekpunten. Wat hier
+       staat geldt voor de hele pagina: het logboek (de laatste brede tabel),
+       raakvlakken die met een vinger te bedienen moeten zijn, en wat extra
+       schermbreedte terugwinnen op een telefoon. */
+    @media (max-width: 760px) {
+      /* Logboek net als de ledenlijst als kaartjes, met de drie
+         filterknoppen als balk erboven in plaats van als kolomkoppen. */
+      #logboek-tabel, #logboek-tabel tbody, #logboek-tabel tr, #logboek-tabel th, #logboek-tabel td { display: block; width: 100%; }
+      #logboek-tabel tr:first-child { position: relative; display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 10px; margin-bottom: 12px; border-bottom: 2px solid var(--border); }
+      #logboek-tabel tr:first-child th { width: auto; padding: 0; border-bottom: none; position: static; }
+      /* Het filterpaneel hangt daardoor onder de hele balk in plaats van
+         onder een losse kolomkop; bij de rechterkolom stak hij anders
+         buiten beeld. */
+      #logboek-tabel .logboek-filter-paneel { left: 0; right: 0; width: auto; min-width: 0; max-width: none; }
+      #logboek-tabel tr:not(:first-child) { border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; background: var(--bg); }
+      #logboek-tabel td { display: flex; gap: 10px; align-items: flex-start; padding: 3px 0; border-bottom: none; }
+      #logboek-tabel td::before { content: attr(data-label); flex: 0 0 58px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding-top: 2px; }
+      .logboek-filter-knop { padding: 5px 10px; font-size: 13px; }
+      .knop-klein { padding: 9px 14px; font-size: 14px; }
+      table.reken th, table.reken td { padding: 8px 4px; }
+    }
+    @media (max-width: 420px) {
+      body { padding: 0 12px 32px; }
+      .kaart { padding: 16px; }
+      details.kaart > summary { padding: 14px 16px; }
+      details.kaart > .kaart-uitklap-inhoud { padding: 0 16px 16px; }
+      h1 { font-size: 18px; }
+      table.reken { font-size: 13px; }
+      .fotoboek-foto-blok { padding: 10px; gap: 8px; }
+      .fotoboek-foto-blok img, .fotoboek-video-thumb { width: 60px; height: 60px; }
+    }
   </style>
 </head>
 <body>
@@ -5311,9 +5348,9 @@ if ($isMaster && file_exists($logBestand)) {
           </tr>
           <?php foreach (array_slice($logRegels, 0, 1000) as $regel): ?>
             <tr>
-              <td data-filterwaarde="<?php echo htmlspecialchars(date('d-m-Y', strtotime($regel['tijd'] ?? ''))); ?>"><?php echo htmlspecialchars(date('d-m-Y H:i', strtotime($regel['tijd'] ?? ''))); ?></td>
-              <td data-filterwaarde="<?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?>"><?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?></td>
-              <td data-filterwaarde="<?php echo htmlspecialchars($regel['actie'] ?? ''); ?>"><?php echo htmlspecialchars($regel['actie'] ?? ''); ?><?php echo !empty($regel['details']) ? ': ' . htmlspecialchars($regel['details']) : ''; ?></td>
+              <td data-label="Tijd" data-filterwaarde="<?php echo htmlspecialchars(date('d-m-Y', strtotime($regel['tijd'] ?? ''))); ?>"><?php echo htmlspecialchars(date('d-m-Y H:i', strtotime($regel['tijd'] ?? ''))); ?></td>
+              <td data-label="Wie" data-filterwaarde="<?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?>"><?php echo htmlspecialchars($regel['gebruiker'] ?? ''); ?></td>
+              <td data-label="Actie" data-filterwaarde="<?php echo htmlspecialchars($regel['actie'] ?? ''); ?>"><?php echo htmlspecialchars($regel['actie'] ?? ''); ?><?php echo !empty($regel['details']) ? ': ' . htmlspecialchars($regel['details']) : ''; ?></td>
             </tr>
           <?php endforeach; ?>
         </table>
