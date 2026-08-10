@@ -3155,6 +3155,19 @@ if ($isMaster && file_exists($logBestand)) {
     .kaart { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; padding: 28px; }
     @media (max-width: 640px) { .kaart { padding: 20px; } }
     h1 { font-size: 20px; color: var(--dark); margin-bottom: 4px; }
+    /* Uitklapbare kaarten (details/summary): voor tabbladen met veel velden
+       (Homepage, Ontstaan, Baanreglement, Bedankt-pagina), zodat je alleen
+       de sectie openklapt waar je aan wilt werken in plaats van alles
+       onder elkaar te zien staan. */
+    details.kaart { padding: 0; }
+    details.kaart > summary { list-style: none; cursor: pointer; padding: 20px 28px; display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: var(--dark); }
+    details.kaart > summary::-webkit-details-marker { display: none; }
+    details.kaart > summary:hover { color: var(--teal-dark); }
+    details.kaart > summary::after { content: '▾'; color: var(--muted); font-size: 13px; flex-shrink: 0; margin-left: auto; transition: transform 0.15s; }
+    details.kaart[open] > summary::after { transform: rotate(180deg); }
+    details.kaart > summary .kaart-uitklap-telling { font-size: 12px; font-weight: 400; color: var(--muted); }
+    details.kaart > .kaart-uitklap-inhoud { padding: 0 28px 28px; }
+    @media (max-width: 640px) { details.kaart > summary { padding: 16px 20px; } details.kaart > .kaart-uitklap-inhoud { padding: 0 20px 20px; } }
     .sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
     label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--dark); }
     textarea, input[type="password"], input[type="text"], input[type="date"], input[type="number"], select {
@@ -3463,8 +3476,9 @@ if ($isMaster && file_exists($logBestand)) {
       <?php $homepageGroepIndex = 0; $homepageAantalGroepen = count($homepageGroepen); ?>
       <?php foreach ($homepageGroepen as $homepageGroepNaam => $homepageVeldSleutels): ?>
         <?php $homepageGroepIndex++; ?>
-        <div class="kaart">
-          <h1><?php echo htmlspecialchars($homepageGroepNaam); ?></h1>
+        <details class="kaart"<?php echo $homepageGroepIndex === 1 ? ' open' : ''; ?>>
+          <summary><?php echo htmlspecialchars($homepageGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($homepageVeldSleutels); ?> veld<?php echo count($homepageVeldSleutels) === 1 ? '' : 'en'; ?></span></summary>
+          <div class="kaart-uitklap-inhoud">
           <?php foreach ($homepageVeldSleutels as $veld): ?>
             <?php
               $hpInfo = $homepageVelden[$veld];
@@ -3490,11 +3504,12 @@ if ($isMaster && file_exists($logBestand)) {
               <?php endif; ?>
             </div>
           <?php endforeach; ?>
-          <?php if ($homepageGroepIndex === $homepageAantalGroepen): ?>
-            <button type="submit">Homepage teksten opslaan</button>
-          <?php endif; ?>
-        </div>
+          </div>
+        </details>
       <?php endforeach; ?>
+      <div class="kaart">
+        <button type="submit">Homepage teksten opslaan</button>
+      </div>
     </form>
     </div>
     <?php endif; ?>
@@ -3571,8 +3586,9 @@ if ($isMaster && file_exists($logBestand)) {
       <?php $brGroepIndex = 0; $brAantalGroepen = count($baanreglementGroepen); ?>
       <?php foreach ($baanreglementGroepen as $brGroepNaam => $brVeldSleutels): ?>
         <?php $brGroepIndex++; ?>
-        <div class="kaart">
-          <h1><?php echo htmlspecialchars($brGroepNaam); ?></h1>
+        <details class="kaart"<?php echo $brGroepIndex === 1 ? ' open' : ''; ?>>
+          <summary><?php echo htmlspecialchars($brGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($brVeldSleutels); ?> veld<?php echo count($brVeldSleutels) === 1 ? '' : 'en'; ?></span></summary>
+          <div class="kaart-uitklap-inhoud">
           <?php foreach ($brVeldSleutels as $veld): ?>
             <?php
               $brInfo = $baanreglementVelden[$veld];
@@ -3595,11 +3611,12 @@ if ($isMaster && file_exists($logBestand)) {
               </div>
             </div>
           <?php endforeach; ?>
-          <?php if ($brGroepIndex === $brAantalGroepen): ?>
-            <button type="submit">Baanreglement opslaan</button>
-          <?php endif; ?>
-        </div>
+          </div>
+        </details>
       <?php endforeach; ?>
+      <div class="kaart">
+        <button type="submit">Baanreglement opslaan</button>
+      </div>
     </form>
     </div>
     <?php endif; ?>
@@ -3636,8 +3653,9 @@ if ($isMaster && file_exists($logBestand)) {
       <?php $bdGroepIndex = 0; $bdAantalGroepen = count($bedanktGroepen); ?>
       <?php foreach ($bedanktGroepen as $bdGroepNaam => $bdVeldSleutels): ?>
         <?php $bdGroepIndex++; ?>
-        <div class="kaart">
-          <h1><?php echo htmlspecialchars($bdGroepNaam); ?></h1>
+        <details class="kaart"<?php echo $bdGroepIndex === 1 ? ' open' : ''; ?>>
+          <summary><?php echo htmlspecialchars($bdGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($bdVeldSleutels); ?> veld<?php echo count($bdVeldSleutels) === 1 ? '' : 'en'; ?></span></summary>
+          <div class="kaart-uitklap-inhoud">
           <?php foreach ($bdVeldSleutels as $veld): ?>
             <?php
               $bdInfo = $bedanktVelden[$veld];
@@ -3660,11 +3678,12 @@ if ($isMaster && file_exists($logBestand)) {
               </div>
             </div>
           <?php endforeach; ?>
-          <?php if ($bdGroepIndex === $bdAantalGroepen): ?>
-            <button type="submit">Bedankt-pagina opslaan</button>
-          <?php endif; ?>
-        </div>
+          </div>
+        </details>
       <?php endforeach; ?>
+      <div class="kaart">
+        <button type="submit">Bedankt-pagina opslaan</button>
+      </div>
     </form>
     </div>
     <?php endif; ?>
