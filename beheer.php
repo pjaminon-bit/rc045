@@ -98,6 +98,7 @@ $rekentabelBestand = $dataMap . '/rekentabel.json';
 $homepageBestand   = $dataMap . '/homepage.json';
 $ontstaanBestand   = $dataMap . '/ontstaan.json';
 $baanreglementBestand = $dataMap . '/baanreglement.json';
+$bedanktBestand    = $dataMap . '/bedankt.json';
 
 // Alle bestanden die automatisch back-upt worden (zie maakDataBackup()),
 // gebruikt door het tabblad "Back-ups" en de backup_herstellen-actie
@@ -108,6 +109,7 @@ $dataBackupBestanden = [
   'homepage'   => ['label' => 'Homepage teksten', 'pad' => $homepageBestand, 'schrijffunctie' => 'schrijfJson'],
   'ontstaan'   => ['label' => 'Ontstaan (geschiedenis)', 'pad' => $ontstaanBestand, 'schrijffunctie' => 'schrijfJson'],
   'baanreglement' => ['label' => 'Baanreglement', 'pad' => $baanreglementBestand, 'schrijffunctie' => 'schrijfJson'],
+  'bedankt'    => ['label' => 'Bedankt-pagina (betaalgegevens)', 'pad' => $bedanktBestand, 'schrijffunctie' => 'schrijfJson'],
   'mededeling' => ['label' => 'Openingstijden', 'pad' => $actueelBestand, 'schrijffunctie' => 'schrijfJson'],
   'agenda'     => ['label' => 'Agenda', 'pad' => $agendaBestand, 'schrijffunctie' => 'schrijfJson'],
   'faq'        => ['label' => 'Vragen (FAQ)', 'pad' => $faqBestand, 'schrijffunctie' => 'schrijfJson'],
@@ -611,6 +613,20 @@ $baanreglementStandaard = [
     'nl' => "Indien er een geschil ontstaat over bovengenoemde regels moet dit met het bestuur worden besproken. Een uitspraak van het bestuur is bindend en niet discutabel. Eventuele wijzigingen worden gecommuniceerd via de nieuwsbrief of in een ALV.",
     'en' => "If a dispute arises regarding the above rules, it must be discussed with the board. A decision by the board is binding and not open to discussion. Any changes will be communicated via the newsletter or at a general meeting.",
     'de' => "Wenn ein Streit über die oben genannten Regeln entsteht, muss dieser mit dem Vorstand besprochen werden. Eine Entscheidung des Vorstands ist bindend und nicht diskutierbar. Etwaige Änderungen werden über den Newsletter oder in einer Hauptversammlung kommuniziert.",
+  ],
+];
+
+// Standaardinhoud voor de betaalgegevens op bedankt.html, alleen gebruikt
+// zolang data/bedankt.json nog niet bestaat. iban_number is bewust geen
+// nl/en/de-veld: een IBAN-nummer is niet vertaalbaar, dus die is overal
+// hetzelfde. iban_name ("T.n.v. RC045") is wel per taal vertaald, net als de
+// rest van de site.
+$bedanktStandaard = [
+  'iban_number' => 'NL51 RABO 0367 6153 63',
+  'iban_name' => [
+    'nl' => "T.n.v. RC045",
+    'en' => "In the name of RC045",
+    'de' => "Auf den Namen RC045",
   ],
 ];
 
@@ -1248,6 +1264,7 @@ $beheerTabsAlle = [
   'homepage'   => 'Homepage',
   'ontstaan'   => 'Ontstaan',
   'baanreglement' => 'Baanreglement',
+  'bedankt'    => 'Bedankt-pagina',
   'mededeling' => 'Openingstijden',
   'nieuws'     => 'Nieuws',
   'agenda'     => 'Agenda',
@@ -1392,6 +1409,7 @@ $formulierTab = [
   'homepage' => 'homepage',
   'ontstaan' => 'ontstaan',
   'baanreglement' => 'baanreglement',
+  'bedankt' => 'bedankt',
   'fotoboek_album_aanmaken' => 'fotoboek', 'fotoboek_album_bewerken' => 'fotoboek',
   'leden_opslaan' => 'leden', 'leden_verwijderen' => 'leden', 'leden_status' => 'leden',
   'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
@@ -1805,6 +1823,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       $melding['baanreglement'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['baanreglement'] = 'fout';
+    }
+
+  } elseif ($formulier === 'bedankt') {
+    $ibanNummerNieuw = trim($_POST['iban_number'] ?? '');
+    $ibanNaamNlNieuw = trim($_POST['iban_name']['nl'] ?? '');
+    if ($ibanNummerNieuw === '') {
+      $melding['bedankt'] = 'Vul een IBAN-nummer in.';
+      $meldingType['bedankt'] = 'fout';
+    } elseif ($ibanNaamNlNieuw === '') {
+      $melding['bedankt'] = 'Vul de naam van de rekeninghouder in (Nederlands).';
+      $meldingType['bedankt'] = 'fout';
+    } else {
+      $nieuweBedanktData = [
+        'iban_number' => kort($ibanNummerNieuw, 40),
+        'iban_name' => [
+          'nl' => kort($ibanNaamNlNieuw, 100),
+          'en' => kort($_POST['iban_name']['en'] ?? '', 100),
+          'de' => kort($_POST['iban_name']['de'] ?? '', 100),
+        ],
+      ];
+      if (schrijfJson($bedanktBestand, $nieuweBedanktData)) {
+        $bedanktData = $nieuweBedanktData;
+        $melding['bedankt'] = 'Opgeslagen. De bedankt-pagina gebruikt meteen deze gegevens.';
+        $meldingType['bedankt'] = 'ok';
+        schrijfLog($logBestand, $huidigeGebruiker, 'bedankt', 'betaalgegevens bijgewerkt');
+      } else {
+        $melding['bedankt'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+        $meldingType['bedankt'] = 'fout';
+      }
     }
 
   } elseif ($formulier === 'rekentabel') {
@@ -2893,6 +2940,11 @@ if (file_exists($baanreglementBestand)) {
   $json = json_decode(file_get_contents($baanreglementBestand), true);
   if (is_array($json)) $baanreglementData = array_merge($baanreglementStandaard, $json);
 }
+$bedanktData = $bedanktStandaard;
+if (file_exists($bedanktBestand)) {
+  $json = json_decode(file_get_contents($bedanktBestand), true);
+  if (is_array($json)) $bedanktData = array_merge($bedanktStandaard, $json);
+}
 
 // ===== Ledenadministratie =====
 // Het ledenbestand staat buiten data/ omdat het persoonsgegevens bevat;
@@ -3460,6 +3512,42 @@ if ($isMaster && file_exists($logBestand)) {
         </div>
       <?php endforeach; ?>
     </form>
+    </div>
+    <?php endif; ?>
+
+    <?php if (in_array('bedankt', $toegestaneTabs, true)): ?>
+    <div class="tab-paneel" id="tab-bedankt">
+    <!-- ===== BEDANKT-PAGINA (BETAALGEGEVENS) ===== -->
+    <div class="kaart">
+      <h1>Bedankt-pagina</h1>
+      <p class="sub">De betaalgegevens die een nieuw lid ziet direct na het aanmelden: het IBAN-nummer en de naam van de rekeninghouder.</p>
+
+      <?php if (isset($melding['bedankt'])): ?>
+        <div class="melding <?php echo $meldingType['bedankt']; ?>"><?php echo htmlspecialchars($melding['bedankt']); ?></div>
+      <?php endif; ?>
+    </div>
+
+    <div class="kaart">
+      <form method="post" action="beheer.php#bedankt">
+        <input type="hidden" name="formulier" value="bedankt">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+        <div class="veld">
+          <label for="bedankt-iban-number">IBAN-nummer</label>
+          <input type="text" id="bedankt-iban-number" name="iban_number" maxlength="40" value="<?php echo htmlspecialchars($bedanktData['iban_number']); ?>">
+          <p class="hint">Zelfde nummer voor alle talen, een IBAN wordt niet vertaald.</p>
+        </div>
+        <div class="veld">
+          <label for="bedankt-iban-naam-nl">Naam rekeninghouder</label>
+          <div class="rij-3">
+            <input type="text" id="bedankt-iban-naam-nl" name="iban_name[nl]" maxlength="100" placeholder="Nederlands" value="<?php echo htmlspecialchars($bedanktData['iban_name']['nl'] ?? ''); ?>">
+            <input type="text" id="bedankt-iban-naam-en" name="iban_name[en]" maxlength="100" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($bedanktData['iban_name']['en'] ?? ''); ?>">
+            <input type="text" id="bedankt-iban-naam-de" name="iban_name[de]" maxlength="100" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($bedanktData['iban_name']['de'] ?? ''); ?>">
+          </div>
+          <p class="hint">Nederlands is verplicht. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst.</p>
+        </div>
+        <button type="submit">Betaalgegevens opslaan</button>
+      </form>
+    </div>
     </div>
     <?php endif; ?>
 

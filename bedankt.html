@@ -160,7 +160,7 @@
         </button>
       </div>
       <div class="iban-detail">
-        <span data-i18n="iban.name">T.n.v. RC045</span><br>
+        <span id="bedankt-iban-name" data-i18n="iban.name">T.n.v. RC045</span><br>
         <span data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"</span>
       </div>
     </div>
@@ -221,8 +221,13 @@
   };
 
   // ===== IBAN KOPIEER FUNCTIE =====
+  // ibanRaw (zonder spaties, voor betrouwbaar kopiëren) is een aparte,
+  // aanpasbare variabele omdat het IBAN-nummer via beheer.php gewijzigd kan
+  // worden (data/bedankt.json, zie verderop); de standaardwaarde hieronder
+  // is dezelfde die voorheen hardcoded in deze functie stond.
+  let ibanRaw = 'NL51RABO0367615363';
   function copyIban() {
-    const iban = 'NL51RABO0367615363'; // zonder spaties voor betrouwbaar kopiëren
+    const iban = ibanRaw;
     const btn = document.getElementById('ibanCopyBtn');
     const icon = document.getElementById('ibanCopyIcon');
 
@@ -282,7 +287,39 @@
     document.documentElement.lang = lang;
     localStorage.setItem('rc045_lang', lang);
     updateInternalLinks(lang);
+    renderBedanktGegevens();
   }
+
+  // ===== BETAALGEGEVENS (data/bedankt.json, bewerkbaar via beheer.php) =====
+  // Het IBAN-nummer en de naam van de rekeninghouder stonden hiervoor vast in
+  // dit bestand. Die tekst blijft hier ook als vangnet staan (zichtbaar
+  // zolang het JSON-bestand leeg is of niet laadt), maar data/bedankt.json
+  // overschrijft die zodra het bestaat.
+  var bedanktGegevens = null;
+  function renderBedanktGegevens() {
+    if (!bedanktGegevens) return;
+    if (bedanktGegevens.iban_number) {
+      ibanRaw = String(bedanktGegevens.iban_number).replace(/\s+/g, '');
+      var numEl = document.getElementById('iban-number');
+      if (numEl) numEl.textContent = bedanktGegevens.iban_number;
+    }
+    var naamBron = bedanktGegevens.iban_name;
+    if (naamBron) {
+      var naam = (naamBron[currentLang] && String(naamBron[currentLang]).trim()) ? naamBron[currentLang] : (naamBron.nl || '');
+      if (naam) {
+        var naamEl = document.getElementById('bedankt-iban-name');
+        if (naamEl) naamEl.textContent = naam;
+      }
+    }
+  }
+  fetch('data/bedankt.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d) return;
+      bedanktGegevens = d;
+      renderBedanktGegevens();
+    })
+    .catch(function () {});
 
   document.getElementById('footer-year').textContent = new Date().getFullYear();
 
