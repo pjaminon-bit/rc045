@@ -631,18 +631,83 @@ $baanreglementStandaard = [
   ],
 ];
 
-// Standaardinhoud voor de betaalgegevens op bedankt.html, alleen gebruikt
-// zolang data/bedankt.json nog niet bestaat. iban_number is bewust geen
-// nl/en/de-veld: een IBAN-nummer is niet vertaalbaar, dus die is overal
-// hetzelfde. iban_name ("T.n.v. RC045") is wel per taal vertaald, net als de
-// rest van de site.
+// Standaardinhoud voor de hele bedankt-pagina, alleen gebruikt zolang
+// data/bedankt.json nog niet bestaat. iban_number is bewust geen nl/en/de-
+// veld: een IBAN-nummer is niet vertaalbaar, dus die is overal hetzelfde.
+// iban_ref bevat het token {jaar}: dat wordt op de pagina zelf automatisch
+// vervangen door het actuele contributiejaar uit de Rekentabel, dus dat
+// token moet blijven staan in de tekst.
 $bedanktStandaard = [
   'iban_number' => 'NL51 RABO 0367 6153 63',
+  'title' => [
+    'nl' => "Welkom bij RC045!",
+    'en' => "Welcome to RC045!",
+    'de' => "Willkommen bei RC045!",
+  ],
+  'sub' => [
+    'nl' => "Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.",
+    'en' => "Your registration has been received. The board will contact you as soon as possible to confirm your membership.",
+    'de' => "Deine Anmeldung ist eingegangen. Der Vorstand wird sich so schnell wie möglich bei dir melden, um deine Mitgliedschaft zu bestätigen.",
+  ],
+  'stap1' => [
+    'nl' => "Maak de contributie over via onderstaande gegevens. Vermeld je naam duidelijk.",
+    'en' => "Transfer the membership fee using the details below. Include your name clearly.",
+    'de' => "Überweise den Mitgliedsbeitrag mit den untenstehenden Angaben. Gib deinen Namen deutlich an.",
+  ],
+  'stap2' => [
+    'nl' => "Wacht op bevestiging van het bestuur per e-mail of WhatsApp.",
+    'en' => "Wait for confirmation from the board by email or WhatsApp.",
+    'de' => "Warte auf die Bestätigung des Vorstands per E-Mail oder WhatsApp.",
+  ],
+  'stap3' => [
+    'nl' => "Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!",
+    'en' => "You are very welcome at our track once your membership is confirmed!",
+    'de' => "Du bist herzlich willkommen auf unserer Strecke, sobald deine Mitgliedschaft bestätigt ist!",
+  ],
+  'iban_title' => [
+    'nl' => "Betalingsgegevens",
+    'en' => "Payment details",
+    'de' => "Zahlungsdaten",
+  ],
   'iban_name' => [
     'nl' => "T.n.v. RC045",
     'en' => "In the name of RC045",
     'de' => "Auf den Namen RC045",
   ],
+  'iban_ref' => [
+    'nl' => "Vermeld bij overboeking: voornaam + achternaam + \"contributie RC045 {jaar}\"",
+    'en' => "Reference: first name + last name + \"contributie RC045 {jaar}\"",
+    'de' => "Verwendungszweck: Vorname + Nachname + \"contributie RC045 {jaar}\"",
+  ],
+  'btn_home' => [
+    'nl' => "🏠 Naar de hoofdpagina",
+    'en' => "🏠 Go to the homepage",
+    'de' => "🏠 Zur Hauptseite",
+  ],
+  'btn_location' => [
+    'nl' => "📍 Hoe kom ik er?",
+    'en' => "📍 How to find us?",
+    'de' => "📍 Wie komme ich hin?",
+  ],
+];
+// Velden van het tabblad Bedankt-pagina (los van iban_number hierboven, die
+// blijft een enkel veld). Zelfde opzet als $homepageVelden.
+$bedanktVelden = [
+  'title' => ['Titel bovenaan de pagina ("Welkom bij RC045!")', 'tekst'],
+  'sub' => ['Introtekst onder de titel', 'blok'],
+  'stap1' => ['Stap 1', 'blok'],
+  'stap2' => ['Stap 2', 'blok'],
+  'stap3' => ['Stap 3', 'blok'],
+  'iban_title' => ['Titel boven de betaalgegevens ("Betalingsgegevens")', 'tekst'],
+  'iban_name' => ['Naam rekeninghouder', 'tekst'],
+  'iban_ref' => ['Betalingsreferentie (laat {jaar} erin staan, dat wordt automatisch het huidige contributiejaar)', 'blok'],
+  'btn_home' => ['Knoptekst "Naar de hoofdpagina"', 'tekst'],
+  'btn_location' => ['Knoptekst "Hoe kom ik er?"', 'tekst'],
+];
+$bedanktGroepen = [
+  'Introductie' => ['title', 'sub', 'stap1', 'stap2', 'stap3'],
+  'Betaalgegevens' => ['iban_title', 'iban_name', 'iban_ref'],
+  'Knoppen' => ['btn_home', 'btn_location'],
 ];
 
 // Zet een volledig jaarbedrag om in de pro-rata maandtabel die de rekentabel
@@ -1845,7 +1910,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
 
   } elseif ($formulier === 'bedankt') {
     $ibanNummerNieuw = trim($_POST['iban_number'] ?? '');
-    $ibanNaamNlNieuw = trim($_POST['iban_name']['nl'] ?? '');
+    $ibanNaamNlNieuw = trim($_POST['bd']['iban_name']['nl'] ?? '');
     if ($ibanNummerNieuw === '') {
       $melding['bedankt'] = 'Vul een IBAN-nummer in.';
       $meldingType['bedankt'] = 'fout';
@@ -1855,12 +1920,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       $nieuweBedanktData = [
         'iban_number' => kort($ibanNummerNieuw, 40),
-        'iban_name' => [
-          'nl' => kort($ibanNaamNlNieuw, 100),
-          'en' => kort($_POST['iban_name']['en'] ?? '', 100),
-          'de' => kort($_POST['iban_name']['de'] ?? '', 100),
-        ],
       ];
+      foreach ($bedanktVelden as $veld => $info) {
+        $maxLengte = $info[1] === 'tekst' ? 200 : 500;
+        $nieuweBedanktData[$veld] = [
+          'nl' => kort($_POST['bd'][$veld]['nl'] ?? '', $maxLengte),
+          'en' => kort($_POST['bd'][$veld]['en'] ?? '', $maxLengte),
+          'de' => kort($_POST['bd'][$veld]['de'] ?? '', $maxLengte),
+        ];
+      }
       if (schrijfJson($bedanktBestand, $nieuweBedanktData)) {
         $bedanktData = $nieuweBedanktData;
         $melding['bedankt'] = 'Opgeslagen. De bedankt-pagina gebruikt meteen deze gegevens.';
@@ -3535,37 +3603,66 @@ if ($isMaster && file_exists($logBestand)) {
 
     <?php if (in_array('bedankt', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-bedankt">
-    <!-- ===== BEDANKT-PAGINA (BETAALGEGEVENS) ===== -->
+    <!-- ===== BEDANKT-PAGINA (VOLLEDIG) ===== -->
     <div class="kaart">
       <h1>Bedankt-pagina</h1>
-      <p class="sub">De betaalgegevens die een nieuw lid ziet direct na het aanmelden: het IBAN-nummer en de naam van de rekeninghouder.</p>
+      <p class="sub">Alle tekst op de pagina die een nieuw lid ziet direct na het aanmelden: de titel, de introtekst, de drie stappen en de betaalgegevens.</p>
 
       <?php if (isset($melding['bedankt'])): ?>
         <div class="melding <?php echo $meldingType['bedankt']; ?>"><?php echo htmlspecialchars($melding['bedankt']); ?></div>
       <?php endif; ?>
+
+      <div class="melding" style="background:var(--gold-light); border:1px solid rgba(200,154,26,0.35); color:var(--rust);">
+        Nederlands is verplicht per veld. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst aan Engelse en Duitse bezoekers.
+      </div>
     </div>
 
-    <div class="kaart">
-      <form method="post" action="beheer.php#bedankt">
-        <input type="hidden" name="formulier" value="bedankt">
-        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+    <form method="post" action="beheer.php#bedankt">
+      <input type="hidden" name="formulier" value="bedankt">
+      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+      <div class="kaart">
+        <h1>IBAN</h1>
         <div class="veld">
           <label for="bedankt-iban-number">IBAN-nummer</label>
           <input type="text" id="bedankt-iban-number" name="iban_number" maxlength="40" value="<?php echo htmlspecialchars($bedanktData['iban_number']); ?>">
           <p class="hint">Zelfde nummer voor alle talen, een IBAN wordt niet vertaald.</p>
         </div>
-        <div class="veld">
-          <label for="bedankt-iban-naam-nl">Naam rekeninghouder</label>
-          <div class="rij-3">
-            <input type="text" id="bedankt-iban-naam-nl" name="iban_name[nl]" maxlength="100" placeholder="Nederlands" value="<?php echo htmlspecialchars($bedanktData['iban_name']['nl'] ?? ''); ?>">
-            <input type="text" id="bedankt-iban-naam-en" name="iban_name[en]" maxlength="100" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($bedanktData['iban_name']['en'] ?? ''); ?>">
-            <input type="text" id="bedankt-iban-naam-de" name="iban_name[de]" maxlength="100" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($bedanktData['iban_name']['de'] ?? ''); ?>">
-          </div>
-          <p class="hint">Nederlands is verplicht. Engels en Duits zijn optioneel: laat je die leeg, dan toont de website automatisch de Nederlandse tekst.</p>
+      </div>
+
+      <?php $bdGroepIndex = 0; $bdAantalGroepen = count($bedanktGroepen); ?>
+      <?php foreach ($bedanktGroepen as $bdGroepNaam => $bdVeldSleutels): ?>
+        <?php $bdGroepIndex++; ?>
+        <div class="kaart">
+          <h1><?php echo htmlspecialchars($bdGroepNaam); ?></h1>
+          <?php foreach ($bdVeldSleutels as $veld): ?>
+            <?php
+              $bdInfo = $bedanktVelden[$veld];
+              $bdLabel = $bdInfo[0];
+              $bdType = $bdInfo[1];
+              $bdHuidig = $bedanktData[$veld] ?? ['nl' => '', 'en' => '', 'de' => ''];
+            ?>
+            <div class="veld">
+              <label for="bd-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($bdLabel); ?></label>
+              <div class="rij-3">
+                <?php if ($bdType === 'tekst'): ?>
+                  <input type="text" id="bd-<?php echo $veld; ?>-nl" name="bd[<?php echo $veld; ?>][nl]" maxlength="200" placeholder="Nederlands" value="<?php echo htmlspecialchars($bdHuidig['nl'] ?? ''); ?>">
+                  <input type="text" id="bd-<?php echo $veld; ?>-en" name="bd[<?php echo $veld; ?>][en]" maxlength="200" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($bdHuidig['en'] ?? ''); ?>">
+                  <input type="text" id="bd-<?php echo $veld; ?>-de" name="bd[<?php echo $veld; ?>][de]" maxlength="200" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($bdHuidig['de'] ?? ''); ?>">
+                <?php else: ?>
+                  <textarea id="bd-<?php echo $veld; ?>-nl" name="bd[<?php echo $veld; ?>][nl]" maxlength="500" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($bdHuidig['nl'] ?? ''); ?></textarea>
+                  <textarea id="bd-<?php echo $veld; ?>-en" name="bd[<?php echo $veld; ?>][en]" maxlength="500" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($bdHuidig['en'] ?? ''); ?></textarea>
+                  <textarea id="bd-<?php echo $veld; ?>-de" name="bd[<?php echo $veld; ?>][de]" maxlength="500" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($bdHuidig['de'] ?? ''); ?></textarea>
+                <?php endif; ?>
+              </div>
+            </div>
+          <?php endforeach; ?>
+          <?php if ($bdGroepIndex === $bdAantalGroepen): ?>
+            <button type="submit">Bedankt-pagina opslaan</button>
+          <?php endif; ?>
         </div>
-        <button type="submit">Betaalgegevens opslaan</button>
-      </form>
-    </div>
+      <?php endforeach; ?>
+    </form>
     </div>
     <?php endif; ?>
 

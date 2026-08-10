@@ -128,26 +128,26 @@
 <main class="main" id="main-content">
   <div class="bedankt-card">
     <div class="bedankt-icon">🏎️</div>
-    <h1 data-i18n="title">Welkom bij RC045!</h1>
-    <p data-i18n="sub">Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.</p>
+    <h1 id="bd-title" data-i18n="title">Welkom bij RC045!</h1>
+    <p id="bd-sub" data-i18n="sub">Je aanmelding is ontvangen. Het bestuur neemt zo snel mogelijk contact met je op om je aanmelding te bevestigen.</p>
 
     <div class="stappen">
       <div class="stap">
         <div class="stap-num">1</div>
-        <div class="stap-text" data-i18n="stap1">Maak de contributie over via onderstaande gegevens. Vermeld je naam duidelijk.</div>
+        <div class="stap-text" id="bd-stap1" data-i18n="stap1">Maak de contributie over via onderstaande gegevens. Vermeld je naam duidelijk.</div>
       </div>
       <div class="stap">
         <div class="stap-num">2</div>
-        <div class="stap-text" data-i18n="stap2">Wacht op bevestiging van het bestuur per e-mail of WhatsApp.</div>
+        <div class="stap-text" id="bd-stap2" data-i18n="stap2">Wacht op bevestiging van het bestuur per e-mail of WhatsApp.</div>
       </div>
       <div class="stap">
         <div class="stap-num">3</div>
-        <div class="stap-text" data-i18n="stap3">Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!</div>
+        <div class="stap-text" id="bd-stap3" data-i18n="stap3">Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!</div>
       </div>
     </div>
 
     <div class="iban-card">
-      <h4 data-i18n="iban.title">Betalingsgegevens</h4>
+      <h4 id="bd-iban-title" data-i18n="iban.title">Betalingsgegevens</h4>
       <div class="iban-number-row">
         <div class="iban-number" id="iban-number">NL51 RABO 0367 6153 63</div>
         <button class="iban-copy-btn" id="ibanCopyBtn" onclick="copyIban()" aria-label="Kopieer IBAN-nummer">
@@ -160,14 +160,14 @@
         </button>
       </div>
       <div class="iban-detail">
-        <span id="bedankt-iban-name" data-i18n="iban.name">T.n.v. RC045</span><br>
-        <span data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"</span>
+        <span id="bd-iban-name" data-i18n="iban.name">T.n.v. RC045</span><br>
+        <span id="bd-iban-ref" data-i18n="iban.ref">Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"</span>
       </div>
     </div>
 
     <div class="btn-group">
-      <a href="index.html" class="btn btn-primary" data-i18n="btn.home">🏠 Naar de hoofdpagina</a>
-      <a href="index.html#locatie" class="btn btn-outline" data-i18n="btn.location">📍 Hoe kom ik er?</a>
+      <a href="index.html" class="btn btn-primary" id="bd-btn-home" data-i18n="btn.home">🏠 Naar de hoofdpagina</a>
+      <a href="index.html#locatie" class="btn btn-outline" id="bd-btn-location" data-i18n="btn.location">📍 Hoe kom ik er?</a>
     </div>
   </div>
 </main>
@@ -290,12 +290,15 @@
     renderBedanktGegevens();
   }
 
-  // ===== BETAALGEGEVENS (data/bedankt.json, bewerkbaar via beheer.php) =====
-  // Het IBAN-nummer en de naam van de rekeninghouder stonden hiervoor vast in
-  // dit bestand. Die tekst blijft hier ook als vangnet staan (zichtbaar
-  // zolang het JSON-bestand leeg is of niet laadt), maar data/bedankt.json
-  // overschrijft die zodra het bestaat.
+  // ===== INHOUD BEDANKT-PAGINA (data/bedankt.json, bewerkbaar via beheer.php) =====
+  // De titel, introtekst, drie stappen en betaalgegevens stonden hiervoor
+  // vast in dit bestand. Die tekst blijft hier ook als vangnet staan
+  // (zichtbaar zolang het JSON-bestand leeg is of niet laadt), maar
+  // data/bedankt.json overschrijft die zodra het bestaat. iban_ref bevat het
+  // {jaar}-token, dat wordt hier net als de rest van de pagina vervangen door
+  // het actuele contributiejaar.
   var bedanktGegevens = null;
+  var bedanktVelden = ['title', 'sub', 'stap1', 'stap2', 'stap3', 'iban_title', 'iban_name', 'iban_ref', 'btn_home', 'btn_location'];
   function renderBedanktGegevens() {
     if (!bedanktGegevens) return;
     if (bedanktGegevens.iban_number) {
@@ -303,14 +306,14 @@
       var numEl = document.getElementById('iban-number');
       if (numEl) numEl.textContent = bedanktGegevens.iban_number;
     }
-    var naamBron = bedanktGegevens.iban_name;
-    if (naamBron) {
-      var naam = (naamBron[currentLang] && String(naamBron[currentLang]).trim()) ? naamBron[currentLang] : (naamBron.nl || '');
-      if (naam) {
-        var naamEl = document.getElementById('bedankt-iban-name');
-        if (naamEl) naamEl.textContent = naam;
-      }
-    }
+    bedanktVelden.forEach(function (veld) {
+      var bron = bedanktGegevens[veld];
+      if (!bron) return;
+      var tekst = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
+      if (!tekst) return;
+      var el = document.getElementById('bd-' + veld.replace(/_/g, '-'));
+      if (el) el.textContent = vulRekentabelTokens(tekst);
+    });
   }
   fetch('data/bedankt.json', { cache: 'no-store' })
     .then(function (r) { return r.ok ? r.json() : null; })
@@ -333,6 +336,10 @@
       if (!rt || !rt.jaar) return;
       rekentabelJaar = String(rt.jaar);
       vulTokensInDOM();
+      // Ook opnieuw toepassen op eventueel al geladen beheer-tekst (iban_ref
+      // bevat het {jaar}-token), voor het geval deze fetch later klaar is
+      // dan die van data/bedankt.json hierboven.
+      renderBedanktGegevens();
     })
     .catch(function() { /* standaardwaarde blijft gelden */ });
 </script>
