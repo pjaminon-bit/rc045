@@ -766,9 +766,9 @@
         <h3 data-i18n="member.title">Word lid van RC045</h3>
         <p style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 8px; line-height: 1.6;" data-i18n="member.text">Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.</p>
         <ul class="price-list">
-          <li><span data-i18n="member.youth">Jeugdlid (t/m 15 jaar)</span><span class="price-amount">€50/jaar</span></li>
-          <li><span data-i18n="member.senior">Seniorlid (16+)</span><span class="price-amount">€100/jaar</span></li>
-          <li><span data-i18n="member.fee">Eenmalige inschrijfkosten</span><span class="price-amount">€10</span></li>
+          <li><span data-i18n="member.youth">Jeugdlid (t/m 15 jaar)</span><span class="price-amount" id="prijs-jeugd">€50/jaar</span></li>
+          <li><span data-i18n="member.senior">Seniorlid (16+)</span><span class="price-amount" id="prijs-senior">€100/jaar</span></li>
+          <li><span data-i18n="member.fee">Eenmalige inschrijfkosten</span><span class="price-amount" id="prijs-inschrijf">€10</span></li>
         </ul>
         <a href="aanmelden.html" class="btn btn-white" data-i18n="member.btn">Ik wil graag lid worden!</a>
         <p class="price-note" data-i18n="member.note">Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.</p>
@@ -1723,6 +1723,33 @@
   lightbox.addEventListener('click', function(e) { if (e.target === lightbox) closeLightbox(); });
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
   function closeLightbox() { lightbox.classList.remove('open'); document.body.style.overflow = ''; }
+
+  // ===== PRIJZEN LIDMAATSCHAP (data/rekentabel.json, bijwerken via beheer.php) =====
+  // Voorheen stonden €50/€100/€10 hier als vaste tekst, los van de Rekentabel
+  // in beheer. Wie daar de contributie aanpaste, moest deze pagina apart met
+  // de hand bijwerken. Nu leest de homepage hetzelfde bestand als de
+  // rekentabel en de calculator op aanmelden.html, dus één bron voor alle
+  // drie. De "Vanaf €.../jaar" in de infobalk komt nog uit data/contact.json
+  // (veld "Lidmaatschap" bij Contact), die dus los blijft van dit bedrag.
+  function euroTekst(bedrag) {
+    var n = Number(bedrag);
+    if (!isFinite(n)) return '';
+    var s = n.toFixed(2).replace('.', ',');
+    if (s.slice(-3) === ',00') s = s.slice(0, -3);
+    return '€' + s;
+  }
+  fetch('data/rekentabel.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(d) {
+      if (!d) return;
+      var jeugd = document.getElementById('prijs-jeugd');
+      var senior = document.getElementById('prijs-senior');
+      var inschrijf = document.getElementById('prijs-inschrijf');
+      if (jeugd && d.jeugd_jaarbedrag !== undefined) jeugd.textContent = euroTekst(d.jeugd_jaarbedrag) + '/jaar';
+      if (senior && d.senior_jaarbedrag !== undefined) senior.textContent = euroTekst(d.senior_jaarbedrag) + '/jaar';
+      if (inschrijf && d.inschrijfkosten !== undefined) inschrijf.textContent = euroTekst(d.inschrijfkosten);
+    })
+    .catch(function() {});
 
   // ===== ACTUELE UPDATE STROOK (data/actueel.json, bijwerken via beheer.php) =====
   fetch('data/actueel.json', { cache: 'no-store' })
