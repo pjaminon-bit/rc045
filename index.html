@@ -762,7 +762,7 @@
           <li><span data-i18n="guest.youth">Jeugd (t/m 15 jaar)</span><span class="price-amount">€5</span></li>
           <li><span data-i18n="guest.group">Groepen krijgen korting!</span><span class="price-amount">%</span></li>
         </ul>
-        <p class="price-note-attentie" id="hp-guest-note-extra">👥 Kom je met 4 of meer personen? Meld je dan van te voren via het contactformulier of bestuur@rc045.nl</p>
+        <p class="price-note-attentie" id="hp-guest-note-extra">Kom je met 4 of meer personen? Meld je dan van te voren via het contactformulier of bestuur@rc045.nl</p>
         <a href="#contact" class="btn btn-primary" data-i18n="guest.btn">Kom gerust langs of stuur ons een berichtje →</a>
         <p class="price-note" id="hp-guest-note" data-i18n="guest.note">Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</p>
       </div>
@@ -1771,7 +1771,7 @@
         var basisEl = document.getElementById('hp-guest-note');
         var extraEl = document.getElementById('hp-guest-note-extra');
         if (basisEl) basisEl.textContent = regels[0] || '';
-        if (extraEl) extraEl.textContent = regels.length > 1 ? '👥 ' + regels.slice(1).join(' ') : '';
+        if (extraEl) extraEl.textContent = regels.length > 1 ? regels.slice(1).join(' ') : '';
         return;
       }
       var el = document.getElementById('hp-' + veld.replace(/_/g, '-'));
