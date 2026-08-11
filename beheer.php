@@ -5666,7 +5666,8 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="rij-3">
           <div class="veld">
             <label for="lid-nummer">Lidnummer</label>
-            <input type="number" id="lid-nummer" name="nummer" min="0" step="1" value="<?php echo htmlspecialchars((string) $ledenBewerkLid['nummer']); ?>">
+            <input type="number" id="lid-nummer" disabled value="<?php echo htmlspecialchars((string) $ledenBewerkLid['nummer']); ?>">
+            <p class="hint">Automatisch toegekend (hoogste nummer + 1) en daarna vastgezet, zodat het altijd uniek blijft. Verwijder je een lid, dan komt dat nummer weer beschikbaar voor het eerstvolgende nieuwe lid.</p>
           </div>
           <div class="veld">
             <label for="lid-status">Status</label>
