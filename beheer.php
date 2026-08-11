@@ -3855,13 +3855,15 @@ if ($isMaster && file_exists($logBestand)) {
     }
 
     .taal-toggle-mini { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
-    .taal-toggle-mini .taal-toggle-btn {
+    .taal-toggle-mini .taal-toggle-btn, .taal-toggle-mini .auto-vertaal-btn {
       border: 1.5px solid var(--border); background: var(--white); border-radius: 100px; padding: 3px 10px;
       font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; cursor: pointer;
       color: var(--muted); transition: background 0.15s, border-color 0.15s, color 0.15s;
       white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;
     }
     .taal-toggle-mini .taal-toggle-btn[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: white; }
+    .taal-toggle-mini .auto-vertaal-btn { background: var(--teal-light); color: var(--teal-dark); border-color: var(--teal); }
+    .taal-toggle-mini .auto-vertaal-btn:disabled { opacity: 0.6; cursor: default; }
     details.kaart > summary .taal-toggle-mini, .fotoboek-album-kop .taal-toggle-mini { margin-left: auto; }
     details.kaart > summary .taal-toggle-mini + .taal-toggle-mini { margin-left: 0; }
     .taal-scope-kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -4224,7 +4226,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php foreach ($homepageGroepen as $homepageGroepNaam => $homepageVeldSleutels): ?>
         <?php $homepageGroepIndex++; ?>
         <details class="kaart" data-taal-scope="hp-<?php echo $homepageGroepIndex; ?>"<?php echo $homepageGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($homepageGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($homepageVeldSleutels); ?> veld<?php echo count($homepageVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
+          <summary><?php echo htmlspecialchars($homepageGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($homepageVeldSleutels); ?> veld<?php echo count($homepageVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($homepageVeldSleutels as $veld): ?>
             <?php
@@ -4282,7 +4284,7 @@ if ($isMaster && file_exists($logBestand)) {
       <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
       <div class="kaart" data-taal-scope="ontstaan">
-        <div class="taal-scope-kop"><h1>Verhaal</h1><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
+        <div class="taal-scope-kop"><h1>Verhaal</h1><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
         <?php foreach ($ontstaanVelden as $veld => $info): ?>
           <?php
             $ontLabel = $info[0];
@@ -4334,7 +4336,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php foreach ($baanreglementGroepen as $brGroepNaam => $brVeldSleutels): ?>
         <?php $brGroepIndex++; ?>
         <details class="kaart" data-taal-scope="br-<?php echo $brGroepIndex; ?>"<?php echo $brGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($brGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($brVeldSleutels); ?> veld<?php echo count($brVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
+          <summary><?php echo htmlspecialchars($brGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($brVeldSleutels); ?> veld<?php echo count($brVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($brVeldSleutels as $veld): ?>
             <?php
@@ -4401,7 +4403,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php foreach ($bedanktGroepen as $bdGroepNaam => $bdVeldSleutels): ?>
         <?php $bdGroepIndex++; ?>
         <details class="kaart" data-taal-scope="bd-<?php echo $bdGroepIndex; ?>"<?php echo $bdGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($bdGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($bdVeldSleutels); ?> veld<?php echo count($bdVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
+          <summary><?php echo htmlspecialchars($bdGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($bdVeldSleutels); ?> veld<?php echo count($bdVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($bdVeldSleutels as $veld): ?>
             <?php
@@ -4459,7 +4461,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php foreach ($aanmeldenGroepen as $amGroepNaam => $amVeldSleutels): ?>
         <?php $amGroepIndex++; ?>
         <details class="kaart" data-taal-scope="am-<?php echo $amGroepIndex; ?>"<?php echo $amGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($amGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($amVeldSleutels); ?> veld<?php echo count($amVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
+          <summary><?php echo htmlspecialchars($amGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($amVeldSleutels); ?> veld<?php echo count($amVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($amVeldSleutels as $veld): ?>
             <?php
@@ -4550,7 +4552,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="item-lijst" id="nieuws-lijst">
         <?php foreach ($nieuwsData as $i => $ni): ?>
           <div class="item-blok" data-taal-scope="nieuws-<?php echo $i; ?>">
-            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
+            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
             <div class="rij-2">
               <div class="veld">
                 <label for="nieuws-date-<?php echo $i; ?>">Datum</label>
@@ -4657,7 +4659,7 @@ if ($isMaster && file_exists($logBestand)) {
                 </select>
               </span>
             </div>
-            <span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span>
+            <span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span>
             </div>
             <p class="hint" style="margin-top:-8px; margin-bottom:12px;">Kies bij welk volgnummer deze kaart moet staan. Kaarten met dezelfde datum die na elkaar staan, komen op de website naast elkaar te staan.</p>
             <div class="rij-2">
@@ -4757,7 +4759,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="item-lijst" id="faq-lijst">
         <?php foreach ($faqData as $i => $item): ?>
           <div class="item-blok" data-taal-scope="faq-<?php echo $i; ?>">
-            <div class="item-blok-kop"><div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
+            <div class="item-blok-kop"><div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
 
             <div class="taal-rij">
             <div class="taal-groep taal-nl">
@@ -4823,7 +4825,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
         <div class="veld" style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;" data-taal-scope="sponsors-cta">
-          <div class="taal-scope-kop"><label>Tekst "sponsor worden" (onderaan elke pagina, onder de sponsorlogo's)</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
+          <div class="taal-scope-kop"><label>Tekst "sponsor worden" (onderaan elke pagina, onder de sponsorlogo's)</label><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
           <p class="hint" style="margin-top:-4px; margin-bottom:10px;">Het woord "contactformulier" (of de vertaling ervan hieronder) wordt op de website automatisch een link naar het contactformulier. Laat dat woord dus letterlijk in de tekst staan.</p>
           <div class="taal-rij">
             <div class="veld taal-nl">
@@ -4982,7 +4984,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="formulier" value="media_tekst">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="veld" data-taal-scope="media-ondertitel">
-          <div class="taal-scope-kop"><label for="mt-hero-sub-nl">Tekst onder de titel "Media"</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
+          <div class="taal-scope-kop"><label for="mt-hero-sub-nl">Tekst onder de titel "Media"</label><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
           <div class="taal-rij">
             <textarea class="taal-nl" id="mt-hero-sub-nl" name="mt[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
             <textarea class="taal-en" id="mt-hero-sub-en" name="mt[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['en'] ?? ''); ?></textarea>
@@ -5006,7 +5008,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="item-lijst" id="media-lijst">
         <?php foreach ($mediaData as $i => $mi): ?>
           <div class="item-blok" data-taal-scope="media-<?php echo $i; ?>">
-            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
+            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
             <div class="rij-3">
               <div class="veld">
                 <label for="media-date-<?php echo $i; ?>">Datum</label>
@@ -5096,7 +5098,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="formulier" value="fotoboek_tekst">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="veld" data-taal-scope="fotoboek-ondertitel">
-          <div class="taal-scope-kop"><label for="ft-hero-sub-nl">Tekst onder de titel "Fotoboek"</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
+          <div class="taal-scope-kop"><label for="ft-hero-sub-nl">Tekst onder de titel "Fotoboek"</label><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
           <div class="taal-rij">
             <textarea class="taal-nl" id="ft-hero-sub-nl" name="ft[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
             <textarea class="taal-en" id="ft-hero-sub-en" name="ft[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['en'] ?? ''); ?></textarea>
@@ -5108,7 +5110,7 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
 
     <div class="kaart" data-taal-scope="fotoboek-nieuw">
-      <div class="taal-scope-kop"><h1>Nieuw album</h1><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
+      <div class="taal-scope-kop"><h1>Nieuw album</h1><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
       <p class="sub">Maak een album aan, daarna kun je er hieronder foto's aan toevoegen.</p>
 
       <?php if (isset($melding['fotoboek'])): ?>
@@ -5147,7 +5149,7 @@ if ($isMaster && file_exists($logBestand)) {
         <details class="fotoboek-album-details" data-taal-scope="fotoboek-album-<?php echo htmlspecialchars($slug); ?>">
           <summary class="fotoboek-album-kop">
             <span class="fotoboek-album-titel"><span class="fotoboek-album-volgnummer">#<?php echo htmlspecialchars((string) ($album['volgorde'] ?? 0)); ?></span><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?><?php if (!empty($album['verborgen'])): ?> <span class="fotoboek-cover-badge" style="background:var(--rust); color:#fff;">verborgen</span><?php endif; ?></span>
-            <span class="taal-scope-kop"><span class="hint"><?php echo count($album['photos']); ?> foto('s)</span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></span>
+            <span class="taal-scope-kop"><span class="hint"><?php echo count($album['photos']); ?> foto('s)</span><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></span>
           </summary>
           <div class="fotoboek-album-inhoud">
           <form method="post" action="beheer.php#fotoboek" enctype="multipart/form-data" class="fotoboek-album-form">
@@ -6831,6 +6833,78 @@ if ($isMaster && file_exists($logBestand)) {
           if (aan) lijst.push(taal);
           opgeslagen[sleutel] = lijst;
           bewaar();
+        });
+      })();
+
+      // ===== Automatisch vertalen via DeepL =====
+      // Eén "Vertaal"-knopje per data-taal-scope (naast de bestaande EN/DE
+      // toon-knopjes). Verzamelt alle ingevulde NL-velden binnen dat ene
+      // onderdeel, stuurt ze in één keer naar vertaal.php, en zet het
+      // resultaat terug in de bijbehorende EN/DE-velden (gevonden via het
+      // id-patroon "...-nl" -> "...-en"/"...-de", zelfde patroon dat overal
+      // in dit bestand wordt gebruikt). De vertaling is een startpunt: na
+      // het vertalen blijven de EN/DE-velden gewoon met de hand aanpasbaar,
+      // en pas bewaren doet nog steeds de eigen opslaan-knop van het formulier.
+      (function() {
+        document.addEventListener('click', function(e) {
+          var knop = e.target.closest('.auto-vertaal-btn');
+          if (!knop) return;
+          var scopeEl = knop.closest('[data-taal-scope]');
+          if (!scopeEl) return;
+          e.preventDefault();
+          e.stopPropagation();
+
+          var nlVelden = scopeEl.querySelectorAll('.taal-nl input[id], .taal-nl textarea[id]');
+          var teVertalen = [];
+          nlVelden.forEach(function(veld) {
+            var tekst = veld.value.trim();
+            if (tekst) teVertalen.push({ veld: veld, tekst: tekst });
+          });
+          if (teVertalen.length === 0) {
+            alert('Vul eerst de Nederlandse tekst in, daar vertaalt dit knopje vanuit.');
+            return;
+          }
+
+          knop.disabled = true;
+          var oorspronkelijkeTekst = knop.textContent;
+          knop.textContent = '\u2026';
+
+          fetch('vertaal.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              teksten: teVertalen.map(function(t) { return t.tekst; }),
+              doeltalen: ['EN', 'DE']
+            })
+          })
+            .then(function(res) {
+              return res.json().then(function(data) {
+                if (!res.ok || data.error) throw new Error(data.error || ('Serverfout (' + res.status + ')'));
+                return data;
+              });
+            })
+            .then(function(data) {
+              ['en', 'de'].forEach(function(taal) {
+                var vertalingen = data[taal.toUpperCase()] || [];
+                teVertalen.forEach(function(t, i) {
+                  var doelId = t.veld.id.replace(/-nl(?=(-\d+)?$)/, '-' + taal);
+                  var doelVeld = document.getElementById(doelId);
+                  if (doelVeld && typeof vertalingen[i] === 'string') doelVeld.value = vertalingen[i];
+                });
+                // Klapt het EN/DE-blok open via de bestaande toon-knop, zodat
+                // ook de "onthouden welke talen openstaan"-logica hierboven
+                // gewoon blijft werken in plaats van dat hier dubbel te doen.
+                var toggle = scopeEl.querySelector('.taal-toggle-btn[data-taal="' + taal + '"]');
+                if (toggle && toggle.getAttribute('aria-pressed') !== 'true') toggle.click();
+              });
+            })
+            .catch(function(err) {
+              alert('Vertalen mislukt: ' + err.message);
+            })
+            .finally(function() {
+              knop.disabled = false;
+              knop.textContent = oorspronkelijkeTekst;
+            });
         });
       })();
     })();

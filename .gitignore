@@ -19,5 +19,8 @@ beheer-users.json
 beheer-log.json
 beheer-login-pogingen.json
 
+# DeepL API-sleutel voor de automatische vertaalknopjes in beheer.php
+vertaal-config.php
+
 # macOS
 .DS_Store
