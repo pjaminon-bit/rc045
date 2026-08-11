@@ -25,6 +25,12 @@ return [
 
   // ===== augustus 2026 =====
   [
+    'datum' => '2026-08-12',
+    'cat' => 'opgelost',
+    'titel' => 'Beheerpaneel op telefoon: piepkleine invulvelden en pagina buiten beeld',
+    'tekst' => 'Bij Vragen, Sponsors, Agenda, Nieuws en de tekstpagina\'s werden invulvelden soms tot één letter breed samengedrukt, met grote lege gaten ertussen, en liep de kaart buiten het scherm. De vertaalvelden staan op een smal scherm nu netjes onder elkaar en de kopregels breken af in plaats van de pagina breder te maken.',
+  ],
+  [
     'datum' => '2026-08-11',
     'cat' => 'nieuw',
     'titel' => 'Changelog in het beheerpaneel',
