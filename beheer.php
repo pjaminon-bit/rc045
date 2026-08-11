@@ -3248,22 +3248,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     }
 
   } elseif ($formulier === 'leden_verwijderen') {
+    // Let op: niet op een lege naam afgaan om te bepalen of het lid
+    // gevonden is. Bij een leeg lid (nog geen voornaam/achternaam
+    // ingevuld) is ledenVolledigeNaam() zelf ook gewoon een lege string,
+    // dus dat botste eerder met "lid niet gevonden" en er werd niets
+    // opgeslagen: precies de leden die je met deze knop wilt opruimen.
     $ledenData = ledenLees();
     $id = trim($_POST['lid_id'] ?? '');
+    $gevonden = false;
     $naam = '';
+    $nummer = '';
     $over = [];
     foreach ($ledenData['leden'] as $l) {
-      if (($l['id'] ?? '') === $id) { $naam = ledenVolledigeNaam($l); continue; }
+      if (($l['id'] ?? '') === $id) { $gevonden = true; $naam = ledenVolledigeNaam($l); $nummer = (string) ($l['nummer'] ?? ''); continue; }
       $over[] = $l;
     }
-    if ($naam === '') {
+    if (!$gevonden) {
       $melding['leden'] = 'Dat lid bestaat niet (meer).';
       $meldingType['leden'] = 'fout';
     } else {
       $ledenData['leden'] = $over;
       if (ledenSchrijf($ledenData)) {
-        schrijfLog($logBestand, $huidigeGebruiker, 'leden', 'verwijderd: ' . $naam);
-        $_SESSION['flash']['leden'] = ['tekst' => 'Lid verwijderd: ' . $naam . '. Terugzetten kan via een back-up.', 'type' => 'ok'];
+        $naamVoorLog = $naam !== '' ? $naam : 'lid zonder naam (nr ' . $nummer . ')';
+        schrijfLog($logBestand, $huidigeGebruiker, 'leden', 'verwijderd: ' . $naamVoorLog);
+        $_SESSION['flash']['leden'] = ['tekst' => 'Lid verwijderd: ' . $naamVoorLog . '. Terugzetten kan via een back-up.', 'type' => 'ok'];
         if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
         header('Location: beheer.php#leden');
         exit;
