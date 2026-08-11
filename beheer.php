@@ -3771,29 +3771,49 @@ if ($isMaster && file_exists($logBestand)) {
     .taal-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
     .taal-label .optioneel { font-weight: 400; text-transform: none; letter-spacing: normal; }
 
-    /* ===== Vertalingen inklapbaar: alleen NL zichtbaar, EN/DE schuiven ernaast open ===== */
+    /* ===== Vertalingen inklapbaar: alleen NL zichtbaar, per onderdeel een EN/DE-knopje
+       dat het vertaalblok ernaast openschuift. De knop zet een "toon-en"/"toon-de"
+       klasse op het dichtstbijzijnde onderdeel (data-taal-scope), niet globaal, zodat
+       je secties los van elkaar open kunt zetten. ===== */
     .taal-rij { display: flex; align-items: flex-start; }
     .taal-rij > .taal-nl { flex: 1 1 0; min-width: 0; }
     .taal-rij > .taal-en, .taal-rij > .taal-de {
       flex: 0 0 0; width: 0; min-width: 0; opacity: 0; overflow: hidden; margin-left: 0;
       transition: flex-basis 0.25s ease, width 0.25s ease, opacity 0.2s ease 0.05s, margin-left 0.25s ease;
     }
-    html.toon-en .taal-rij > .taal-en,
-    html.toon-de .taal-rij > .taal-de {
+    .toon-en .taal-rij > .taal-en,
+    .toon-de .taal-rij > .taal-de {
       flex: 1 1 0; width: auto; opacity: 1; margin-left: 16px;
     }
     .taal-rij .taal-groep { padding-top: 0; margin-top: 0; border-top: none; height: 100%; }
     @media (max-width: 780px) {
       .taal-rij { flex-wrap: wrap; }
       .taal-rij > .taal-en, .taal-rij > .taal-de { flex-basis: 100%; margin-left: 0; }
-      html.toon-en .taal-rij > .taal-en, html.toon-de .taal-rij > .taal-de { flex-basis: 100%; margin-left: 0; margin-top: 12px; }
+      .toon-en .taal-rij > .taal-en, .toon-de .taal-rij > .taal-de { flex-basis: 100%; margin-left: 0; margin-top: 12px; }
+    }
+    /* Bijschriften per foto staan onder elkaar (niet naast elkaar), dus daar
+       schuift het vertaalveld verticaal open in plaats van horizontaal. */
+    .fotoboek-foto-velden > .taal-en, .fotoboek-foto-velden > .taal-de {
+      flex: 0 0 0; height: 0; min-height: 0; opacity: 0; overflow: hidden; margin: 0;
+      transition: height 0.2s ease, opacity 0.15s ease, margin 0.2s ease;
+    }
+    .toon-en .fotoboek-foto-velden > .taal-en,
+    .toon-de .fotoboek-foto-velden > .taal-de {
+      height: auto; opacity: 1;
     }
 
-    .taal-toggle { position: fixed; top: 14px; right: 14px; z-index: 500; display: flex; align-items: center; gap: 6px; background: var(--white); border: 1.5px solid var(--border); border-radius: 100px; padding: 6px 8px 6px 14px; box-shadow: var(--shadow-hover); font-size: 13px; }
-    .taal-toggle-label { color: var(--muted); font-weight: 700; }
-    .taal-toggle-btn { border: 1.5px solid var(--border); background: var(--bg); border-radius: 100px; padding: 5px 12px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text); transition: background 0.15s, border-color 0.15s, color 0.15s; }
-    .taal-toggle-btn[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: white; }
-    @media (max-width: 640px) { .taal-toggle { top: auto; bottom: 14px; right: 14px; } }
+    .taal-toggle-mini { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .taal-toggle-mini .taal-toggle-btn {
+      border: 1.5px solid var(--border); background: var(--white); border-radius: 100px; padding: 3px 10px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; cursor: pointer;
+      color: var(--muted); transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .taal-toggle-mini .taal-toggle-btn[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: white; }
+    details.kaart > summary .taal-toggle-mini, .fotoboek-album-kop .taal-toggle-mini { margin-left: auto; }
+    details.kaart > summary .taal-toggle-mini + .taal-toggle-mini { margin-left: 0; }
+    .taal-scope-kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .item-blok-kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .item-blok-kop .item-blok-nr { margin-bottom: 0; }
     .kaart-smal { max-width: 440px; margin: 0 auto; }
     /* Zelfde patroon als .nav-links op de hoofdsite: platte tekst, lichte
        achtergrond bij hover, en bij het actieve tabblad een lichte
@@ -4103,12 +4123,6 @@ if ($isMaster && file_exists($logBestand)) {
       </form>
     </div>
 
-    <div class="taal-toggle" id="taal-toggle">
-      <span class="taal-toggle-label">Vertalingen</span>
-      <button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button>
-      <button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button>
-    </div>
-
     <?php if (isset($melding['csrf'])): ?>
       <div class="melding <?php echo $meldingType['csrf']; ?>"><?php echo htmlspecialchars($melding['csrf']); ?></div>
     <?php endif; ?>
@@ -4156,8 +4170,8 @@ if ($isMaster && file_exists($logBestand)) {
       <?php $homepageGroepIndex = 0; $homepageAantalGroepen = count($homepageGroepen); ?>
       <?php foreach ($homepageGroepen as $homepageGroepNaam => $homepageVeldSleutels): ?>
         <?php $homepageGroepIndex++; ?>
-        <details class="kaart"<?php echo $homepageGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($homepageGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($homepageVeldSleutels); ?> veld<?php echo count($homepageVeldSleutels) === 1 ? '' : 'en'; ?></span></summary>
+        <details class="kaart" data-taal-scope="hp-<?php echo $homepageGroepIndex; ?>"<?php echo $homepageGroepIndex === 1 ? ' open' : ''; ?>>
+          <summary><?php echo htmlspecialchars($homepageGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($homepageVeldSleutels); ?> veld<?php echo count($homepageVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($homepageVeldSleutels as $veld): ?>
             <?php
@@ -4214,8 +4228,8 @@ if ($isMaster && file_exists($logBestand)) {
       <input type="hidden" name="formulier" value="ontstaan">
       <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
-      <div class="kaart">
-        <h1>Verhaal</h1>
+      <div class="kaart" data-taal-scope="ontstaan">
+        <div class="taal-scope-kop"><h1>Verhaal</h1><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
         <?php foreach ($ontstaanVelden as $veld => $info): ?>
           <?php
             $ontLabel = $info[0];
@@ -4266,8 +4280,8 @@ if ($isMaster && file_exists($logBestand)) {
       <?php $brGroepIndex = 0; $brAantalGroepen = count($baanreglementGroepen); ?>
       <?php foreach ($baanreglementGroepen as $brGroepNaam => $brVeldSleutels): ?>
         <?php $brGroepIndex++; ?>
-        <details class="kaart"<?php echo $brGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($brGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($brVeldSleutels); ?> veld<?php echo count($brVeldSleutels) === 1 ? '' : 'en'; ?></span></summary>
+        <details class="kaart" data-taal-scope="br-<?php echo $brGroepIndex; ?>"<?php echo $brGroepIndex === 1 ? ' open' : ''; ?>>
+          <summary><?php echo htmlspecialchars($brGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($brVeldSleutels); ?> veld<?php echo count($brVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($brVeldSleutels as $veld): ?>
             <?php
@@ -4333,8 +4347,8 @@ if ($isMaster && file_exists($logBestand)) {
       <?php $bdGroepIndex = 0; $bdAantalGroepen = count($bedanktGroepen); ?>
       <?php foreach ($bedanktGroepen as $bdGroepNaam => $bdVeldSleutels): ?>
         <?php $bdGroepIndex++; ?>
-        <details class="kaart"<?php echo $bdGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($bdGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($bdVeldSleutels); ?> veld<?php echo count($bdVeldSleutels) === 1 ? '' : 'en'; ?></span></summary>
+        <details class="kaart" data-taal-scope="bd-<?php echo $bdGroepIndex; ?>"<?php echo $bdGroepIndex === 1 ? ' open' : ''; ?>>
+          <summary><?php echo htmlspecialchars($bdGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($bdVeldSleutels); ?> veld<?php echo count($bdVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($bdVeldSleutels as $veld): ?>
             <?php
@@ -4391,8 +4405,8 @@ if ($isMaster && file_exists($logBestand)) {
       <?php $amGroepIndex = 0; $amAantalGroepen = count($aanmeldenGroepen); ?>
       <?php foreach ($aanmeldenGroepen as $amGroepNaam => $amVeldSleutels): ?>
         <?php $amGroepIndex++; ?>
-        <details class="kaart"<?php echo $amGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($amGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($amVeldSleutels); ?> veld<?php echo count($amVeldSleutels) === 1 ? '' : 'en'; ?></span></summary>
+        <details class="kaart" data-taal-scope="am-<?php echo $amGroepIndex; ?>"<?php echo $amGroepIndex === 1 ? ' open' : ''; ?>>
+          <summary><?php echo htmlspecialchars($amGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($amVeldSleutels); ?> veld<?php echo count($amVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($amVeldSleutels as $veld): ?>
             <?php
@@ -4482,8 +4496,8 @@ if ($isMaster && file_exists($logBestand)) {
 
         <div class="item-lijst" id="nieuws-lijst">
         <?php foreach ($nieuwsData as $i => $ni): ?>
-          <div class="item-blok">
-            <div class="item-blok-nr">Item <?php echo $i + 1; ?></div>
+          <div class="item-blok" data-taal-scope="nieuws-<?php echo $i; ?>">
+            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
             <div class="rij-2">
               <div class="veld">
                 <label for="nieuws-date-<?php echo $i; ?>">Datum</label>
@@ -4576,7 +4590,8 @@ if ($isMaster && file_exists($logBestand)) {
 
         <div class="item-lijst" id="agenda-lijst">
         <?php foreach ($agendaData as $i => $ev): ?>
-          <div class="item-blok <?php echo !empty($ev['past']) ? 'is-afgelopen' : ''; ?>">
+          <div class="item-blok <?php echo !empty($ev['past']) ? 'is-afgelopen' : ''; ?>" data-taal-scope="agenda-<?php echo $i; ?>">
+            <div class="item-blok-kop">
             <div class="item-blok-nr">
               Kaart <?php echo $i + 1; ?>
               <span class="afgelopen-badge" style="<?php echo empty($ev['past']) ? 'display:none;' : ''; ?>">Afgelopen</span>
@@ -4588,6 +4603,8 @@ if ($isMaster && file_exists($logBestand)) {
                   <?php endfor; ?>
                 </select>
               </span>
+            </div>
+            <span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span>
             </div>
             <p class="hint" style="margin-top:-8px; margin-bottom:12px;">Kies bij welk volgnummer deze kaart moet staan. Kaarten met dezelfde datum die na elkaar staan, komen op de website naast elkaar te staan.</p>
             <div class="rij-2">
@@ -4686,8 +4703,8 @@ if ($isMaster && file_exists($logBestand)) {
 
         <div class="item-lijst" id="faq-lijst">
         <?php foreach ($faqData as $i => $item): ?>
-          <div class="item-blok">
-            <div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div>
+          <div class="item-blok" data-taal-scope="faq-<?php echo $i; ?>">
+            <div class="item-blok-kop"><div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
 
             <div class="taal-rij">
             <div class="taal-groep taal-nl">
@@ -4752,8 +4769,8 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="formulier" value="sponsors">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
-        <div class="veld" style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;">
-          <label>Tekst "sponsor worden" (onderaan elke pagina, onder de sponsorlogo's)</label>
+        <div class="veld" style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;" data-taal-scope="sponsors-cta">
+          <div class="taal-scope-kop"><label>Tekst "sponsor worden" (onderaan elke pagina, onder de sponsorlogo's)</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
           <p class="hint" style="margin-top:-4px; margin-bottom:10px;">Het woord "contactformulier" (of de vertaling ervan hieronder) wordt op de website automatisch een link naar het contactformulier. Laat dat woord dus letterlijk in de tekst staan.</p>
           <div class="taal-rij">
             <div class="veld taal-nl">
@@ -4911,8 +4928,8 @@ if ($isMaster && file_exists($logBestand)) {
       <form method="post" action="beheer.php#media">
         <input type="hidden" name="formulier" value="media_tekst">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
-        <div class="veld">
-          <label for="mt-hero-sub-nl">Tekst onder de titel "Media"</label>
+        <div class="veld" data-taal-scope="media-ondertitel">
+          <div class="taal-scope-kop"><label for="mt-hero-sub-nl">Tekst onder de titel "Media"</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
           <div class="taal-rij">
             <textarea class="taal-nl" id="mt-hero-sub-nl" name="mt[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
             <textarea class="taal-en" id="mt-hero-sub-en" name="mt[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['en'] ?? ''); ?></textarea>
@@ -4935,8 +4952,8 @@ if ($isMaster && file_exists($logBestand)) {
 
         <div class="item-lijst" id="media-lijst">
         <?php foreach ($mediaData as $i => $mi): ?>
-          <div class="item-blok">
-            <div class="item-blok-nr">Item <?php echo $i + 1; ?></div>
+          <div class="item-blok" data-taal-scope="media-<?php echo $i; ?>">
+            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
             <div class="rij-3">
               <div class="veld">
                 <label for="media-date-<?php echo $i; ?>">Datum</label>
@@ -5025,8 +5042,8 @@ if ($isMaster && file_exists($logBestand)) {
       <form method="post" action="beheer.php#fotoboek">
         <input type="hidden" name="formulier" value="fotoboek_tekst">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
-        <div class="veld">
-          <label for="ft-hero-sub-nl">Tekst onder de titel "Fotoboek"</label>
+        <div class="veld" data-taal-scope="fotoboek-ondertitel">
+          <div class="taal-scope-kop"><label for="ft-hero-sub-nl">Tekst onder de titel "Fotoboek"</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
           <div class="taal-rij">
             <textarea class="taal-nl" id="ft-hero-sub-nl" name="ft[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
             <textarea class="taal-en" id="ft-hero-sub-en" name="ft[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['en'] ?? ''); ?></textarea>
@@ -5037,8 +5054,8 @@ if ($isMaster && file_exists($logBestand)) {
       </form>
     </div>
 
-    <div class="kaart">
-      <h1>Nieuw album</h1>
+    <div class="kaart" data-taal-scope="fotoboek-nieuw">
+      <div class="taal-scope-kop"><h1>Nieuw album</h1><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
       <p class="sub">Maak een album aan, daarna kun je er hieronder foto's aan toevoegen.</p>
 
       <?php if (isset($melding['fotoboek'])): ?>
@@ -5074,10 +5091,10 @@ if ($isMaster && file_exists($logBestand)) {
 
     <?php foreach ($fotoboekData['albums'] as $album): $slug = $album['slug']; ?>
       <div class="kaart">
-        <details class="fotoboek-album-details">
+        <details class="fotoboek-album-details" data-taal-scope="fotoboek-album-<?php echo htmlspecialchars($slug); ?>">
           <summary class="fotoboek-album-kop">
             <span class="fotoboek-album-titel"><span class="fotoboek-album-volgnummer">#<?php echo htmlspecialchars((string) ($album['volgorde'] ?? 0)); ?></span><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?><?php if (!empty($album['verborgen'])): ?> <span class="fotoboek-cover-badge" style="background:var(--rust); color:#fff;">verborgen</span><?php endif; ?></span>
-            <span class="hint"><?php echo count($album['photos']); ?> foto('s)</span>
+            <span class="taal-scope-kop"><span class="hint"><?php echo count($album['photos']); ?> foto('s)</span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></span>
           </summary>
           <div class="fotoboek-album-inhoud">
           <form method="post" action="beheer.php#fotoboek" enctype="multipart/form-data" class="fotoboek-album-form">
@@ -5087,16 +5104,16 @@ if ($isMaster && file_exists($logBestand)) {
 
           <p class="sub">Map: images/fotoboek/<?php echo htmlspecialchars($slug); ?>/</p>
 
-          <div class="rij-titels">
-            <div class="veld">
+          <div class="taal-rij">
+            <div class="veld taal-nl">
               <label for="fotoboek-<?php echo $slug; ?>-titel-nl">🇳🇱 Titel</label>
               <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-nl" name="titel_nl" maxlength="60" value="<?php echo htmlspecialchars($album['title']['nl'] ?? ''); ?>">
             </div>
-            <div class="veld">
+            <div class="veld taal-en">
               <label for="fotoboek-<?php echo $slug; ?>-titel-en">🇬🇧 Title <span class="optioneel">(optioneel)</span></label>
               <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-en" name="titel_en" maxlength="60" value="<?php echo htmlspecialchars($album['title']['en'] ?? ''); ?>">
             </div>
-            <div class="veld">
+            <div class="veld taal-de">
               <label for="fotoboek-<?php echo $slug; ?>-titel-de">🇩🇪 Titel <span class="optioneel">(optioneel)</span></label>
               <input type="text" id="fotoboek-<?php echo $slug; ?>-titel-de" name="titel_de" maxlength="60" value="<?php echo htmlspecialchars($album['title']['de'] ?? ''); ?>">
             </div>
@@ -5161,9 +5178,9 @@ if ($isMaster && file_exists($logBestand)) {
                   <?php endif; ?>
                   <div class="fotoboek-foto-velden">
                     <input type="hidden" name="foto[<?php echo $i; ?>][bestand]" value="<?php echo htmlspecialchars($foto['file']); ?>">
-                    <input type="text" name="foto[<?php echo $i; ?>][caption_nl]" maxlength="150" placeholder="Bijschrift NL (optioneel)" value="<?php echo htmlspecialchars($foto['caption']['nl'] ?? ''); ?>">
-                    <input type="text" name="foto[<?php echo $i; ?>][caption_en]" maxlength="150" placeholder="Caption EN (optional)" value="<?php echo htmlspecialchars($foto['caption']['en'] ?? ''); ?>">
-                    <input type="text" name="foto[<?php echo $i; ?>][caption_de]" maxlength="150" placeholder="Bildtext DE (optional)" value="<?php echo htmlspecialchars($foto['caption']['de'] ?? ''); ?>">
+                    <input type="text" class="taal-nl" name="foto[<?php echo $i; ?>][caption_nl]" maxlength="150" placeholder="Bijschrift NL (optioneel)" value="<?php echo htmlspecialchars($foto['caption']['nl'] ?? ''); ?>">
+                    <input type="text" class="taal-en" name="foto[<?php echo $i; ?>][caption_en]" maxlength="150" placeholder="Caption EN (optional)" value="<?php echo htmlspecialchars($foto['caption']['en'] ?? ''); ?>">
+                    <input type="text" class="taal-de" name="foto[<?php echo $i; ?>][caption_de]" maxlength="150" placeholder="Bildtext DE (optional)" value="<?php echo htmlspecialchars($foto['caption']['de'] ?? ''); ?>">
                     <div class="fotoboek-foto-rij">
                       <?php if ($isVideo): ?>
                         <span class="fotoboek-cover-badge" style="background:var(--teal-light); color:var(--teal-dark);">🎬 video<?php echo empty($foto['poster']) ? ' (geen voorbeeldbeeld)' : ''; ?></span>
@@ -6391,6 +6408,17 @@ if ($isMaster && file_exists($logBestand)) {
         label.htmlFor = label.htmlFor.replace(/-(\d+)$/, '-' + nieuweIndex);
       });
 
+      // data-taal-scope meenummeren, en het gekloonde blok altijd dichtgeklapt
+      // en op onbeantwoord (NL) laten beginnen, ook als het origineel openstond.
+      nieuw.querySelectorAll('[data-taal-scope]').forEach(function(el) {
+        var scope = el.getAttribute('data-taal-scope').replace(/-(\d+)$/, '-' + nieuweIndex);
+        el.setAttribute('data-taal-scope', scope);
+        el.classList.remove('toon-en', 'toon-de');
+      });
+      nieuw.querySelectorAll('.taal-toggle-btn').forEach(function(knop) {
+        knop.setAttribute('aria-pressed', 'false');
+      });
+
       // Een gekloond blok kan een bestaand sponsorlogo tonen; een nieuw leeg
       // blok hoort dat niet te doen.
       nieuw.querySelectorAll('img').forEach(function(img) { img.remove(); });
@@ -6700,37 +6728,56 @@ if ($isMaster && file_exists($logBestand)) {
         window.location.href = rij.getAttribute('data-href');
       });
 
-      // ===== Vertalingen tonen/verbergen =====
-      // Standaard staat alleen NL open, de rest van de site-teksten (EN/DE)
-      // blijft verborgen totdat je hier op klikt. Zo is beheer.php overzichtelijker
-      // en kun je de vertaling toch naast het Nederlands zetten om te vergelijken.
-      // Keuze wordt onthouden (localStorage), ook na een herlaadbeurt.
+      // ===== Vertalingen tonen/verbergen, per onderdeel =====
+      // Elk onderdeel met vertaalbare velden (een groep, een album, een item...)
+      // heeft een data-taal-scope en eigen EN/DE-knopjes in de kop van dat
+      // onderdeel. Een klik zet toon-en/toon-de op dat ene onderdeel, niet op
+      // de hele pagina, zodat secties los van elkaar opengezet kunnen worden.
+      // Werkt via event delegation zodat het ook meteen goed staat voor
+      // itemblokken die je later met "+ toevoegen" erbij klikt.
       (function() {
         var opslagsleutel = 'rc045-beheer-vertalingen';
-        var html = document.documentElement;
-        var knoppen = document.querySelectorAll('.taal-toggle-btn');
-        var actief = [];
+        var opgeslagen = {};
         try {
-          actief = JSON.parse(localStorage.getItem(opslagsleutel)) || [];
-        } catch (e) { actief = []; }
+          opgeslagen = JSON.parse(localStorage.getItem(opslagsleutel)) || {};
+        } catch (e) { opgeslagen = {}; }
 
-        function pas(taal, aan) {
-          html.classList.toggle('toon-' + taal, aan);
+        function bewaar() {
+          try { localStorage.setItem(opslagsleutel, JSON.stringify(opgeslagen)); } catch (e) {}
         }
 
-        actief.forEach(function(taal) { pas(taal, true); });
-        knoppen.forEach(function(knop) {
-          var taal = knop.getAttribute('data-taal');
-          if (actief.indexOf(taal) !== -1) knop.setAttribute('aria-pressed', 'true');
-          knop.addEventListener('click', function() {
-            var aan = !html.classList.contains('toon-' + taal);
-            pas(taal, aan);
-            knop.setAttribute('aria-pressed', aan ? 'true' : 'false');
-            actief = Array.prototype.filter.call(knoppen, function(k) {
-              return k.getAttribute('aria-pressed') === 'true';
-            }).map(function(k) { return k.getAttribute('data-taal'); });
-            try { localStorage.setItem(opslagsleutel, JSON.stringify(actief)); } catch (e) {}
+        function scopeToepassen(scopeEl) {
+          var sleutel = scopeEl.getAttribute('data-taal-scope');
+          var actief = opgeslagen[sleutel] || [];
+          ['en', 'de'].forEach(function(taal) {
+            var aan = actief.indexOf(taal) !== -1;
+            scopeEl.classList.toggle('toon-' + taal, aan);
+            var knop = scopeEl.querySelector('.taal-toggle-btn[data-taal="' + taal + '"]');
+            if (knop) knop.setAttribute('aria-pressed', aan ? 'true' : 'false');
           });
+        }
+
+        document.querySelectorAll('[data-taal-scope]').forEach(scopeToepassen);
+
+        document.addEventListener('click', function(e) {
+          var knop = e.target.closest('.taal-toggle-btn');
+          if (!knop) return;
+          var scopeEl = knop.closest('[data-taal-scope]');
+          if (!scopeEl) return;
+          // Voorkomt dat een knopje in een <summary> meteen de kaart open/dicht klapt.
+          e.preventDefault();
+          e.stopPropagation();
+
+          var taal = knop.getAttribute('data-taal');
+          var sleutel = scopeEl.getAttribute('data-taal-scope');
+          var aan = scopeEl.classList.toggle('toon-' + taal);
+          knop.setAttribute('aria-pressed', aan ? 'true' : 'false');
+
+          var lijst = opgeslagen[sleutel] || [];
+          lijst = lijst.filter(function(t) { return t !== taal; });
+          if (aan) lijst.push(taal);
+          opgeslagen[sleutel] = lijst;
+          bewaar();
         });
       })();
     })();
