@@ -5862,7 +5862,19 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="veld">
               <label for="lid-c-bedrag-<?php echo $ci; ?>">Bedrag</label>
               <?php $voorstel = $regel['jaar'] === '' ? null : ledenBedragVoorstel($ledenBewerkLid, (int) $regel['jaar'], $rekentabelData); ?>
+              <select class="leden-bedrag-snelkeuze" data-doel="lid-c-bedrag-<?php echo $ci; ?>" aria-label="Snelkeuze bedrag">
+                <option value="">Snelkeuze&hellip;</option>
+                <option value="<?php echo (int) round((float) $rekentabelData['senior_jaarbedrag']); ?>"><?php echo euro($rekentabelData['senior_jaarbedrag']); ?> (senior, heel jaar)</option>
+                <option value="<?php echo (int) round((float) $rekentabelData['jeugd_jaarbedrag']); ?>"><?php echo euro($rekentabelData['jeugd_jaarbedrag']); ?> (jeugd, heel jaar)</option>
+                <optgroup label="Pro-rata, vanaf instapmaand">
+                  <?php for ($m = 1; $m <= 11; $m++): ?>
+                    <option value="<?php echo (int) $tabelSenior[$m]; ?>"><?php echo euro($tabelSenior[$m]); ?> (senior, vanaf <?php echo $maandNamen[$m]; ?>)</option>
+                    <option value="<?php echo (int) $tabelJeugd[$m]; ?>"><?php echo euro($tabelJeugd[$m]); ?> (jeugd, vanaf <?php echo $maandNamen[$m]; ?>)</option>
+                  <?php endfor; ?>
+                </optgroup>
+              </select>
               <input type="number" id="lid-c-bedrag-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][bedrag]" min="0" step="0.01" value="<?php echo $regel['bedrag'] === null ? '' : htmlspecialchars((string) $regel['bedrag']); ?>" placeholder="<?php echo $voorstel === null ? '' : htmlspecialchars(number_format($voorstel, 2, '.', '')); ?>">
+              <p class="hint">Snelkeuze vult het bedrag hieronder in; bij uitzondering typ je er zelf een bedrag in.</p>
             </div>
             <div class="veld">
               <label for="lid-c-inschrijf-<?php echo $ci; ?>">Inschrijfgeld</label>
@@ -7149,6 +7161,20 @@ if ($isMaster && file_exists($logBestand)) {
           veld.focus();
         });
       })();
+
+      // ===== Snelkeuze contributiebedrag =====
+      // Vult het bijbehorende bedragveld met de gekozen waarde uit de
+      // rekentabel. Het bedragveld zelf blijft altijd gewoon te bewerken,
+      // voor de uitzondering waarbij handmatig een ander bedrag nodig is.
+      Array.prototype.forEach.call(document.querySelectorAll('.leden-bedrag-snelkeuze'), function (select) {
+        var veld = document.getElementById(select.getAttribute('data-doel'));
+        if (!veld) return;
+        select.addEventListener('change', function () {
+          if (select.value === '') return;
+          veld.value = select.value;
+          select.value = '';
+        });
+      });
 
       // ===== Vertalingen tonen/verbergen, per onderdeel =====
       // Elk onderdeel met vertaalbare velden (een groep, een album, een item...)
