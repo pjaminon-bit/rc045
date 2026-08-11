@@ -231,13 +231,17 @@
     
     .price-card.featured .btn-white { width: 100%; justify-content: center; }
     
-    .price-note { font-size: 13px; color: var(--muted); border-left: 2px solid var(--border); padding-left: 12px; margin-top: 14px; line-height: 1.5; }
+    .price-note { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
     
-    .price-card.featured .price-note { color: rgba(255,255,255,0.5); border-left-color: rgba(255,255,255,0.18); }
+    .price-card.featured .price-note { color: rgba(255,255,255,0.5); }
     
-    .price-note-attentie { font-size: 13px; color: var(--rust); border-left: 2px solid var(--rust); padding-left: 12px; margin-top: 14px; line-height: 1.5; }
+    .price-notes { list-style: none; margin: 18px 0 0; display: grid; gap: 9px; }
     
-    .price-note-attentie:empty { display: none; }
+    .price-notes li { position: relative; padding-left: 16px; font-size: 13px; color: var(--muted); line-height: 1.55; }
+    
+    .price-notes li::before { content: ''; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); opacity: 0.5; }
+    
+    .price-notes:empty { display: none; }
     
     .track { background: var(--white); }
     
@@ -763,8 +767,11 @@
           <li><span data-i18n="guest.group">Groepen krijgen korting!</span><span class="price-amount">%</span></li>
         </ul>
         <a href="#contact" class="btn btn-primary" data-i18n="guest.btn">Stuur ons een berichtje →</a>
-        <p class="price-note-attentie" id="hp-guest-note-extra">Kom je met 4 of meer personen? Meld je dan van te voren via het contactformulier of bestuur@rc045.nl</p>
-        <p class="price-note" id="hp-guest-note" data-i18n="guest.note">Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</p>
+        <ul class="price-notes" id="hp-guest-notes">
+          <li>Kom je met 4 of meer personen? Meld je dan van te voren via het contactformulier of bestuur@rc045.nl</li>
+          <li>Begeleiding door ouder/verzorger verplicht voor -16 jaar.</li>
+          <li>Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</li>
+        </ul>
       </div>
       <div class="price-card featured reveal reveal-delay-2">
         <div class="price-card-tag" data-i18n="member.tag">Lidmaatschap</div>
@@ -1192,7 +1199,7 @@
       'guest.text': 'Rij een hele dag mee op onze baan zonder lidmaatschap. Check onze openingstijden en kom gewoon langs, meld je wel even bij een (bestuurs)lid als je er bent!',
       'guest.adult': 'Volwassene (16+)', 'guest.youth': 'Jeugd (t/m 15 jaar)', 'guest.group': 'Groepen krijgen korting!',
       'guest.btn': 'Stuur ons een berichtje →',
-      'guest.note': 'Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.',
+      'guest.notes': 'Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.\nKom je met 4 of meer personen? Meld je dan van te voren via het contactformulier of bestuur@rc045.nl',
       'member.tag': 'Lidmaatschap', 'member.title': 'Word lid van RC045',
       'member.text': 'Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.',
       'member.youth': 'Jeugdlid (t/m 15 jaar)', 'member.senior': 'Seniorlid (16+)', 'member.fee': 'Eenmalige inschrijfkosten',
@@ -1260,7 +1267,7 @@
       'guest.text': 'Ride all day on our track without a membership. Check our opening hours and just show up, and check in with a club member when you arrive!',
       'guest.adult': 'Adult (16+)', 'guest.youth': 'Youth (up to 15)', 'guest.group': 'Groups get a discount!',
       'guest.btn': 'Send us a message →',
-      'guest.note': 'Supervision by a parent or guardian required for under 16. Not available during private or members-only events.',
+      'guest.notes': 'Supervision by a parent or guardian required for under 16. Not available during private or members-only events.\nComing with 4 or more people? Please let us know in advance via the contact form or bestuur@rc045.nl',
       'member.tag': 'Membership', 'member.title': 'Become a member of RC045',
       'member.text': 'Unlimited riding on all tracks, access to the group app, sharing knowledge with fellow hobbyists, and always someone to help you out.',
       'member.youth': 'Youth member (up to 15)', 'member.senior': 'Senior member (16+)', 'member.fee': 'One-time registration fee',
@@ -1328,7 +1335,7 @@
       'guest.text': 'Fahre einen ganzen Tag auf unserer Strecke ohne Mitgliedschaft. Schau einfach vorbei, melde dich beim Ankommen kurz bei einem Vereinsmitglied!',
       'guest.adult': 'Erwachsener (16+)', 'guest.youth': 'Jugend (bis 15 Jahre)', 'guest.group': 'Gruppen bekommen Rabatt!',
       'guest.btn': 'Schick uns eine Nachricht →',
-      'guest.note': 'Begleitung durch Elternteil oder Erziehungsberechtigte für unter 16 Jahre erforderlich. Nicht möglich bei geschlossenen Veranstaltungen.',
+      'guest.notes': 'Begleitung durch Elternteil oder Erziehungsberechtigte für unter 16 Jahre erforderlich. Nicht möglich bei geschlossenen Veranstaltungen.\nKommst du mit 4 oder mehr Personen? Melde dich dann immer vorher über das Kontaktformular oder bestuur@rc045.nl',
       'member.tag': 'Mitgliedschaft', 'member.title': 'Werde Mitglied bei RC045',
       'member.text': 'Unbegrenztes Fahren auf allen Strecken, Zugang zur Gruppen-App, Wissensaustausch mit Gleichgesinnten und immer jemand zum Helfen.',
       'member.youth': 'Jugendmitglied (bis 15 Jahre)', 'member.senior': 'Seniorenmitglied (16+)', 'member.fee': 'Einmalige Anmeldegebühr',
@@ -1756,24 +1763,59 @@
     'loc_label', 'loc_title', 'addr_title', 'addr_text', 'addr_route', 'instagram_soon',
     'contact_label', 'contact_title', 'contact_text'
   ];
+  // Gastrijden-notities staan als opsomming onder de knop. Bron is het veld
+  // guest_note (beheer.php), met de i18n-teksten als terugval. Elke regel en
+  // elke afgeronde zin binnen die regel wordt een eigen punt. Op een vraagteken
+  // wordt niet gesplitst, zodat vraag en antwoord ("Kom je met 4 of meer
+  // personen? Meld je dan...") bij elkaar blijven staan. De losse attentieregel
+  // (regel 2 en verder, bijvoorbeeld de melding over groepen) staat bovenaan.
+  var GEEN_ZINSEINDE = ['i.v.m.', 'bijv.', 'o.a.', 'ca.', 'evt.', 'nr.', 'incl.', 'excl.', 'max.', 'min.', 'dhr.', 'mevr.'];
+  function splitsZinnen(regel) {
+    return regel
+      .replace(/(\.)\s+(?=[A-Z\u00C0-\u00D6\u00D8-\u00DE])/g, function (match, teken, offset, geheel) {
+        var laatsteWoord = (geheel.slice(0, offset + 1).match(/\S+$/) || [''])[0].toLowerCase();
+        if (GEEN_ZINSEINDE.indexOf(laatsteWoord) !== -1) return match;
+        if (/\.[a-z]{2,4}\.$/.test(laatsteWoord)) return match; // e-mailadres of domeinnaam
+        return teken + '\n';
+      })
+      .split('\n')
+      .map(function (zin) { return zin.trim(); })
+      .filter(Boolean);
+  }
+  function gastNotitieTekst() {
+    var bron = homepageData && homepageData.guest_note;
+    if (bron) {
+      var uitCms = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
+      if (String(uitCms).trim()) return uitCms;
+    }
+    var t = i18n[currentLang] || i18n.nl;
+    return (t && t['guest.notes']) || i18n.nl['guest.notes'] || '';
+  }
+  function renderGastNotities() {
+    var lijst = document.getElementById('hp-guest-notes');
+    if (!lijst) return;
+    var regels = gastNotitieTekst().split(/\r?\n/).map(function (r) { return r.trim(); }).filter(Boolean);
+    if (!regels.length) return;
+    var volgorde = regels.length > 1 ? regels.slice(1).concat(regels.slice(0, 1)) : regels;
+    var punten = [];
+    volgorde.forEach(function (regel) { punten = punten.concat(splitsZinnen(regel)); });
+    lijst.innerHTML = '';
+    punten.forEach(function (punt) {
+      var li = document.createElement('li');
+      li.textContent = punt;
+      lijst.appendChild(li);
+    });
+  }
   function renderHomepageTeksten() {
+    renderGastNotities();
     if (!homepageData) return;
     homepageVelden.forEach(function (veld) {
       var bron = homepageData[veld];
       if (!bron) return;
       var tekst = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
       if (!tekst) return;
-      // guest_note: een eventuele tweede regel (bijv. de "kom je met 4+
-      // personen"-melding) krijgt een eigen, opvallend blokje in plaats van
-      // stil op te gaan in de gewone kleine notitietekst.
-      if (veld === 'guest_note') {
-        var regels = tekst.split(/\r?\n/).map(function (r) { return r.trim(); }).filter(Boolean);
-        var basisEl = document.getElementById('hp-guest-note');
-        var extraEl = document.getElementById('hp-guest-note-extra');
-        if (basisEl) basisEl.textContent = regels[0] || '';
-        if (extraEl) extraEl.textContent = regels.length > 1 ? regels.slice(1).join(' ') : '';
-        return;
-      }
+      // guest_note wordt als opsomming gerenderd, zie renderGastNotities().
+      if (veld === 'guest_note') return;
       var el = document.getElementById('hp-' + veld.replace(/_/g, '-'));
       if (el) el.textContent = tekst;
     });
