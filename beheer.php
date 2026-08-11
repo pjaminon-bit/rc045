@@ -3720,7 +3720,7 @@ if ($isMaster && file_exists($logBestand)) {
     @media (max-width: 640px) { details.kaart > summary { padding: 16px 20px; } details.kaart > .kaart-uitklap-inhoud { padding: 0 20px 20px; } }
     .sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
     label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--dark); }
-    textarea, input[type="password"], input[type="text"], input[type="date"], input[type="number"], select {
+    textarea, input[type="password"], input[type="text"], input[type="email"], input[type="date"], input[type="number"], select {
       width: 100%; font-family: inherit; font-size: 16px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);
     }
     textarea { min-height: 100px; resize: vertical; }
