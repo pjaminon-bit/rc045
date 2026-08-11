@@ -3891,6 +3891,11 @@ if ($isMaster && file_exists($logBestand)) {
     .menu-item { width: 100%; text-align: left; flex: 0 0 auto; background: none; border: none; padding: 8px 12px; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
     .menu-item:hover { background: var(--teal-light); color: var(--teal-dark); }
     .menu-item.actief { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 2px 0 0 var(--teal); }
+    /* Stil kopje boven elke groep in het menu, geen eigen knop of kader:
+       puur om de 18 tabs in een paar hapklare blokken te laten lezen.
+       Zelfde opmaak op mobiel, daar staat het gewoon in het uitklappaneel. */
+    .menu-groep-label { padding: 10px 12px 4px; font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .menu-groep-label:first-child { padding-top: 2px; }
     .beheer-menu-knop { display: none; }
     @media (max-width: 860px) {
       /* Op smalle schermen geen tweede kolom, en het menu wordt een
@@ -4195,14 +4200,34 @@ if ($isMaster && file_exists($logBestand)) {
       <span class="streepjes" aria-hidden="true">☰</span>
     </button>
     <nav class="menu" id="beheer-menu">
-      <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
-        <?php if (in_array($tabSleutel, $toegestaneTabs, true)): ?>
-      <button type="button" class="menu-item" data-tab="<?php echo $tabSleutel; ?>"><?php echo htmlspecialchars($tabLabel); ?></button>
-        <?php endif; ?>
-        <?php if ($tabSleutel === 'leden' && $isMaster): ?>
-      <button type="button" class="menu-item" data-tab="gebruikers">Gebruikers</button>
-      <button type="button" class="menu-item" data-tab="log">Log</button>
-      <button type="button" class="menu-item" data-tab="backups">Back-ups</button>
+      <?php
+        // Menu-indeling: alleen groepering van de knoppen hierboven, geen
+        // wijziging aan welke tabs een gebruiker mag zien. Groepslabel
+        // verschijnt alleen als er in die groep ook echt iets zichtbaar is.
+        $menuLabels = $beheerTabsAlle + ['gebruikers' => 'Gebruikers', 'log' => 'Log', 'backups' => 'Back-ups'];
+        $menuGroepen = [
+          ['label' => "Pagina's", 'tabs' => ['homepage', 'ontstaan', 'baanreglement', 'bedankt', 'aanmelden']],
+          ['label' => 'Content', 'tabs' => ['mededeling', 'nieuws', 'agenda', 'faq', 'sponsors', 'contact', 'media', 'fotoboek']],
+          ['label' => 'Leden & contributie', 'tabs' => ['leden', 'rekentabel']],
+          ['label' => 'Beheer', 'tabs' => ['gebruikers', 'log', 'backups']],
+        ];
+        $alleenMasterTabs = ['gebruikers', 'log', 'backups'];
+      ?>
+      <?php foreach ($menuGroepen as $groep): ?>
+        <?php
+          $zichtbaar = [];
+          foreach ($groep['tabs'] as $tabSleutel) {
+            $magZien = in_array($tabSleutel, $alleenMasterTabs, true)
+              ? $isMaster
+              : in_array($tabSleutel, $toegestaneTabs, true);
+            if ($magZien) $zichtbaar[] = $tabSleutel;
+          }
+        ?>
+        <?php if (!empty($zichtbaar)): ?>
+      <div class="menu-groep-label"><?php echo htmlspecialchars($groep['label']); ?></div>
+          <?php foreach ($zichtbaar as $tabSleutel): ?>
+      <button type="button" class="menu-item" data-tab="<?php echo $tabSleutel; ?>"><?php echo htmlspecialchars($menuLabels[$tabSleutel]); ?></button>
+          <?php endforeach; ?>
         <?php endif; ?>
       <?php endforeach; ?>
     </nav>
