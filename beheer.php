@@ -3681,6 +3681,23 @@ foreach ($ledenLijst as $l) {
   if (isset($ledenTellingen[$s])) $ledenTellingen[$s]++;
 }
 
+// Zelfde soort telling, maar dan per contributiestatus van het huidige
+// jaar, voor de klikbare badges en het filter in de Leden-tab. 'leeg'
+// is geen echte status uit ledenContributieStatussen(), maar een eigen
+// bakje voor leden zonder contributieregel voor $ledenJaar.
+$ledenContributieTellingen = [];
+foreach (array_keys($ledenContributieLabels) as $s) $ledenContributieTellingen[$s] = 0;
+$ledenContributieTellingen['leeg'] = 0;
+foreach ($ledenLijst as $l) {
+  $c = $l['contributie'][(string) $ledenJaar] ?? null;
+  if ($c === null) {
+    $ledenContributieTellingen['leeg']++;
+    continue;
+  }
+  $s = $c['status'] ?? 'open';
+  if (isset($ledenContributieTellingen[$s])) $ledenContributieTellingen[$s]++;
+}
+
 // ?lid=nieuw opent een leeg formulier, ?lid=<id> een bestaand lid.
 $ledenBewerkId = isset($_GET['lid']) ? trim((string) $_GET['lid']) : '';
 $ledenBewerkLid = null;
@@ -5585,6 +5602,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <input type="hidden" name="lid_id" value="<?php echo $ledenBewerkNieuw ? '' : htmlspecialchars($ledenBewerkLid['id']); ?>">
 
+        <div class="sectie-kop">Persoonsgegevens</div>
         <div class="rij-3">
           <div class="veld">
             <label for="lid-nummer">Lidnummer</label>
@@ -5645,6 +5663,7 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
         </div>
 
+        <div class="sectie-kop">Adres</div>
         <div class="rij-3">
           <div class="veld">
             <label for="lid-straat">Straat</label>
@@ -5660,7 +5679,7 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
         </div>
 
-        <div class="rij-3">
+        <div class="rij-2">
           <div class="veld">
             <label for="lid-gemeente">Gemeente</label>
             <input type="text" id="lid-gemeente" name="gemeente" maxlength="80" value="<?php echo htmlspecialchars($ledenBewerkLid['gemeente']); ?>">
@@ -5669,13 +5688,14 @@ if ($isMaster && file_exists($logBestand)) {
             <label for="lid-land">Land</label>
             <input type="text" id="lid-land" name="land" maxlength="40" value="<?php echo htmlspecialchars($ledenBewerkLid['land']); ?>">
           </div>
+        </div>
+
+        <div class="sectie-kop">Vereniging</div>
+        <div class="rij-3">
           <div class="veld">
             <label for="lid-transponder">Transponder</label>
             <input type="text" id="lid-transponder" name="transponder" maxlength="60" value="<?php echo htmlspecialchars($ledenBewerkLid['transponder']); ?>">
           </div>
-        </div>
-
-        <div class="rij-3">
           <div class="veld">
             <label for="lid-auto">Auto</label>
             <input type="text" id="lid-auto" name="auto" maxlength="120" value="<?php echo htmlspecialchars($ledenBewerkLid['auto']); ?>">
@@ -5684,10 +5704,11 @@ if ($isMaster && file_exists($logBestand)) {
             <label for="lid-taken">Taken</label>
             <input type="text" id="lid-taken" name="taken" maxlength="300" value="<?php echo htmlspecialchars($ledenBewerkLid['taken']); ?>">
           </div>
-          <div class="veld">
-            <label>In de WhatsAppgroep</label>
-            <label class="leden-vink"><input type="checkbox" name="whatsapp" value="1" <?php echo !empty($ledenBewerkLid['whatsapp']) ? 'checked' : ''; ?>> Toegevoegd</label>
-          </div>
+        </div>
+
+        <div class="veld">
+          <label>In de WhatsAppgroep</label>
+          <label class="leden-vink"><input type="checkbox" name="whatsapp" value="1" <?php echo !empty($ledenBewerkLid['whatsapp']) ? 'checked' : ''; ?>> Toegevoegd</label>
         </div>
 
         <div class="veld">
@@ -5768,8 +5789,15 @@ if ($isMaster && file_exists($logBestand)) {
 
       <div class="leden-telling">
         <?php foreach ($ledenStatusLabels as $sleutel => $label): ?>
-          <button type="button" class="leden-badge leden-badge-klikbaar lb-<?php echo htmlspecialchars($sleutel); ?>" data-status="<?php echo htmlspecialchars($sleutel); ?>" aria-pressed="false" title="Klik om alleen '<?php echo htmlspecialchars($label); ?>' te tonen"><?php echo htmlspecialchars($label); ?>: <?php echo $ledenTellingen[$sleutel]; ?></button>
+          <button type="button" class="leden-badge leden-badge-klikbaar leden-badge-status lb-<?php echo htmlspecialchars($sleutel); ?>" data-status="<?php echo htmlspecialchars($sleutel); ?>" aria-pressed="false" title="Klik om alleen '<?php echo htmlspecialchars($label); ?>' te tonen"><?php echo htmlspecialchars($label); ?>: <?php echo $ledenTellingen[$sleutel]; ?></button>
         <?php endforeach; ?>
+      </div>
+
+      <div class="leden-telling">
+        <?php foreach ($ledenContributieLabels as $sleutel => $label): ?>
+          <button type="button" class="leden-badge leden-badge-klikbaar leden-badge-contributie cb-<?php echo htmlspecialchars($sleutel); ?>" data-contributie="<?php echo htmlspecialchars($sleutel); ?>" aria-pressed="false" title="Klik om alleen '<?php echo htmlspecialchars($label); ?> <?php echo $ledenJaar; ?>' te tonen"><?php echo htmlspecialchars($label); ?> <?php echo $ledenJaar; ?>: <?php echo $ledenContributieTellingen[$sleutel]; ?></button>
+        <?php endforeach; ?>
+        <button type="button" class="leden-badge leden-badge-klikbaar leden-badge-contributie" data-contributie="leeg" aria-pressed="false" title="Klik om alleen leden zonder contributieregel voor <?php echo $ledenJaar; ?> te tonen">Niet ingevuld <?php echo $ledenJaar; ?>: <?php echo $ledenContributieTellingen['leeg']; ?></button>
       </div>
 
       <?php if (count($ledenLijst) === 0): ?>
@@ -5782,6 +5810,13 @@ if ($isMaster && file_exists($logBestand)) {
             <?php foreach ($ledenStatusLabels as $sleutel => $label): ?>
               <option value="<?php echo htmlspecialchars($sleutel); ?>"><?php echo htmlspecialchars($label); ?></option>
             <?php endforeach; ?>
+          </select>
+          <select id="leden-filter-contributie" aria-label="Filteren op contributie <?php echo $ledenJaar; ?>">
+            <option value="">Alle contributiestatussen</option>
+            <?php foreach ($ledenContributieLabels as $sleutel => $label): ?>
+              <option value="<?php echo htmlspecialchars($sleutel); ?>"><?php echo htmlspecialchars($label); ?> <?php echo $ledenJaar; ?></option>
+            <?php endforeach; ?>
+            <option value="leeg">Niet ingevuld <?php echo $ledenJaar; ?></option>
           </select>
           <div class="leden-sorteer-mobiel">
             <select id="leden-sorteer" aria-label="Sorteren op">
@@ -5822,7 +5857,7 @@ if ($isMaster && file_exists($logBestand)) {
                   $sorteerContributie = ($c !== null && $c['bedrag'] !== null) ? (float) $c['bedrag'] : -1;
                   $sorteerContact = strtolower(trim((($l['email'] ?? '') !== '') ? $l['email'] : ($l['telefoon'] ?? '')));
                 ?>
-                <tr data-status="<?php echo htmlspecialchars($l['status'] ?? ''); ?>" data-zoek="<?php echo htmlspecialchars($zoek); ?>"
+                <tr data-status="<?php echo htmlspecialchars($l['status'] ?? ''); ?>" data-contributie="<?php echo htmlspecialchars($c === null ? 'leeg' : ($c['status'] ?? 'open')); ?>" data-zoek="<?php echo htmlspecialchars($zoek); ?>"
                     data-href="beheer.php?lid=<?php echo urlencode($l['id']); ?>#leden"
                     data-sort-nr="<?php echo (int) ($l['nummer'] ?? 0); ?>"
                     data-sort-naam="<?php echo htmlspecialchars(ledenSorteernaam($l)); ?>"
@@ -6721,15 +6756,21 @@ if ($isMaster && file_exists($logBestand)) {
     (function () {
       var zoek = document.getElementById('leden-zoek');
       var filter = document.getElementById('leden-filter-status');
+      var filterContributie = document.getElementById('leden-filter-contributie');
       var tabel = document.getElementById('leden-tabel');
       if (!zoek || !filter || !tabel) return;
       var rijen = tabel.querySelectorAll('tbody tr');
       var geenResultaat = document.getElementById('leden-geen-resultaat');
-      var statusBadges = document.querySelectorAll('.leden-telling .leden-badge-klikbaar');
+      var statusBadges = document.querySelectorAll('.leden-badge-status');
+      var contributieBadges = document.querySelectorAll('.leden-badge-contributie');
 
       function badgesBijwerken() {
         Array.prototype.forEach.call(statusBadges, function (badge) {
           var actief = badge.getAttribute('data-status') === filter.value;
+          badge.setAttribute('aria-pressed', actief ? 'true' : 'false');
+        });
+        Array.prototype.forEach.call(contributieBadges, function (badge) {
+          var actief = filterContributie && badge.getAttribute('data-contributie') === filterContributie.value;
           badge.setAttribute('aria-pressed', actief ? 'true' : 'false');
         });
       }
@@ -6737,11 +6778,13 @@ if ($isMaster && file_exists($logBestand)) {
       function filteren() {
         var term = zoek.value.trim().toLowerCase();
         var status = filter.value;
+        var contributie = filterContributie ? filterContributie.value : '';
         var zichtbaar = 0;
         Array.prototype.forEach.call(rijen, function (rij) {
           var pastTekst = term === '' || (rij.getAttribute('data-zoek') || '').indexOf(term) !== -1;
           var pastStatus = status === '' || rij.getAttribute('data-status') === status;
-          var toon = pastTekst && pastStatus;
+          var pastContributie = contributie === '' || rij.getAttribute('data-contributie') === contributie;
+          var toon = pastTekst && pastStatus && pastContributie;
           rij.hidden = !toon;
           if (toon) zichtbaar++;
         });
@@ -6751,15 +6794,26 @@ if ($isMaster && file_exists($logBestand)) {
 
       zoek.addEventListener('input', filteren);
       filter.addEventListener('change', filteren);
+      if (filterContributie) filterContributie.addEventListener('change', filteren);
 
       // ===== Klikbare statusbadges bovenaan =====
       // Klik op bijvoorbeeld "Nieuw: 3" zet het statusfilter hierboven op
       // die status. Nog een keer klikken op dezelfde badge heft het filter
       // weer op, net als "Alle statussen" kiezen in de vervolgkeuzelijst.
+      // Zelfde idee voor de contributiebadges eronder, die zetten het
+      // contributiefilter in plaats van het statusfilter.
       Array.prototype.forEach.call(statusBadges, function (badge) {
         badge.addEventListener('click', function () {
           var status = badge.getAttribute('data-status');
           filter.value = (filter.value === status) ? '' : status;
+          filteren();
+        });
+      });
+      Array.prototype.forEach.call(contributieBadges, function (badge) {
+        badge.addEventListener('click', function () {
+          if (!filterContributie) return;
+          var contributie = badge.getAttribute('data-contributie');
+          filterContributie.value = (filterContributie.value === contributie) ? '' : contributie;
           filteren();
         });
       });
