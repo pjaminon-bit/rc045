@@ -85,8 +85,9 @@ foreach ($doeltalen as $taal) {
   }
   $velden[] = 'target_lang=' . rawurlencode($taal);
   $velden[] = 'source_lang=NL';
-  // html: laat eventuele links/opmaak in de tekst intact ipv ze mee te vertalen.
-  $velden[] = 'tag_handling=html';
+  // Geen tag_handling: de velden bevatten platte tekst, geen HTML. Met
+  // tag_handling=html codeerde DeepL leestekens als &#x27; om (HTML-entities),
+  // wat als letterlijke tekst in de invoervelden terechtkwam.
   // Informele toon past bij de bestaande siteteksten; heeft alleen effect op Duits.
   $velden[] = 'formality=prefer_less';
 
