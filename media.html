@@ -82,13 +82,13 @@
       <div><span class="nav-logo-text">RC045</span></div>
     </a>
     <ul class="nav-links" id="nav-links">
-      <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
-      <li><a href="index.html#lidmaatschap" data-i18n="nav.membership">Lidmaatschap</a></li>
-      <li><a href="index.html#baan" data-i18n="nav.track">De baan</a></li>
-      <li><a href="index.html#locatie" data-i18n="nav.location">Locatie</a></li>
-      <li><a href="fotoboek.html" data-i18n="nav.photobook">Fotoboek</a></li>
-      <li class="nav-cta"><a href="index.html#contact" data-i18n="nav.contact">Contact</a></li>
-      <li class="nav-lid"><a href="aanmelden.html" data-i18n="nav.join">Lid worden</a></li>
+      <li><a href="index.html#over-ons" id="nav-about" data-i18n="nav.about">Over ons</a></li>
+      <li><a href="index.html#lidmaatschap" id="nav-membership" data-i18n="nav.membership">Lidmaatschap</a></li>
+      <li><a href="index.html#baan" id="nav-track" data-i18n="nav.track">De baan</a></li>
+      <li><a href="index.html#locatie" id="nav-location" data-i18n="nav.location">Locatie</a></li>
+      <li><a href="fotoboek.html" id="nav-photobook" data-i18n="nav.photobook">Fotoboek</a></li>
+      <li class="nav-cta"><a href="index.html#contact" id="nav-contact" data-i18n="nav.contact">Contact</a></li>
+      <li class="nav-lid"><a href="aanmelden.html" id="nav-join" data-i18n="nav.join">Lid worden</a></li>
     </ul>
     <div class="lang-switch" id="lang-switch">
       <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Taal / Language / Sprache">
@@ -126,7 +126,7 @@
     <div class="footer-top">
       <div class="footer-brand">
         <img width="400" height="423" src="rc045-logo.png" alt="RC045">
-        <p data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
+        <p id="footer-brand-text" data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
         <div class="footer-social">
           <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook" id="footer-facebook-link">
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true">
@@ -137,28 +137,28 @@
         </div>
       </div>
       <div class="footer-col">
-        <h4 data-i18n="footer.nav">Navigatie</h4>
+        <h4 id="footer-nav-title" data-i18n="footer.nav">Navigatie</h4>
         <ul>
-          <li><a href="index.html#over-ons" data-i18n="nav.about">Over ons</a></li>
-          <li><a href="ontstaan.html" data-i18n="footer.origin">Het ontstaan</a></li>
-          <li><a href="media.html" data-i18n="footer.media">Media</a></li>
-          <li><a href="fotoboek.html" data-i18n="footer.photobook">Fotoboek</a></li>
-          <li><a href="index.html#activiteiten" data-i18n="footer.calendar">Activiteitenkalender</a></li>
+          <li><a href="index.html#over-ons" id="footer-link-about" data-i18n="nav.about">Over ons</a></li>
+          <li><a href="ontstaan.html" id="footer-link-origin" data-i18n="footer.origin">Het ontstaan</a></li>
+          <li><a href="media.html" id="footer-link-media" data-i18n="footer.media">Media</a></li>
+          <li><a href="fotoboek.html" id="footer-link-photobook" data-i18n="footer.photobook">Fotoboek</a></li>
+          <li><a href="index.html#activiteiten" id="footer-link-calendar" data-i18n="footer.calendar">Activiteitenkalender</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4 data-i18n="footer.join">Meedoen</h4>
+        <h4 id="footer-join-title" data-i18n="footer.join">Meedoen</h4>
         <ul>
-          <li><a href="aanmelden.html" data-i18n="footer.become">Lid worden</a></li>
-          <li><a href="index.html#lidmaatschap" data-i18n="guest.tag">Gastrijden</a></li>
-          <li><a href="baanreglement.html" data-i18n="footer.rules">Baanreglement</a></li>
-          <li><a href="index.html#contact" data-i18n="footer.sponsor">Sponsoring</a></li>
-          <li><a href="index.html#contact">Contact</a></li>
+          <li><a href="aanmelden.html" id="footer-link-become" data-i18n="footer.become">Lid worden</a></li>
+          <li><a href="index.html#lidmaatschap" id="footer-link-guesttag" data-i18n="guest.tag">Gastrijden</a></li>
+          <li><a href="baanreglement.html" id="footer-link-rules" data-i18n="footer.rules">Baanreglement</a></li>
+          <li><a href="index.html#contact" id="footer-link-sponsor" data-i18n="footer.sponsor">Sponsoring</a></li>
+          <li><a href="index.html#contact" id="footer-link-contact" data-i18n="nav.contact">Contact</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-sponsors">
-      <div class="footer-sponsors-title" data-i18n="footer.sponsors.title">Met dank aan onze sponsoren</div>
+      <div class="footer-sponsors-title" id="footer-sponsors-title" data-i18n="footer.sponsors.title">Met dank aan onze sponsoren</div>
       <div class="footer-sponsors-grid" id="sponsors-grid">
         <!-- Sponsors worden hier ingevuld vanuit data/sponsors.json, bij te werken via beheer.php -->
       </div>
@@ -166,7 +166,7 @@
     </div>
     <div class="footer-bottom">
       <span>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South</span>
-      <span><span data-i18n="footer.credit">Website door</span> <a class="footer-credit-link" href="mailto:pjaminon@me.com?subject=Website%20RC045">Pascal Jaminon</a></span>
+      <span><span id="footer-credit-text" data-i18n="footer.credit">Website door</span> <a class="footer-credit-link" href="mailto:pjaminon@me.com?subject=Website%20RC045">Pascal Jaminon</a></span>
     </div>
   </div>
 </footer>
@@ -280,6 +280,7 @@ function setLang(lang) {
   updateInternalLinks(lang);
   renderMedia();
   renderSponsorCta();
+    renderNavFooterTeksten();
   renderMediaTekst();
 }
 // ===== ONDERTITEL (data/media-pagina.json, bewerkbaar via beheer.php) =====

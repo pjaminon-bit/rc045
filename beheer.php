@@ -1867,6 +1867,27 @@ $homepageVelden = [
   'member_fee'   => ['"Lidmaatschap": prijsregel "Eenmalige inschrijfkosten"', 'tekst'],
   'member_btn'   => ['"Lidmaatschap": knoptekst onder het lidmaatschap ("Ik wil graag lid worden!")', 'tekst'],
   'member_note'  => ['"Lidmaatschap": kleine notitie onder het lidmaatschap', 'blok'],
+
+  'nav_about'      => ['Navigatiemenu: "Over ons"', 'tekst', 'Deze tekst wordt ook gebruikt voor de link "Over ons" in de footer.'],
+  'nav_membership' => ['Navigatiemenu: "Lidmaatschap"', 'tekst'],
+  'nav_track'      => ['Navigatiemenu: "De baan"', 'tekst'],
+  'nav_location'   => ['Navigatiemenu: "Locatie"', 'tekst'],
+  'nav_photobook'  => ['Navigatiemenu: "Fotoboek"', 'tekst'],
+  'nav_contact'    => ['Navigatiemenu: "Contact"', 'tekst', 'Deze tekst wordt ook gebruikt voor de link "Contact" in de footer.'],
+  'nav_join'       => ['Navigatiemenu: "Lid worden" (los knopje uiterst rechts)', 'tekst'],
+
+  'footer_brand'          => ['Footer: omschrijving naast het logo', 'blok'],
+  'footer_nav'             => ['Footer: kolomtitel "Navigatie"', 'tekst'],
+  'footer_origin'          => ['Footer: link "Het ontstaan"', 'tekst'],
+  'footer_media'           => ['Footer: link "Media"', 'tekst'],
+  'footer_photobook'       => ['Footer: link "Fotoboek"', 'tekst'],
+  'footer_calendar'        => ['Footer: link "Activiteitenkalender"', 'tekst'],
+  'footer_join'            => ['Footer: kolomtitel "Meedoen"', 'tekst'],
+  'footer_become'          => ['Footer: link "Lid worden"', 'tekst'],
+  'footer_rules'           => ['Footer: link "Baanreglement"', 'tekst'],
+  'footer_sponsor'         => ['Footer: link "Sponsoring"', 'tekst'],
+  'footer_sponsors_title'  => ['Footer: titel boven de sponsorlogo\'s ("Met dank aan onze sponsoren")', 'tekst'],
+  'footer_credit'          => ['Footer: "Website door" (voor de naam, die staat vast)', 'tekst'],
 ];
 // Zelfde velden, gegroepeerd per kaart voor het formulier. Een aparte lijst
 // in plaats van in $homepageVelden zelf, want de volgorde en groepering is
@@ -1884,6 +1905,8 @@ $homepageGroepen = [
   '"Lidmaatschap"' => ['pricing_title', 'pricing_sub', 'guest_tag', 'guest_title', 'guest_text', 'guest_adult', 'guest_youth', 'guest_group', 'guest_btn', 'guest_note', 'member_tag', 'member_title', 'member_text', 'member_youth', 'member_senior', 'member_fee', 'member_btn', 'member_note'],
   '"Bezoek ons"' => ['loc_label', 'loc_title', 'addr_title', 'addr_text', 'addr_route', 'instagram_soon'],
   'Contact' => ['contact_label', 'contact_title', 'contact_text'],
+  'Navigatiemenu' => ['nav_about', 'nav_membership', 'nav_track', 'nav_location', 'nav_photobook', 'nav_contact', 'nav_join'],
+  'Footer' => ['footer_brand', 'footer_nav', 'footer_origin', 'footer_media', 'footer_photobook', 'footer_calendar', 'footer_join', 'footer_become', 'footer_rules', 'footer_sponsor', 'footer_sponsors_title', 'footer_credit'],
 ];
 
 // Velden van het tabblad Ontstaan: zelfde opzet als $homepageVelden. Geen

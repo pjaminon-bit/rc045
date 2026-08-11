@@ -306,6 +306,59 @@ function renderSponsorCta() {
     .catch(function () { renderSponsorCta(); });
 })();
 
+// ===== NAVIGATIEMENU & FOOTER (data/homepage.json, bijwerken via beheer.php:
+// tabblad Homepage, groepen "Navigatiemenu" en "Footer") =====
+// Het menu en de footer staan op elke pagina apart in de HTML (links en
+// "actief"-status verschillen per pagina), maar de teksten zelf komen van
+// hier uit een centrale plek, zodat je ze maar op één plek hoeft aan te
+// passen in plaats van in alle zeven bestanden. Leeg gelaten EN/DE valt
+// terug op de Nederlandse tekst, net als bij de rest van het CMS.
+var navFooterData = null;
+var navFooterVelden = {
+  'nav-about': 'nav_about', 'footer-link-about': 'nav_about',
+  'nav-membership': 'nav_membership',
+  'nav-track': 'nav_track',
+  'nav-location': 'nav_location',
+  'nav-photobook': 'nav_photobook',
+  'nav-contact': 'nav_contact', 'footer-link-contact': 'nav_contact',
+  'nav-join': 'nav_join',
+  'footer-brand-text': 'footer_brand',
+  'footer-nav-title': 'footer_nav',
+  'footer-link-origin': 'footer_origin',
+  'footer-link-media': 'footer_media',
+  'footer-link-photobook': 'footer_photobook',
+  'footer-link-calendar': 'footer_calendar',
+  'footer-join-title': 'footer_join',
+  'footer-link-become': 'footer_become',
+  'footer-link-guesttag': 'guest_tag',
+  'footer-link-rules': 'footer_rules',
+  'footer-link-sponsor': 'footer_sponsor',
+  'footer-sponsors-title': 'footer_sponsors_title',
+  'footer-credit-text': 'footer_credit'
+};
+function renderNavFooterTeksten() {
+  if (!navFooterData) return;
+  var taal = sponsorTaal();
+  Object.keys(navFooterVelden).forEach(function (elId) {
+    var bron = navFooterData[navFooterVelden[elId]];
+    if (!bron) return;
+    var tekst = (bron[taal] && String(bron[taal]).trim()) ? bron[taal] : (bron.nl || '');
+    if (!tekst) return;
+    var el = document.getElementById(elId);
+    if (el) el.textContent = tekst;
+  });
+}
+(function () {
+  fetch('data/homepage.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d) return;
+      navFooterData = d;
+      renderNavFooterTeksten();
+    })
+    .catch(function () {});
+})();
+
 // ===== FACEBOOK-LINK IN DE FOOTER (data/contact.json) =====
 // De homepage haalt contact.json toch al op voor de openingstijden en zet de
 // link daar zelf; die zet rc045EigenContact zodat we hier niet dubbel ophalen.
