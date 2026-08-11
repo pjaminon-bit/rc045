@@ -3770,6 +3770,30 @@ if ($isMaster && file_exists($logBestand)) {
     .taal-groep:first-of-type { padding-top: 0; margin-top: 0; border-top: none; }
     .taal-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; }
     .taal-label .optioneel { font-weight: 400; text-transform: none; letter-spacing: normal; }
+
+    /* ===== Vertalingen inklapbaar: alleen NL zichtbaar, EN/DE schuiven ernaast open ===== */
+    .taal-rij { display: flex; align-items: flex-start; }
+    .taal-rij > .taal-nl { flex: 1 1 0; min-width: 0; }
+    .taal-rij > .taal-en, .taal-rij > .taal-de {
+      flex: 0 0 0; width: 0; min-width: 0; opacity: 0; overflow: hidden; margin-left: 0;
+      transition: flex-basis 0.25s ease, width 0.25s ease, opacity 0.2s ease 0.05s, margin-left 0.25s ease;
+    }
+    html.toon-en .taal-rij > .taal-en,
+    html.toon-de .taal-rij > .taal-de {
+      flex: 1 1 0; width: auto; opacity: 1; margin-left: 16px;
+    }
+    .taal-rij .taal-groep { padding-top: 0; margin-top: 0; border-top: none; height: 100%; }
+    @media (max-width: 780px) {
+      .taal-rij { flex-wrap: wrap; }
+      .taal-rij > .taal-en, .taal-rij > .taal-de { flex-basis: 100%; margin-left: 0; }
+      html.toon-en .taal-rij > .taal-en, html.toon-de .taal-rij > .taal-de { flex-basis: 100%; margin-left: 0; margin-top: 12px; }
+    }
+
+    .taal-toggle { position: fixed; top: 14px; right: 14px; z-index: 500; display: flex; align-items: center; gap: 6px; background: var(--white); border: 1.5px solid var(--border); border-radius: 100px; padding: 6px 8px 6px 14px; box-shadow: var(--shadow-hover); font-size: 13px; }
+    .taal-toggle-label { color: var(--muted); font-weight: 700; }
+    .taal-toggle-btn { border: 1.5px solid var(--border); background: var(--bg); border-radius: 100px; padding: 5px 12px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text); transition: background 0.15s, border-color 0.15s, color 0.15s; }
+    .taal-toggle-btn[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: white; }
+    @media (max-width: 640px) { .taal-toggle { top: auto; bottom: 14px; right: 14px; } }
     .kaart-smal { max-width: 440px; margin: 0 auto; }
     /* Zelfde patroon als .nav-links op de hoofdsite: platte tekst, lichte
        achtergrond bij hover, en bij het actieve tabblad een lichte
@@ -4079,6 +4103,12 @@ if ($isMaster && file_exists($logBestand)) {
       </form>
     </div>
 
+    <div class="taal-toggle" id="taal-toggle">
+      <span class="taal-toggle-label">Vertalingen</span>
+      <button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button>
+      <button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button>
+    </div>
+
     <?php if (isset($melding['csrf'])): ?>
       <div class="melding <?php echo $meldingType['csrf']; ?>"><?php echo htmlspecialchars($melding['csrf']); ?></div>
     <?php endif; ?>
@@ -4138,15 +4168,15 @@ if ($isMaster && file_exists($logBestand)) {
             ?>
             <div class="veld">
               <label for="hp-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($hpLabel); ?></label>
-              <div class="rij-3">
+              <div class="taal-rij">
                 <?php if ($hpType === 'tekst'): ?>
-                  <input type="text" id="hp-<?php echo $veld; ?>-nl" name="hp[<?php echo $veld; ?>][nl]" maxlength="100" placeholder="Nederlands" value="<?php echo htmlspecialchars($hpHuidig['nl'] ?? ''); ?>">
-                  <input type="text" id="hp-<?php echo $veld; ?>-en" name="hp[<?php echo $veld; ?>][en]" maxlength="100" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($hpHuidig['en'] ?? ''); ?>">
-                  <input type="text" id="hp-<?php echo $veld; ?>-de" name="hp[<?php echo $veld; ?>][de]" maxlength="100" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($hpHuidig['de'] ?? ''); ?>">
+                  <input type="text" class="taal-nl" id="hp-<?php echo $veld; ?>-nl" name="hp[<?php echo $veld; ?>][nl]" maxlength="100" placeholder="Nederlands" value="<?php echo htmlspecialchars($hpHuidig['nl'] ?? ''); ?>">
+                  <input type="text" class="taal-en" id="hp-<?php echo $veld; ?>-en" name="hp[<?php echo $veld; ?>][en]" maxlength="100" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($hpHuidig['en'] ?? ''); ?>">
+                  <input type="text" class="taal-de" id="hp-<?php echo $veld; ?>-de" name="hp[<?php echo $veld; ?>][de]" maxlength="100" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($hpHuidig['de'] ?? ''); ?>">
                 <?php else: ?>
-                  <textarea id="hp-<?php echo $veld; ?>-nl" name="hp[<?php echo $veld; ?>][nl]" maxlength="600" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['nl'] ?? ''); ?></textarea>
-                  <textarea id="hp-<?php echo $veld; ?>-en" name="hp[<?php echo $veld; ?>][en]" maxlength="600" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['en'] ?? ''); ?></textarea>
-                  <textarea id="hp-<?php echo $veld; ?>-de" name="hp[<?php echo $veld; ?>][de]" maxlength="600" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['de'] ?? ''); ?></textarea>
+                  <textarea class="taal-nl" id="hp-<?php echo $veld; ?>-nl" name="hp[<?php echo $veld; ?>][nl]" maxlength="600" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['nl'] ?? ''); ?></textarea>
+                  <textarea class="taal-en" id="hp-<?php echo $veld; ?>-en" name="hp[<?php echo $veld; ?>][en]" maxlength="600" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['en'] ?? ''); ?></textarea>
+                  <textarea class="taal-de" id="hp-<?php echo $veld; ?>-de" name="hp[<?php echo $veld; ?>][de]" maxlength="600" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($hpHuidig['de'] ?? ''); ?></textarea>
                 <?php endif; ?>
               </div>
               <?php if (isset($hpInfo[2])): ?>
@@ -4194,15 +4224,15 @@ if ($isMaster && file_exists($logBestand)) {
           ?>
           <div class="veld">
             <label for="ont-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($ontLabel); ?></label>
-            <div class="rij-3">
+            <div class="taal-rij">
               <?php if ($ontType === 'tekst'): ?>
-                <input type="text" id="ont-<?php echo $veld; ?>-nl" name="ont[<?php echo $veld; ?>][nl]" maxlength="150" placeholder="Nederlands" value="<?php echo htmlspecialchars($ontHuidig['nl'] ?? ''); ?>">
-                <input type="text" id="ont-<?php echo $veld; ?>-en" name="ont[<?php echo $veld; ?>][en]" maxlength="150" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($ontHuidig['en'] ?? ''); ?>">
-                <input type="text" id="ont-<?php echo $veld; ?>-de" name="ont[<?php echo $veld; ?>][de]" maxlength="150" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($ontHuidig['de'] ?? ''); ?>">
+                <input type="text" class="taal-nl" id="ont-<?php echo $veld; ?>-nl" name="ont[<?php echo $veld; ?>][nl]" maxlength="150" placeholder="Nederlands" value="<?php echo htmlspecialchars($ontHuidig['nl'] ?? ''); ?>">
+                <input type="text" class="taal-en" id="ont-<?php echo $veld; ?>-en" name="ont[<?php echo $veld; ?>][en]" maxlength="150" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($ontHuidig['en'] ?? ''); ?>">
+                <input type="text" class="taal-de" id="ont-<?php echo $veld; ?>-de" name="ont[<?php echo $veld; ?>][de]" maxlength="150" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($ontHuidig['de'] ?? ''); ?>">
               <?php else: ?>
-                <textarea id="ont-<?php echo $veld; ?>-nl" name="ont[<?php echo $veld; ?>][nl]" maxlength="600" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($ontHuidig['nl'] ?? ''); ?></textarea>
-                <textarea id="ont-<?php echo $veld; ?>-en" name="ont[<?php echo $veld; ?>][en]" maxlength="600" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($ontHuidig['en'] ?? ''); ?></textarea>
-                <textarea id="ont-<?php echo $veld; ?>-de" name="ont[<?php echo $veld; ?>][de]" maxlength="600" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($ontHuidig['de'] ?? ''); ?></textarea>
+                <textarea class="taal-nl" id="ont-<?php echo $veld; ?>-nl" name="ont[<?php echo $veld; ?>][nl]" maxlength="600" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($ontHuidig['nl'] ?? ''); ?></textarea>
+                <textarea class="taal-en" id="ont-<?php echo $veld; ?>-en" name="ont[<?php echo $veld; ?>][en]" maxlength="600" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($ontHuidig['en'] ?? ''); ?></textarea>
+                <textarea class="taal-de" id="ont-<?php echo $veld; ?>-de" name="ont[<?php echo $veld; ?>][de]" maxlength="600" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($ontHuidig['de'] ?? ''); ?></textarea>
               <?php endif; ?>
             </div>
           </div>
@@ -4248,15 +4278,15 @@ if ($isMaster && file_exists($logBestand)) {
             ?>
             <div class="veld">
               <label for="br-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($brLabel); ?></label>
-              <div class="rij-3">
+              <div class="taal-rij">
                 <?php if ($brType === 'tekst'): ?>
-                  <input type="text" id="br-<?php echo $veld; ?>-nl" name="br[<?php echo $veld; ?>][nl]" maxlength="200" placeholder="Nederlands" value="<?php echo htmlspecialchars($brHuidig['nl'] ?? ''); ?>">
-                  <input type="text" id="br-<?php echo $veld; ?>-en" name="br[<?php echo $veld; ?>][en]" maxlength="200" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($brHuidig['en'] ?? ''); ?>">
-                  <input type="text" id="br-<?php echo $veld; ?>-de" name="br[<?php echo $veld; ?>][de]" maxlength="200" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($brHuidig['de'] ?? ''); ?>">
+                  <input type="text" class="taal-nl" id="br-<?php echo $veld; ?>-nl" name="br[<?php echo $veld; ?>][nl]" maxlength="200" placeholder="Nederlands" value="<?php echo htmlspecialchars($brHuidig['nl'] ?? ''); ?>">
+                  <input type="text" class="taal-en" id="br-<?php echo $veld; ?>-en" name="br[<?php echo $veld; ?>][en]" maxlength="200" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($brHuidig['en'] ?? ''); ?>">
+                  <input type="text" class="taal-de" id="br-<?php echo $veld; ?>-de" name="br[<?php echo $veld; ?>][de]" maxlength="200" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($brHuidig['de'] ?? ''); ?>">
                 <?php else: ?>
-                  <textarea id="br-<?php echo $veld; ?>-nl" name="br[<?php echo $veld; ?>][nl]" maxlength="3000" placeholder="Nederlands" style="min-height:140px;"><?php echo htmlspecialchars($brHuidig['nl'] ?? ''); ?></textarea>
-                  <textarea id="br-<?php echo $veld; ?>-en" name="br[<?php echo $veld; ?>][en]" maxlength="3000" placeholder="English (optioneel)" style="min-height:140px;"><?php echo htmlspecialchars($brHuidig['en'] ?? ''); ?></textarea>
-                  <textarea id="br-<?php echo $veld; ?>-de" name="br[<?php echo $veld; ?>][de]" maxlength="3000" placeholder="Deutsch (optional)" style="min-height:140px;"><?php echo htmlspecialchars($brHuidig['de'] ?? ''); ?></textarea>
+                  <textarea class="taal-nl" id="br-<?php echo $veld; ?>-nl" name="br[<?php echo $veld; ?>][nl]" maxlength="3000" placeholder="Nederlands" style="min-height:140px;"><?php echo htmlspecialchars($brHuidig['nl'] ?? ''); ?></textarea>
+                  <textarea class="taal-en" id="br-<?php echo $veld; ?>-en" name="br[<?php echo $veld; ?>][en]" maxlength="3000" placeholder="English (optioneel)" style="min-height:140px;"><?php echo htmlspecialchars($brHuidig['en'] ?? ''); ?></textarea>
+                  <textarea class="taal-de" id="br-<?php echo $veld; ?>-de" name="br[<?php echo $veld; ?>][de]" maxlength="3000" placeholder="Deutsch (optional)" style="min-height:140px;"><?php echo htmlspecialchars($brHuidig['de'] ?? ''); ?></textarea>
                 <?php endif; ?>
               </div>
             </div>
@@ -4315,15 +4345,15 @@ if ($isMaster && file_exists($logBestand)) {
             ?>
             <div class="veld">
               <label for="bd-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($bdLabel); ?></label>
-              <div class="rij-3">
+              <div class="taal-rij">
                 <?php if ($bdType === 'tekst'): ?>
-                  <input type="text" id="bd-<?php echo $veld; ?>-nl" name="bd[<?php echo $veld; ?>][nl]" maxlength="200" placeholder="Nederlands" value="<?php echo htmlspecialchars($bdHuidig['nl'] ?? ''); ?>">
-                  <input type="text" id="bd-<?php echo $veld; ?>-en" name="bd[<?php echo $veld; ?>][en]" maxlength="200" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($bdHuidig['en'] ?? ''); ?>">
-                  <input type="text" id="bd-<?php echo $veld; ?>-de" name="bd[<?php echo $veld; ?>][de]" maxlength="200" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($bdHuidig['de'] ?? ''); ?>">
+                  <input type="text" class="taal-nl" id="bd-<?php echo $veld; ?>-nl" name="bd[<?php echo $veld; ?>][nl]" maxlength="200" placeholder="Nederlands" value="<?php echo htmlspecialchars($bdHuidig['nl'] ?? ''); ?>">
+                  <input type="text" class="taal-en" id="bd-<?php echo $veld; ?>-en" name="bd[<?php echo $veld; ?>][en]" maxlength="200" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($bdHuidig['en'] ?? ''); ?>">
+                  <input type="text" class="taal-de" id="bd-<?php echo $veld; ?>-de" name="bd[<?php echo $veld; ?>][de]" maxlength="200" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($bdHuidig['de'] ?? ''); ?>">
                 <?php else: ?>
-                  <textarea id="bd-<?php echo $veld; ?>-nl" name="bd[<?php echo $veld; ?>][nl]" maxlength="500" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($bdHuidig['nl'] ?? ''); ?></textarea>
-                  <textarea id="bd-<?php echo $veld; ?>-en" name="bd[<?php echo $veld; ?>][en]" maxlength="500" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($bdHuidig['en'] ?? ''); ?></textarea>
-                  <textarea id="bd-<?php echo $veld; ?>-de" name="bd[<?php echo $veld; ?>][de]" maxlength="500" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($bdHuidig['de'] ?? ''); ?></textarea>
+                  <textarea class="taal-nl" id="bd-<?php echo $veld; ?>-nl" name="bd[<?php echo $veld; ?>][nl]" maxlength="500" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($bdHuidig['nl'] ?? ''); ?></textarea>
+                  <textarea class="taal-en" id="bd-<?php echo $veld; ?>-en" name="bd[<?php echo $veld; ?>][en]" maxlength="500" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($bdHuidig['en'] ?? ''); ?></textarea>
+                  <textarea class="taal-de" id="bd-<?php echo $veld; ?>-de" name="bd[<?php echo $veld; ?>][de]" maxlength="500" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($bdHuidig['de'] ?? ''); ?></textarea>
                 <?php endif; ?>
               </div>
             </div>
@@ -4373,15 +4403,15 @@ if ($isMaster && file_exists($logBestand)) {
             ?>
             <div class="veld">
               <label for="am-<?php echo $veld; ?>-nl"><?php echo htmlspecialchars($amLabel); ?></label>
-              <div class="rij-3">
+              <div class="taal-rij">
                 <?php if ($amType === 'tekst'): ?>
-                  <input type="text" id="am-<?php echo $veld; ?>-nl" name="am[<?php echo $veld; ?>][nl]" maxlength="200" placeholder="Nederlands" value="<?php echo htmlspecialchars($amHuidig['nl'] ?? ''); ?>">
-                  <input type="text" id="am-<?php echo $veld; ?>-en" name="am[<?php echo $veld; ?>][en]" maxlength="200" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($amHuidig['en'] ?? ''); ?>">
-                  <input type="text" id="am-<?php echo $veld; ?>-de" name="am[<?php echo $veld; ?>][de]" maxlength="200" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($amHuidig['de'] ?? ''); ?>">
+                  <input type="text" class="taal-nl" id="am-<?php echo $veld; ?>-nl" name="am[<?php echo $veld; ?>][nl]" maxlength="200" placeholder="Nederlands" value="<?php echo htmlspecialchars($amHuidig['nl'] ?? ''); ?>">
+                  <input type="text" class="taal-en" id="am-<?php echo $veld; ?>-en" name="am[<?php echo $veld; ?>][en]" maxlength="200" placeholder="English (optioneel)" value="<?php echo htmlspecialchars($amHuidig['en'] ?? ''); ?>">
+                  <input type="text" class="taal-de" id="am-<?php echo $veld; ?>-de" name="am[<?php echo $veld; ?>][de]" maxlength="200" placeholder="Deutsch (optional)" value="<?php echo htmlspecialchars($amHuidig['de'] ?? ''); ?>">
                 <?php else: ?>
-                  <textarea id="am-<?php echo $veld; ?>-nl" name="am[<?php echo $veld; ?>][nl]" maxlength="500" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($amHuidig['nl'] ?? ''); ?></textarea>
-                  <textarea id="am-<?php echo $veld; ?>-en" name="am[<?php echo $veld; ?>][en]" maxlength="500" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($amHuidig['en'] ?? ''); ?></textarea>
-                  <textarea id="am-<?php echo $veld; ?>-de" name="am[<?php echo $veld; ?>][de]" maxlength="500" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($amHuidig['de'] ?? ''); ?></textarea>
+                  <textarea class="taal-nl" id="am-<?php echo $veld; ?>-nl" name="am[<?php echo $veld; ?>][nl]" maxlength="500" placeholder="Nederlands" style="min-height:80px;"><?php echo htmlspecialchars($amHuidig['nl'] ?? ''); ?></textarea>
+                  <textarea class="taal-en" id="am-<?php echo $veld; ?>-en" name="am[<?php echo $veld; ?>][en]" maxlength="500" placeholder="English (optioneel)" style="min-height:80px;"><?php echo htmlspecialchars($amHuidig['en'] ?? ''); ?></textarea>
+                  <textarea class="taal-de" id="am-<?php echo $veld; ?>-de" name="am[<?php echo $veld; ?>][de]" maxlength="500" placeholder="Deutsch (optional)" style="min-height:80px;"><?php echo htmlspecialchars($amHuidig['de'] ?? ''); ?></textarea>
                 <?php endif; ?>
               </div>
             </div>
@@ -4465,7 +4495,8 @@ if ($isMaster && file_exists($logBestand)) {
               </div>
             </div>
 
-            <div class="taal-groep">
+            <div class="taal-rij">
+            <div class="taal-groep taal-nl">
               <div class="taal-label">🇳🇱 Nederlands</div>
               <div class="veld">
                 <label for="nieuws-title-nl-<?php echo $i; ?>">Titel</label>
@@ -4479,9 +4510,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="nieuws-linktekst-nl-<?php echo $i; ?>">Linktekst</label>
                 <input type="text" id="nieuws-linktekst-nl-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][linktekst_nl]" maxlength="40" value="<?php echo htmlspecialchars($ni['linktekst']['nl'] ?? ''); ?>" placeholder="Bijv.: Lees meer →">
               </div>
-            </div>
-
-            <div class="taal-groep">
+            </div><div class="taal-groep taal-en">
               <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
               <div class="veld">
                 <label for="nieuws-title-en-<?php echo $i; ?>">Title</label>
@@ -4495,9 +4524,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="nieuws-linktekst-en-<?php echo $i; ?>">Link text</label>
                 <input type="text" id="nieuws-linktekst-en-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][linktekst_en]" maxlength="40" value="<?php echo htmlspecialchars($ni['linktekst']['en'] ?? ''); ?>">
               </div>
-            </div>
-
-            <div class="taal-groep">
+            </div><div class="taal-groep taal-de">
               <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
               <div class="veld">
                 <label for="nieuws-title-de-<?php echo $i; ?>">Titel</label>
@@ -4511,7 +4538,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="nieuws-linktekst-de-<?php echo $i; ?>">Linktext</label>
                 <input type="text" id="nieuws-linktekst-de-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][linktekst_de]" maxlength="40" value="<?php echo htmlspecialchars($ni['linktekst']['de'] ?? ''); ?>">
               </div>
-            </div>
+            </div></div>
           </div>
         <?php endforeach; ?>
         </div>
@@ -4590,7 +4617,8 @@ if ($isMaster && file_exists($logBestand)) {
               <p class="hint">Vinkje aan: de kaart wordt op de website gedimd getoond met een "afgelopen"-label, automatisch in alle talen.</p>
             </div>
 
-            <div class="taal-groep">
+            <div class="taal-rij">
+            <div class="taal-groep taal-nl">
               <div class="taal-label">🇳🇱 Nederlands</div>
               <div class="veld">
                 <label for="agenda-title-nl-<?php echo $i; ?>">Titel</label>
@@ -4600,9 +4628,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="agenda-desc-nl-<?php echo $i; ?>">Omschrijving</label>
                 <textarea id="agenda-desc-nl-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][desc_nl]" maxlength="200" style="min-height:60px;"><?php echo htmlspecialchars($ev['desc']['nl'] ?? ''); ?></textarea>
               </div>
-            </div>
-
-            <div class="taal-groep">
+            </div><div class="taal-groep taal-en">
               <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
               <div class="veld">
                 <label for="agenda-title-en-<?php echo $i; ?>">Title</label>
@@ -4612,9 +4638,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="agenda-desc-en-<?php echo $i; ?>">Description</label>
                 <textarea id="agenda-desc-en-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][desc_en]" maxlength="200" style="min-height:60px;"><?php echo htmlspecialchars($ev['desc']['en'] ?? ''); ?></textarea>
               </div>
-            </div>
-
-            <div class="taal-groep">
+            </div><div class="taal-groep taal-de">
               <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
               <div class="veld">
                 <label for="agenda-title-de-<?php echo $i; ?>">Titel</label>
@@ -4624,7 +4648,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="agenda-desc-de-<?php echo $i; ?>">Beschreibung</label>
                 <textarea id="agenda-desc-de-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][desc_de]" maxlength="200" style="min-height:60px;"><?php echo htmlspecialchars($ev['desc']['de'] ?? ''); ?></textarea>
               </div>
-            </div>
+            </div></div>
           </div>
         <?php endforeach; ?>
         </div>
@@ -4665,7 +4689,8 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="item-blok">
             <div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div>
 
-            <div class="taal-groep">
+            <div class="taal-rij">
+            <div class="taal-groep taal-nl">
               <div class="taal-label">🇳🇱 Nederlands</div>
               <div class="veld">
                 <label for="faq-q-nl-<?php echo $i; ?>">Vraag</label>
@@ -4675,9 +4700,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="faq-a-nl-<?php echo $i; ?>">Antwoord</label>
                 <textarea id="faq-a-nl-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_nl]" maxlength="600"><?php echo htmlspecialchars($item['a']['nl'] ?? ''); ?></textarea>
               </div>
-            </div>
-
-            <div class="taal-groep">
+            </div><div class="taal-groep taal-en">
               <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
               <div class="veld">
                 <label for="faq-q-en-<?php echo $i; ?>">Question</label>
@@ -4687,9 +4710,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="faq-a-en-<?php echo $i; ?>">Answer</label>
                 <textarea id="faq-a-en-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_en]" maxlength="600"><?php echo htmlspecialchars($item['a']['en'] ?? ''); ?></textarea>
               </div>
-            </div>
-
-            <div class="taal-groep">
+            </div><div class="taal-groep taal-de">
               <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
               <div class="veld">
                 <label for="faq-q-de-<?php echo $i; ?>">Frage</label>
@@ -4699,7 +4720,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="faq-a-de-<?php echo $i; ?>">Antwort</label>
                 <textarea id="faq-a-de-<?php echo $i; ?>" name="faq[<?php echo $i; ?>][a_de]" maxlength="600"><?php echo htmlspecialchars($item['a']['de'] ?? ''); ?></textarea>
               </div>
-            </div>
+            </div></div>
           </div>
         <?php endforeach; ?>
         </div>
@@ -4734,16 +4755,16 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="veld" style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;">
           <label>Tekst "sponsor worden" (onderaan elke pagina, onder de sponsorlogo's)</label>
           <p class="hint" style="margin-top:-4px; margin-bottom:10px;">Het woord "contactformulier" (of de vertaling ervan hieronder) wordt op de website automatisch een link naar het contactformulier. Laat dat woord dus letterlijk in de tekst staan.</p>
-          <div class="rij-3">
-            <div class="veld">
+          <div class="taal-rij">
+            <div class="veld taal-nl">
               <label for="sponsor-cta-nl">🇳🇱 Tekst</label>
               <textarea id="sponsor-cta-nl" name="cta_nl" maxlength="200"><?php echo htmlspecialchars($sponsorCtaData['nl'] ?? ''); ?></textarea>
             </div>
-            <div class="veld">
+            <div class="veld taal-en">
               <label for="sponsor-cta-en">🇬🇧 Text <span class="optioneel">(optioneel)</span></label>
               <textarea id="sponsor-cta-en" name="cta_en" maxlength="200"><?php echo htmlspecialchars($sponsorCtaData['en'] ?? ''); ?></textarea>
             </div>
-            <div class="veld">
+            <div class="veld taal-de">
               <label for="sponsor-cta-de">🇩🇪 Text <span class="optioneel">(optioneel)</span></label>
               <textarea id="sponsor-cta-de" name="cta_de" maxlength="200"><?php echo htmlspecialchars($sponsorCtaData['de'] ?? ''); ?></textarea>
             </div>
@@ -4892,10 +4913,10 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="veld">
           <label for="mt-hero-sub-nl">Tekst onder de titel "Media"</label>
-          <div class="rij-3">
-            <textarea id="mt-hero-sub-nl" name="mt[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
-            <textarea id="mt-hero-sub-en" name="mt[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['en'] ?? ''); ?></textarea>
-            <textarea id="mt-hero-sub-de" name="mt[hero_sub][de]" maxlength="400" placeholder="Deutsch (optional)" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['de'] ?? ''); ?></textarea>
+          <div class="taal-rij">
+            <textarea class="taal-nl" id="mt-hero-sub-nl" name="mt[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
+            <textarea class="taal-en" id="mt-hero-sub-en" name="mt[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['en'] ?? ''); ?></textarea>
+            <textarea class="taal-de" id="mt-hero-sub-de" name="mt[hero_sub][de]" maxlength="400" placeholder="Deutsch (optional)" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['de'] ?? ''); ?></textarea>
           </div>
         </div>
         <button type="submit">Ondertitel opslaan</button>
@@ -4938,7 +4959,8 @@ if ($isMaster && file_exists($logBestand)) {
               <input type="text" id="media-link-<?php echo $i; ?>" name="media[<?php echo $i; ?>][link]" maxlength="300" value="<?php echo htmlspecialchars($mi['link'] ?? ''); ?>" placeholder="https://...">
             </div>
 
-            <div class="taal-groep">
+            <div class="taal-rij">
+            <div class="taal-groep taal-nl">
               <div class="taal-label">🇳🇱 Nederlands</div>
               <div class="veld">
                 <label for="media-title-nl-<?php echo $i; ?>">Titel</label>
@@ -4952,9 +4974,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="media-linktekst-nl-<?php echo $i; ?>">Linktekst</label>
                 <input type="text" id="media-linktekst-nl-<?php echo $i; ?>" name="media[<?php echo $i; ?>][linktekst_nl]" maxlength="40" value="<?php echo htmlspecialchars($mi['linktekst']['nl'] ?? ''); ?>" placeholder="Bijv.: Bekijk op Facebook →">
               </div>
-            </div>
-
-            <div class="taal-groep">
+            </div><div class="taal-groep taal-en">
               <div class="taal-label">🇬🇧 English <span class="optioneel">(optioneel)</span></div>
               <div class="veld">
                 <label for="media-title-en-<?php echo $i; ?>">Title</label>
@@ -4968,9 +4988,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="media-linktekst-en-<?php echo $i; ?>">Link text</label>
                 <input type="text" id="media-linktekst-en-<?php echo $i; ?>" name="media[<?php echo $i; ?>][linktekst_en]" maxlength="40" value="<?php echo htmlspecialchars($mi['linktekst']['en'] ?? ''); ?>">
               </div>
-            </div>
-
-            <div class="taal-groep">
+            </div><div class="taal-groep taal-de">
               <div class="taal-label">🇩🇪 Deutsch <span class="optioneel">(optioneel)</span></div>
               <div class="veld">
                 <label for="media-title-de-<?php echo $i; ?>">Titel</label>
@@ -4984,7 +5002,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="media-linktekst-de-<?php echo $i; ?>">Linktext</label>
                 <input type="text" id="media-linktekst-de-<?php echo $i; ?>" name="media[<?php echo $i; ?>][linktekst_de]" maxlength="40" value="<?php echo htmlspecialchars($mi['linktekst']['de'] ?? ''); ?>">
               </div>
-            </div>
+            </div></div>
           </div>
         <?php endforeach; ?>
         </div>
@@ -5009,10 +5027,10 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="veld">
           <label for="ft-hero-sub-nl">Tekst onder de titel "Fotoboek"</label>
-          <div class="rij-3">
-            <textarea id="ft-hero-sub-nl" name="ft[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
-            <textarea id="ft-hero-sub-en" name="ft[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['en'] ?? ''); ?></textarea>
-            <textarea id="ft-hero-sub-de" name="ft[hero_sub][de]" maxlength="400" placeholder="Deutsch (optional)" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['de'] ?? ''); ?></textarea>
+          <div class="taal-rij">
+            <textarea class="taal-nl" id="ft-hero-sub-nl" name="ft[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
+            <textarea class="taal-en" id="ft-hero-sub-en" name="ft[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['en'] ?? ''); ?></textarea>
+            <textarea class="taal-de" id="ft-hero-sub-de" name="ft[hero_sub][de]" maxlength="400" placeholder="Deutsch (optional)" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['de'] ?? ''); ?></textarea>
           </div>
         </div>
         <button type="submit">Ondertitel opslaan</button>
@@ -5030,16 +5048,16 @@ if ($isMaster && file_exists($logBestand)) {
       <form method="post" action="beheer.php#fotoboek">
         <input type="hidden" name="formulier" value="fotoboek_album_aanmaken">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
-        <div class="rij-3">
-          <div class="veld">
+        <div class="taal-rij">
+          <div class="veld taal-nl">
             <label for="fotoboek-nieuw-titel-nl">🇳🇱 Titel</label>
             <input type="text" id="fotoboek-nieuw-titel-nl" name="titel_nl" maxlength="60" placeholder="Bijv.: ZomerBBQ 2026">
           </div>
-          <div class="veld">
+          <div class="veld taal-en">
             <label for="fotoboek-nieuw-titel-en">🇬🇧 Title <span class="optioneel">(optioneel)</span></label>
             <input type="text" id="fotoboek-nieuw-titel-en" name="titel_en" maxlength="60">
           </div>
-          <div class="veld">
+          <div class="veld taal-de">
             <label for="fotoboek-nieuw-titel-de">🇩🇪 Titel <span class="optioneel">(optioneel)</span></label>
             <input type="text" id="fotoboek-nieuw-titel-de" name="titel_de" maxlength="60">
           </div>
@@ -5099,16 +5117,16 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="veld">
             <label>Kort verhaal <span class="optioneel">(optioneel)</span></label>
             <p class="hint" style="margin-top:-4px; margin-bottom:10px;">Komt onder de titel te staan zodra iemand het album opent. Laat alle drie leeg om niets te tonen.</p>
-            <div class="rij-3">
-              <div class="veld">
+            <div class="taal-rij">
+              <div class="veld taal-nl">
                 <label for="fotoboek-<?php echo $slug; ?>-beschrijving-nl">🇳🇱 Tekst</label>
                 <textarea id="fotoboek-<?php echo $slug; ?>-beschrijving-nl" name="beschrijving_nl" maxlength="600"><?php echo htmlspecialchars($album['beschrijving']['nl'] ?? ''); ?></textarea>
               </div>
-              <div class="veld">
+              <div class="veld taal-en">
                 <label for="fotoboek-<?php echo $slug; ?>-beschrijving-en">🇬🇧 Text <span class="optioneel">(optioneel)</span></label>
                 <textarea id="fotoboek-<?php echo $slug; ?>-beschrijving-en" name="beschrijving_en" maxlength="600"><?php echo htmlspecialchars($album['beschrijving']['en'] ?? ''); ?></textarea>
               </div>
-              <div class="veld">
+              <div class="veld taal-de">
                 <label for="fotoboek-<?php echo $slug; ?>-beschrijving-de">🇩🇪 Text <span class="optioneel">(optioneel)</span></label>
                 <textarea id="fotoboek-<?php echo $slug; ?>-beschrijving-de" name="beschrijving_de" maxlength="600"><?php echo htmlspecialchars($album['beschrijving']['de'] ?? ''); ?></textarea>
               </div>
@@ -6681,6 +6699,40 @@ if ($isMaster && file_exists($logBestand)) {
         if (!rij) return;
         window.location.href = rij.getAttribute('data-href');
       });
+
+      // ===== Vertalingen tonen/verbergen =====
+      // Standaard staat alleen NL open, de rest van de site-teksten (EN/DE)
+      // blijft verborgen totdat je hier op klikt. Zo is beheer.php overzichtelijker
+      // en kun je de vertaling toch naast het Nederlands zetten om te vergelijken.
+      // Keuze wordt onthouden (localStorage), ook na een herlaadbeurt.
+      (function() {
+        var opslagsleutel = 'rc045-beheer-vertalingen';
+        var html = document.documentElement;
+        var knoppen = document.querySelectorAll('.taal-toggle-btn');
+        var actief = [];
+        try {
+          actief = JSON.parse(localStorage.getItem(opslagsleutel)) || [];
+        } catch (e) { actief = []; }
+
+        function pas(taal, aan) {
+          html.classList.toggle('toon-' + taal, aan);
+        }
+
+        actief.forEach(function(taal) { pas(taal, true); });
+        knoppen.forEach(function(knop) {
+          var taal = knop.getAttribute('data-taal');
+          if (actief.indexOf(taal) !== -1) knop.setAttribute('aria-pressed', 'true');
+          knop.addEventListener('click', function() {
+            var aan = !html.classList.contains('toon-' + taal);
+            pas(taal, aan);
+            knop.setAttribute('aria-pressed', aan ? 'true' : 'false');
+            actief = Array.prototype.filter.call(knoppen, function(k) {
+              return k.getAttribute('aria-pressed') === 'true';
+            }).map(function(k) { return k.getAttribute('data-taal'); });
+            try { localStorage.setItem(opslagsleutel, JSON.stringify(actief)); } catch (e) {}
+          });
+        });
+      })();
     })();
   </script>
   <?php endif; ?>
