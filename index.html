@@ -764,34 +764,34 @@
     </div>
     <div class="pricing-grid">
       <div class="price-card reveal reveal-delay-1">
-        <div class="price-card-tag" data-i18n="guest.tag">Gastrijden</div>
+        <div class="price-card-tag" id="hp-guest-tag" data-i18n="guest.tag">Gastrijden</div>
         <h3 id="hp-guest-title" data-i18n="guest.title">Kom eens gastrijden!</h3>
         <p style="font-size: 14px; color: var(--muted); margin-top: 8px; line-height: 1.6;" id="hp-guest-text" data-i18n="guest.text">Rij een hele dag mee op onze baan zonder lidmaatschap. Check onze openingstijden en kom gewoon langs, meld je wel even bij een (bestuurs)lid als je er bent!</p>
         <ul class="price-list">
-          <li><span data-i18n="guest.adult">Volwassene (16+)</span><span class="price-amount">€10</span></li>
-          <li><span data-i18n="guest.youth">Jeugd (t/m 15 jaar)</span><span class="price-amount">€5</span></li>
-          <li><span data-i18n="guest.group">Groepen krijgen korting!</span><span class="price-amount">%</span></li>
+          <li><span id="hp-guest-adult" data-i18n="guest.adult">Volwassene (16+)</span><span class="price-amount">€10</span></li>
+          <li><span id="hp-guest-youth" data-i18n="guest.youth">Jeugd (t/m 15 jaar)</span><span class="price-amount">€5</span></li>
+          <li><span id="hp-guest-group" data-i18n="guest.group">Groepen krijgen korting!</span><span class="price-amount">%</span></li>
         </ul>
         <ul class="price-notes" id="hp-guest-notes">
           <li>Kom je met 4 of meer personen? Meld je dan van te voren via het <a href="#contact">contactformulier</a> of <a href="mailto:bestuur@rc045.nl">bestuur@rc045.nl</a></li>
           <li>Begeleiding door ouder/verzorger verplicht voor -16 jaar.</li>
           <li>Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</li>
         </ul>
-        <a href="#contact" class="btn btn-primary" data-i18n="guest.btn">Stuur ons een berichtje →</a>
+        <a href="#contact" class="btn btn-primary" id="hp-guest-btn" data-i18n="guest.btn">Stuur ons een berichtje →</a>
       </div>
       <div class="price-card featured reveal reveal-delay-2">
-        <div class="price-card-tag" data-i18n="member.tag">Lidmaatschap</div>
+        <div class="price-card-tag" id="hp-member-tag" data-i18n="member.tag">Lidmaatschap</div>
         <h3 id="hp-member-title" data-i18n="member.title">Word lid van RC045</h3>
         <p style="font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 8px; line-height: 1.6;" id="hp-member-text" data-i18n="member.text">Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.</p>
         <ul class="price-list">
-          <li><span data-i18n="member.youth">Jeugdlid (t/m 15 jaar)</span><span class="price-amount" id="prijs-jeugd">€50/jaar</span></li>
-          <li><span data-i18n="member.senior">Seniorlid (16+)</span><span class="price-amount" id="prijs-senior">€100/jaar</span></li>
-          <li><span data-i18n="member.fee">Eenmalige inschrijfkosten</span><span class="price-amount" id="prijs-inschrijf">€10</span></li>
+          <li><span id="hp-member-youth" data-i18n="member.youth">Jeugdlid (t/m 15 jaar)</span><span class="price-amount" id="prijs-jeugd">€50/jaar</span></li>
+          <li><span id="hp-member-senior" data-i18n="member.senior">Seniorlid (16+)</span><span class="price-amount" id="prijs-senior">€100/jaar</span></li>
+          <li><span id="hp-member-fee" data-i18n="member.fee">Eenmalige inschrijfkosten</span><span class="price-amount" id="prijs-inschrijf">€10</span></li>
         </ul>
         <ul class="price-notes" id="hp-member-notes">
           <li>Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.</li>
         </ul>
-        <a href="aanmelden.html" class="btn btn-white" data-i18n="member.btn">Ik wil graag lid worden!</a>
+        <a href="aanmelden.html" class="btn btn-white" id="hp-member-btn" data-i18n="member.btn">Ik wil graag lid worden!</a>
       </div>
     </div>
   </div>
@@ -1767,7 +1767,9 @@
     'rule5_title', 'rule5_text', 'rule6_title', 'rule6_text', 'rule7_title', 'rule7_text',
     'nieuws_label', 'nieuws_title', 'nieuws_sub',
     'agenda_label', 'agenda_title', 'agenda_sub',
-    'pricing_title', 'pricing_sub', 'guest_title', 'guest_text', 'guest_note', 'member_title', 'member_text', 'member_note',
+    'pricing_title', 'pricing_sub',
+    'guest_tag', 'guest_title', 'guest_text', 'guest_adult', 'guest_youth', 'guest_group', 'guest_btn', 'guest_note',
+    'member_tag', 'member_title', 'member_text', 'member_youth', 'member_senior', 'member_fee', 'member_btn', 'member_note',
     'loc_label', 'loc_title', 'addr_title', 'addr_text', 'addr_route', 'instagram_soon',
     'contact_label', 'contact_title', 'contact_text'
   ];
