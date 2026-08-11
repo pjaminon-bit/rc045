@@ -5862,7 +5862,7 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="veld">
               <label for="lid-c-bedrag-<?php echo $ci; ?>">Bedrag</label>
               <?php $voorstel = $regel['jaar'] === '' ? null : ledenBedragVoorstel($ledenBewerkLid, (int) $regel['jaar'], $rekentabelData); ?>
-              <select class="leden-bedrag-snelkeuze" data-doel="lid-c-bedrag-<?php echo $ci; ?>" aria-label="Snelkeuze bedrag">
+              <select class="leden-bedrag-snelkeuze" data-doel="lid-c-bedrag-<?php echo $ci; ?>" aria-label="Snelkeuze bedrag" style="margin-bottom:6px;">
                 <option value="">Snelkeuze&hellip;</option>
                 <option value="<?php echo (int) round((float) $rekentabelData['senior_jaarbedrag']); ?>"><?php echo euro($rekentabelData['senior_jaarbedrag']); ?> (senior, heel jaar)</option>
                 <option value="<?php echo (int) round((float) $rekentabelData['jeugd_jaarbedrag']); ?>"><?php echo euro($rekentabelData['jeugd_jaarbedrag']); ?> (jeugd, heel jaar)</option>
