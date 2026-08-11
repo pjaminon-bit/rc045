@@ -2052,6 +2052,7 @@ $formulierTab = [
   'fotoboek_tekst' => 'fotoboek',
   'fotoboek_album_aanmaken' => 'fotoboek', 'fotoboek_album_bewerken' => 'fotoboek',
   'leden_opslaan' => 'leden', 'leden_verwijderen' => 'leden', 'leden_status' => 'leden',
+  'leden_bulk_status' => 'leden',
   'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
   'leden_import_annuleren' => 'leden',
 ];
@@ -3299,6 +3300,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $meldingType['leden'] = 'fout';
     }
 
+  } elseif ($formulier === 'leden_bulk_status') {
+    // Status van meerdere leden tegelijk aanpassen, aangevinkt in het
+    // overzicht. Zelfde opzet als leden_status hierboven, maar dan voor
+    // een lijst met id's in een keer, en een keer schrijven aan het eind
+    // in plaats van per lid.
+    $ledenData = ledenLees();
+    $ids = array_filter(array_map('trim', explode(',', (string) ($_POST['lid_ids'] ?? ''))), function ($v) { return $v !== ''; });
+    $nieuw = $_POST['status'] ?? '';
+    $statussen = ledenStatussen();
+    if (!isset($statussen[$nieuw])) {
+      $melding['leden'] = 'Onbekende status.';
+      $meldingType['leden'] = 'fout';
+    } elseif (empty($ids)) {
+      $melding['leden'] = 'Geen leden geselecteerd.';
+      $meldingType['leden'] = 'fout';
+    } else {
+      $idsSet = array_flip($ids);
+      $namen = [];
+      foreach ($ledenData['leden'] as $i => $l) {
+        if (!isset($idsSet[$l['id'] ?? ''])) continue;
+        $ledenData['leden'][$i]['status'] = $nieuw;
+        $ledenData['leden'][$i]['gewijzigd'] = date('c');
+        $namen[] = ledenVolledigeNaam($l);
+      }
+      if (count($namen) > 0 && ledenSchrijf($ledenData)) {
+        schrijfLog($logBestand, $huidigeGebruiker, 'leden', count($namen) . ' leden -> ' . $statussen[$nieuw] . ': ' . implode(', ', $namen));
+        $_SESSION['flash']['leden'] = ['tekst' => count($namen) . ' leden staan nu op "' . $statussen[$nieuw] . '".', 'type' => 'ok'];
+        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        header('Location: beheer.php#leden');
+        exit;
+      }
+      $melding['leden'] = count($namen) === 0 ? 'Geen van de geselecteerde leden gevonden.' : 'Wijzigen mislukt.';
+      $meldingType['leden'] = 'fout';
+    }
+
   } elseif ($formulier === 'leden_export') {
     // Het hele ledenbestand als CSV, met puntkomma's zodat Excel in het
     // Nederlands het zonder importwizard opent, en een BOM zodat accenten
@@ -3982,6 +4018,17 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-filters { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .leden-filters input[type="search"] { flex: 1 1 260px; }
     .leden-filters select { flex: 0 1 200px; }
+    .leden-select-rij { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .leden-select-rij label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    .leden-select-rij input { width: auto; }
+    /* Verborgen tot er iets is aangevinkt (JS zet display:flex), staat er
+       in rust niet standaard bij zodat de meeste bezoeken van dit tabblad
+       niet drukker worden dan nodig. */
+    .leden-bulk-balk { display: none; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 14px; margin-bottom: 14px; background: var(--teal-light); border: 1px solid var(--teal); border-radius: 10px; }
+    .leden-bulk-balk span { font-size: 13px; font-weight: 700; color: var(--teal-dark); }
+    .leden-bulk-balk select { width: auto; flex: 0 1 200px; }
+    .leden-bulk-balk button { width: auto; }
+    .lc-kop .leden-select-vink { width: auto; margin-right: 8px; vertical-align: middle; }
     .leden-tabel-wrap { overflow-x: auto; }
     .leden-tabel { width: 100%; border-collapse: collapse; font-size: 13px; }
     .leden-tabel th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 8px 10px; border-bottom: 1.5px solid var(--border); white-space: nowrap; }
@@ -4005,6 +4052,7 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-vink-weg { grid-column: 1 / -1; font-size: 13px; color: var(--rust); }
     .leden-contributie { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
     .leden-contributie .veld { margin-bottom: 0; }
+    .leden-contributie-jaar-kop { grid-column: 1 / -1; font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; }
     .leden-import-knoppen { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .leden-import-knoppen form { margin: 0; }
     .leden-import-knoppen button { width: auto; }
@@ -5721,6 +5769,7 @@ if ($isMaster && file_exists($logBestand)) {
 
         <?php foreach ($ledenBewerkContributie as $ci => $regel): ?>
           <div class="leden-contributie">
+            <div class="leden-contributie-jaar-kop"><?php echo $regel['jaar'] !== '' ? 'Jaar ' . htmlspecialchars((string) $regel['jaar']) : 'Nieuw jaar toevoegen'; ?></div>
             <div class="veld">
               <label for="lid-c-jaar-<?php echo $ci; ?>">Jaar</label>
               <input type="number" id="lid-c-jaar-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][jaar]" min="2000" max="2099" step="1" value="<?php echo htmlspecialchars((string) $regel['jaar']); ?>">
@@ -5836,6 +5885,24 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
         </div>
 
+        <div class="leden-select-rij">
+          <label><input type="checkbox" id="leden-select-alles"> Alles selecteren (wat nu zichtbaar is)</label>
+        </div>
+
+        <form method="post" action="beheer.php#leden" class="leden-bulk-balk" id="leden-bulk-balk" onsubmit="return confirm('Status van de geselecteerde leden aanpassen?');">
+          <input type="hidden" name="formulier" value="leden_bulk_status">
+          <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+          <input type="hidden" name="lid_ids" id="leden-bulk-ids">
+          <span id="leden-bulk-telling">0 leden geselecteerd</span>
+          <select name="status" id="leden-bulk-status" aria-label="Nieuwe status" required>
+            <option value="" disabled selected>Zet status op...</option>
+            <?php foreach ($ledenStatusLabels as $sleutel => $label): ?>
+              <option value="<?php echo htmlspecialchars($sleutel); ?>"><?php echo htmlspecialchars($label); ?></option>
+            <?php endforeach; ?>
+          </select>
+          <button type="submit" class="knop-klein">Status toepassen</button>
+        </form>
+
         <div class="leden-tabel-wrap">
           <table class="leden-tabel" id="leden-tabel">
             <thead>
@@ -5871,7 +5938,7 @@ if ($isMaster && file_exists($logBestand)) {
                     data-sort-contact="<?php echo htmlspecialchars($sorteerContact); ?>">
                   <td data-label="Nr"><span class="lc"><?php echo htmlspecialchars((string) ($l['nummer'] ?? '')); ?></span></td>
                   <td class="lc-kop">
-                    <span class="lc"><strong><?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?></strong>
+                    <span class="lc"><input type="checkbox" class="leden-select-vink" value="<?php echo htmlspecialchars($l['id']); ?>" aria-label="Selecteer <?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?>"><strong><?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?></strong>
                     <?php if (($l['bron'] ?? '') === 'aanmeldformulier'): ?><span class="leden-bron">via formulier</span><?php endif; ?></span>
                   </td>
                   <td data-label="Leeftijd"><span class="lc"><?php echo $leeftijd === null ? '&mdash;' : ($leeftijd . ($jeugd ? ' (jeugd)' : '')); ?></span></td>
@@ -6905,14 +6972,63 @@ if ($isMaster && file_exists($logBestand)) {
       }
 
       // ===== Klikken op een rij opent de bewerkpagina =====
-      // Behalve als er op een link binnen de rij geklikt wordt (mailadres,
-      // of de "Bewerken"-link zelf): die doen dan gewoon hun eigen ding.
+      // Behalve als er op een link of het selectievinkje binnen de rij
+      // geklikt wordt: die doen dan gewoon hun eigen ding.
       tbody.addEventListener('click', function (e) {
-        if (e.target.closest('a')) return;
+        if (e.target.closest('a, input')) return;
         var rij = e.target.closest('tr[data-href]');
         if (!rij) return;
         window.location.href = rij.getAttribute('data-href');
       });
+
+      // ===== Bulk-status wijzigen =====
+      // Vinkje per rij (in de naamkolom) plus "alles selecteren" erboven,
+      // die alleen kijkt naar wat er nu zichtbaar is (rij.hidden), dus een
+      // actief zoek/filter beperkt ook wat er geselecteerd wordt. Zodra er
+      // 1 of meer aangevinkt zijn verschijnt de balk met een statuskeuze
+      // en een knop, die in een keer de status van alle geselecteerde
+      // leden aanpast via het leden_bulk_status-formulier.
+      (function () {
+        var vinkjes = tabel.querySelectorAll('.leden-select-vink');
+        var allesVinkje = document.getElementById('leden-select-alles');
+        var bulkBalk = document.getElementById('leden-bulk-balk');
+        var bulkTelling = document.getElementById('leden-bulk-telling');
+        var bulkIds = document.getElementById('leden-bulk-ids');
+        if (vinkjes.length === 0 || !bulkBalk) return;
+
+        function geselecteerd() {
+          return Array.prototype.filter.call(vinkjes, function (v) { return v.checked; });
+        }
+
+        function bulkBijwerken() {
+          var lijst = geselecteerd();
+          bulkBalk.style.display = lijst.length > 0 ? 'flex' : 'none';
+          if (bulkTelling) {
+            bulkTelling.textContent = lijst.length + (lijst.length === 1 ? ' lid geselecteerd' : ' leden geselecteerd');
+          }
+          if (bulkIds) {
+            bulkIds.value = lijst.map(function (v) { return v.value; }).join(',');
+          }
+        }
+
+        Array.prototype.forEach.call(vinkjes, function (vinkje) {
+          vinkje.addEventListener('change', function () {
+            if (allesVinkje && !vinkje.checked) allesVinkje.checked = false;
+            bulkBijwerken();
+          });
+        });
+
+        if (allesVinkje) {
+          allesVinkje.addEventListener('change', function () {
+            Array.prototype.forEach.call(vinkjes, function (vinkje) {
+              var rij = vinkje.closest('tr');
+              if (rij && rij.hidden) return;
+              vinkje.checked = allesVinkje.checked;
+            });
+            bulkBijwerken();
+          });
+        }
+      })();
 
       // ===== Vertalingen tonen/verbergen, per onderdeel =====
       // Elk onderdeel met vertaalbare velden (een groep, een album, een item...)
