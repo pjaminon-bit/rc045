@@ -231,15 +231,21 @@
     
     .price-card.featured .btn-white { width: 100%; justify-content: center; }
     
-    .price-note { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
-    
-    .price-card.featured .price-note { color: rgba(255,255,255,0.5); }
-    
     .price-notes { list-style: none; margin: 18px 0 0; display: grid; gap: 9px; }
     
     .price-notes li { position: relative; padding-left: 16px; font-size: 13px; color: var(--muted); line-height: 1.55; }
     
     .price-notes li::before { content: ''; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); opacity: 0.5; }
+    
+    .price-notes a { color: inherit; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+    
+    .price-notes a:hover { color: var(--teal); }
+    
+    .price-card.featured .price-notes li { color: rgba(255,255,255,0.5); }
+    
+    .price-card.featured .price-notes li::before { background: #E8C76A; opacity: 0.6; }
+    
+    .price-card.featured .price-notes a:hover { color: #E8C76A; }
     
     .price-notes:empty { display: none; }
     
@@ -768,7 +774,7 @@
         </ul>
         <a href="#contact" class="btn btn-primary" data-i18n="guest.btn">Stuur ons een berichtje →</a>
         <ul class="price-notes" id="hp-guest-notes">
-          <li>Kom je met 4 of meer personen? Meld je dan van te voren via het contactformulier of bestuur@rc045.nl</li>
+          <li>Kom je met 4 of meer personen? Meld je dan van te voren via het <a href="#contact">contactformulier</a> of <a href="mailto:bestuur@rc045.nl">bestuur@rc045.nl</a></li>
           <li>Begeleiding door ouder/verzorger verplicht voor -16 jaar.</li>
           <li>Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.</li>
         </ul>
@@ -783,7 +789,9 @@
           <li><span data-i18n="member.fee">Eenmalige inschrijfkosten</span><span class="price-amount" id="prijs-inschrijf">€10</span></li>
         </ul>
         <a href="aanmelden.html" class="btn btn-white" data-i18n="member.btn">Ik wil graag lid worden!</a>
-        <p class="price-note" id="hp-member-note" data-i18n="member.note">Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.</p>
+        <ul class="price-notes" id="hp-member-notes">
+          <li>Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -1204,7 +1212,7 @@
       'member.text': 'Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.',
       'member.youth': 'Jeugdlid (t/m 15 jaar)', 'member.senior': 'Seniorlid (16+)', 'member.fee': 'Eenmalige inschrijfkosten',
       'member.btn': 'Ik wil graag lid worden!',
-      'member.note': 'Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.',
+      'member.notes': 'Contributie pro-rata: je betaalt alleen voor de resterende maanden van het jaar.',
       'track.label': 'Onze locatie', 'track.title': 'De baan in Eygelshoven',
       'track.p1': 'Ons terrein bevindt zich op het perceel van Kok Lexmond in Eygelshoven (Kerkrade). We beschikken over meerdere banen: een race-circuit, een crawler-parcours, en een jump-track voor de echte thrill-seekers.',
       'track.p2': 'Volg bij aankomst de pijlen met het RC045-logo en je ziet ons vanzelf. Er is voldoende gratis parkeergelegenheid.',
@@ -1272,7 +1280,7 @@
       'member.text': 'Unlimited riding on all tracks, access to the group app, sharing knowledge with fellow hobbyists, and always someone to help you out.',
       'member.youth': 'Youth member (up to 15)', 'member.senior': 'Senior member (16+)', 'member.fee': 'One-time registration fee',
       'member.btn': 'I would like to become a member!',
-      'member.note': 'Pro-rata membership: you only pay for the remaining months of the year.',
+      'member.notes': 'Pro-rata membership: you only pay for the remaining months of the year.',
       'track.label': 'Our location', 'track.title': 'The track in Eygelshoven',
       'track.p1': 'Our grounds are located on the Kok Lexmond site in Eygelshoven (Kerkrade). We have multiple tracks: a race circuit, a crawler course, and a jump track for the real thrill-seekers.',
       'track.p2': 'Follow the RC045 arrows on arrival and you\'ll find us easily. There is plenty of free parking.',
@@ -1340,7 +1348,7 @@
       'member.text': 'Unbegrenztes Fahren auf allen Strecken, Zugang zur Gruppen-App, Wissensaustausch mit Gleichgesinnten und immer jemand zum Helfen.',
       'member.youth': 'Jugendmitglied (bis 15 Jahre)', 'member.senior': 'Seniorenmitglied (16+)', 'member.fee': 'Einmalige Anmeldegebühr',
       'member.btn': 'Ich möchte gerne Mitglied werden!',
-      'member.note': 'Anteilige Mitgliedschaft: Du zahlst nur für die verbleibenden Monate des Jahres.',
+      'member.notes': 'Anteilige Mitgliedschaft: Du zahlst nur für die verbleibenden Monate des Jahres.',
       'track.label': 'Unser Standort', 'track.title': 'Die Strecke in Eygelshoven',
       'track.p1': 'Unser Gelände befindet sich auf dem Kok Lexmond Grundstück in Eygelshoven (Kerkrade). Wir haben mehrere Strecken: einen Rennkurs, einen Crawler-Parcours und eine Sprungstrecke für echte Adrenalin-Junkies.',
       'track.p2': 'Folge beim Ankommen den RC045-Schildern und du findest uns sofort. Es gibt ausreichend kostenlose Parkplätze.',
@@ -1763,8 +1771,9 @@
     'loc_label', 'loc_title', 'addr_title', 'addr_text', 'addr_route', 'instagram_soon',
     'contact_label', 'contact_title', 'contact_text'
   ];
-  // Gastrijden-notities staan als opsomming onder de knop. Bron is het veld
-  // guest_note (beheer.php), met de i18n-teksten als terugval. Elke regel en
+  // De notities onder beide prijskaarten staan als opsomming onder de knop.
+  // Bron zijn de velden guest_note en member_note (beheer.php), met de
+  // i18n-teksten als terugval. Elke regel en
   // elke afgeronde zin binnen die regel wordt een eigen punt. Op een vraagteken
   // wordt niet gesplitst, zodat vraag en antwoord ("Kom je met 4 of meer
   // personen? Meld je dan...") bij elkaar blijven staan. De losse attentieregel
@@ -1782,40 +1791,50 @@
       .map(function (zin) { return zin.trim(); })
       .filter(Boolean);
   }
-  function gastNotitieTekst() {
-    var bron = homepageData && homepageData.guest_note;
+  function notitieTekst(veld, i18nSleutel) {
+    var bron = homepageData && homepageData[veld];
     if (bron) {
       var uitCms = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
       if (String(uitCms).trim()) return uitCms;
     }
     var t = i18n[currentLang] || i18n.nl;
-    return (t && t['guest.notes']) || i18n.nl['guest.notes'] || '';
+    return (t && t[i18nSleutel]) || i18n.nl[i18nSleutel] || '';
   }
-  function renderGastNotities() {
-    var lijst = document.getElementById('hp-guest-notes');
+  // Verwijzingen naar het contactformulier en e-mailadressen worden klikbaar
+  // gemaakt. De tekst komt uit het CMS, dus die wordt eerst geescaped: er mag
+  // geen HTML uit een tekstveld in de pagina belanden.
+  var CONTACT_WOORD = { nl: 'contactformulier', en: 'contact form', de: 'Kontaktformular' };
+  function escapeHtml(tekst) {
+    return String(tekst).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function maakLinks(tekst) {
+    var uit = escapeHtml(tekst);
+    uit = uit.replace(/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g, '<a href="mailto:$1">$1</a>');
+    var woord = CONTACT_WOORD[currentLang] || CONTACT_WOORD.nl;
+    uit = uit.replace(new RegExp('(' + woord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'i'), '<a href="#contact">$1</a>');
+    return uit;
+  }
+  function renderNotities(elementId, veld, i18nSleutel) {
+    var lijst = document.getElementById(elementId);
     if (!lijst) return;
-    var regels = gastNotitieTekst().split(/\r?\n/).map(function (r) { return r.trim(); }).filter(Boolean);
+    var regels = notitieTekst(veld, i18nSleutel).split(/\r?\n/).map(function (r) { return r.trim(); }).filter(Boolean);
     if (!regels.length) return;
     var volgorde = regels.length > 1 ? regels.slice(1).concat(regels.slice(0, 1)) : regels;
     var punten = [];
     volgorde.forEach(function (regel) { punten = punten.concat(splitsZinnen(regel)); });
-    lijst.innerHTML = '';
-    punten.forEach(function (punt) {
-      var li = document.createElement('li');
-      li.textContent = punt;
-      lijst.appendChild(li);
-    });
+    lijst.innerHTML = punten.map(function (punt) { return '<li>' + maakLinks(punt) + '</li>'; }).join('');
   }
   function renderHomepageTeksten() {
-    renderGastNotities();
+    renderNotities('hp-guest-notes', 'guest_note', 'guest.notes');
+    renderNotities('hp-member-notes', 'member_note', 'member.notes');
     if (!homepageData) return;
     homepageVelden.forEach(function (veld) {
       var bron = homepageData[veld];
       if (!bron) return;
       var tekst = (bron[currentLang] && String(bron[currentLang]).trim()) ? bron[currentLang] : (bron.nl || '');
       if (!tekst) return;
-      // guest_note wordt als opsomming gerenderd, zie renderGastNotities().
-      if (veld === 'guest_note') return;
+      // guest_note en member_note worden als opsomming gerenderd, zie renderNotities().
+      if (veld === 'guest_note' || veld === 'member_note') return;
       var el = document.getElementById('hp-' + veld.replace(/_/g, '-'));
       if (el) el.textContent = tekst;
     });
