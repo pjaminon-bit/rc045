@@ -1911,32 +1911,41 @@ $homepageVelden = [
 // in plaats van in $homepageVelden zelf, want de volgorde en groepering is
 // puur voor de weergave, de opslaglogica hierboven werkt gewoon de hele
 // platte lijst af.
+// Volgorde van de groepen is gelijkgetrokken met de volgorde waarin ze
+// echt op de pagina staan (nav, hero, infobalk, nieuws, wie-zijn-wij,
+// lidmaatschap, de baan, agenda, reglement-preview, locatie/openingstijden,
+// contact + formulier, footer helemaal onderaan). Stond eerder door elkaar,
+// bijvoorbeeld Openingstijden vlak na de hero terwijl die pas onderaan de
+// Locatie-sectie staat, en Contactformulier na Footer terwijl het formulier
+// juist bij de Contact-sectie hoort, boven de footer.
 $homepageGroepen = [
+  'Navigatiemenu' => ['nav_about', 'nav_membership', 'nav_track', 'nav_location', 'nav_photobook', 'nav_contact', 'nav_join'],
   'Hero' => ['hero_intro', 'hero_btn_member', 'hero_btn_more'],
   'Infobalk (onder de hero)' => ['update_label', 'info_hours', 'info_location', 'info_membership', 'info_weather'],
-  '"Wie zijn wij"' => ['about_label', 'about_title', 'about_p1', 'about_p2', 'about_medialink', 'about_storylink', 'about_photos_title', 'feat1_title', 'feat1_text', 'feat2_title', 'feat2_text', 'feat3_title', 'feat3_text', 'feat4_title', 'feat4_text'],
-  '"De baan"' => ['track_label', 'track_title', 'track_p1', 'track_p2', 'track_f1', 'track_f2', 'track_f3', 'track_f4', 'track_f5'],
-  'Openingstijden (teksten rond de tijden)' => ['hours_title', 'hours_sat', 'hours_sun', 'hours_wed', 'hours_weather', 'hours_note_attention', 'hours_note_text'],
-  '"Veiligheid staat voorop" (reglement-preview)' => ['rules_label', 'rules_title', 'rules_sub', 'rule1_title', 'rule1_text', 'rule2_title', 'rule2_text', 'rule3_title', 'rule3_text', 'rule4_title', 'rule4_text', 'rule5_title', 'rule5_text', 'rule6_title', 'rule6_text', 'rule7_title', 'rule7_text', 'rules_link'],
   'Nieuws' => ['nieuws_label', 'nieuws_title', 'nieuws_sub'],
-  'Agenda' => ['agenda_label', 'agenda_title', 'agenda_sub'],
+  '"Wie zijn wij"' => ['about_label', 'about_title', 'about_p1', 'about_p2', 'about_medialink', 'about_storylink', 'about_photos_title', 'feat1_title', 'feat1_text', 'feat2_title', 'feat2_text', 'feat3_title', 'feat3_text', 'feat4_title', 'feat4_text'],
   '"Lidmaatschap"' => ['pricing_title', 'pricing_sub', 'guest_tag', 'guest_title', 'guest_text', 'guest_adult', 'guest_youth', 'guest_group', 'guest_btn', 'guest_note', 'member_tag', 'member_title', 'member_text', 'member_youth', 'member_senior', 'member_fee', 'member_btn', 'member_note'],
+  '"De baan"' => ['track_label', 'track_title', 'track_p1', 'track_p2', 'track_f1', 'track_f2', 'track_f3', 'track_f4', 'track_f5'],
+  'Agenda' => ['agenda_label', 'agenda_title', 'agenda_sub'],
+  '"Veiligheid staat voorop" (reglement-preview)' => ['rules_label', 'rules_title', 'rules_sub', 'rule1_title', 'rule1_text', 'rule2_title', 'rule2_text', 'rule3_title', 'rule3_text', 'rule4_title', 'rule4_text', 'rule5_title', 'rule5_text', 'rule6_title', 'rule6_text', 'rule7_title', 'rule7_text', 'rules_link'],
   '"Bezoek ons"' => ['loc_label', 'loc_title', 'addr_title', 'addr_text', 'addr_route', 'instagram_soon'],
+  'Openingstijden (teksten rond de tijden)' => ['hours_title', 'hours_sat', 'hours_sun', 'hours_wed', 'hours_weather', 'hours_note_attention', 'hours_note_text'],
   'Contact' => ['contact_label', 'contact_title', 'contact_text'],
-  'Navigatiemenu' => ['nav_about', 'nav_membership', 'nav_track', 'nav_location', 'nav_photobook', 'nav_contact', 'nav_join'],
-  'Footer' => ['footer_brand', 'footer_nav', 'footer_origin', 'footer_media', 'footer_photobook', 'footer_calendar', 'footer_join', 'footer_become', 'footer_rules', 'footer_sponsor', 'footer_sponsors_title', 'footer_credit'],
   'Contactformulier' => ['form_name', 'form_email', 'form_phone', 'form_subject', 'form_select', 'form_opt1', 'form_opt4', 'form_opt5', 'form_message', 'form_send'],
+  'Footer' => ['footer_brand', 'footer_nav', 'footer_origin', 'footer_media', 'footer_photobook', 'footer_calendar', 'footer_join', 'footer_become', 'footer_rules', 'footer_sponsor', 'footer_sponsors_title', 'footer_credit'],
 ];
 
 // De 14 groepen hierboven aan elkaar gebreid onder een paar kopjes, puur
 // visueel: welke groep bij welk hoofdstuk hoort. Elders in het formulier
-// (data-taal-scope, opslaglogica) verandert hierdoor niets.
+// (data-taal-scope, opslaglogica) verandert hierdoor niets. Volgorde van
+// de hoofdstukken zelf volgt nu ook de pagina: boven, midden, locatie/
+// contact, footer.
 $homepageClusters = [
-  'Bovenkant' => ['Hero', 'Infobalk (onder de hero)'],
-  'Over de club' => ['"Wie zijn wij"', '"De baan"', 'Openingstijden (teksten rond de tijden)', '"Veiligheid staat voorop" (reglement-preview)'],
-  'Nieuws & agenda' => ['Nieuws', 'Agenda'],
-  'Lidmaatschap & locatie' => ['"Lidmaatschap"', '"Bezoek ons"', 'Contact'],
-  'Navigatie, footer & formulier' => ['Navigatiemenu', 'Footer', 'Contactformulier'],
+  'Bovenkant' => ['Navigatiemenu', 'Hero', 'Infobalk (onder de hero)'],
+  'Content op de homepage' => ['Nieuws', '"Wie zijn wij"', '"Lidmaatschap"', '"De baan"', 'Agenda', '"Veiligheid staat voorop" (reglement-preview)'],
+  'Locatie & openingstijden' => ['"Bezoek ons"', 'Openingstijden (teksten rond de tijden)'],
+  'Contact' => ['Contact', 'Contactformulier'],
+  'Footer' => ['Footer'],
 ];
 $homepageGroepNaarCluster = [];
 foreach ($homepageClusters as $clusterLabel => $groepenInCluster) {
@@ -4226,9 +4235,14 @@ if ($isMaster && file_exists($logBestand)) {
         // wijziging aan welke tabs een gebruiker mag zien. Groepslabel
         // verschijnt alleen als er in die groep ook echt iets zichtbaar is.
         $menuLabels = $beheerTabsAlle + ['gebruikers' => 'Gebruikers', 'log' => 'Log', 'backups' => 'Back-ups'];
+        // Volgorde binnen elke groep volgt nu ook de site: bij Pagina's
+        // eerst de doorloop van de aanmeldflow (Aanmelden -> Bedankt, niet
+        // andersom), bij Content de homepage top-naar-onder (mededeling
+        // boven de hero, dan nieuws/agenda/contact/sponsors zoals ze onder
+        // elkaar staan), met Vragen/Media/Fotoboek als losse pagina's erna.
         $menuGroepen = [
-          ['label' => "Pagina's", 'tabs' => ['homepage', 'ontstaan', 'baanreglement', 'bedankt', 'aanmelden']],
-          ['label' => 'Content', 'tabs' => ['mededeling', 'nieuws', 'agenda', 'faq', 'sponsors', 'contact', 'media', 'fotoboek']],
+          ['label' => "Pagina's", 'tabs' => ['homepage', 'ontstaan', 'baanreglement', 'aanmelden', 'bedankt']],
+          ['label' => 'Content', 'tabs' => ['mededeling', 'nieuws', 'agenda', 'contact', 'sponsors', 'faq', 'media', 'fotoboek']],
           ['label' => 'Leden & contributie', 'tabs' => ['leden', 'rekentabel']],
           ['label' => 'Beheer', 'tabs' => ['gebruikers', 'log', 'backups']],
         ];
