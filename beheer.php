@@ -103,6 +103,13 @@ $aanmeldenBestand  = $dataMap . '/aanmelden.json';
 $mediaTekstBestand = $dataMap . '/media-pagina.json';
 $fotoboekTekstBestand = $dataMap . '/fotoboek-pagina.json';
 
+// Changelog. Twee bronnen die in het tabblad samengevoegd worden:
+// - changelog-historie.php: de vaste regels die bij de code horen, staan in
+//   de repo en komen met elke deploy mee. Niet te bewerken in beheer.
+// - data/changelog.json: de regels die het bestuur zelf toevoegt.
+$changelogBestand = $dataMap . '/changelog.json';
+$changelogVastPad = __DIR__ . '/changelog-historie.php';
+
 // Alle bestanden die automatisch back-upt worden (zie maakDataBackup()),
 // gebruikt door het tabblad "Back-ups" en de backup_herstellen-actie
 // verderop. "schrijffunctie" bepaalt via welke functie een herstelde back-up
@@ -125,6 +132,7 @@ $dataBackupBestanden = [
   'fotoboek'   => ['label' => 'Fotoboek', 'pad' => $fotoboekBestand, 'schrijffunctie' => 'schrijfJson'],
   'nieuws'     => ['label' => 'Nieuws', 'pad' => $nieuwsBestand, 'schrijffunctie' => 'schrijfJson'],
   'rekentabel' => ['label' => 'Rekentabel contributie', 'pad' => $rekentabelBestand, 'schrijffunctie' => 'schrijfJson'],
+  'changelog'  => ['label' => 'Changelog (eigen regels)', 'pad' => $changelogBestand, 'schrijffunctie' => 'schrijfJson'],
   'gebruikers' => ['label' => 'Gebruikers', 'pad' => $usersBestand, 'schrijffunctie' => 'schrijfGebruikers'],
 ];
 
@@ -1777,7 +1785,62 @@ $beheerTabsAlle = [
   'fotoboek'   => 'Fotoboek',
   'leden'      => 'Leden',
   'rekentabel' => 'Rekentabel',
+  'changelog'  => 'Changelog',
 ];
+
+// ===== Changelog =====
+// De categorieën van een changelogregel. De sleutel staat zo in het
+// databestand, dus die niet meer wijzigen; het label en de kleur mogen wel.
+$changelogCategorieen = [
+  'nieuw'       => 'Nieuw',
+  'verbeterd'   => 'Verbeterd',
+  'opgelost'    => 'Opgelost',
+  'beveiliging' => 'Beveiliging',
+  'onderhoud'   => 'Onderhoud',
+];
+
+// De vaste regels uit changelog-historie.php. Ontbreekt dat bestand (of is
+// het stuk), dan blijft de changelog gewoon werken met alleen de eigen
+// regels uit data/changelog.json.
+function laadChangelogVast($pad) {
+  if (!file_exists($pad)) return [];
+  $regels = @include $pad;
+  return is_array($regels) ? $regels : [];
+}
+
+// De eigen regels van het bestuur (data/changelog.json).
+function laadChangelogEigen($pad) {
+  if (!file_exists($pad)) return [];
+  $json = json_decode(@file_get_contents($pad), true);
+  return is_array($json) ? $json : [];
+}
+
+// Beide lijsten samenvoegen en op datum zetten, nieuwste bovenaan. Regels
+// zonder geldige datum zakken naar onderen in plaats van dat ze verdwijnen.
+// $volg is de tiebreaker binnen dezelfde datum: usort is niet in elke
+// PHP-versie stabiel, dus de volgorde wordt hier expliciet vastgelegd
+// (eigen regels eerst, daarna de vaste).
+function changelogSamenvoegen($eigen, $vast) {
+  $alles = [];
+  $volg = 0;
+  foreach ($eigen as $r) {
+    $r['bron'] = 'eigen';
+    $r['volg'] = $volg++;
+    $alles[] = $r;
+  }
+  foreach ($vast as $r) {
+    $r['bron'] = 'vast';
+    $r['volg'] = $volg++;
+    $alles[] = $r;
+  }
+  usort($alles, function ($a, $b) {
+    $da = (string) ($a['datum'] ?? '');
+    $db = (string) ($b['datum'] ?? '');
+    if ($da !== $db) return strcmp($db, $da);
+    return ($a['volg'] ?? 0) <=> ($b['volg'] ?? 0);
+  });
+  return $alles;
+}
 
 // Velden van het tabblad Homepage: sleutel => [label voor in het formulier,
 // 'tekst' (kort, één regel) of 'blok' (langere alinea/textarea)]. Eén lijst,
@@ -2055,6 +2118,8 @@ $formulierTab = [
   'leden_bulk_status' => 'leden',
   'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
   'leden_import_annuleren' => 'leden',
+  'changelog_toevoegen' => 'changelog', 'changelog_bewerken' => 'changelog',
+  'changelog_verwijderen' => 'changelog',
 ];
 
 // ===== Inhoud opslaan (openingstijden / agenda / faq / sponsors / gebruikers) =====
@@ -2404,6 +2469,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       $melding['nieuws'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
       $meldingType['nieuws'] = 'fout';
+    }
+
+  } elseif ($formulier === 'changelog_toevoegen' || $formulier === 'changelog_bewerken') {
+    // Eén blok voor toevoegen en bewerken: de velden en de controles zijn
+    // hetzelfde, alleen het wegschrijven verschilt (vooraan de lijst zetten
+    // of een bestaande regel overschrijven).
+    $clDatum = datumNaarIso($_POST['datum'] ?? '');
+    if ($clDatum === '') $clDatum = date('Y-m-d');
+    $clCat = (string) ($_POST['cat'] ?? '');
+    if (!isset($changelogCategorieen[$clCat])) $clCat = 'nieuw';
+    $clTitel = kort($_POST['titel'] ?? '', 120);
+    $clTekst = kort($_POST['tekst'] ?? '', 500);
+
+    if ($clTitel === '') {
+      $melding['changelog'] = 'Vul in ieder geval een korte omschrijving in.';
+      $meldingType['changelog'] = 'fout';
+    } else {
+      $clRegels = laadChangelogEigen($changelogBestand);
+
+      if ($formulier === 'changelog_toevoegen') {
+        array_unshift($clRegels, [
+          'id' => date('YmdHis') . '-' . bin2hex(random_bytes(3)),
+          'datum' => $clDatum,
+          'cat' => $clCat,
+          'titel' => $clTitel,
+          'tekst' => $clTekst,
+          'door' => $huidigeGebruiker,
+          'toegevoegd' => date('c'),
+        ]);
+        $clMeldingOk = 'Toegevoegd aan de changelog.';
+      } else {
+        $clId = (string) ($_POST['id'] ?? '');
+        $clGevonden = false;
+        foreach ($clRegels as $i => $r) {
+          if ((string) ($r['id'] ?? '') === $clId && $clId !== '') {
+            $clRegels[$i]['datum'] = $clDatum;
+            $clRegels[$i]['cat'] = $clCat;
+            $clRegels[$i]['titel'] = $clTitel;
+            $clRegels[$i]['tekst'] = $clTekst;
+            $clRegels[$i]['gewijzigd'] = date('c');
+            $clRegels[$i]['gewijzigd_door'] = $huidigeGebruiker;
+            $clGevonden = true;
+            break;
+          }
+        }
+        if (!$clGevonden) {
+          $melding['changelog'] = 'Die regel bestaat niet (meer). Ververs de pagina.';
+          $meldingType['changelog'] = 'fout';
+          $clRegels = null;
+        }
+        $clMeldingOk = 'Regel bijgewerkt.';
+      }
+
+      if (is_array($clRegels)) {
+        if (schrijfJson($changelogBestand, $clRegels)) {
+          $melding['changelog'] = $clMeldingOk;
+          $meldingType['changelog'] = 'ok';
+          schrijfLog($logBestand, $huidigeGebruiker, 'changelog', ($formulier === 'changelog_toevoegen' ? 'toegevoegd: ' : 'bijgewerkt: ') . $clTitel);
+        } else {
+          $melding['changelog'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
+          $meldingType['changelog'] = 'fout';
+        }
+      }
+    }
+
+  } elseif ($formulier === 'changelog_verwijderen') {
+    $clId = (string) ($_POST['id'] ?? '');
+    $clRegels = laadChangelogEigen($changelogBestand);
+    $clOver = [];
+    $clWeg = '';
+    foreach ($clRegels as $r) {
+      if ((string) ($r['id'] ?? '') === $clId && $clId !== '') {
+        $clWeg = (string) ($r['titel'] ?? '');
+        continue;
+      }
+      $clOver[] = $r;
+    }
+    if ($clWeg === '') {
+      $melding['changelog'] = 'Die regel bestaat niet (meer). Ververs de pagina.';
+      $meldingType['changelog'] = 'fout';
+    } elseif (schrijfJson($changelogBestand, $clOver)) {
+      $melding['changelog'] = 'Regel verwijderd.';
+      $meldingType['changelog'] = 'ok';
+      schrijfLog($logBestand, $huidigeGebruiker, 'changelog', 'verwijderd: ' . $clWeg);
+    } else {
+      $melding['changelog'] = 'Verwijderen mislukt. Controleer de schrijfrechten van de map data op de server.';
+      $meldingType['changelog'] = 'fout';
     }
 
   } elseif ($formulier === 'homepage') {
@@ -3847,6 +3999,17 @@ foreach ($fotoboekData['albums'] as $i => &$a) {
 unset($a);
 usort($fotoboekData['albums'], function($a, $b) { return ($a['volgorde'] ?? 0) <=> ($b['volgorde'] ?? 0); });
 
+// Changelog: vaste regels (repo) en eigen regels (data/) samen, nieuwste
+// eerst. Het filteren op categorie en zoekwoord gebeurt in de browser, dus
+// hier gaat de hele lijst mee naar het tabblad.
+$changelogEigen = laadChangelogEigen($changelogBestand);
+$changelogLijst = changelogSamenvoegen($changelogEigen, laadChangelogVast($changelogVastPad));
+$changelogTellingen = array_fill_keys(array_keys($changelogCategorieen), 0);
+foreach ($changelogLijst as $clRegel) {
+  $clCatSleutel = $clRegel['cat'] ?? '';
+  if (isset($changelogTellingen[$clCatSleutel])) $changelogTellingen[$clCatSleutel]++;
+}
+
 $gebruikersLijst = $isMaster ? laadGebruikers($usersBestand) : [];
 $logRegels = [];
 if ($isMaster && file_exists($logBestand)) {
@@ -3970,6 +4133,42 @@ if ($isMaster && file_exists($logBestand)) {
     .toon-en .fotoboek-foto-velden > .taal-en,
     .toon-de .fotoboek-foto-velden > .taal-de {
       height: auto; opacity: 1;
+    }
+
+    /* ===== Changelog ===== */
+    .cl-filterbalk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .cl-filterbalk .cl-zoek { flex: 1 1 200px; min-width: 0; margin: 0; }
+    .cl-lijst { display: flex; flex-direction: column; }
+    .cl-regel { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--border); }
+    .cl-regel:first-child { border-top: none; }
+    .cl-regel[hidden] { display: none; }
+    .cl-zij { flex: 0 0 128px; display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+    .cl-datum { font-size: 13px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .cl-hoofd { flex: 1 1 auto; min-width: 0; }
+    .cl-titel { font-size: 15px; font-weight: 700; color: var(--text); }
+    .cl-tekst { font-size: 14px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+    .cl-meta { font-size: 12px; color: var(--muted); margin-top: 5px; }
+    .cl-regel details { margin-top: 8px; }
+    .cl-regel details > summary { font-size: 12px; font-weight: 700; color: var(--teal-dark); cursor: pointer; list-style: none; }
+    .cl-regel details > summary::-webkit-details-marker { display: none; }
+    .cl-regel details > summary::before { content: '✎ '; }
+    .cl-regel details[open] > summary::before { content: '✕ '; }
+    .cl-bewerkvak { margin-top: 10px; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+    .cl-bewerkvak .veld { margin-bottom: 10px; }
+    .cl-knoprij { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cl-knoprij button { width: auto; padding: 8px 16px; font-size: 14px; }
+    .cl-knoprij .cl-verwijder { background: none; color: var(--rust); border: 1.5px solid var(--rust); }
+    .cl-knoprij .cl-verwijder:hover { background: var(--rust); color: white; }
+    .cl-leeg { color: var(--muted); font-size: 14px; padding: 12px 0; }
+    .leden-badge.cl-nieuw { background: #E8F5E9; color: #1B5E20; }
+    .leden-badge.cl-verbeterd { background: var(--teal-light); color: var(--teal-dark); }
+    .leden-badge.cl-opgelost { background: #FDE7D9; color: #8B3319; }
+    .leden-badge.cl-beveiliging { background: #EDE7F6; color: #4527A0; }
+    .leden-badge.cl-onderhoud { background: #ECEFF1; color: #455A64; }
+    .cl-bron { font-size: 11px; color: var(--muted); }
+    @media (max-width: 640px) {
+      .cl-regel { flex-direction: column; gap: 6px; }
+      .cl-zij { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 8px; }
     }
 
     .taal-toggle-mini { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
@@ -4352,7 +4551,7 @@ if ($isMaster && file_exists($logBestand)) {
           ['label' => "Pagina's", 'tabs' => ['homepage', 'ontstaan', 'baanreglement', 'aanmelden', 'bedankt']],
           ['label' => 'Content', 'tabs' => ['mededeling', 'nieuws', 'agenda', 'contact', 'sponsors', 'faq', 'media', 'fotoboek']],
           ['label' => 'Leden & contributie', 'tabs' => ['leden', 'rekentabel']],
-          ['label' => 'Beheer', 'tabs' => ['gebruikers', 'log', 'backups']],
+          ['label' => 'Beheer', 'tabs' => ['changelog', 'gebruikers', 'log', 'backups']],
         ];
         $alleenMasterTabs = ['gebruikers', 'log', 'backups'];
       ?>
@@ -6230,6 +6429,147 @@ if ($isMaster && file_exists($logBestand)) {
 
     <?php endif; ?>
 
+    <?php if (in_array('changelog', $toegestaneTabs, true)): ?>
+    <div class="tab-paneel" id="tab-changelog">
+    <!-- ===== CHANGELOG ===== -->
+    <div class="kaart">
+      <h1>Changelog</h1>
+      <p class="sub">Wat er aan de website en dit beheerpaneel is veranderd, nieuwste bovenaan. De regels over de website zelf worden bij elke aanpassing meegeleverd met de code. Regels die je hier zelf toevoegt (bijvoorbeeld over de inhoud van de site) komen erbij en zijn wel te bewerken.</p>
+
+      <?php if (isset($melding['changelog'])): ?>
+        <div class="melding <?php echo $meldingType['changelog']; ?>"><?php echo htmlspecialchars($melding['changelog']); ?></div>
+      <?php endif; ?>
+    </div>
+
+    <details class="kaart">
+      <summary>Regel toevoegen<span class="kaart-uitklap-telling">eigen regels: <?php echo count($changelogEigen); ?></span></summary>
+      <div class="kaart-uitklap-inhoud">
+        <form method="post" action="beheer.php#changelog">
+          <input type="hidden" name="formulier" value="changelog_toevoegen">
+          <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+          <div class="rij-2">
+            <div class="veld">
+              <label for="cl-nieuw-datum">Datum</label>
+              <input type="text" inputmode="numeric" id="cl-nieuw-datum" name="datum" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave(date('Y-m-d'))); ?>">
+            </div>
+            <div class="veld">
+              <label for="cl-nieuw-cat">Categorie</label>
+              <select id="cl-nieuw-cat" name="cat">
+                <?php foreach ($changelogCategorieen as $clSleutel => $clLabel): ?>
+                  <option value="<?php echo htmlspecialchars($clSleutel); ?>"><?php echo htmlspecialchars($clLabel); ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </div>
+          <div class="veld">
+            <label for="cl-nieuw-titel">Korte omschrijving</label>
+            <input type="text" id="cl-nieuw-titel" name="titel" maxlength="120" placeholder="Bijv.: Nieuwe foto's van de clubdag toegevoegd">
+          </div>
+          <div class="veld">
+            <label for="cl-nieuw-tekst">Toelichting (optioneel)</label>
+            <textarea id="cl-nieuw-tekst" name="tekst" maxlength="500" style="min-height:60px;"></textarea>
+          </div>
+          <button type="submit">Regel toevoegen</button>
+        </form>
+      </div>
+    </details>
+
+    <div class="kaart">
+      <div class="cl-filterbalk">
+        <?php foreach ($changelogCategorieen as $clSleutel => $clLabel): ?>
+          <button type="button" class="leden-badge leden-badge-klikbaar cl-filter-knop cl-<?php echo htmlspecialchars($clSleutel); ?>" data-cat="<?php echo htmlspecialchars($clSleutel); ?>" aria-pressed="false" title="Klik om alleen '<?php echo htmlspecialchars($clLabel); ?>' te tonen"><?php echo htmlspecialchars($clLabel); ?>: <?php echo $changelogTellingen[$clSleutel]; ?></button>
+        <?php endforeach; ?>
+        <div class="veld cl-zoek">
+          <input type="search" id="cl-zoek" placeholder="Zoeken in de changelog" aria-label="Zoeken in de changelog">
+        </div>
+      </div>
+      <p class="hint" id="cl-telling"><?php echo count($changelogLijst); ?> regel<?php echo count($changelogLijst) === 1 ? '' : 's'; ?></p>
+
+      <div class="cl-lijst" id="cl-lijst">
+        <?php if (empty($changelogLijst)): ?>
+          <p class="cl-leeg">Nog geen regels.</p>
+        <?php endif; ?>
+        <?php foreach ($changelogLijst as $clI => $clRegel): ?>
+          <?php
+            $clCat = $clRegel['cat'] ?? 'nieuw';
+            if (!isset($changelogCategorieen[$clCat])) $clCat = 'nieuw';
+            $clEigen = ($clRegel['bron'] ?? '') === 'eigen';
+            $clId = (string) ($clRegel['id'] ?? '');
+            // Alles wat doorzoekbaar moet zijn in één attribuut, zodat het
+            // filteren in de browser geen DOM hoeft af te lopen per veld.
+            $clZoekBron = ($clRegel['titel'] ?? '') . ' ' . ($clRegel['tekst'] ?? '') . ' ' . $changelogCategorieen[$clCat];
+            $clZoek = function_exists('mb_strtolower') ? mb_strtolower($clZoekBron, 'UTF-8') : strtolower($clZoekBron);
+          ?>
+          <div class="cl-regel" data-cat="<?php echo htmlspecialchars($clCat); ?>" data-zoek="<?php echo htmlspecialchars($clZoek); ?>">
+            <div class="cl-zij">
+              <span class="cl-datum"><?php echo htmlspecialchars(datumWeergave($clRegel['datum'] ?? '')); ?></span>
+              <span class="leden-badge cl-<?php echo htmlspecialchars($clCat); ?>"><?php echo htmlspecialchars($changelogCategorieen[$clCat]); ?></span>
+            </div>
+            <div class="cl-hoofd">
+              <div class="cl-titel"><?php echo htmlspecialchars($clRegel['titel'] ?? ''); ?></div>
+              <?php if (trim((string) ($clRegel['tekst'] ?? '')) !== ''): ?>
+                <div class="cl-tekst"><?php echo nl2br(htmlspecialchars($clRegel['tekst'])); ?></div>
+              <?php endif; ?>
+
+              <?php if ($clEigen): ?>
+                <?php if (!empty($clRegel['door'])): ?>
+                  <div class="cl-meta">Toegevoegd door <?php echo htmlspecialchars($clRegel['door']); ?><?php echo !empty($clRegel['gewijzigd_door']) ? ', laatst bijgewerkt door ' . htmlspecialchars($clRegel['gewijzigd_door']) : ''; ?></div>
+                <?php endif; ?>
+                <details>
+                  <summary>Bewerken</summary>
+                  <div class="cl-bewerkvak">
+                    <form method="post" action="beheer.php#changelog">
+                      <input type="hidden" name="formulier" value="changelog_bewerken">
+                      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+                      <input type="hidden" name="id" value="<?php echo htmlspecialchars($clId); ?>">
+                      <div class="rij-2">
+                        <div class="veld">
+                          <label for="cl-datum-<?php echo $clI; ?>">Datum</label>
+                          <input type="text" inputmode="numeric" id="cl-datum-<?php echo $clI; ?>" name="datum" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($clRegel['datum'] ?? '')); ?>">
+                        </div>
+                        <div class="veld">
+                          <label for="cl-cat-<?php echo $clI; ?>">Categorie</label>
+                          <select id="cl-cat-<?php echo $clI; ?>" name="cat">
+                            <?php foreach ($changelogCategorieen as $clSleutel => $clLabel): ?>
+                              <option value="<?php echo htmlspecialchars($clSleutel); ?>"<?php echo $clSleutel === $clCat ? ' selected' : ''; ?>><?php echo htmlspecialchars($clLabel); ?></option>
+                            <?php endforeach; ?>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="veld">
+                        <label for="cl-titel-<?php echo $clI; ?>">Korte omschrijving</label>
+                        <input type="text" id="cl-titel-<?php echo $clI; ?>" name="titel" maxlength="120" value="<?php echo htmlspecialchars($clRegel['titel'] ?? ''); ?>">
+                      </div>
+                      <div class="veld">
+                        <label for="cl-tekst-<?php echo $clI; ?>">Toelichting</label>
+                        <textarea id="cl-tekst-<?php echo $clI; ?>" name="tekst" maxlength="500" style="min-height:60px;"><?php echo htmlspecialchars($clRegel['tekst'] ?? ''); ?></textarea>
+                      </div>
+                      <div class="cl-knoprij">
+                        <button type="submit">Opslaan</button>
+                      </div>
+                    </form>
+                    <form method="post" action="beheer.php#changelog" onsubmit="return confirm('Deze regel definitief verwijderen?');" style="margin-top:8px;">
+                      <input type="hidden" name="formulier" value="changelog_verwijderen">
+                      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+                      <input type="hidden" name="id" value="<?php echo htmlspecialchars($clId); ?>">
+                      <div class="cl-knoprij">
+                        <button type="submit" class="cl-verwijder">Verwijderen</button>
+                      </div>
+                    </form>
+                  </div>
+                </details>
+              <?php else: ?>
+                <div class="cl-bron">Hoort bij de code, niet te bewerken</div>
+              <?php endif; ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    </div>
+
+    <?php endif; ?>
+
     <a class="terug" href="index.html">Naar de website</a>
 
     </div>
@@ -7299,6 +7639,49 @@ if ($isMaster && file_exists($logBestand)) {
               knop.textContent = oorspronkelijkeTekst;
             });
         });
+      })();
+
+      // ===== Changelog: filteren op categorie en zoekwoord =====
+      // Puur in de browser, zonder herladen. De categorieknoppen werken als
+      // aan/uit: niets aangeklikt betekent alles tonen.
+      (function() {
+        var lijst = document.getElementById('cl-lijst');
+        if (!lijst) return; // tabblad niet zichtbaar voor deze gebruiker
+        var regels = lijst.querySelectorAll('.cl-regel');
+        var knoppen = document.querySelectorAll('.cl-filter-knop');
+        var zoekVeld = document.getElementById('cl-zoek');
+        var telling = document.getElementById('cl-telling');
+
+        function toepassen() {
+          var actief = [];
+          knoppen.forEach(function(k) {
+            if (k.getAttribute('aria-pressed') === 'true') actief.push(k.getAttribute('data-cat'));
+          });
+          var zoek = zoekVeld ? zoekVeld.value.trim().toLowerCase() : '';
+          var zichtbaar = 0;
+
+          regels.forEach(function(regel) {
+            var catOk = actief.length === 0 || actief.indexOf(regel.getAttribute('data-cat')) !== -1;
+            var zoekOk = zoek === '' || (regel.getAttribute('data-zoek') || '').indexOf(zoek) !== -1;
+            var toon = catOk && zoekOk;
+            regel.hidden = !toon;
+            if (toon) zichtbaar++;
+          });
+
+          if (telling) {
+            telling.textContent = zichtbaar === regels.length
+              ? regels.length + ' regel' + (regels.length === 1 ? '' : 's')
+              : zichtbaar + ' van ' + regels.length + ' regels';
+          }
+        }
+
+        knoppen.forEach(function(k) {
+          k.addEventListener('click', function() {
+            k.setAttribute('aria-pressed', k.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+            toepassen();
+          });
+        });
+        if (zoekVeld) zoekVeld.addEventListener('input', toepassen);
       })();
     })();
   </script>
