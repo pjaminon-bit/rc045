@@ -5905,7 +5905,7 @@ if ($isMaster && file_exists($logBestand)) {
         <p class="hint">Nog geen leden. Voeg er een toe met de knop hierboven, of lees het Excel-bestand in via de import onderaan deze pagina.</p>
       <?php else: ?>
         <div class="leden-filters">
-          <input type="search" id="leden-zoek" placeholder="Zoek op naam, mailadres, telefoon of lidnummer" aria-label="Zoeken in leden">
+          <input type="search" id="leden-zoek" placeholder="Zoek op naam, mailadres, telefoon, lidnummer, gemeente, jeugdlid of senior" aria-label="Zoeken in leden">
           <select id="leden-filter-status" aria-label="Filteren op status">
             <option value="">Alle statussen</option>
             <?php foreach ($ledenStatusLabels as $sleutel => $label): ?>
@@ -5972,7 +5972,11 @@ if ($isMaster && file_exists($logBestand)) {
                   $leeftijd = ledenLeeftijd($l['geboortedatum'] ?? '');
                   $jeugd = ledenIsJeugd($l, $ledenJeugdTot, $ledenJaar);
                   $c = $l['contributie'][(string) $ledenJaar] ?? null;
-                  $zoek = strtolower(ledenVolledigeNaam($l) . ' ' . ($l['email'] ?? '') . ' ' . ($l['telefoon'] ?? '') . ' ' . ($l['nummer'] ?? '') . ' ' . ($l['gemeente'] ?? ''));
+                  // Jeugd/senior staat alleen berekend in de Leeftijd-kolom, niet als los
+                  // veld in de data, dus die moet je er hier los bij zoeken zodat "jeugdlid"
+                  // of "senior" typen ook echt iets oplevert.
+                  $zoekJeugd = $jeugd === true ? 'jeugdlid jeugd' : ($jeugd === false ? 'senior seniorlid' : '');
+                  $zoek = strtolower(ledenVolledigeNaam($l) . ' ' . ($l['email'] ?? '') . ' ' . ($l['telefoon'] ?? '') . ' ' . ($l['nummer'] ?? '') . ' ' . ($l['gemeente'] ?? '') . ' ' . $zoekJeugd);
                   $sorteerStatus = $ledenStatusVolgorde[$l['status'] ?? ''] ?? 999;
                   $sorteerContributie = ($c !== null && $c['bedrag'] !== null) ? (float) $c['bedrag'] : -1;
                   $sorteerContact = strtolower(trim((($l['email'] ?? '') !== '') ? $l['email'] : ($l['telefoon'] ?? '')));
