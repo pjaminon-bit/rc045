@@ -5688,7 +5688,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="melding <?php echo $meldingType['leden']; ?>"><?php echo htmlspecialchars($melding['leden']); ?></div>
       <?php endif; ?>
 
-      <form method="post" action="beheer.php#leden">
+      <form method="post" action="beheer.php#leden" autocomplete="off">
         <input type="hidden" name="formulier" value="leden_opslaan">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <input type="hidden" name="lid_id" value="<?php echo $ledenBewerkNieuw ? '' : htmlspecialchars($ledenBewerkLid['id']); ?>">
@@ -7033,6 +7033,15 @@ if ($isMaster && file_exists($logBestand)) {
           sorteerKnop.disabled = sorteerKolom === null;
         }
         sorteerTabel();
+        // Onthouden zodat de sortering blijft staan als je een lid opent
+        // en weer sluit (dat is telkens een nieuwe paginalading).
+        try {
+          if (sorteerKolom) {
+            localStorage.setItem('ledenSortering', JSON.stringify({ kolom: sorteerKolom, richting: sorteerRichting }));
+          } else {
+            localStorage.removeItem('ledenSortering');
+          }
+        } catch (e) {}
       }
 
       Array.prototype.forEach.call(koppen, function (kop) {
@@ -7058,6 +7067,14 @@ if ($isMaster && file_exists($logBestand)) {
           sorteringZetten(sorteerKolom, sorteerRichting * -1);
         });
       }
+
+      // Onthouden sortering terugzetten bij het laden van de pagina.
+      try {
+        var opgeslagenSortering = JSON.parse(localStorage.getItem('ledenSortering') || 'null');
+        if (opgeslagenSortering && opgeslagenSortering.kolom) {
+          sorteringZetten(opgeslagenSortering.kolom, opgeslagenSortering.richting === -1 ? -1 : 1);
+        }
+      } catch (e) {}
 
       // ===== Klikken op een rij opent de bewerkpagina =====
       // Behalve als er op een link of het selectievinkje binnen de rij
