@@ -5770,6 +5770,10 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     <?php endif; ?>
 
+    <!-- Tabel en import/export alleen tonen als er geen lid openstaat om te
+         bewerken: anders zie je onder het formulier ook nog de hele
+         ledenlijst, wat niets toevoegt terwijl je met een lid bezig bent. -->
+    <?php if ($ledenBewerkLid === null): ?>
     <div class="kaart">
       <div class="kaart-header">
         <div>
@@ -5985,6 +5989,7 @@ if ($isMaster && file_exists($logBestand)) {
         <button type="submit" class="knop-klein">Download CSV</button>
       </form>
     </div>
+    <?php endif; ?>
     </div>
 
     <?php endif; ?>
