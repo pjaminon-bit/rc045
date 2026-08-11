@@ -22,3 +22,10 @@ RewriteRule ^beheer/?$ beheer.php [L]
 <FilesMatch "^(leden-data\.php|leden-opslag\.php|aanmelden-pogingen\.php)$">
   Require all denied
 </FilesMatch>
+
+# DeepL-sleutel voor de vertaalknoppen in beheer.php: nooit rechtstreeks
+# opvraagbaar. Staat niet in GitHub (zie .gitignore), wordt handmatig via
+# FTP geupload, dus deze regel moet ook in de live .htaccess staan.
+<FilesMatch "^vertaal-config\.php$">
+  Require all denied
+</FilesMatch>
