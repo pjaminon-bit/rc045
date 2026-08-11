@@ -3807,6 +3807,7 @@ if ($isMaster && file_exists($logBestand)) {
       border: 1.5px solid var(--border); background: var(--white); border-radius: 100px; padding: 3px 10px;
       font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; cursor: pointer;
       color: var(--muted); transition: background 0.15s, border-color 0.15s, color 0.15s;
+      white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;
     }
     .taal-toggle-mini .taal-toggle-btn[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: white; }
     details.kaart > summary .taal-toggle-mini, .fotoboek-album-kop .taal-toggle-mini { margin-left: auto; }
