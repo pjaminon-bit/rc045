@@ -6880,7 +6880,12 @@ if ($isMaster && file_exists($logBestand)) {
       var filter = document.getElementById('leden-filter-status');
       var filterContributie = document.getElementById('leden-filter-contributie');
       var tabel = document.getElementById('leden-tabel');
-      if (!zoek || !filter || !tabel) return;
+      // Geen return hier: dat brak per ongeluk ook de "Gebruik ..."-knop
+      // en (in potentie) de vertaalknoppen hieronder, want die staan in
+      // dezelfde functie en zijn niet afhankelijk van de tabel. Zoeken,
+      // filteren, sorteren en bulk-selecteren hebben de tabel wel nodig,
+      // dus die zitten voortaan in dit blok, de rest niet.
+      if (zoek && filter && tabel) {
       var rijen = tabel.querySelectorAll('tbody tr');
       var geenResultaat = document.getElementById('leden-geen-resultaat');
       var statusBadges = document.querySelectorAll('.leden-badge-status');
@@ -7079,6 +7084,7 @@ if ($isMaster && file_exists($logBestand)) {
           });
         }
       })();
+      }
 
       // ===== "Gebruik X" knop bij het lidnummer =====
       // Vult het eerstvolgende vrije nummer meteen in, handig om een
