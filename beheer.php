@@ -4033,7 +4033,12 @@ if ($isMaster && file_exists($logBestand)) {
       --border: #DDD8C0; --bg: #FAF6EC; --white: #FFFFFF;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 16px 40px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 16px 40px; overflow-wrap: break-word; }
+    /* Vangnet: niets krijgt een eigen breedte mee die groter is dan de plek
+       waar het in staat. Zonder dit duwt één te breed onderdeel (een lange
+       bestandsnaam, een link zonder spaties, een invulveld met een eigen
+       standaardbreedte) de hele pagina horizontaal uit beeld. */
+    img, video, iframe, input, select, textarea, button { max-width: 100%; }
     .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding-top: 24px; display: flex; flex-direction: column; gap: 16px; }
     .kaart { background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; padding: 28px; }
     @media (max-width: 640px) { .kaart { padding: 20px; } }
@@ -4043,7 +4048,7 @@ if ($isMaster && file_exists($logBestand)) {
        de sectie openklapt waar je aan wilt werken in plaats van alles
        onder elkaar te zien staan. */
     details.kaart { padding: 0; }
-    details.kaart > summary { list-style: none; cursor: pointer; padding: 20px 28px; display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: var(--dark); }
+    details.kaart > summary { list-style: none; cursor: pointer; padding: 20px 28px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 16px; font-weight: 700; color: var(--dark); }
     details.kaart > summary::-webkit-details-marker { display: none; }
     details.kaart > summary:hover { color: var(--teal-dark); }
     details.kaart > summary::after { content: '▾'; color: var(--muted); font-size: 13px; flex-shrink: 0; transition: transform 0.15s; }
@@ -4090,7 +4095,10 @@ if ($isMaster && file_exists($logBestand)) {
     .logboek-filter-optie label { font-weight: 400; margin: 0; color: var(--text); cursor: pointer; }
     .logboek-geen-resultaten td { color: var(--muted); font-style: italic; }
     .item-blok { border: 1.5px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 14px; transition: opacity 0.15s, background 0.15s; }
-    .item-blok-nr { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    /* flex-wrap: anders duwt de inhoud van deze regel (bij Agenda: nummer,
+       badge, label "Volgorde" en de keuzelijst) de hele pagina breder dan het
+       scherm, want die onderdelen breken zelf niet af. */
+    .item-blok-nr { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-width: 0; }
     .item-blok.is-afgelopen { background: var(--bg); border-style: dashed; opacity: 0.7; }
     .afgelopen-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--rust); background: var(--gold-light); padding: 2px 8px; border-radius: 100px; }
     .rij-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -4119,10 +4127,29 @@ if ($isMaster && file_exists($logBestand)) {
       flex: 1 1 0; width: auto; opacity: 1; margin-left: 16px;
     }
     .taal-rij .taal-groep { padding-top: 0; margin-top: 0; border-top: none; height: 100%; }
+    /* Smalle schermen: geen kolommen naast elkaar meer, maar gewoon blokken
+       onder elkaar. Let op waarom dit géén flexbox met flex-wrap is: een
+       dichtgeklapt vertaalblok hield hierboven flex-basis 100% met
+       flex-shrink 0. Dat blok past dan samen met het NL-blok (flex-basis 0)
+       nog net op dezelfde regel, waarna er nul vrije ruimte overblijft en het
+       NL-veld naar breedte 0 wordt gedrukt: dat waren de invulvelden van één
+       letter breed. Bovendien bleef het dichtgeklapte blok (alleen opacity 0)
+       verticaal ruimte innemen, vandaar de grote gaten tussen de velden.
+       Met display:block en display:none is er niets meer te verdelen en kan
+       dit niet meer misgaan. De schuifanimatie vervalt op mobiel; het blok
+       klapt gewoon open en dicht. */
     @media (max-width: 780px) {
-      .taal-rij { flex-wrap: wrap; }
-      .taal-rij > .taal-en, .taal-rij > .taal-de { flex-basis: 100%; margin-left: 0; }
-      .toon-en .taal-rij > .taal-en, .toon-de .taal-rij > .taal-de { flex-basis: 100%; margin-left: 0; margin-top: 12px; }
+      .taal-rij { display: block; }
+      .taal-rij > .taal-nl { display: block; width: 100%; }
+      .taal-rij > .taal-en, .taal-rij > .taal-de {
+        display: none; width: 100%; opacity: 1; overflow: visible;
+        margin-left: 0; transition: none;
+      }
+      .toon-en .taal-rij > .taal-en,
+      .toon-de .taal-rij > .taal-de {
+        display: block; width: 100%; margin-left: 0; margin-top: 14px;
+      }
+      .taal-rij .taal-groep { height: auto; }
     }
     /* Bijschriften per foto staan onder elkaar (niet naast elkaar), dus daar
        schuift het vertaalveld verticaal open in plaats van horizontaal. */
@@ -4171,7 +4198,7 @@ if ($isMaster && file_exists($logBestand)) {
       .cl-zij { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 8px; }
     }
 
-    .taal-toggle-mini { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .taal-toggle-mini { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px; flex-shrink: 0; }
     .taal-toggle-mini .taal-toggle-btn, .taal-toggle-mini .auto-vertaal-btn {
       border: 1.5px solid var(--border); background: var(--white); border-radius: 100px; padding: 3px 10px;
       font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; cursor: pointer;
@@ -4191,7 +4218,7 @@ if ($isMaster && file_exists($logBestand)) {
     details.kaart > summary .taal-toggle-mini, .fotoboek-album-kop .taal-toggle-mini { margin-left: auto; }
     details.kaart > summary .taal-toggle-mini + .taal-toggle-mini { margin-left: 0; }
     .taal-scope-kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-    .item-blok-kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .item-blok-kop { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 12px; }
     .item-blok-kop .item-blok-nr { margin-bottom: 0; }
     .kaart-smal { max-width: 440px; margin: 0 auto; }
     /* Zelfde patroon als .nav-links op de hoofdsite: platte tekst, lichte
@@ -4223,7 +4250,13 @@ if ($isMaster && file_exists($logBestand)) {
          hamburger: dichtgeklapt standaard, open je hem dan valt hij als
          paneel open onder de knop, net als het mobiele menu op de
          hoofdsite. */
-      .beheer-layout { flex-direction: column; }
+      /* align-items: stretch hoort hier verplicht bij de omschakeling naar
+         een kolom. Met de flex-start van hierboven krijgt de contentkolom in
+         een kolom-flexbox namelijk shrink-to-fit als breedte, en dat betekent
+         bij te brede inhoud: net zo breed als die inhoud. Eén onderdeel dat
+         niet afbreekt maakte zo de hele kaart breder dan het scherm, terwijl
+         de balk erboven wel netjes bleef staan. */
+      .beheer-layout { flex-direction: column; align-items: stretch; }
       .beheer-menu-knop { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; }
       .beheer-menu-knop .streepjes { font-size: 18px; line-height: 1; }
       .menu { position: static; display: none; flex-direction: column; gap: 2px; width: 100%; flex: 0 0 auto; max-height: 60vh; overflow-y: auto; background: var(--white); border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 10px 24px rgba(0,0,0,0.12); padding: 8px; margin: 4px 0; }
@@ -4299,7 +4332,7 @@ if ($isMaster && file_exists($logBestand)) {
        zichtbaar zodra de tabel op smalle schermen als kaarten wordt getoond,
        want dan is er geen kolomkop meer om op te klikken. */
     .leden-sorteer-mobiel { display: none; gap: 8px; }
-    .leden-sorteer-mobiel select { flex: 1 1 auto; }
+    .leden-sorteer-mobiel select { flex: 1 1 auto; min-width: 0; }
     .leden-sorteer-mobiel button { width: auto; flex: 0 0 46px; background: var(--bg); border: 1.5px solid var(--border); color: var(--text); font-size: 15px; padding: 10px 0; }
     .leden-sorteer-mobiel button:hover { background: var(--teal-light); border-color: var(--teal); color: var(--teal-dark); }
     .leden-sorteer-mobiel button:disabled { opacity: 0.4; cursor: default; }
@@ -4335,7 +4368,7 @@ if ($isMaster && file_exists($logBestand)) {
       .leden-tabel td.lc-actie { display: none; }
       .leden-tabel .leden-contact { font-size: 14px; }
       .leden-filters { flex-direction: column; align-items: stretch; }
-      .leden-filters input[type="search"], .leden-filters select { flex: 1 1 auto; width: 100%; }
+      .leden-filters input[type="search"], .leden-filters select { flex: 1 1 auto; width: 100%; min-width: 0; }
       .leden-sorteer-mobiel { display: flex; }
       .leden-badge { font-size: 11px; padding: 3px 8px; }
       .leden-import-knoppen { flex-direction: column; align-items: stretch; }
@@ -4355,9 +4388,12 @@ if ($isMaster && file_exists($logBestand)) {
     /* min(...) erin: zonder dat blijft een kolom 340px breed ook als het
        scherm smaller is, en schuift de hele pagina horizontaal weg. */
     .item-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 16px; align-items: start; }
-    .item-lijst .item-blok { margin-bottom: 0; }
+    /* min-width: 0 hoort bij het min(...) hierboven: een rasteritem is
+       standaard minstens zo breed als zijn breedste onderdeel, en duwt
+       daarmee alsnog de pagina uit beeld. */
+    .item-lijst .item-blok { margin-bottom: 0; min-width: 0; }
     .fotoboek-foto-lijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 12px; }
-    .fotoboek-foto-lijst .fotoboek-foto-blok { margin-bottom: 0; }
+    .fotoboek-foto-lijst .fotoboek-foto-blok { margin-bottom: 0; min-width: 0; }
     #tab-mededeling { display: flex; }
     .ingelogd-balk { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); }
     .ingelogd-balk a { color: var(--teal-dark); font-weight: 600; text-decoration: none; }
@@ -4409,13 +4445,14 @@ if ($isMaster && file_exists($logBestand)) {
        ruimte tussen titel+tekst en de knop ernaast in dezelfde rij), maar
        zonder eigen margin-bottom hier plakte alles wat na de header komt
        (melding, formulier) daardoor direct tegen de tekst aan. */
-    .kaart-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .kaart-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+    .kaart-header > div { min-width: 0; }
     .kaart-header h1 { margin-bottom: 4px; }
     .kaart-header .sub { margin-bottom: 0; }
     .knop-toevoegen { width: auto; background: var(--gold); color: var(--dark); font-size: 14px; font-weight: 700; padding: 11px 20px; white-space: nowrap; flex-shrink: 0; box-shadow: 0 2px 8px rgba(200,154,26,0.35); }
     .knop-toevoegen:hover { background: #B08A17; }
     @media (max-width: 600px) {
-      .kaart-header { flex-direction: column; }
+      .kaart-header { flex-direction: column; align-items: stretch; }
       .knop-toevoegen { width: 100%; }
     }
     .fotoboek-foto-blok { border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; }
