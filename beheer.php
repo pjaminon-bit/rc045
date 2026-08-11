@@ -3864,6 +3864,13 @@ if ($isMaster && file_exists($logBestand)) {
     .taal-toggle-mini .taal-toggle-btn[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: white; }
     .taal-toggle-mini .auto-vertaal-btn { background: var(--teal-light); color: var(--teal-dark); border-color: var(--teal); }
     .taal-toggle-mini .auto-vertaal-btn:disabled { opacity: 0.6; cursor: default; }
+    /* Blijft verborgen tot je EN of DE openklikt: in de standaardstand zie je
+       dus weer gewoon de twee toon-knopjes, niet standaard een derde erbij.
+       Zo blijft "gewoon handmatig typen" de standaardgang, en is vertalen
+       een keuze die je maakt zodra je het taalveld toch al open hebt. */
+    .taal-toggle-mini .auto-vertaal-btn { display: none; }
+    [data-taal-scope].toon-en .taal-toggle-mini .auto-vertaal-btn,
+    [data-taal-scope].toon-de .taal-toggle-mini .auto-vertaal-btn { display: inline-flex; }
     details.kaart > summary .taal-toggle-mini, .fotoboek-album-kop .taal-toggle-mini { margin-left: auto; }
     details.kaart > summary .taal-toggle-mini + .taal-toggle-mini { margin-left: 0; }
     .taal-scope-kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
