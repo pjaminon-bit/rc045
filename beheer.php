@@ -4910,7 +4910,7 @@ if ($isMaster && file_exists($logBestand)) {
     <?php if (in_array('contact', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-contact">
     <!-- ===== CONTACT & OPENINGSTIJDEN ===== -->
-    <div class="kaart kaart-smal">
+    <div class="kaart">
       <h1>Contact & openingstijden</h1>
       <p class="sub">Adres, openingstijden, lidmaatschapsprijs, e-mail en Facebook-link. Deze gegevens staan op meerdere plekken op de website en worden overal automatisch bijgewerkt.</p>
 
