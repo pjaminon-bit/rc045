@@ -3387,7 +3387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (is_array($exportJson)) $exportRekentabel = array_merge($rekentabelStandaard, $exportJson);
     }
     $exportJeugdTot = (int) $exportRekentabel['jeugd_leeftijd_tot'];
-    $kop = ['nummer','Voornaam','Tussenvoegsel','Achternaam','Geboortedatum','leeftijd','straat','huisnummer','postcode','gemeente','land','Telefoon / Whatsapp','mailadres','Status','Jeugdlid','Inschrijfdatum','Opmerking','Taken','Toegevoegd Whatsapp','Transponder','Auto'];
+    $kop = ['nummer','Voornaam','Tussenvoegsel','Achternaam','Geboortedatum','leeftijd','straat','huisnummer','postcode','woonplaats','land','Telefoon / Whatsapp','mailadres','Status','Jeugdlid','Inschrijfdatum','Opmerking','Taken','Toegevoegd Whatsapp','Transponder','Auto'];
     foreach ($jaren as $j) {
       $kop[] = 'Contributie ' . $j . ' status';
       $kop[] = 'Contributiebedrag ' . $j;
@@ -5786,12 +5786,32 @@ if ($isMaster && file_exists($logBestand)) {
 
         <div class="rij-2">
           <div class="veld">
-            <label for="lid-gemeente">Gemeente</label>
+            <label for="lid-gemeente">Woonplaats</label>
             <input type="text" id="lid-gemeente" name="gemeente" maxlength="80" value="<?php echo htmlspecialchars($ledenBewerkLid['gemeente']); ?>">
           </div>
           <div class="veld">
             <label for="lid-land">Land</label>
-            <input type="text" id="lid-land" name="land" maxlength="40" value="<?php echo htmlspecialchars($ledenBewerkLid['land']); ?>">
+            <?php
+              $ledenLandenLijst = ledenLanden();
+              $ledenLandHuidig = trim((string) $ledenBewerkLid['land']);
+              $ledenLandBekend = $ledenLandHuidig === '' || in_array($ledenLandHuidig, $ledenLandenLijst['boven'], true) || in_array($ledenLandHuidig, $ledenLandenLijst['overig'], true);
+            ?>
+            <select id="lid-land" name="land">
+              <option value=""<?php echo $ledenLandHuidig === '' ? ' selected' : ''; ?>>Kies een land</option>
+              <?php if (!$ledenLandBekend): ?>
+                <option value="<?php echo htmlspecialchars($ledenLandHuidig); ?>" selected><?php echo htmlspecialchars($ledenLandHuidig); ?></option>
+              <?php endif; ?>
+              <optgroup label="Meest gebruikt">
+                <?php foreach ($ledenLandenLijst['boven'] as $ledenLandOptie): ?>
+                  <option value="<?php echo htmlspecialchars($ledenLandOptie); ?>"<?php echo $ledenLandHuidig === $ledenLandOptie ? ' selected' : ''; ?>><?php echo htmlspecialchars($ledenLandOptie); ?></option>
+                <?php endforeach; ?>
+              </optgroup>
+              <optgroup label="Overige landen">
+                <?php foreach ($ledenLandenLijst['overig'] as $ledenLandOptie): ?>
+                  <option value="<?php echo htmlspecialchars($ledenLandOptie); ?>"<?php echo $ledenLandHuidig === $ledenLandOptie ? ' selected' : ''; ?>><?php echo htmlspecialchars($ledenLandOptie); ?></option>
+                <?php endforeach; ?>
+              </optgroup>
+            </select>
           </div>
         </div>
 
@@ -5914,7 +5934,7 @@ if ($isMaster && file_exists($logBestand)) {
         <p class="hint">Nog geen leden. Voeg er een toe met de knop hierboven, of lees het Excel-bestand in via de import onderaan deze pagina.</p>
       <?php else: ?>
         <div class="leden-filters">
-          <input type="search" id="leden-zoek" placeholder="Zoek op naam, mailadres, telefoon, lidnummer, gemeente, jeugdlid of senior" aria-label="Zoeken in leden">
+          <input type="search" id="leden-zoek" placeholder="Zoek op naam, mailadres, telefoon, lidnummer, woonplaats, jeugdlid of senior" aria-label="Zoeken in leden">
           <select id="leden-filter-status" aria-label="Filteren op status">
             <option value="">Alle statussen</option>
             <?php foreach ($ledenStatusLabels as $sleutel => $label): ?>
@@ -6068,14 +6088,14 @@ if ($isMaster && file_exists($logBestand)) {
 
         <div class="leden-tabel-wrap">
           <table class="leden-tabel">
-            <thead><tr><th>Naam</th><th>Geboortedatum</th><th>Mailadres</th><th>Gemeente</th><th>Wordt</th></tr></thead>
+            <thead><tr><th>Naam</th><th>Geboortedatum</th><th>Mailadres</th><th>Woonplaats</th><th>Wordt</th></tr></thead>
             <tbody>
               <?php foreach (array_slice($ledenImport['rijen'], 0, 25) as $rij): ?>
                 <tr>
                   <td class="lc-kop"><span class="lc"><strong><?php echo htmlspecialchars(ledenVolledigeNaam($rij)); ?></strong></span></td>
                   <td data-label="Geboren"><span class="lc"><?php echo htmlspecialchars(ledenParseDatum($rij['geboortedatum'] ?? '')); ?></span></td>
                   <td data-label="Mail"><span class="lc"><?php echo htmlspecialchars($rij['email'] ?? ''); ?></span></td>
-                  <td data-label="Gemeente"><span class="lc"><?php echo htmlspecialchars($rij['gemeente'] ?? ''); ?></span></td>
+                  <td data-label="Woonplaats"><span class="lc"><?php echo htmlspecialchars($rij['gemeente'] ?? ''); ?></span></td>
                   <td data-label="Wordt"><span class="lc"><?php echo ledenZoekBestaande($importControle, $rij) === null ? 'toegevoegd' : 'bijgewerkt'; ?></span></td>
                 </tr>
               <?php endforeach; ?>
