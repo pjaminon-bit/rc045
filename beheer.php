@@ -5697,12 +5697,21 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="rij-3">
           <div class="veld">
             <label for="lid-nummer">Lidnummer</label>
-            <?php $ledenVrijNummer = ledenVolgendNummer($ledenData); ?>
-            <div style="display:flex; gap:8px;">
-              <input type="number" id="lid-nummer" name="nummer" min="1" step="1" value="<?php echo htmlspecialchars((string) $ledenBewerkLid['nummer']); ?>" style="flex:1;">
-              <button type="button" class="knop-klein" id="lid-nummer-vrij" data-vrij="<?php echo (int) $ledenVrijNummer; ?>" style="width:auto; flex:0 0 auto;">Gebruik <?php echo (int) $ledenVrijNummer; ?></button>
-            </div>
-            <p class="hint">Moet uniek zijn: opslaan mislukt als dit nummer al bij een ander lid hoort. Eerstvolgende vrije nummer is <?php echo (int) $ledenVrijNummer; ?>, de knop vult dat meteen in.</p>
+            <?php
+              $ledenVrijNummer = ledenVolgendNummer($ledenData);
+              $ledenBewerkNummerBotst = (int) $ledenBewerkLid['nummer'] > 0
+                && ($ledenNummerTelling[(int) $ledenBewerkLid['nummer']] ?? 0) > 1;
+            ?>
+            <?php if ($ledenBewerkNummerBotst): ?>
+              <div style="display:flex; gap:8px;">
+                <input type="number" id="lid-nummer" name="nummer" min="1" step="1" value="<?php echo htmlspecialchars((string) $ledenBewerkLid['nummer']); ?>" style="flex:1;">
+                <button type="button" class="knop-klein" id="lid-nummer-vrij" data-vrij="<?php echo (int) $ledenVrijNummer; ?>" style="width:auto; flex:0 0 auto;">Gebruik <?php echo (int) $ledenVrijNummer; ?></button>
+              </div>
+              <p class="hint">Dit nummer komt ook bij een ander lid voor. Kies een ander nummer, de knop vult het eerstvolgende vrije nummer (<?php echo (int) $ledenVrijNummer; ?>) meteen in.</p>
+            <?php else: ?>
+              <input type="number" id="lid-nummer" name="nummer" min="1" step="1" value="<?php echo htmlspecialchars((string) $ledenBewerkLid['nummer']); ?>">
+              <p class="hint">Moet uniek zijn: opslaan mislukt als dit nummer al bij een ander lid hoort.</p>
+            <?php endif; ?>
           </div>
           <div class="veld">
             <label for="lid-status">Status</label>
