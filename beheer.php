@@ -4028,7 +4028,8 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-bulk-balk span { font-size: 13px; font-weight: 700; color: var(--teal-dark); }
     .leden-bulk-balk select { width: auto; flex: 0 1 200px; }
     .leden-bulk-balk button { width: auto; }
-    .lc-kop .leden-select-vink { width: auto; margin-right: 8px; vertical-align: middle; }
+    .leden-tabel th.lc-select-th, .leden-tabel td.lc-select { width: 32px; padding-right: 0; }
+    .leden-tabel td.lc-select input { width: auto; margin: 0; vertical-align: middle; }
     .leden-tabel-wrap { overflow-x: auto; }
     .leden-tabel { width: 100%; border-collapse: collapse; font-size: 13px; }
     .leden-tabel th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 8px 10px; border-bottom: 1.5px solid var(--border); white-space: nowrap; }
@@ -4086,6 +4087,9 @@ if ($isMaster && file_exists($logBestand)) {
       .leden-tabel td > .lc { flex: 1 1 auto; min-width: 0; }
       .leden-tabel td.lc-kop { order: -1; display: flex; align-items: center; gap: 10px; font-size: 15px; padding: 0 0 8px; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
       .leden-tabel td.lc-kop::before { display: none; }
+      .leden-tabel td.lc-select { order: -2; padding: 0 0 6px; }
+      .leden-tabel td.lc-select::before { display: none; }
+      .leden-tabel td.lc-select input { width: auto; margin: 0; }
       /* Pijltje als hint dat je op het kaartje kunt tikken om te bewerken.
          Alleen in de ledenlijst; de rijen in het importoverzicht zijn niet
          aanklikbaar. */
@@ -5907,6 +5911,7 @@ if ($isMaster && file_exists($logBestand)) {
           <table class="leden-tabel" id="leden-tabel">
             <thead>
               <tr>
+                <th class="lc-select-th"></th>
                 <th data-kolom="nr" role="button" tabindex="0">Nr</th>
                 <th data-kolom="naam" role="button" tabindex="0">Naam</th>
                 <th data-kolom="leeftijd" role="button" tabindex="0">Leeftijd</th>
@@ -5936,9 +5941,10 @@ if ($isMaster && file_exists($logBestand)) {
                     data-sort-status="<?php echo (int) $sorteerStatus; ?>"
                     data-sort-contributie="<?php echo htmlspecialchars((string) $sorteerContributie); ?>"
                     data-sort-contact="<?php echo htmlspecialchars($sorteerContact); ?>">
+                  <td class="lc-select"><input type="checkbox" class="leden-select-vink" value="<?php echo htmlspecialchars($l['id']); ?>" aria-label="Selecteer <?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?>"></td>
                   <td data-label="Nr"><span class="lc"><?php echo htmlspecialchars((string) ($l['nummer'] ?? '')); ?></span></td>
                   <td class="lc-kop">
-                    <span class="lc"><input type="checkbox" class="leden-select-vink" value="<?php echo htmlspecialchars($l['id']); ?>" aria-label="Selecteer <?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?>"><strong><?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?></strong>
+                    <span class="lc"><strong><?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?></strong>
                     <?php if (($l['bron'] ?? '') === 'aanmeldformulier'): ?><span class="leden-bron">via formulier</span><?php endif; ?></span>
                   </td>
                   <td data-label="Leeftijd"><span class="lc"><?php echo $leeftijd === null ? '&mdash;' : ($leeftijd . ($jeugd ? ' (jeugd)' : '')); ?></span></td>
