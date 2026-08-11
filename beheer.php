@@ -3894,8 +3894,8 @@ if ($isMaster && file_exists($logBestand)) {
     /* Stil kopje boven elke groep in het menu, geen eigen knop of kader:
        puur om de 18 tabs in een paar hapklare blokken te laten lezen.
        Zelfde opmaak op mobiel, daar staat het gewoon in het uitklappaneel. */
-    .menu-groep-label { margin: 14px 12px 6px; padding-bottom: 4px; font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1.5px solid var(--border); }
-    .menu-groep-label:first-child { margin-top: 2px; }
+    .menu-groep-label { margin: 10px 0 6px; padding: 5px 12px; font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; background: var(--teal-light); border-radius: 6px; }
+    .menu-groep-label:first-child { margin-top: 0; }
     .beheer-menu-knop { display: none; }
     @media (max-width: 860px) {
       /* Op smalle schermen geen tweede kolom, en het menu wordt een
