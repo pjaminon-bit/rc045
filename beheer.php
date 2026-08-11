@@ -6854,7 +6854,7 @@ if ($isMaster && file_exists($logBestand)) {
           e.preventDefault();
           e.stopPropagation();
 
-          var nlVelden = scopeEl.querySelectorAll('.taal-nl input[id], .taal-nl textarea[id]');
+          var nlVelden = scopeEl.querySelectorAll('.taal-nl input[id], .taal-nl textarea[id], input.taal-nl[id], textarea.taal-nl[id]');
           var teVertalen = [];
           nlVelden.forEach(function(veld) {
             var tekst = veld.value.trim();
