@@ -3713,7 +3713,7 @@ if ($isMaster && file_exists($logBestand)) {
     details.kaart > summary { list-style: none; cursor: pointer; padding: 20px 28px; display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; color: var(--dark); }
     details.kaart > summary::-webkit-details-marker { display: none; }
     details.kaart > summary:hover { color: var(--teal-dark); }
-    details.kaart > summary::after { content: '▾'; color: var(--muted); font-size: 13px; flex-shrink: 0; margin-left: auto; transition: transform 0.15s; }
+    details.kaart > summary::after { content: '▾'; color: var(--muted); font-size: 13px; flex-shrink: 0; transition: transform 0.15s; }
     details.kaart[open] > summary::after { transform: rotate(180deg); }
     details.kaart > summary .kaart-uitklap-telling { font-size: 12px; font-weight: 400; color: var(--muted); }
     details.kaart > .kaart-uitklap-inhoud { padding: 0 28px 28px; }
@@ -4171,7 +4171,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php foreach ($homepageGroepen as $homepageGroepNaam => $homepageVeldSleutels): ?>
         <?php $homepageGroepIndex++; ?>
         <details class="kaart" data-taal-scope="hp-<?php echo $homepageGroepIndex; ?>"<?php echo $homepageGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($homepageGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($homepageVeldSleutels); ?> veld<?php echo count($homepageVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></summary>
+          <summary><?php echo htmlspecialchars($homepageGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($homepageVeldSleutels); ?> veld<?php echo count($homepageVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($homepageVeldSleutels as $veld): ?>
             <?php
@@ -4229,7 +4229,7 @@ if ($isMaster && file_exists($logBestand)) {
       <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
       <div class="kaart" data-taal-scope="ontstaan">
-        <div class="taal-scope-kop"><h1>Verhaal</h1><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
+        <div class="taal-scope-kop"><h1>Verhaal</h1><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
         <?php foreach ($ontstaanVelden as $veld => $info): ?>
           <?php
             $ontLabel = $info[0];
@@ -4281,7 +4281,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php foreach ($baanreglementGroepen as $brGroepNaam => $brVeldSleutels): ?>
         <?php $brGroepIndex++; ?>
         <details class="kaart" data-taal-scope="br-<?php echo $brGroepIndex; ?>"<?php echo $brGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($brGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($brVeldSleutels); ?> veld<?php echo count($brVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></summary>
+          <summary><?php echo htmlspecialchars($brGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($brVeldSleutels); ?> veld<?php echo count($brVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($brVeldSleutels as $veld): ?>
             <?php
@@ -4348,7 +4348,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php foreach ($bedanktGroepen as $bdGroepNaam => $bdVeldSleutels): ?>
         <?php $bdGroepIndex++; ?>
         <details class="kaart" data-taal-scope="bd-<?php echo $bdGroepIndex; ?>"<?php echo $bdGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($bdGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($bdVeldSleutels); ?> veld<?php echo count($bdVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></summary>
+          <summary><?php echo htmlspecialchars($bdGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($bdVeldSleutels); ?> veld<?php echo count($bdVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($bdVeldSleutels as $veld): ?>
             <?php
@@ -4406,7 +4406,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php foreach ($aanmeldenGroepen as $amGroepNaam => $amVeldSleutels): ?>
         <?php $amGroepIndex++; ?>
         <details class="kaart" data-taal-scope="am-<?php echo $amGroepIndex; ?>"<?php echo $amGroepIndex === 1 ? ' open' : ''; ?>>
-          <summary><?php echo htmlspecialchars($amGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($amVeldSleutels); ?> veld<?php echo count($amVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></summary>
+          <summary><?php echo htmlspecialchars($amGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($amVeldSleutels); ?> veld<?php echo count($amVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
           <?php foreach ($amVeldSleutels as $veld): ?>
             <?php
@@ -4497,7 +4497,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="item-lijst" id="nieuws-lijst">
         <?php foreach ($nieuwsData as $i => $ni): ?>
           <div class="item-blok" data-taal-scope="nieuws-<?php echo $i; ?>">
-            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
+            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
             <div class="rij-2">
               <div class="veld">
                 <label for="nieuws-date-<?php echo $i; ?>">Datum</label>
@@ -4604,7 +4604,7 @@ if ($isMaster && file_exists($logBestand)) {
                 </select>
               </span>
             </div>
-            <span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span>
+            <span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span>
             </div>
             <p class="hint" style="margin-top:-8px; margin-bottom:12px;">Kies bij welk volgnummer deze kaart moet staan. Kaarten met dezelfde datum die na elkaar staan, komen op de website naast elkaar te staan.</p>
             <div class="rij-2">
@@ -4704,7 +4704,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="item-lijst" id="faq-lijst">
         <?php foreach ($faqData as $i => $item): ?>
           <div class="item-blok" data-taal-scope="faq-<?php echo $i; ?>">
-            <div class="item-blok-kop"><div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
+            <div class="item-blok-kop"><div class="item-blok-nr">Vraag <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
 
             <div class="taal-rij">
             <div class="taal-groep taal-nl">
@@ -4770,7 +4770,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
         <div class="veld" style="border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:20px;" data-taal-scope="sponsors-cta">
-          <div class="taal-scope-kop"><label>Tekst "sponsor worden" (onderaan elke pagina, onder de sponsorlogo's)</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
+          <div class="taal-scope-kop"><label>Tekst "sponsor worden" (onderaan elke pagina, onder de sponsorlogo's)</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
           <p class="hint" style="margin-top:-4px; margin-bottom:10px;">Het woord "contactformulier" (of de vertaling ervan hieronder) wordt op de website automatisch een link naar het contactformulier. Laat dat woord dus letterlijk in de tekst staan.</p>
           <div class="taal-rij">
             <div class="veld taal-nl">
@@ -4929,7 +4929,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="formulier" value="media_tekst">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="veld" data-taal-scope="media-ondertitel">
-          <div class="taal-scope-kop"><label for="mt-hero-sub-nl">Tekst onder de titel "Media"</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
+          <div class="taal-scope-kop"><label for="mt-hero-sub-nl">Tekst onder de titel "Media"</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
           <div class="taal-rij">
             <textarea class="taal-nl" id="mt-hero-sub-nl" name="mt[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
             <textarea class="taal-en" id="mt-hero-sub-en" name="mt[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($mediaTekstData['hero_sub']['en'] ?? ''); ?></textarea>
@@ -4953,7 +4953,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="item-lijst" id="media-lijst">
         <?php foreach ($mediaData as $i => $mi): ?>
           <div class="item-blok" data-taal-scope="media-<?php echo $i; ?>">
-            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
+            <div class="item-blok-kop"><div class="item-blok-nr">Item <?php echo $i + 1; ?></div><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
             <div class="rij-3">
               <div class="veld">
                 <label for="media-date-<?php echo $i; ?>">Datum</label>
@@ -5043,7 +5043,7 @@ if ($isMaster && file_exists($logBestand)) {
         <input type="hidden" name="formulier" value="fotoboek_tekst">
         <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
         <div class="veld" data-taal-scope="fotoboek-ondertitel">
-          <div class="taal-scope-kop"><label for="ft-hero-sub-nl">Tekst onder de titel "Fotoboek"</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
+          <div class="taal-scope-kop"><label for="ft-hero-sub-nl">Tekst onder de titel "Fotoboek"</label><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
           <div class="taal-rij">
             <textarea class="taal-nl" id="ft-hero-sub-nl" name="ft[hero_sub][nl]" maxlength="400" placeholder="Nederlands" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['nl'] ?? ''); ?></textarea>
             <textarea class="taal-en" id="ft-hero-sub-en" name="ft[hero_sub][en]" maxlength="400" placeholder="English (optioneel)" style="min-height:70px;"><?php echo htmlspecialchars($fotoboekTekstData['hero_sub']['en'] ?? ''); ?></textarea>
@@ -5055,7 +5055,7 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
 
     <div class="kaart" data-taal-scope="fotoboek-nieuw">
-      <div class="taal-scope-kop"><h1>Nieuw album</h1><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></div>
+      <div class="taal-scope-kop"><h1>Nieuw album</h1><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></div>
       <p class="sub">Maak een album aan, daarna kun je er hieronder foto's aan toevoegen.</p>
 
       <?php if (isset($melding['fotoboek'])): ?>
@@ -5094,7 +5094,7 @@ if ($isMaster && file_exists($logBestand)) {
         <details class="fotoboek-album-details" data-taal-scope="fotoboek-album-<?php echo htmlspecialchars($slug); ?>">
           <summary class="fotoboek-album-kop">
             <span class="fotoboek-album-titel"><span class="fotoboek-album-volgnummer">#<?php echo htmlspecialchars((string) ($album['volgorde'] ?? 0)); ?></span><?php echo htmlspecialchars($album['title']['nl'] ?? $slug); ?><?php if (!empty($album['verborgen'])): ?> <span class="fotoboek-cover-badge" style="background:var(--rust); color:#fff;">verborgen</span><?php endif; ?></span>
-            <span class="taal-scope-kop"><span class="hint"><?php echo count($album['photos']); ?> foto('s)</span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">DE</button></span></span>
+            <span class="taal-scope-kop"><span class="hint"><?php echo count($album['photos']); ?> foto('s)</span><span class="taal-toggle-mini"><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></span>
           </summary>
           <div class="fotoboek-album-inhoud">
           <form method="post" action="beheer.php#fotoboek" enctype="multipart/form-data" class="fotoboek-album-form">
