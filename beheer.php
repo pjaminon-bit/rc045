@@ -1888,6 +1888,17 @@ $homepageVelden = [
   'footer_sponsor'         => ['Footer: link "Sponsoring"', 'tekst'],
   'footer_sponsors_title'  => ['Footer: titel boven de sponsorlogo\'s ("Met dank aan onze sponsoren")', 'tekst'],
   'footer_credit'          => ['Footer: "Website door" (voor de naam, die staat vast)', 'tekst'],
+
+  'form_name'    => ['Contactformulier: label "Naam"', 'tekst'],
+  'form_email'   => ['Contactformulier: label "E-mailadres"', 'tekst'],
+  'form_phone'   => ['Contactformulier: label "Telefoonnummer"', 'tekst'],
+  'form_subject' => ['Contactformulier: label "Onderwerp"', 'tekst'],
+  'form_select'  => ['Contactformulier: placeholder in de onderwerp-lijst ("Selecteer een onderwerp...")', 'tekst'],
+  'form_opt1'    => ['Contactformulier: onderwerp-optie "Vraag over lidmaatschap"', 'tekst'],
+  'form_opt4'    => ['Contactformulier: onderwerp-optie "Sponsoring"', 'tekst'],
+  'form_opt5'    => ['Contactformulier: onderwerp-optie "Overige vragen"', 'tekst'],
+  'form_message' => ['Contactformulier: label "Bericht"', 'tekst'],
+  'form_send'    => ['Contactformulier: tekst op de verzendknop ("Verstuur bericht →")', 'tekst', 'De pijl (→) staat in de tekst zelf, die moet je dus meetypen.'],
 ];
 // Zelfde velden, gegroepeerd per kaart voor het formulier. Een aparte lijst
 // in plaats van in $homepageVelden zelf, want de volgorde en groepering is
@@ -1907,6 +1918,7 @@ $homepageGroepen = [
   'Contact' => ['contact_label', 'contact_title', 'contact_text'],
   'Navigatiemenu' => ['nav_about', 'nav_membership', 'nav_track', 'nav_location', 'nav_photobook', 'nav_contact', 'nav_join'],
   'Footer' => ['footer_brand', 'footer_nav', 'footer_origin', 'footer_media', 'footer_photobook', 'footer_calendar', 'footer_join', 'footer_become', 'footer_rules', 'footer_sponsor', 'footer_sponsors_title', 'footer_credit'],
+  'Contactformulier' => ['form_name', 'form_email', 'form_phone', 'form_subject', 'form_select', 'form_opt1', 'form_opt4', 'form_opt5', 'form_message', 'form_send'],
 ];
 
 // Velden van het tabblad Ontstaan: zelfde opzet als $homepageVelden. Geen

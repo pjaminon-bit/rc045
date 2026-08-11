@@ -1079,18 +1079,18 @@
           <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
         </div>
         <div class="form-group">
-          <label for="naam" data-i18n="form.name">Naam *</label>
+          <label for="naam" id="hp-form-name" data-i18n="form.name">Naam *</label>
           <input type="text" id="naam" name="naam" required>
         </div>
         <div class="form-group">
-          <label for="email" data-i18n="form.email">E-mailadres</label>
+          <label for="email" id="hp-form-email" data-i18n="form.email">E-mailadres</label>
           <input type="email" id="email" name="email">
         </div>
         <div id="email-warning" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
           ⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl)
         </div>
         <div class="form-group">
-          <label for="telefoon" data-i18n="form.phone">Telefoonnummer</label>
+          <label for="telefoon" id="hp-form-phone" data-i18n="form.phone">Telefoonnummer</label>
           <div style="display:flex; gap:8px;">
             <select id="landcode" style="width:110px; flex-shrink:0;">
               <option value="+31">🇳🇱 +31</option>
@@ -1107,16 +1107,16 @@
           ⚠️ We hebben een e-mailadres of telefoonnummer van je nodig om contact op te nemen.
         </div>
         <div class="form-group">
-          <label for="onderwerp" data-i18n="form.subject">Onderwerp</label>
+          <label for="onderwerp" id="hp-form-subject" data-i18n="form.subject">Onderwerp</label>
           <select id="onderwerp" name="onderwerp">
-            <option value="" data-i18n="form.select">Selecteer een onderwerp...</option>
-            <option data-i18n="form.opt1">Vraag over lidmaatschap</option>
-            <option data-i18n="form.opt4">Sponsoring</option>
-            <option data-i18n="form.opt5">Overige vragen</option>
+            <option value="" id="hp-form-select" data-i18n="form.select">Selecteer een onderwerp...</option>
+            <option id="hp-form-opt1" data-i18n="form.opt1">Vraag over lidmaatschap</option>
+            <option id="hp-form-opt4" data-i18n="form.opt4">Sponsoring</option>
+            <option id="hp-form-opt5" data-i18n="form.opt5">Overige vragen</option>
           </select>
         </div>
         <div class="form-group">
-          <label for="bericht" data-i18n="form.message">Bericht *</label>
+          <label for="bericht" id="hp-form-message" data-i18n="form.message">Bericht *</label>
           <textarea id="bericht" name="bericht" data-i18n-placeholder="form.message.ph" placeholder="Schrijf hier je vraag of bericht..." required></textarea>
         </div>
         <div id="form-success" style="display:none; padding:16px; background:var(--teal-light); border-radius:8px; color:var(--teal-dark); font-weight:600; text-align:center;">
@@ -1772,7 +1772,9 @@
     'guest_tag', 'guest_title', 'guest_text', 'guest_adult', 'guest_youth', 'guest_group', 'guest_btn', 'guest_note',
     'member_tag', 'member_title', 'member_text', 'member_youth', 'member_senior', 'member_fee', 'member_btn', 'member_note',
     'loc_label', 'loc_title', 'addr_title', 'addr_text', 'addr_route', 'instagram_soon',
-    'contact_label', 'contact_title', 'contact_text'
+    'contact_label', 'contact_title', 'contact_text',
+    'form_name', 'form_email', 'form_phone', 'form_subject', 'form_select',
+    'form_opt1', 'form_opt4', 'form_opt5', 'form_message', 'form_send'
   ];
   // De notities onder beide prijskaarten staan als opsomming onder de knop.
   // Bron zijn de velden guest_note en member_note (beheer.php), met de
@@ -1838,7 +1840,10 @@
       if (!tekst) return;
       // guest_note en member_note worden als opsomming gerenderd, zie renderNotities().
       if (veld === 'guest_note' || veld === 'member_note') return;
-      var el = document.getElementById('hp-' + veld.replace(/_/g, '-'));
+      // De verzendknop heeft al een id (form-btn, gebruikt door de submit-code
+      // verderop), dus die krijgt geen hp-form-send maar hergebruikt dat id.
+      var elId = veld === 'form_send' ? 'form-btn' : 'hp-' + veld.replace(/_/g, '-');
+      var el = document.getElementById(elId);
       if (el) el.textContent = tekst;
     });
   }
