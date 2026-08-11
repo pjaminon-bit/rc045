@@ -3213,38 +3213,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         if ($lid['inschrijfdatum'] === '') $lid['inschrijfdatum'] = date('Y-m-d');
       }
 
-      // Contributieregels: één blok per jaar, plus een leeg blok om een
-      // nieuw jaar toe te voegen. Een blok met een leeg jaartal wordt
-      // overgeslagen, een bestaand jaar met het vinkje "verwijderen" gaat eruit.
-      $regels = isset($_POST['contributie']) && is_array($_POST['contributie']) ? $_POST['contributie'] : [];
-      foreach ($regels as $regel) {
-        $jaar = (int) ($regel['jaar'] ?? 0);
-        if ($jaar < 2000 || $jaar > 2099) continue;
-        if (!empty($regel['verwijderen'])) {
-          unset($lid['contributie'][(string) $jaar]);
-          continue;
+      // Lidnummer moet uniek zijn. Het veld is voor nieuwe leden meestal
+      // een voorstel (hoogste + 1) en voor bestaande leden zelden gewijzigd,
+      // maar blijft met de hand aan te passen (bijvoorbeeld om een dubbel
+      // nummer uit het Excel-bestand recht te zetten), dus die controle
+      // hoort hier, niet als een simpele disabled-veld-truc die ook een
+      // echte oplossing in de weg zit.
+      $nummerBotsing = null;
+      foreach ($ledenData['leden'] as $i => $ander) {
+        if ($i === $index) continue;
+        if ((int) $lid['nummer'] > 0 && (int) ($ander['nummer'] ?? 0) === (int) $lid['nummer']) {
+          $nummerBotsing = $ander;
+          break;
         }
-        $lid = ledenZetContributie($lid, $jaar, $regel);
       }
 
-      if ($index === null) {
-        $ledenData['leden'][] = $lid;
-        $ledenData['volgnummer'] = max((int) $ledenData['volgnummer'], (int) $lid['nummer']);
-        $actie = 'toegevoegd';
+      if ($nummerBotsing !== null) {
+        $melding['leden'] = 'Lidnummer ' . $lid['nummer'] . ' is al in gebruik bij ' . ledenVolledigeNaam($nummerBotsing) . '. Kies een ander nummer, bijvoorbeeld met de knop "Gebruik ..." naast het veld.';
+        $meldingType['leden'] = 'fout';
       } else {
-        $ledenData['leden'][$index] = $lid;
-        $actie = 'bijgewerkt';
-      }
+        // Contributieregels: één blok per jaar, plus een leeg blok om een
+        // nieuw jaar toe te voegen. Een blok met een leeg jaartal wordt
+        // overgeslagen, een bestaand jaar met het vinkje "verwijderen" gaat eruit.
+        $regels = isset($_POST['contributie']) && is_array($_POST['contributie']) ? $_POST['contributie'] : [];
+        foreach ($regels as $regel) {
+          $jaar = (int) ($regel['jaar'] ?? 0);
+          if ($jaar < 2000 || $jaar > 2099) continue;
+          if (!empty($regel['verwijderen'])) {
+            unset($lid['contributie'][(string) $jaar]);
+            continue;
+          }
+          $lid = ledenZetContributie($lid, $jaar, $regel);
+        }
 
-      if (ledenSchrijf($ledenData)) {
-        schrijfLog($logBestand, $huidigeGebruiker, 'leden', $actie . ': ' . ledenVolledigeNaam($lid) . ' (nr ' . $lid['nummer'] . ')');
-        $_SESSION['flash']['leden'] = ['tekst' => 'Lid ' . $actie . ': ' . ledenVolledigeNaam($lid) . '.', 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
-        header('Location: beheer.php#leden');
-        exit;
+        if ($index === null) {
+          $ledenData['leden'][] = $lid;
+          $ledenData['volgnummer'] = max((int) $ledenData['volgnummer'], (int) $lid['nummer']);
+          $actie = 'toegevoegd';
+        } else {
+          $ledenData['leden'][$index] = $lid;
+          $actie = 'bijgewerkt';
+        }
+
+        if (ledenSchrijf($ledenData)) {
+          schrijfLog($logBestand, $huidigeGebruiker, 'leden', $actie . ': ' . ledenVolledigeNaam($lid) . ' (nr ' . $lid['nummer'] . ')');
+          $_SESSION['flash']['leden'] = ['tekst' => 'Lid ' . $actie . ': ' . ledenVolledigeNaam($lid) . '.', 'type' => 'ok'];
+          if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+          header('Location: beheer.php#leden');
+          exit;
+        }
+        $melding['leden'] = 'Opslaan mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+        $meldingType['leden'] = 'fout';
       }
-      $melding['leden'] = 'Opslaan mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
-      $meldingType['leden'] = 'fout';
     }
 
   } elseif ($formulier === 'leden_verwijderen') {
@@ -3792,6 +3812,17 @@ foreach ($ledenLijst as $l) {
 }
 $ledenDubbeleNummers = array_keys(array_filter($ledenNummerTelling, function ($aantal) { return $aantal > 1; }));
 sort($ledenDubbeleNummers);
+
+// Erbij welke leden het zijn, anders moet je zelf op zoek naar wie het
+// dubbele nummer heeft.
+$ledenDubbeleNummerRegels = [];
+foreach ($ledenDubbeleNummers as $dubbelNr) {
+  $namen = [];
+  foreach ($ledenLijst as $l) {
+    if ((int) ($l['nummer'] ?? 0) === $dubbelNr) $namen[] = ledenVolledigeNaam($l);
+  }
+  $ledenDubbeleNummerRegels[] = $dubbelNr . ' (' . implode(' & ', $namen) . ')';
+}
 
 
 $fotoboekData = ['albums' => []];
@@ -5666,8 +5697,12 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="rij-3">
           <div class="veld">
             <label for="lid-nummer">Lidnummer</label>
-            <input type="number" id="lid-nummer" disabled value="<?php echo htmlspecialchars((string) $ledenBewerkLid['nummer']); ?>">
-            <p class="hint">Automatisch toegekend (hoogste nummer + 1) en daarna vastgezet, zodat het altijd uniek blijft. Verwijder je een lid, dan komt dat nummer weer beschikbaar voor het eerstvolgende nieuwe lid.</p>
+            <?php $ledenVrijNummer = ledenVolgendNummer($ledenData); ?>
+            <div style="display:flex; gap:8px;">
+              <input type="number" id="lid-nummer" name="nummer" min="1" step="1" value="<?php echo htmlspecialchars((string) $ledenBewerkLid['nummer']); ?>" style="flex:1;">
+              <button type="button" class="knop-klein" id="lid-nummer-vrij" data-vrij="<?php echo (int) $ledenVrijNummer; ?>" style="width:auto; flex:0 0 auto;">Gebruik <?php echo (int) $ledenVrijNummer; ?></button>
+            </div>
+            <p class="hint">Moet uniek zijn: opslaan mislukt als dit nummer al bij een ander lid hoort. Eerstvolgende vrije nummer is <?php echo (int) $ledenVrijNummer; ?>, de knop vult dat meteen in.</p>
           </div>
           <div class="veld">
             <label for="lid-status">Status</label>
@@ -5850,7 +5885,7 @@ if ($isMaster && file_exists($logBestand)) {
       <?php endif; ?>
 
       <?php if (count($ledenDubbeleNummers) > 0): ?>
-        <div class="melding fout">Let op: lidnummer <?php echo htmlspecialchars(implode(', ', $ledenDubbeleNummers)); ?> komt meer dan een keer voor. Pas het aan bij de betreffende leden.</div>
+        <div class="melding fout">Let op, dubbel lidnummer: <?php echo htmlspecialchars(implode(', ', $ledenDubbeleNummerRegels)); ?>. Open een van de twee leden en pas het nummer aan.</div>
       <?php endif; ?>
 
       <div class="leden-telling">
@@ -7043,6 +7078,20 @@ if ($isMaster && file_exists($logBestand)) {
             bulkBijwerken();
           });
         }
+      })();
+
+      // ===== "Gebruik X" knop bij het lidnummer =====
+      // Vult het eerstvolgende vrije nummer meteen in, handig om een
+      // dubbel lidnummer op te lossen zonder zelf te hoeven uitzoeken
+      // welk nummer nog vrij is.
+      (function () {
+        var knop = document.getElementById('lid-nummer-vrij');
+        var veld = document.getElementById('lid-nummer');
+        if (!knop || !veld) return;
+        knop.addEventListener('click', function () {
+          veld.value = knop.getAttribute('data-vrij');
+          veld.focus();
+        });
       })();
 
       // ===== Vertalingen tonen/verbergen, per onderdeel =====
