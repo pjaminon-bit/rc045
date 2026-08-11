@@ -1928,6 +1928,23 @@ $homepageGroepen = [
   'Contactformulier' => ['form_name', 'form_email', 'form_phone', 'form_subject', 'form_select', 'form_opt1', 'form_opt4', 'form_opt5', 'form_message', 'form_send'],
 ];
 
+// De 14 groepen hierboven aan elkaar gebreid onder een paar kopjes, puur
+// visueel: welke groep bij welk hoofdstuk hoort. Elders in het formulier
+// (data-taal-scope, opslaglogica) verandert hierdoor niets.
+$homepageClusters = [
+  'Bovenkant' => ['Hero', 'Infobalk (onder de hero)'],
+  'Over de club' => ['"Wie zijn wij"', '"De baan"', 'Openingstijden (teksten rond de tijden)', '"Veiligheid staat voorop" (reglement-preview)'],
+  'Nieuws & agenda' => ['Nieuws', 'Agenda'],
+  'Lidmaatschap & locatie' => ['"Lidmaatschap"', '"Bezoek ons"', 'Contact'],
+  'Navigatie, footer & formulier' => ['Navigatiemenu', 'Footer', 'Contactformulier'],
+];
+$homepageGroepNaarCluster = [];
+foreach ($homepageClusters as $clusterLabel => $groepenInCluster) {
+  foreach ($groepenInCluster as $g) {
+    $homepageGroepNaarCluster[$g] = $clusterLabel;
+  }
+}
+
 // Velden van het tabblad Ontstaan: zelfde opzet als $homepageVelden. Geen
 // aparte groepen-lijst nodig, dit tabblad is één doorlopend verhaal.
 $ontstaanVelden = [
@@ -3896,6 +3913,10 @@ if ($isMaster && file_exists($logBestand)) {
        Zelfde opmaak op mobiel, daar staat het gewoon in het uitklappaneel. */
     .menu-groep-label { margin: 10px 0 6px; padding: 5px 12px; font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; background: var(--teal-light); border-radius: 6px; }
     .menu-groep-label:first-child { margin-top: 0; }
+    /* Zelfde idee als de menu-groepslabels, maar dan binnen een tab: bindt
+       een aantal uitklapkaarten samen onder een hoofdstuk, puur visueel. */
+    .sectie-kop { margin: 22px 0 8px; padding: 7px 14px; font-size: 13px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; background: var(--teal-light); border-radius: 6px; }
+    .sectie-kop:first-child { margin-top: 0; }
     .beheer-menu-knop { display: none; }
     @media (max-width: 860px) {
       /* Op smalle schermen geen tweede kolom, en het menu wordt een
@@ -4254,9 +4275,14 @@ if ($isMaster && file_exists($logBestand)) {
       <input type="hidden" name="formulier" value="homepage">
       <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
 
-      <?php $homepageGroepIndex = 0; $homepageAantalGroepen = count($homepageGroepen); ?>
+      <?php $homepageGroepIndex = 0; $homepageAantalGroepen = count($homepageGroepen); $homepageVorigeCluster = null; ?>
       <?php foreach ($homepageGroepen as $homepageGroepNaam => $homepageVeldSleutels): ?>
         <?php $homepageGroepIndex++; ?>
+        <?php $homepageHuidigeCluster = $homepageGroepNaarCluster[$homepageGroepNaam] ?? null; ?>
+        <?php if ($homepageHuidigeCluster !== null && $homepageHuidigeCluster !== $homepageVorigeCluster): ?>
+      <div class="sectie-kop"><?php echo htmlspecialchars($homepageHuidigeCluster); ?></div>
+          <?php $homepageVorigeCluster = $homepageHuidigeCluster; ?>
+        <?php endif; ?>
         <details class="kaart" data-taal-scope="hp-<?php echo $homepageGroepIndex; ?>"<?php echo $homepageGroepIndex === 1 ? ' open' : ''; ?>>
           <summary><?php echo htmlspecialchars($homepageGroepNaam); ?><span class="kaart-uitklap-telling"><?php echo count($homepageVeldSleutels); ?> veld<?php echo count($homepageVeldSleutels) === 1 ? '' : 'en'; ?></span><span class="taal-toggle-mini"><button type="button" class="auto-vertaal-btn" title="Automatisch vertalen met DeepL">🌐 Vertaal</button><button type="button" class="taal-toggle-btn" data-taal="en" aria-pressed="false">🇬🇧 EN</button><button type="button" class="taal-toggle-btn" data-taal="de" aria-pressed="false">🇩🇪 DE</button></span></summary>
           <div class="kaart-uitklap-inhoud">
