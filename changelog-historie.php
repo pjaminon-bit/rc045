@@ -1,276 +1,377 @@
 <?php
-// ============================================================
-// RC045 bestuursvergaderingen: opslag en hulpfuncties
-// ------------------------------------------------------------
-// Zelfde opzet als leden-opslag.php: alleen functies, schrijft zelf
-// niets naar het scherm. Wordt gebruikt door beheer.php, tabblad
-// Bestuursvergadering.
+// ===== Vaste changelog-regels (ontwikkelaar) =====
 //
-// PRIVACY. Notulen, aanwezigheid en besluiten zijn intern. Het bestand
-// staat daarom net als het ledenbestand BEWUST NIET in data/, want die
-// map is publiek opvraagbaar. Het heet vergaderingen-data.php en begint
-// met een regel PHP die de uitvoer meteen afbreekt: wordt het ooit
-// rechtstreeks opgevraagd, dan voert de server het uit als PHP en krijgt
-// de bezoeker een lege pagina in plaats van de notulen. Zet het bestand
-// er daarnaast bij in .htaccess (Require all denied), twee sloten is
-// beter dan een. Let op dat de deploy dotfiles overslaat, dus die
-// .htaccess gaat met de hand via FTP.
-// ============================================================
+// Dit bestand hoort bij het tabblad "Changelog" in beheer.php en bevat de
+// regels die bij de code horen: alles wat er aan de website zelf is
+// gebouwd, gewijzigd of opgelost. Het staat bewust in de repo en niet in
+// data/, zodat een nieuwe regel gewoon met de code meegaat bij de volgende
+// deploy en niet handmatig in het beheerpaneel hoeft te worden ingetypt.
+//
+// Regels die het bestuur zelf via beheer.php toevoegt komen in
+// data/changelog.json terecht. Beheer.php voegt die twee lijsten samen en
+// toont ze op datum. De regels hieronder zijn in het beheerpaneel niet te
+// bewerken of te verwijderen: bij de volgende deploy zouden ze toch weer
+// terugkomen.
+//
+// Opbouw per regel:
+//   datum  yyyy-mm-dd
+//   cat    nieuw | verbeterd | opgelost | beveiliging | onderhoud
+//   titel  eén korte zin, geen punt aan het eind
+//   tekst  optionele toelichting, mag leeg blijven
+//
+// Nieuwste regel bovenaan.
 
-require_once __DIR__ . '/leden-opslag.php';
+return [
 
-define('VERGADERINGEN_VOORLOOP', "<?php exit; ?>\n");
+  // ===== augustus 2026 =====
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'opgelost',
+    'titel' => 'Import maakte dubbele leden aan bij een lid zonder mailadres en zonder geboortedatum',
+    'tekst' => 'Zo iemand werd bij een tweede import niet herkend en kwam er een tweede keer bij te staan, ook als je een export meteen weer inlas. De herkenning kijkt nu ook naar het lidnummer samen met de naam, en als laatste redmiddel naar alleen de naam, mits die maar bij één lid voorkomt en er niets tegenspreekt. Twee leden met dezelfde naam worden dus nooit stiekem samengevoegd. In het controleoverzicht staat per regel waarop hij herkend is, met een waarschuwing als dat alleen de naam was.',
+  ],
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Tabblad Bestuursvergadering',
+    'tekst' => 'Vergaderingen vastleggen met datum, tijd, locatie, presentielijst, agendapunten en notulen. Bij elk agendapunt kun je na afloop het besluit invullen. Ieder bestuurslid kan een vergadering aanmaken en bijwerken, ongeacht de functie. Het tabblad is alleen zichtbaar voor leden met een bestuursfunctie.',
+  ],
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Rol bij een lid: bestuursfunctie en commissies',
+    'tekst' => 'Onder Vereniging staat nu een keuzelijst voor voorzitter, penningmeester, secretaris of bestuurslid, plus vinkjes voor de commissies. Voorzitter, penningmeester en secretaris tellen automatisch mee als bestuurslid, en een bestuurslid mag ook in een commissie zitten. De rol bepaalt wie het tabblad Bestuursvergadering ziet.',
+  ],
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Commissies zelf samenstellen',
+    'tekst' => 'Onderaan het tabblad Leden staat een lijst waarin je commissies toevoegt, hernoemt of verwijdert, met het aantal leden erbij. Hernoemen laat de koppeling met de leden intact; verwijderen haalt de commissie ook bij alle leden weg.',
+  ],
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'verbeterd',
+    'titel' => 'Ledenlijst: filteren en zoeken op rol',
+    'tekst' => 'Nieuwe keuzelijst voor alle bestuursleden, een losse functie, een commissie of juist de leden zonder rol. De rol staat ook onder de naam in het overzicht en je kunt erop zoeken. Bestuursfunctie en commissies zitten daarnaast in de CSV-export en worden bij een import weer herkend.',
+  ],
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'opgelost',
+    'titel' => 'Beheerpaneel op telefoon: piepkleine invulvelden en pagina buiten beeld',
+    'tekst' => 'Bij Vragen, Sponsors, Agenda, Nieuws en de tekstpagina\'s werden invulvelden soms tot één letter breed samengedrukt, met grote lege gaten ertussen, en liep de kaart buiten het scherm. De vertaalvelden staan op een smal scherm nu netjes onder elkaar en de kopregels breken af in plaats van de pagina breder te maken.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'nieuw',
+    'titel' => 'Changelog in het beheerpaneel',
+    'tekst' => 'Nieuw tabblad met alle wijzigingen aan de website, op datum en per categorie. De historie is opgebouwd uit de commits vanaf de eerste versie. Het bestuur kan zelf regels toevoegen; toegang is per gebruiker in te stellen bij Gebruikers.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'verbeterd',
+    'titel' => 'Contributie: snelkeuze bedrag met pro rata',
+    'tekst' => 'Bij een contributieregel staan nu knopjes voor het volledige jaarbedrag en het pro-rata bedrag volgens de rekentabel. Handmatig invullen blijft mogelijk.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'verbeterd',
+    'titel' => 'Ledenformulier: land als keuzelijst, Gemeente heet nu Woonplaats',
+    'tekst' => 'Veelgebruikte landen staan bovenaan de lijst.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'verbeterd',
+    'titel' => 'Lidnummer wordt gecontroleerd in plaats van vastgezet',
+    'tekst' => 'Een dubbel lidnummer is nu zichtbaar en op te lossen, in plaats van dat het veld helemaal op slot zit.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'opgelost',
+    'titel' => 'Knop "Gebruik nummer" deed niets tijdens het bewerken van een lid',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'opgelost',
+    'titel' => 'Een leeg lid verwijderen deed niets',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'verbeterd',
+    'titel' => 'Ledenlijst: zoeken op jeugdlid of senior',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'nieuw',
+    'titel' => 'Contributiestatus van meerdere leden tegelijk aanpassen',
+    'tekst' => 'Vink leden aan in de lijst en zet ze in één keer op betaald, open of vrijgesteld.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'verbeterd',
+    'titel' => 'Ledenbeheer overzichtelijker',
+    'tekst' => 'Het formulier is opgedeeld in secties, de contributiestatus is filterbaar, het nummer staat in een eigen kolom en de gekozen sortering wordt onthouden. Tijdens het bewerken van een lid blijven de lijst en de import verborgen.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'nieuw',
+    'titel' => 'Automatisch vertalen naar Engels en Duits',
+    'tekst' => 'Bij elk tekstblok in beheer staat een vertaalknop die de Nederlandse tekst via DeepL omzet. De vertaling blijft daarna gewoon met de hand aan te passen.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'verbeterd',
+    'titel' => 'Vertalingen standaard ingeklapt',
+    'tekst' => 'Per blok is alleen het Nederlands zichtbaar. Engels en Duits schuiven ernaast open met een knop.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'opgelost',
+    'titel' => 'Vertaalknop leverde HTML-codes op in gewone tekstvelden',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'nieuw',
+    'titel' => 'Navigatiemenu, footer, contactformulier en prijskaarten bewerkbaar',
+    'tekst' => 'De laatste vaste teksten op de website staan nu ook in het tabblad Homepage.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'verbeterd',
+    'titel' => 'Beheermenu gegroepeerd',
+    'tekst' => 'Vier groepen (Pagina\'s, Content, Leden en contributie, Beheer), in dezelfde volgorde als de website zelf. De homepage-velden zitten onder vijf hoofdstukken.',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'beveiliging',
+    'titel' => 'DeepL-sleutel afgeschermd via .htaccess',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-08-11',
+    'cat' => 'opgelost',
+    'titel' => 'Mailadresveld in ledenbeheer miste opmaak',
+    'tekst' => '',
+  ],
 
-function vergaderingenBestandPad() {
-  return __DIR__ . '/vergaderingen-data.php';
-}
+  [
+    'datum' => '2026-08-10',
+    'cat' => 'nieuw',
+    'titel' => 'Ledenadministratie in beheer',
+    'tekst' => 'Ledenlijst met status, sorteerbare kolommen, klikbare statusbadges als snelfilter, meerjarige contributie en import en export via CSV. Een rij aanklikken opent het lid.',
+  ],
+  [
+    'datum' => '2026-08-10',
+    'cat' => 'nieuw',
+    'titel' => 'Rechten per gebruiker',
+    'tekst' => 'Per beheerder is in te stellen welke tabbladen zichtbaar zijn. Gebruikers, Log en Back-ups blijven altijd alleen voor de hoofdbeheerder.',
+  ],
+  [
+    'datum' => '2026-08-10',
+    'cat' => 'nieuw',
+    'titel' => 'Alle overige paginateksten beheerbaar',
+    'tekst' => 'Homepage, Ontstaan, Baanreglement, Aanmelden, Bedankt, Media en Fotoboek zijn nu volledig vanuit beheer aan te passen.',
+  ],
+  [
+    'datum' => '2026-08-10',
+    'cat' => 'verbeterd',
+    'titel' => 'Lidmaatschapsprijzen op de homepage komen uit de rekentabel',
+    'tekst' => 'Eén plek aanpassen is genoeg; de bedragen op de website volgen automatisch.',
+  ],
+  [
+    'datum' => '2026-08-10',
+    'cat' => 'verbeterd',
+    'titel' => 'Beheer op mobiel bruikbaar',
+    'tekst' => 'Menu links met hamburgerknop, tabellen als kaarten op een smal scherm en datums overal in dd/mm/jjjj.',
+  ],
+  [
+    'datum' => '2026-08-10',
+    'cat' => 'opgelost',
+    'titel' => 'Een veld leegmaken overschreef de standaardtekst niet',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-08-10',
+    'cat' => 'onderhoud',
+    'titel' => 'Deploy-workflow naar actions/checkout v4',
+    'tekst' => 'De oude versie draaide op een verouderde Node.js.',
+  ],
 
-// ===== Statussen =====
+  [
+    'datum' => '2026-08-08',
+    'cat' => 'nieuw',
+    'titel' => 'Aanmeldingen komen binnen in de ledenadministratie',
+    'tekst' => 'Het aanmeldformulier slaat de aanmelding op met status "nieuw", met spamfilter, snelheidsbegrenzing en controle op dubbele aanmeldingen.',
+  ],
+  [
+    'datum' => '2026-08-08',
+    'cat' => 'onderhoud',
+    'titel' => 'Gedeelde opmaak en scripts',
+    'tekst' => 'Navigatie, footer, sponsorblok, hamburgermenu en de terug-naar-boven knop staan nu in styles.css en site-i18n.js in plaats van los in elke pagina.',
+  ],
 
-function vergaderingenStatussen() {
-  return [
-    'gepland'      => 'Gepland',
-    'afgerond'     => 'Afgerond',
-    'geannuleerd'  => 'Geannuleerd',
-  ];
-}
+  [
+    'datum' => '2026-08-01',
+    'cat' => 'nieuw',
+    'titel' => 'Openingstijden met tijdelijke statussen',
+    'tekst' => 'Gesloten, gesloten wegens onderhoud en gesloten wegens slecht weer, met een statusbadge op de homepage. Tijdelijke statussen vervallen automatisch om 20:00.',
+  ],
 
-// Aanwezigheid per bestuurslid. 'onbekend' is geen keuze in het
-// formulier maar wat er geldt zolang er niets is aangevinkt, bijvoorbeeld
-// bij een vergadering die nog moet plaatsvinden.
-function vergaderingenAanwezigheid() {
-  return [
-    'aanwezig'  => 'Aanwezig',
-    'afgemeld'  => 'Afgemeld',
-    'afwezig'   => 'Afwezig',
-  ];
-}
+  // ===== juli 2026 =====
+  [
+    'datum' => '2026-07-29',
+    'cat' => 'onderhoud',
+    'titel' => 'Sitemap bijgewerkt',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-07-28',
+    'cat' => 'verbeterd',
+    'titel' => 'Vragen, sponsors en media schalen mee met het scherm',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-07-26',
+    'cat' => 'nieuw',
+    'titel' => 'Automatische back-ups van alle beheerdata',
+    'tekst' => 'Voor elke opslag gaat er een kopie naar een afgeschermde map. In het tabblad Back-ups is een eerdere versie per onderdeel terug te zetten.',
+  ],
+  [
+    'datum' => '2026-07-26',
+    'cat' => 'beveiliging',
+    'titel' => 'Blokkade na vijf mislukte inlogpogingen',
+    'tekst' => 'Daarnaast wordt het sessie-ID vernieuwd bij het inloggen.',
+  ],
+  [
+    'datum' => '2026-07-26',
+    'cat' => 'nieuw',
+    'titel' => 'Logboek met filters',
+    'tekst' => 'Wie wat wanneer heeft aangepast, te filteren op gebruiker en onderdeel. Bewaartermijn 90 dagen.',
+  ],
+  [
+    'datum' => '2026-07-26',
+    'cat' => 'verbeterd',
+    'titel' => 'Foto-upload tot 25 MB met voortgangsbalk',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-07-25',
+    'cat' => 'nieuw',
+    'titel' => 'Fotoboek: albums verbergen en omschrijving toevoegen',
+    'tekst' => 'Ook foto\'s vanaf een iPhone (HEIC) worden nu geaccepteerd.',
+  ],
+  [
+    'datum' => '2026-07-25',
+    'cat' => 'nieuw',
+    'titel' => 'Sponsoroproep in de footer',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-07-24',
+    'cat' => 'nieuw',
+    'titel' => 'Watermerk op fotoboekfoto\'s',
+    'tekst' => 'Per album in te stellen, ook toe te passen op al geüploade foto\'s.',
+  ],
+  [
+    'datum' => '2026-07-24',
+    'cat' => 'verbeterd',
+    'titel' => 'Afgelopen agenda-activiteiten vallen minder op',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-07-24',
+    'cat' => 'verbeterd',
+    'titel' => 'Openingstijden per dag instelbaar',
+    'tekst' => 'Inclusief de Facebook-link in de footer, die nu ook uit beheer komt.',
+  ],
+  [
+    'datum' => '2026-07-13',
+    'cat' => 'nieuw',
+    'titel' => 'Beheerpaneel (beheer.php)',
+    'tekst' => 'Eerste versie met tabbladen voor openingstijden, agenda, vragen, sponsors en de rekentabel voor de contributie.',
+  ],
+  [
+    'datum' => '2026-07-13',
+    'cat' => 'nieuw',
+    'titel' => 'Agenda, vragen en sponsors komen uit databestanden',
+    'tekst' => 'De website leest ze in, zodat ze zonder code aan te passen te wijzigen zijn.',
+  ],
+  [
+    'datum' => '2026-07-09',
+    'cat' => 'nieuw',
+    'titel' => 'Meldingsbalk bovenaan de homepage',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-07-08',
+    'cat' => 'verbeterd',
+    'titel' => 'Footer opgeschoond en contributieteksten bijgewerkt',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-07-07',
+    'cat' => 'nieuw',
+    'titel' => 'Sponsorlogo\'s in de footer',
+    'tekst' => '',
+  ],
+  [
+    'datum' => '2026-07-06',
+    'cat' => 'nieuw',
+    'titel' => 'Bezoekersstatistieken via GoatCounter',
+    'tekst' => 'Zonder cookies, dus zonder cookiemelding.',
+  ],
+  [
+    'datum' => '2026-07-06',
+    'cat' => 'onderhoud',
+    'titel' => 'Automatisch publiceren naar de server',
+    'tekst' => 'Elke wijziging in GitHub gaat via een workflow direct naar de hosting.',
+  ],
+  [
+    'datum' => '2026-07-06',
+    'cat' => 'onderhoud',
+    'titel' => 'Oude adressen doorgestuurd',
+    'tekst' => 'Bijvoorbeeld /Over-ons naar het juiste onderdeel op de homepage.',
+  ],
 
-// ===== Lezen en schrijven =====
+  // ===== juni 2026 =====
+  [
+    'datum' => '2026-06-24',
+    'cat' => 'nieuw',
+    'titel' => 'Mediapagina',
+    'tekst' => 'Overzicht van krantenartikelen en tv-items over RC045.',
+  ],
+  [
+    'datum' => '2026-06-22',
+    'cat' => 'nieuw',
+    'titel' => 'IBAN kopiëren met één klik',
+    'tekst' => 'Op de bedankpagina na het aanmelden.',
+  ],
+  [
+    'datum' => '2026-06-21',
+    'cat' => 'beveiliging',
+    'titel' => 'Spamfilter op contact- en aanmeldformulier',
+    'tekst' => 'Een verborgen veld dat alleen bots invullen.',
+  ],
+  [
+    'datum' => '2026-06-21',
+    'cat' => 'nieuw',
+    'titel' => 'Foto\'s bij de baan en het ontstaansverhaal',
+    'tekst' => 'Met vergroting bij aanklikken.',
+  ],
+  [
+    'datum' => '2026-06-17',
+    'cat' => 'nieuw',
+    'titel' => 'Website in drie talen',
+    'tekst' => 'Nederlands, Engels en Duits, met een taalkeuze die onthouden wordt.',
+  ],
+  [
+    'datum' => '2026-06-15',
+    'cat' => 'nieuw',
+    'titel' => 'Eerste versie van rc045.nl online',
+    'tekst' => '',
+  ],
 
-function vergaderingenLeegBestand() {
-  return ['updated' => date('c'), 'volgnummer' => 0, 'vergaderingen' => []];
-}
-
-function vergaderingenLees() {
-  $pad = vergaderingenBestandPad();
-  if (!is_file($pad)) return vergaderingenLeegBestand();
-  $ruw = file_get_contents($pad);
-  if ($ruw === false) return vergaderingenLeegBestand();
-  $start = strpos($ruw, '{');
-  if ($start === false) return vergaderingenLeegBestand();
-  $json = json_decode(substr($ruw, $start), true);
-  if (!is_array($json) || !isset($json['vergaderingen']) || !is_array($json['vergaderingen'])) {
-    return vergaderingenLeegBestand();
-  }
-  $json['volgnummer'] = isset($json['volgnummer']) ? (int) $json['volgnummer'] : 0;
-  return $json;
-}
-
-// Tijdgestempelde kopie in dezelfde map en met dezelfde bewaartermijn als
-// de andere back-ups, zodat een per ongeluk gewiste vergadering terug te
-// halen is.
-function vergaderingenMaakBackup($bewaardagen = 90, $maxAantal = 200) {
-  $pad = vergaderingenBestandPad();
-  if (!is_file($pad)) return;
-  $map = ledenBackupMap();
-  if (!is_dir($map) && !@mkdir($map, 0755, true)) return;
-  @copy($pad, $map . '/' . date('Ymd-His') . '_vergaderingen-data.php');
-
-  $bestanden = @glob($map . '/*_vergaderingen-data.php');
-  if ($bestanden === false || count($bestanden) === 0) return;
-  sort($bestanden);
-  $grens = time() - $bewaardagen * 24 * 60 * 60;
-  $over = [];
-  foreach ($bestanden as $b) {
-    $tijd = @filemtime($b);
-    if ($tijd !== false && $tijd >= $grens) { $over[] = $b; } else { @unlink($b); }
-  }
-  $teveel = count($over) - $maxAantal;
-  for ($i = 0; $i < $teveel; $i++) { @unlink($over[$i]); }
-}
-
-function vergaderingenSchrijf($data, $maakBackup = true) {
-  if ($maakBackup) vergaderingenMaakBackup();
-  $data['updated'] = date('c');
-  $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-  if ($json === false) return false;
-  return file_put_contents(vergaderingenBestandPad(), VERGADERINGEN_VOORLOOP . $json, LOCK_EX) !== false;
-}
-
-// ===== Kleine hulpjes =====
-
-function vergaderingNieuwId() {
-  return 'verg_' . bin2hex(random_bytes(6));
-}
-
-function vergaderingVolgendNummer($data) {
-  $hoogste = (int) ($data['volgnummer'] ?? 0);
-  foreach ($data['vergaderingen'] as $v) {
-    $n = (int) ($v['nummer'] ?? 0);
-    if ($n > $hoogste) $hoogste = $n;
-  }
-  return $hoogste + 1;
-}
-
-// "19:30", "19.30", "1930" en "9:5" leveren allemaal 19:30 / 09:05 op.
-// Onherkenbare invoer wordt leeg, want een half ingevulde tijd is
-// vervelender dan geen tijd.
-function vergaderingParseTijd($waarde) {
-  $waarde = trim((string) $waarde);
-  if ($waarde === '') return '';
-  if (preg_match('/^(\d{1,2})[:.h ]?(\d{2})$/i', $waarde, $m)) {
-    $uur = (int) $m[1];
-    $minuut = (int) $m[2];
-    if ($uur > 23 || $minuut > 59) return '';
-    return sprintf('%02d:%02d', $uur, $minuut);
-  }
-  if (preg_match('/^(\d{1,2})$/', $waarde, $m)) {
-    $uur = (int) $m[1];
-    if ($uur > 23) return '';
-    return sprintf('%02d:00', $uur);
-  }
-  return '';
-}
-
-// Sorteersleutel: nieuwste vergadering bovenaan. Een vergadering zonder
-// datum zakt naar beneden in plaats van bovenaan te blijven plakken.
-function vergaderingSorteersleutel($v) {
-  $datum = trim((string) ($v['datum'] ?? ''));
-  if ($datum === '') return '0000-00-00 00:00';
-  $tijd = trim((string) ($v['tijd'] ?? ''));
-  return $datum . ' ' . ($tijd === '' ? '00:00' : $tijd);
-}
-
-function vergaderingenGesorteerd($data, $oplopend = false) {
-  $lijst = $data['vergaderingen'];
-  usort($lijst, function ($a, $b) use ($oplopend) {
-    $vergelijk = vergaderingSorteersleutel($a) <=> vergaderingSorteersleutel($b);
-    return $oplopend ? $vergelijk : -$vergelijk;
-  });
-  return $lijst;
-}
-
-// Titel voor in de lijst. Zonder eigen titel is de datum de titel, want
-// "Bestuursvergadering" bij alle regels leest nergens naar.
-function vergaderingWeergavenaam($v) {
-  $titel = trim((string) ($v['titel'] ?? ''));
-  if ($titel !== '') return $titel;
-  $datum = trim((string) ($v['datum'] ?? ''));
-  return $datum === '' ? 'Vergadering zonder datum' : 'Vergadering ' . $datum;
-}
-
-// ===== Invoer opschonen =====
-
-function vergaderingVeldGrenzen() {
-  return ['titel' => 120, 'locatie' => 120];
-}
-
-function vergaderingNormaliseer($invoer, $bestaand = null) {
-  $v = is_array($bestaand) ? $bestaand : [];
-
-  foreach (vergaderingVeldGrenzen() as $veld => $max) {
-    if (array_key_exists($veld, $invoer)) {
-      $v[$veld] = ledenKort($invoer[$veld], $max);
-    } elseif (!isset($v[$veld])) {
-      $v[$veld] = '';
-    }
-  }
-
-  if (array_key_exists('datum', $invoer)) {
-    $v['datum'] = ledenParseDatum($invoer['datum']);
-  } elseif (!isset($v['datum'])) {
-    $v['datum'] = '';
-  }
-
-  if (array_key_exists('tijd', $invoer)) {
-    $v['tijd'] = vergaderingParseTijd($invoer['tijd']);
-  } elseif (!isset($v['tijd'])) {
-    $v['tijd'] = '';
-  }
-
-  $statussen = vergaderingenStatussen();
-  if (array_key_exists('status', $invoer) && isset($statussen[$invoer['status']])) {
-    $v['status'] = $invoer['status'];
-  } elseif (!isset($v['status']) || !isset($statussen[$v['status']])) {
-    $v['status'] = 'gepland';
-  }
-
-  if (array_key_exists('notulen', $invoer)) {
-    $tekst = trim((string) $invoer['notulen']);
-    $tekst = preg_replace('/\R/u', "\n", $tekst);
-    $v['notulen'] = function_exists('mb_substr') ? mb_substr($tekst, 0, 20000, 'UTF-8') : substr($tekst, 0, 20000);
-  } elseif (!isset($v['notulen'])) {
-    $v['notulen'] = '';
-  }
-
-  if (array_key_exists('agenda', $invoer)) {
-    $v['agenda'] = vergaderingAgendaOpschonen($invoer['agenda']);
-  } elseif (!isset($v['agenda']) || !is_array($v['agenda'])) {
-    $v['agenda'] = [];
-  }
-
-  if (array_key_exists('aanwezigheid', $invoer)) {
-    $v['aanwezigheid'] = vergaderingAanwezigheidOpschonen($invoer['aanwezigheid']);
-  } elseif (!isset($v['aanwezigheid']) || !is_array($v['aanwezigheid'])) {
-    $v['aanwezigheid'] = [];
-  }
-
-  if (!isset($v['id']) || $v['id'] === '') $v['id'] = vergaderingNieuwId();
-  if (!isset($v['nummer'])) $v['nummer'] = 0;
-  if (!isset($v['aangemaakt'])) $v['aangemaakt'] = date('c');
-  if (!isset($v['aangemaakt_door'])) $v['aangemaakt_door'] = '';
-  $v['gewijzigd'] = date('c');
-
-  return $v;
-}
-
-// Agendapunten: een lijst blokken uit het formulier. Een blok zonder
-// onderwerp valt weg (dat is het lege blok onderaan), net als een blok
-// met het vinkje "verwijderen".
-function vergaderingAgendaOpschonen($ruw) {
-  if (!is_array($ruw)) return [];
-  $punten = [];
-  foreach ($ruw as $punt) {
-    if (!is_array($punt)) continue;
-    if (!empty($punt['verwijderen'])) continue;
-    $onderwerp = ledenKort($punt['onderwerp'] ?? '', 160);
-    if ($onderwerp === '') continue;
-    $toelichting = trim((string) ($punt['toelichting'] ?? ''));
-    $toelichting = preg_replace('/\R/u', "\n", $toelichting);
-    $besluit = trim((string) ($punt['besluit'] ?? ''));
-    $besluit = preg_replace('/\R/u', "\n", $besluit);
-    $punten[] = [
-      'onderwerp'   => $onderwerp,
-      'indiener'    => ledenKort($punt['indiener'] ?? '', 80),
-      'toelichting' => function_exists('mb_substr') ? mb_substr($toelichting, 0, 4000, 'UTF-8') : substr($toelichting, 0, 4000),
-      'besluit'     => function_exists('mb_substr') ? mb_substr($besluit, 0, 4000, 'UTF-8') : substr($besluit, 0, 4000),
-    ];
-  }
-  return $punten;
-}
-
-// Aanwezigheid komt binnen als lid-id => keuze. Alles wat geen geldige
-// keuze is (of leeg blijft) wordt niet bewaard: geen regel betekent
-// gewoon "nog niet ingevuld".
-function vergaderingAanwezigheidOpschonen($ruw) {
-  if (!is_array($ruw)) return [];
-  $geldig = vergaderingenAanwezigheid();
-  $uit = [];
-  foreach ($ruw as $lidId => $keuze) {
-    $lidId = ledenKort($lidId, 40);
-    if ($lidId === '' || !is_string($keuze) || !isset($geldig[$keuze])) continue;
-    $uit[$lidId] = $keuze;
-  }
-  return $uit;
-}
-
-// Telling voor in het overzicht: hoeveel aanwezig, afgemeld, afwezig.
-function vergaderingAanwezigheidTelling($v) {
-  $telling = [];
-  foreach (array_keys(vergaderingenAanwezigheid()) as $sleutel) $telling[$sleutel] = 0;
-  foreach ((isset($v['aanwezigheid']) && is_array($v['aanwezigheid']) ? $v['aanwezigheid'] : []) as $keuze) {
-    if (isset($telling[$keuze])) $telling[$keuze]++;
-  }
-  return $telling;
-}
+];
