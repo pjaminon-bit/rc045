@@ -25,6 +25,13 @@ return [
 
   [
     'datum' => '2026-08-12',
+    'cat' => 'verbeterd',
+    'titel' => 'Datumveld schrijft zichzelf meteen om naar dd/mm/jjjj',
+    'tekst' => 'Vorige regel loste alleen het opslaan op; typte je bijvoorbeeld 01092026 dan bleef dat zo in beeld staan tot de pagina opnieuw laadde. Elk datumveld in beheer herschrijft de invoer nu meteen zodra je naar een ander veld gaat, ook bij later toegevoegde regels zoals een extra agendapunt of contributiejaar.',
+  ],
+
+  [
+    'datum' => '2026-08-12',
     'cat' => 'opgelost',
     'titel' => 'Datum aaneengeschreven invullen werkte nergens in beheer',
     'tekst' => 'Een datum als 01092026 gaf de melding "Die datum begrijp ik niet". Zulke invoer wordt nu ook gelezen als 01/09/2026: bij een vergadering, een lid (geboortedatum, inschrijfdatum, contributie), en bij Agenda, Nieuws, Media en Fotoboek.',

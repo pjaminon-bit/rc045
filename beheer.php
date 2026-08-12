@@ -7248,6 +7248,49 @@ if ($isMaster && file_exists($logBestand)) {
   <?php if ($ingelogd): ?>
   <script>
     (function() {
+      // ===== Datumvelden: meteen herschrijven naar dd/mm/jjjj =====
+      // Al deze velden hebben hetzelfde format-attribuut (placeholder
+      // dd/mm/jjjj), ook de velden die pas later worden toegevoegd (extra
+      // agenda-, nieuws-, media- of contributieregel). Daarom wordt hier
+      // niet één keer bij het laden gezocht, maar geluisterd op het
+      // document zelf, met capture aan want blur borrelt niet omhoog.
+      // Dit is puur de weergave; wat er echt wordt opgeslagen bepaalt nog
+      // steeds datumNaarIso()/ledenParseDatum() in de PHP, dus een format
+      // dat hier niet wordt herkend blijft gewoon staan zoals ingetypt en
+      // krijgt bij het opslaan de normale foutmelding.
+      function datumHerkennen(tekst) {
+        tekst = (tekst || '').trim();
+        var m;
+        if ((m = tekst.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))) {
+          return datumValideren(parseInt(m[3], 10), parseInt(m[2], 10), parseInt(m[1], 10));
+        }
+        if ((m = tekst.match(/^(\d{2})(\d{2})(\d{4})$/))) {
+          return datumValideren(parseInt(m[1], 10), parseInt(m[2], 10), parseInt(m[3], 10));
+        }
+        if ((m = tekst.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/))) {
+          var jaar = parseInt(m[3], 10);
+          if (m[3].length < 4) jaar += (jaar > 50 ? 1900 : 2000);
+          return datumValideren(parseInt(m[1], 10), parseInt(m[2], 10), jaar);
+        }
+        return null;
+      }
+
+      function datumValideren(dag, maand, jaar) {
+        if (!dag || !maand || !jaar) return null;
+        var d = new Date(jaar, maand - 1, dag);
+        if (d.getFullYear() !== jaar || d.getMonth() !== maand - 1 || d.getDate() !== dag) return null;
+        return [dag, maand, jaar];
+      }
+
+      function tweeCijfers(n) { return (n < 10 ? '0' : '') + n; }
+
+      document.addEventListener('blur', function(e) {
+        var el = e.target;
+        if (!el || el.tagName !== 'INPUT' || el.getAttribute('placeholder') !== 'dd/mm/jjjj') return;
+        var d = datumHerkennen(el.value);
+        if (d) el.value = tweeCijfers(d[0]) + '/' + tweeCijfers(d[1]) + '/' + d[2];
+      }, true);
+
       // De lijst met tabbladen komt uit de menuknoppen zelf. Stond hier
       // eerder als vaste lijst, met als gevolg dat een nieuw tabblad wel een
       // knop en een paneel had maar niet openging omdat het niet in de lijst
