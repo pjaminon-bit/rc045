@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-12',
     'cat' => 'verbeterd',
+    'titel' => 'Datums met streepjes, tijd van een vergadering ook meteen herschreven',
+    'tekst' => 'Datumvelden in beheer tonen nu dd-mm-jjjj in plaats van dd/mm/jjjj. De aanvangstijd van een vergadering werd bij het opslaan al herkend (2100 werd 21:00), dat gebeurt nu ook meteen bij het verlaten van het veld, net als bij een datum.',
+  ],
+
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'verbeterd',
     'titel' => 'Datumveld schrijft zichzelf meteen om naar dd/mm/jjjj',
     'tekst' => 'Vorige regel loste alleen het opslaan op; typte je bijvoorbeeld 01092026 dan bleef dat zo in beeld staan tot de pagina opnieuw laadde. Elk datumveld in beheer herschrijft de invoer nu meteen zodra je naar een ander veld gaat, ook bij later toegevoegde regels zoals een extra agendapunt of contributiejaar.',
   ],

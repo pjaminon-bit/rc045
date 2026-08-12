@@ -1236,18 +1236,18 @@ function vulStandaardAan($standaard, $opgeslagen) {
   return $resultaat;
 }
 
-// Datum tonen als dd/mm/jjjj in beheer-formulieren, opgeslagen blijft overal
+// Datum tonen als dd-mm-jjjj in beheer-formulieren, opgeslagen blijft overal
 // gewoon yyyy-mm-dd (ISO), want daar rekent de rest van de site (homepage,
 // sortering, leeftijdsberekening) mee. Was eerst alleen voor Agenda, geldt nu
 // voor elk datumveld in beheer.php: Nieuws, Media, Fotoboek, Leden.
 function datumWeergave($iso) {
   if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', (string) $iso, $m)) {
-    return $m[3] . '/' . $m[2] . '/' . $m[1];
+    return $m[3] . '-' . $m[2] . '-' . $m[1];
   }
   return '';
 }
 
-// dd/mm/jjjj (of dd-mm-jjjj, of aaneengeschreven als 8 cijfers ddmmjjjj)
+// dd-mm-jjjj (of dd/mm/jjjj, of aaneengeschreven als 8 cijfers ddmmjjjj)
 // uit een formulier terugzetten naar yyyy-mm-dd. Ongeldige of lege invoer
 // wordt gewoon een lege datum.
 function datumNaarIso($tekst) {
@@ -3648,7 +3648,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $melding['bestuursvergadering'] = 'Vul een datum in, anders is de vergadering nergens terug te vinden.';
       $meldingType['bestuursvergadering'] = 'fout';
     } elseif (ledenParseDatum($invoer['datum']) === '') {
-      $melding['bestuursvergadering'] = 'Die datum begrijp ik niet. Gebruik dd/mm/jjjj.';
+      $melding['bestuursvergadering'] = 'Die datum begrijp ik niet. Gebruik dd-mm-jjjj.';
       $meldingType['bestuursvergadering'] = 'fout';
     } else {
       $bestaand = $index === null ? null : $vergaderingenData['vergaderingen'][$index];
@@ -5254,7 +5254,7 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="rij-2">
               <div class="veld">
                 <label for="nieuws-date-<?php echo $i; ?>">Datum</label>
-                <input type="text" inputmode="numeric" id="nieuws-date-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($ni['date'] ?? '')); ?>">
+                <input type="text" inputmode="numeric" id="nieuws-date-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($ni['date'] ?? '')); ?>">
               </div>
               <div class="veld">
                 <label for="nieuws-link-<?php echo $i; ?>">Link (optioneel)</label>
@@ -5363,7 +5363,7 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="rij-2">
               <div class="veld">
                 <label for="agenda-date-<?php echo $i; ?>">Datum</label>
-                <input type="text" inputmode="numeric" id="agenda-date-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($ev['date'] ?? '')); ?>">
+                <input type="text" inputmode="numeric" id="agenda-date-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($ev['date'] ?? '')); ?>">
               </div>
               <div class="veld">
                 <label for="agenda-tag-<?php echo $i; ?>">Type</label>
@@ -5710,7 +5710,7 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="rij-3">
               <div class="veld">
                 <label for="media-date-<?php echo $i; ?>">Datum</label>
-                <input type="text" inputmode="numeric" id="media-date-<?php echo $i; ?>" name="media[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($mi['date'] ?? '')); ?>">
+                <input type="text" inputmode="numeric" id="media-date-<?php echo $i; ?>" name="media[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($mi['date'] ?? '')); ?>">
               </div>
               <div class="veld">
                 <label for="media-bron-<?php echo $i; ?>">Bron</label>
@@ -5874,7 +5874,7 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="rij-2">
             <div class="veld">
               <label for="fotoboek-<?php echo $slug; ?>-datum">Datum</label>
-              <input type="text" inputmode="numeric" id="fotoboek-<?php echo $slug; ?>-datum" name="datum" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($album['date'] ?? '')); ?>">
+              <input type="text" inputmode="numeric" id="fotoboek-<?php echo $slug; ?>-datum" name="datum" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($album['date'] ?? '')); ?>">
               <p class="hint">Wordt getoond op de albumkaart op de website.</p>
             </div>
             <div class="veld">
@@ -6241,7 +6241,7 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
           <div class="veld">
             <label for="lid-inschrijfdatum">Inschrijfdatum</label>
-            <input type="text" inputmode="numeric" id="lid-inschrijfdatum" name="inschrijfdatum" maxlength="10" placeholder="dd/mm/jjjj" value="<?php echo htmlspecialchars(datumWeergave($ledenBewerkLid['inschrijfdatum'])); ?>">
+            <input type="text" inputmode="numeric" id="lid-inschrijfdatum" name="inschrijfdatum" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($ledenBewerkLid['inschrijfdatum'])); ?>">
           </div>
         </div>
 
@@ -6263,7 +6263,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="rij-3">
           <div class="veld">
             <label for="lid-geboortedatum">Geboortedatum</label>
-            <input type="text" inputmode="numeric" id="lid-geboortedatum" name="geboortedatum" maxlength="10" placeholder="dd/mm/jjjj" value="<?php echo htmlspecialchars(datumWeergave($ledenBewerkLid['geboortedatum'])); ?>">
+            <input type="text" inputmode="numeric" id="lid-geboortedatum" name="geboortedatum" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($ledenBewerkLid['geboortedatum'])); ?>">
             <?php
               $bewerkLeeftijd = ledenLeeftijd($ledenBewerkLid['geboortedatum']);
               $bewerkJeugd = ledenIsJeugd($ledenBewerkLid, $ledenJeugdTot, $ledenJaar);
@@ -6455,7 +6455,7 @@ if ($isMaster && file_exists($logBestand)) {
             </div>
             <div class="veld">
               <label for="lid-c-betaald-<?php echo $ci; ?>">Betaald op</label>
-              <input type="text" inputmode="numeric" id="lid-c-betaald-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][betaald_op]" maxlength="10" placeholder="dd/mm/jjjj" value="<?php echo htmlspecialchars(datumWeergave((string) ($regel['betaald_op'] ?? ''))); ?>">
+              <input type="text" inputmode="numeric" id="lid-c-betaald-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][betaald_op]" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave((string) ($regel['betaald_op'] ?? ''))); ?>">
             </div>
             <div class="veld veld-breed">
               <label for="lid-c-opm-<?php echo $ci; ?>">Opmerking</label>
@@ -6869,7 +6869,7 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="rij-3">
             <div class="veld">
               <label for="verg-datum">Datum</label>
-              <input type="text" inputmode="numeric" id="verg-datum" name="datum" maxlength="10" placeholder="dd/mm/jjjj" value="<?php echo htmlspecialchars(datumWeergave($vergaderingBewerk['datum'])); ?>">
+              <input type="text" inputmode="numeric" id="verg-datum" name="datum" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($vergaderingBewerk['datum'])); ?>">
             </div>
             <div class="veld">
               <label for="verg-tijd">Aanvang</label>
@@ -7116,7 +7116,7 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="rij-2">
             <div class="veld">
               <label for="cl-nieuw-datum">Datum</label>
-              <input type="text" inputmode="numeric" id="cl-nieuw-datum" name="datum" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave(date('Y-m-d'))); ?>">
+              <input type="text" inputmode="numeric" id="cl-nieuw-datum" name="datum" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave(date('Y-m-d'))); ?>">
             </div>
             <div class="veld">
               <label for="cl-nieuw-cat">Categorie</label>
@@ -7191,7 +7191,7 @@ if ($isMaster && file_exists($logBestand)) {
                       <div class="rij-2">
                         <div class="veld">
                           <label for="cl-datum-<?php echo $clI; ?>">Datum</label>
-                          <input type="text" inputmode="numeric" id="cl-datum-<?php echo $clI; ?>" name="datum" maxlength="10" placeholder="dd/mm/jjjj" pattern="\d{2}/\d{2}/\d{4}" value="<?php echo htmlspecialchars(datumWeergave($clRegel['datum'] ?? '')); ?>">
+                          <input type="text" inputmode="numeric" id="cl-datum-<?php echo $clI; ?>" name="datum" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($clRegel['datum'] ?? '')); ?>">
                         </div>
                         <div class="veld">
                           <label for="cl-cat-<?php echo $clI; ?>">Categorie</label>
@@ -7248,9 +7248,9 @@ if ($isMaster && file_exists($logBestand)) {
   <?php if ($ingelogd): ?>
   <script>
     (function() {
-      // ===== Datumvelden: meteen herschrijven naar dd/mm/jjjj =====
+      // ===== Datumvelden: meteen herschrijven naar dd-mm-jjjj =====
       // Al deze velden hebben hetzelfde format-attribuut (placeholder
-      // dd/mm/jjjj), ook de velden die pas later worden toegevoegd (extra
+      // dd-mm-jjjj), ook de velden die pas later worden toegevoegd (extra
       // agenda-, nieuws-, media- of contributieregel). Daarom wordt hier
       // niet één keer bij het laden gezocht, maar geluisterd op het
       // document zelf, met capture aan want blur borrelt niet omhoog.
@@ -7286,10 +7286,38 @@ if ($isMaster && file_exists($logBestand)) {
 
       document.addEventListener('blur', function(e) {
         var el = e.target;
-        if (!el || el.tagName !== 'INPUT' || el.getAttribute('placeholder') !== 'dd/mm/jjjj') return;
+        if (!el || el.tagName !== 'INPUT' || el.getAttribute('placeholder') !== 'dd-mm-jjjj') return;
         var d = datumHerkennen(el.value);
-        if (d) el.value = tweeCijfers(d[0]) + '/' + tweeCijfers(d[1]) + '/' + d[2];
+        if (d) el.value = tweeCijfers(d[0]) + '-' + tweeCijfers(d[1]) + '-' + d[2];
       }, true);
+
+      // ===== Tijdveld vergadering: zelfde herschrijving, nu ook live =====
+      // vergaderingParseTijd() in vergaderingen-opslag.php deed dit al bij
+      // het opslaan (1930 werd 19:30), maar dan zag je het pas na het
+      // opslaan terug. Nu gebeurt het ook meteen bij het verlaten van
+      // het veld, met dezelfde regels.
+      var vergTijdVeld = document.getElementById('verg-tijd');
+      if (vergTijdVeld) {
+        vergTijdVeld.addEventListener('blur', function() {
+          var tekst = vergTijdVeld.value.trim();
+          if (tekst === '') return;
+          var m = tekst.match(/^(\d{1,2})[:.h ]?(\d{2})$/i);
+          if (m) {
+            var uur = parseInt(m[1], 10), minuut = parseInt(m[2], 10);
+            if (uur <= 23 && minuut <= 59) {
+              vergTijdVeld.value = tweeCijfers(uur) + ':' + tweeCijfers(minuut);
+            }
+            return;
+          }
+          m = tekst.match(/^(\d{1,2})$/);
+          if (m) {
+            var uurAlleen = parseInt(m[1], 10);
+            if (uurAlleen <= 23) {
+              vergTijdVeld.value = tweeCijfers(uurAlleen) + ':00';
+            }
+          }
+        });
+      }
 
       // De lijst met tabbladen komt uit de menuknoppen zelf. Stond hier
       // eerder als vaste lijst, met als gevolg dat een nieuw tabblad wel een
