@@ -4575,6 +4575,7 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-leeg { color: var(--muted); font-style: italic; }
     .leden-bedrag { color: var(--muted); margin-left: 4px; }
     .leden-bron { display: block; font-size: 11px; color: var(--muted); }
+    .leden-bron.leden-let-op { color: var(--rust); font-weight: 600; }
     /* Rol onder de naam in het overzicht. Bewust platte tekst en geen
        badge: bij een lid met een functie én twee commissies staan er
        anders drie gekleurde blokjes achter elke naam. */
@@ -6721,8 +6722,29 @@ if ($isMaster && file_exists($logBestand)) {
         <?php
           $importNieuw = 0; $importBij = 0;
           $importControle = ledenLees();
-          foreach ($ledenImport['rijen'] as $rij) {
-            if (ledenZoekBestaande($importControle, $rij) === null) $importNieuw++; else $importBij++;
+          // Per regel één keer bepalen of het een nieuw lid wordt of een
+          // bestaand lid bijwerkt, en waarop dat herkend is. De uitkomst
+          // wordt hieronder in de tabel hergebruikt.
+          //
+          // Een regel die als nieuw geldt wordt meteen aan de werklijst
+          // toegevoegd, precies zoals het opslaan straks ook doet. Zonder
+          // dat telde een bestand met twee regels voor dezelfde nieuwe
+          // persoon hier als "2 nieuw" terwijl er daadwerkelijk maar één
+          // lid bijkwam.
+          $importTreffers = [];
+          foreach ($ledenImport['rijen'] as $ri => $rij) {
+            $treffer = ledenZoekBestaandeMet($importControle, $rij);
+            $importTreffers[$ri] = $treffer;
+            if ($treffer['index'] === null) {
+              $importNieuw++;
+              $importControle['leden'][] = $rij;
+            } else {
+              $importBij++;
+            }
+          }
+          $importOpNaam = 0;
+          foreach ($importTreffers as $treffer) {
+            if ($treffer['reden'] === 'naam') $importOpNaam++;
           }
           $onbekendeKolommen = [];
           $berekendeKolommen = [];
@@ -6742,17 +6764,31 @@ if ($isMaster && file_exists($logBestand)) {
           <p class="hint">Deze kolommen zijn niet herkend en worden overgeslagen: <?php echo htmlspecialchars(implode(', ', $onbekendeKolommen)); ?>.</p>
         <?php endif; ?>
 
+        <?php if ($importOpNaam > 0): ?>
+          <p class="hint">Let op: <?php echo $importOpNaam; ?> <?php echo $importOpNaam === 1 ? 'regel is' : 'regels zijn'; ?> alleen op de naam herkend, omdat er geen mailadres, lidnummer of geboortedatum was om op te vergelijken. Loop die regels na in de kolom "Wordt" voordat je opslaat.</p>
+        <?php endif; ?>
+
         <div class="leden-tabel-wrap">
           <table class="leden-tabel">
             <thead><tr><th>Naam</th><th>Geboortedatum</th><th>Mailadres</th><th>Woonplaats</th><th>Wordt</th></tr></thead>
             <tbody>
-              <?php foreach (array_slice($ledenImport['rijen'], 0, 25) as $rij): ?>
+              <?php foreach (array_slice($ledenImport['rijen'], 0, 25, true) as $ri => $rij): ?>
+                <?php $treffer = $importTreffers[$ri]; ?>
                 <tr>
                   <td class="lc-kop"><span class="lc"><strong><?php echo htmlspecialchars(ledenVolledigeNaam($rij)); ?></strong></span></td>
-                  <td data-label="Geboren"><span class="lc"><?php echo htmlspecialchars(ledenParseDatum($rij['geboortedatum'] ?? '')); ?></span></td>
+                  <td data-label="Geboren"><span class="lc"><?php echo htmlspecialchars(datumWeergave(ledenParseDatum($rij['geboortedatum'] ?? ''))); ?></span></td>
                   <td data-label="Mail"><span class="lc"><?php echo htmlspecialchars($rij['email'] ?? ''); ?></span></td>
                   <td data-label="Woonplaats"><span class="lc"><?php echo htmlspecialchars($rij['gemeente'] ?? ''); ?></span></td>
-                  <td data-label="Wordt"><span class="lc"><?php echo ledenZoekBestaande($importControle, $rij) === null ? 'toegevoegd' : 'bijgewerkt'; ?></span></td>
+                  <td data-label="Wordt">
+                    <span class="lc">
+                      <?php if ($treffer['index'] === null): ?>
+                        toegevoegd
+                      <?php else: ?>
+                        bijgewerkt
+                        <span class="leden-bron<?php echo $treffer['reden'] === 'naam' ? ' leden-let-op' : ''; ?>">herkend op <?php echo htmlspecialchars($treffer['reden']); ?></span>
+                      <?php endif; ?>
+                    </span>
+                  </td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
