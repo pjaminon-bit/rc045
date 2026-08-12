@@ -61,6 +61,7 @@ $dataMap      = __DIR__ . '/data';
 // toelichting bovenin dat bestand voor waar het ledenbestand staat en
 // waarom het niet in data/ hoort.
 require_once __DIR__ . '/leden-opslag.php';
+require_once __DIR__ . '/vergaderingen-opslag.php';
 
 // Lockout bij te veel mislukte inlogpogingen (per gebruikersnaam, of
 // "beheerder" voor het beheerderswachtwoord): na $loginLockoutDrempel
@@ -1785,8 +1786,16 @@ $beheerTabsAlle = [
   'fotoboek'   => 'Fotoboek',
   'leden'      => 'Leden',
   'rekentabel' => 'Rekentabel',
+  'bestuursvergadering' => 'Bestuursvergadering',
   'changelog'  => 'Changelog',
 ];
+
+// Tabbladen die niet via de vinkjes bij Gebruikers gaan maar via de rol in
+// de ledenadministratie. Ze staan wel in $beheerTabsAlle (voor het label en
+// het menu) maar niet in de keuzelijst bij Gebruikers, want daar zou je ze
+// alleen maar per ongeluk aan of uit kunnen zetten zonder effect.
+$beheerTabsViaRol = ['bestuursvergadering'];
+$beheerTabsToewijsbaar = array_diff_key($beheerTabsAlle, array_flip($beheerTabsViaRol));
 
 // ===== Changelog =====
 // De categorieën van een changelogregel. De sleutel staat zo in het
@@ -2098,6 +2107,31 @@ if ($isMaster) {
   $toegestaneTabs = array_keys($beheerTabsAlle);
 }
 
+// ===== Rechten via de rol in de ledenadministratie =====
+// Eén categorie tabbladen loopt niet via de vinkjes in Gebruikers maar via
+// de rol bij het lid: het (nog te bouwen) tabblad Bestuursvergadering. Wie
+// in het tabblad Leden een bestuursfunctie heeft staan (voorzitter,
+// penningmeester, secretaris of bestuurslid) en daar aan deze inlognaam is
+// gekoppeld, krijgt het tabblad erbij. Wie die functie niet heeft, raakt
+// het ook weer kwijt als het per ongeluk via Gebruikers is aangevinkt: de
+// rol is hier leidend, niet de checkboxlijst.
+//
+// Zolang een tabblad nog niet in $beheerTabsAlle staat, doet dit blok
+// niets voor dat tabblad. Voeg het daar toe en de toegang regelt zich hier.
+$eigenRol = ($ingelogd && !$isMaster)
+  ? ledenRolVanGebruiker($huidigeGebruiker)
+  : ['lid' => null, 'bestuurslid' => false, 'functie' => '', 'commissies' => []];
+$isBestuurslid = $isMaster || $eigenRol['bestuurslid'];
+foreach ($beheerTabsViaRol as $rolTab) {
+  if (!isset($beheerTabsAlle[$rolTab])) continue;
+  $heeftNu = in_array($rolTab, $toegestaneTabs, true);
+  if ($isBestuurslid && !$heeftNu) {
+    $toegestaneTabs[] = $rolTab;
+  } elseif (!$isBestuurslid && $heeftNu) {
+    $toegestaneTabs = array_values(array_diff($toegestaneTabs, [$rolTab]));
+  }
+}
+
 // Welk formulier hoort bij welk tabblad, om save-acties ook serverside te
 // blokkeren voor een tabblad waar iemand geen toegang toe heeft. Dit is de
 // echte beveiliging; het menu en de tabbladen hieronder verbergen dingen
@@ -2117,7 +2151,9 @@ $formulierTab = [
   'leden_opslaan' => 'leden', 'leden_verwijderen' => 'leden', 'leden_status' => 'leden',
   'leden_bulk_status' => 'leden',
   'leden_export' => 'leden', 'leden_import_lezen' => 'leden', 'leden_import_bevestigen' => 'leden',
-  'leden_import_annuleren' => 'leden',
+  'leden_import_annuleren' => 'leden', 'leden_commissies' => 'leden',
+  'vergadering_opslaan' => 'bestuursvergadering',
+  'vergadering_verwijderen' => 'bestuursvergadering',
   'changelog_toevoegen' => 'changelog', 'changelog_bewerken' => 'changelog',
   'changelog_verwijderen' => 'changelog',
 ];
@@ -3187,7 +3223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $nieuwWachtwoordHerhaald = $_POST['nieuw_wachtwoord_herhaald'] ?? '';
     // Alleen bekende tabsleutels overnemen; onbekende waarden (geknoei met
     // het formulier) worden gewoon genegeerd.
-    $gekozenTabs = array_values(array_intersect(array_keys($beheerTabsAlle), (array) ($_POST['tabs'] ?? [])));
+    $gekozenTabs = array_values(array_intersect(array_keys($beheerTabsToewijsbaar), (array) ($_POST['tabs'] ?? [])));
 
     if ($nieuweNaam === '' || !preg_match('/^[a-zA-Z0-9._-]{2,30}$/', $nieuweNaam)) {
       $melding['gebruikers'] = 'Gebruikersnaam moet 2 tot 30 tekens zijn: letters, cijfers, punt, streepje of underscore.';
@@ -3234,7 +3270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     // Alleen de toegang aanpassen, los van het wachtwoord: dit is de knop
     // per gebruiker in het overzicht, niet het formulier hieronder.
     $doelNaam = trim($_POST['gebruikersnaam'] ?? '');
-    $gekozenTabs = array_values(array_intersect(array_keys($beheerTabsAlle), (array) ($_POST['tabs'] ?? [])));
+    $gekozenTabs = array_values(array_intersect(array_keys($beheerTabsToewijsbaar), (array) ($_POST['tabs'] ?? [])));
     $gebruikers = laadGebruikers($usersBestand);
     $gevonden = false;
     foreach ($gebruikers as &$g) {
@@ -3352,13 +3388,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $invoer = [];
       foreach (['voornaam','tussenvoegsel','achternaam','geboortedatum','straat','huisnummer',
                 'postcode','gemeente','land','telefoon','email','status','inschrijfdatum',
-                'opmerking','taken','transponder','auto','nummer'] as $veld) {
+                'opmerking','taken','transponder','auto','nummer','bestuursfunctie'] as $veld) {
         if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
       }
       $invoer['whatsapp'] = isset($_POST['whatsapp']);
+      // Zonder aangevinkte commissies stuurt de browser het veld helemaal
+      // niet mee. Altijd een array meegeven, anders zou het weghalen van
+      // het laatste vinkje niets doen en zou de oude waarde blijven staan.
+      $invoer['commissies'] = (isset($_POST['commissies']) && is_array($_POST['commissies'])) ? $_POST['commissies'] : [];
+      // De koppeling met een inlogaccount is alleen voor de beheerder.
+      // Voor iedereen anders blijft de bestaande waarde ongemoeid.
+      if ($isMaster) $invoer['beheer_account'] = trim((string) ($_POST['beheer_account'] ?? ''));
 
       $bestaand = $index === null ? null : $ledenData['leden'][$index];
       $lid = ledenNormaliseer($invoer, $bestaand);
+      // Alleen commissies die echt bestaan bewaren, zodat er geen sleutels
+      // van opgeheven commissies in het bestand blijven hangen.
+      $lid['commissies'] = array_values(array_intersect($lid['commissies'], array_keys(ledenCommissies($ledenData))));
 
       if ($index === null) {
         if ((int) $lid['nummer'] === 0) $lid['nummer'] = ledenVolgendNummer($ledenData);
@@ -3515,6 +3561,148 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $meldingType['leden'] = 'fout';
     }
 
+  } elseif ($formulier === 'leden_commissies') {
+    // De commissielijst bepaalt de club zelf. Hernoemen laat de sleutel
+    // staan, zodat de leden die eraan hangen gekoppeld blijven. Verwijderen
+    // haalt de commissie ook meteen bij alle leden weg: een sleutel die
+    // nergens meer bij hoort levert later alleen maar verwarring op.
+    $ledenData = ledenLees();
+    $bestaandeCommissies = ledenCommissies($ledenData);
+    $nieuweLijst = [];
+    $verwijderd = [];
+
+    foreach ($bestaandeCommissies as $sleutel => $oudeNaam) {
+      $regel = $_POST['commissie'][$sleutel] ?? null;
+      if (!is_array($regel)) { $nieuweLijst[$sleutel] = $oudeNaam; continue; }
+      if (!empty($regel['verwijderen'])) { $verwijderd[] = $oudeNaam; continue; }
+      $naam = ledenKort($regel['naam'] ?? '', 60);
+      $nieuweLijst[$sleutel] = $naam === '' ? $oudeNaam : $naam;
+    }
+
+    $toegevoegd = [];
+    foreach ((array) ($_POST['commissie_nieuw'] ?? []) as $naamInvoer) {
+      $naam = ledenKort($naamInvoer, 60);
+      if ($naam === '') continue;
+      $sleutel = ledenCommissieSleutel($naam);
+      if ($sleutel === '' || isset($nieuweLijst[$sleutel])) continue;
+      // Ook op naam controleren en niet alleen op sleutel: na een hernoeming
+      // hoort de oude sleutel bij de nieuwe naam, en dan zou dezelfde naam
+      // er onder een tweede sleutel alsnog naast komen te staan.
+      $bestaatAl = false;
+      foreach ($nieuweLijst as $bestaandeNaam) {
+        if (strcasecmp($bestaandeNaam, $naam) === 0) { $bestaatAl = true; break; }
+      }
+      if ($bestaatAl) continue;
+      $nieuweLijst[$sleutel] = $naam;
+      $toegevoegd[] = $naam;
+    }
+
+    $ledenData['commissies'] = $nieuweLijst;
+    $geldig = array_keys($nieuweLijst);
+    foreach ($ledenData['leden'] as $i => $l) {
+      $huidig = (isset($l['commissies']) && is_array($l['commissies'])) ? $l['commissies'] : [];
+      $over = array_values(array_intersect($huidig, $geldig));
+      if ($over !== $huidig) {
+        $ledenData['leden'][$i]['commissies'] = $over;
+        $ledenData['leden'][$i]['gewijzigd'] = date('c');
+      }
+    }
+
+    if (ledenSchrijf($ledenData)) {
+      $samenvatting = [];
+      if (count($toegevoegd) > 0) $samenvatting[] = 'toegevoegd: ' . implode(', ', $toegevoegd);
+      if (count($verwijderd) > 0) $samenvatting[] = 'verwijderd: ' . implode(', ', $verwijderd);
+      schrijfLog($logBestand, $huidigeGebruiker, 'leden', 'commissies bijgewerkt' . (count($samenvatting) > 0 ? ' (' . implode('; ', $samenvatting) . ')' : ''));
+      $_SESSION['flash']['leden'] = ['tekst' => 'Commissies opgeslagen.', 'type' => 'ok'];
+      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      header('Location: beheer.php#leden');
+      exit;
+    }
+    $melding['leden'] = 'Opslaan van de commissies mislukt.';
+    $meldingType['leden'] = 'fout';
+
+  } elseif ($formulier === 'vergadering_opslaan') {
+    // Een vergadering aanmaken of bijwerken. Wie hier komt is bestuurslid
+    // (of beheerder): dat is hierboven al afgevangen via $formulierTab en
+    // $toegestaneTabs. Binnen het bestuur is er geen verdere rangorde, een
+    // penningmeester mag net zo goed een vergadering inplannen als de
+    // voorzitter.
+    $vergaderingenData = vergaderingenLees();
+    $id = trim($_POST['vergadering_id'] ?? '');
+    $index = null;
+    foreach ($vergaderingenData['vergaderingen'] as $i => $v) {
+      if (($v['id'] ?? '') === $id) { $index = $i; break; }
+    }
+
+    $invoer = [];
+    foreach (['titel', 'datum', 'tijd', 'locatie', 'status', 'notulen'] as $veld) {
+      if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
+    }
+    $invoer['agenda'] = (isset($_POST['agenda']) && is_array($_POST['agenda'])) ? $_POST['agenda'] : [];
+    // Aanwezigheid komt als lid-id => keuze binnen. Ontbreekt het hele
+    // blok, dan is er niets aangevinkt en hoort het ook leeg te worden.
+    $invoer['aanwezigheid'] = (isset($_POST['aanwezigheid']) && is_array($_POST['aanwezigheid'])) ? $_POST['aanwezigheid'] : [];
+
+    if (trim((string) ($invoer['datum'] ?? '')) === '') {
+      $melding['bestuursvergadering'] = 'Vul een datum in, anders is de vergadering nergens terug te vinden.';
+      $meldingType['bestuursvergadering'] = 'fout';
+    } elseif (ledenParseDatum($invoer['datum']) === '') {
+      $melding['bestuursvergadering'] = 'Die datum begrijp ik niet. Gebruik dd/mm/jjjj.';
+      $meldingType['bestuursvergadering'] = 'fout';
+    } else {
+      $bestaand = $index === null ? null : $vergaderingenData['vergaderingen'][$index];
+      $vergadering = vergaderingNormaliseer($invoer, $bestaand);
+      $vergadering['gewijzigd_door'] = $huidigeGebruiker;
+
+      if ($index === null) {
+        $vergadering['nummer'] = vergaderingVolgendNummer($vergaderingenData);
+        $vergadering['aangemaakt_door'] = $huidigeGebruiker;
+        $vergaderingenData['vergaderingen'][] = $vergadering;
+        $vergaderingenData['volgnummer'] = max((int) $vergaderingenData['volgnummer'], (int) $vergadering['nummer']);
+        $actie = 'aangemaakt';
+      } else {
+        $vergaderingenData['vergaderingen'][$index] = $vergadering;
+        $actie = 'bijgewerkt';
+      }
+
+      if (vergaderingenSchrijf($vergaderingenData)) {
+        schrijfLog($logBestand, $huidigeGebruiker, 'bestuursvergadering', $actie . ': ' . vergaderingWeergavenaam($vergadering));
+        $_SESSION['flash']['bestuursvergadering'] = ['tekst' => 'Vergadering ' . $actie . ': ' . vergaderingWeergavenaam($vergadering) . '.', 'type' => 'ok'];
+        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        header('Location: beheer.php#bestuursvergadering');
+        exit;
+      }
+      $melding['bestuursvergadering'] = 'Opslaan mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+      $meldingType['bestuursvergadering'] = 'fout';
+    }
+
+  } elseif ($formulier === 'vergadering_verwijderen') {
+    $vergaderingenData = vergaderingenLees();
+    $id = trim($_POST['vergadering_id'] ?? '');
+    $naam = '';
+    $gevonden = false;
+    foreach ($vergaderingenData['vergaderingen'] as $i => $v) {
+      if (($v['id'] ?? '') !== $id) continue;
+      $naam = vergaderingWeergavenaam($v);
+      unset($vergaderingenData['vergaderingen'][$i]);
+      $vergaderingenData['vergaderingen'] = array_values($vergaderingenData['vergaderingen']);
+      $gevonden = true;
+      break;
+    }
+    if (!$gevonden) {
+      $melding['bestuursvergadering'] = 'Die vergadering staat er niet (meer) in.';
+      $meldingType['bestuursvergadering'] = 'fout';
+    } elseif (vergaderingenSchrijf($vergaderingenData)) {
+      schrijfLog($logBestand, $huidigeGebruiker, 'bestuursvergadering', 'verwijderd: ' . $naam);
+      $_SESSION['flash']['bestuursvergadering'] = ['tekst' => 'Vergadering verwijderd. De vorige versie staat in de back-ups.', 'type' => 'ok'];
+      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      header('Location: beheer.php#bestuursvergadering');
+      exit;
+    } else {
+      $melding['bestuursvergadering'] = 'Verwijderen mislukt.';
+      $meldingType['bestuursvergadering'] = 'fout';
+    }
+
   } elseif ($formulier === 'leden_export') {
     // Het hele ledenbestand als CSV, met puntkomma's zodat Excel in het
     // Nederlands het zonder importwizard opent, en een BOM zodat accenten
@@ -3539,7 +3727,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (is_array($exportJson)) $exportRekentabel = array_merge($rekentabelStandaard, $exportJson);
     }
     $exportJeugdTot = (int) $exportRekentabel['jeugd_leeftijd_tot'];
-    $kop = ['nummer','Voornaam','Tussenvoegsel','Achternaam','Geboortedatum','leeftijd','straat','huisnummer','postcode','woonplaats','land','Telefoon / Whatsapp','mailadres','Status','Jeugdlid','Inschrijfdatum','Opmerking','Taken','Toegevoegd Whatsapp','Transponder','Auto'];
+    $exportFuncties = ledenBestuursfuncties();
+    $exportCommissies = ledenCommissies($ledenData);
+    $kop = ['nummer','Voornaam','Tussenvoegsel','Achternaam','Geboortedatum','leeftijd','straat','huisnummer','postcode','woonplaats','land','Telefoon / Whatsapp','mailadres','Status','Jeugdlid','Inschrijfdatum','Opmerking','Taken','Toegevoegd Whatsapp','Transponder','Auto','Bestuursfunctie','Commissies'];
     foreach ($jaren as $j) {
       $kop[] = 'Contributie ' . $j . ' status';
       $kop[] = 'Contributiebedrag ' . $j;
@@ -3562,6 +3752,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $statussen[$l['status'] ?? ''] ?? '', $jeugd === null ? '' : ($jeugd ? 'ja' : 'nee'),
         $l['inschrijfdatum'] ?? '', $l['opmerking'] ?? '', $l['taken'] ?? '',
         empty($l['whatsapp']) ? 'nee' : 'ja', $l['transponder'] ?? '', $l['auto'] ?? '',
+        $exportFuncties[$l['bestuursfunctie'] ?? ''] ?? '',
+        implode(', ', ledenCommissieNamen($l, $exportCommissies)),
       ];
       foreach ($jaren as $j) {
         $c = $l['contributie'][$j] ?? null;
@@ -3620,6 +3812,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $index = ledenZoekBestaande($ledenData, $rij);
         $bestaand = $index === null ? null : $ledenData['leden'][$index];
         $lid = ledenNormaliseer($rij, $bestaand);
+        // Een commissienaam uit een CSV telt alleen als die commissie ook
+        // echt bestaat. Nieuwe commissies maak je bewust aan bij Leden, niet
+        // per ongeluk via een typefout in een importbestand.
+        $lid['commissies'] = array_values(array_intersect($lid['commissies'], array_keys(ledenCommissies($ledenData))));
         $lid['bron'] = $index === null ? 'import' : ($lid['bron'] ?? 'import');
         if ($index === null && (int) $lid['nummer'] === 0) {
           $lid['nummer'] = ledenVolgendNummer($ledenData);
@@ -3887,6 +4083,20 @@ usort($ledenLijst, function ($a, $b) { return ledenSorteernaam($a) <=> ledenSort
 
 $ledenStatusLabels = ledenStatussen();
 $ledenContributieLabels = ledenContributieStatussen();
+$ledenFunctieLabels = ledenBestuursfuncties();
+$ledenCommissieLijst = ledenCommissies($ledenData);
+
+// Hoeveel leden zitten er in elke commissie? Alleen om bij het beheer van
+// de lijst te kunnen zien wat je weggooit voordat je het weggooit.
+$ledenCommissieTellingen = [];
+foreach (array_keys($ledenCommissieLijst) as $cs) $ledenCommissieTellingen[$cs] = 0;
+$ledenBestuurAantal = 0;
+foreach ($ledenLijst as $l) {
+  if (ledenIsBestuurslid($l)) $ledenBestuurAantal++;
+  foreach ((isset($l['commissies']) && is_array($l['commissies'])) ? $l['commissies'] : [] as $cs) {
+    if (isset($ledenCommissieTellingen[$cs])) $ledenCommissieTellingen[$cs]++;
+  }
+}
 $ledenJaar = (int) $rekentabelData['jaar'];
 $ledenJeugdTot = (int) $rekentabelData['jeugd_leeftijd_tot'];
 
@@ -3951,6 +4161,52 @@ function ledenBedragVoorstel($lid, $jaar, $rekentabelData) {
 }
 
 $ledenImport = isset($_SESSION['leden_import']) && is_array($_SESSION['leden_import']) ? $_SESSION['leden_import'] : null;
+
+// ===== Bestuursvergaderingen =====
+// Alleen inlezen en klaarzetten voor het tabblad. De lijst met bestuurs-
+// leden komt uit de ledenadministratie, zodat de aanwezigheidslijst
+// vanzelf meegroeit als er iemand bij komt of vertrekt.
+$vergaderingenData = vergaderingenLees();
+$vergaderingenLijst = vergaderingenGesorteerd($vergaderingenData);
+$vergaderingStatusLabels = vergaderingenStatussen();
+$vergaderingAanwezigheidLabels = vergaderingenAanwezigheid();
+
+$bestuursLeden = [];
+foreach ($ledenLijst as $l) {
+  if (ledenIsBestuurslid($l)) $bestuursLeden[] = $l;
+}
+// Voorzitter, penningmeester, secretaris, dan de rest: dat is de volgorde
+// waarin een presentielijst normaal gesproken wordt afgelopen.
+$bestuursVolgorde = array_flip(array_keys($ledenFunctieLabels));
+usort($bestuursLeden, function ($a, $b) use ($bestuursVolgorde) {
+  $va = $bestuursVolgorde[$a['bestuursfunctie'] ?? ''] ?? 99;
+  $vb = $bestuursVolgorde[$b['bestuursfunctie'] ?? ''] ?? 99;
+  if ($va !== $vb) return $va <=> $vb;
+  return ledenSorteernaam($a) <=> ledenSorteernaam($b);
+});
+
+// ?vergadering=nieuw opent een leeg formulier, ?vergadering=<id> een
+// bestaande. Zelfde patroon als ?lid=... bij Leden.
+$vergaderingBewerkId = isset($_GET['vergadering']) ? trim((string) $_GET['vergadering']) : '';
+$vergaderingBewerk = null;
+$vergaderingNieuw = false;
+if ($vergaderingBewerkId === 'nieuw') {
+  $vergaderingNieuw = true;
+  $vergaderingBewerk = vergaderingNormaliseer(['status' => 'gepland', 'tijd' => '20:00']);
+  $vergaderingBewerk['nummer'] = vergaderingVolgendNummer($vergaderingenData);
+} elseif ($vergaderingBewerkId !== '') {
+  foreach ($vergaderingenLijst as $v) {
+    if (($v['id'] ?? '') === $vergaderingBewerkId) { $vergaderingBewerk = $v; break; }
+  }
+}
+
+// Agendablokken voor het formulier: de bestaande punten, en altijd één
+// leeg blok erbij om een punt toe te voegen.
+$vergaderingAgendaBlokken = [];
+if ($vergaderingBewerk !== null) {
+  foreach ($vergaderingBewerk['agenda'] as $punt) $vergaderingAgendaBlokken[] = $punt;
+  $vergaderingAgendaBlokken[] = ['onderwerp' => '', 'indiener' => '', 'toelichting' => '', 'besluit' => ''];
+}
 
 // Dubbele lidnummers. Kan gebeuren als er handmatig een lid is toegevoegd
 // (dat krijgt het eerstvolgende vrije nummer) en er daarna een import komt
@@ -4319,6 +4575,29 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-leeg { color: var(--muted); font-style: italic; }
     .leden-bedrag { color: var(--muted); margin-left: 4px; }
     .leden-bron { display: block; font-size: 11px; color: var(--muted); }
+    /* Rol onder de naam in het overzicht. Bewust platte tekst en geen
+       badge: bij een lid met een functie én twee commissies staan er
+       anders drie gekleurde blokjes achter elke naam. */
+    .leden-rol { display: block; font-size: 11px; color: var(--teal-dark); font-weight: 600; }
+    /* Commissievinkjes onder elkaar in plaats van op een rij: de namen
+       verschillen te veel in lengte om netjes naast elkaar uit te lijnen. */
+    .leden-vinkgroep { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; }
+    .leden-commissie-regel { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .leden-commissie-regel:first-of-type { padding-top: 0; }
+    .leden-commissie-regel .veld { flex: 1 1 min(260px, 100%); margin-bottom: 0; }
+    .leden-commissie-regel .leden-vink-weg { flex: 0 0 auto; }
+    .leden-commissie-aantal { flex: 0 0 auto; font-size: 13px; color: var(--muted); padding-bottom: 9px; }
+    /* Bestuursvergadering: presentielijst en agendapunten. */
+    .leden-badge.vb-gepland, .leden-badge.vb-gepland:hover { background: var(--teal-light); color: var(--teal-dark); }
+    .leden-badge.vb-afgerond, .leden-badge.vb-afgerond:hover { background: #E8F5E9; color: #1B5E20; }
+    .leden-badge.vb-geannuleerd, .leden-badge.vb-geannuleerd:hover { background: #ECEFF1; color: #455A64; }
+    .verg-aanwezig-regel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .verg-aanwezig-naam { flex: 1 1 min(200px, 100%); font-size: 14px; }
+    .verg-aanwezig-naam .leden-rol { display: inline; margin-left: 8px; }
+    .verg-aanwezig-keuze { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+    .verg-aanwezig-keuze .leden-vink { font-weight: 500; font-size: 13px; }
+    .verg-agendapunt { border: 1.5px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+    .verg-agendapunt-kop { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
     .leden-vink { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
     .leden-vink input { width: auto; margin: 0; }
     .leden-vink-weg { grid-column: 1 / -1; font-size: 13px; color: var(--rust); }
@@ -4588,6 +4867,7 @@ if ($isMaster && file_exists($logBestand)) {
           ['label' => "Pagina's", 'tabs' => ['homepage', 'ontstaan', 'baanreglement', 'aanmelden', 'bedankt']],
           ['label' => 'Content', 'tabs' => ['mededeling', 'nieuws', 'agenda', 'contact', 'sponsors', 'faq', 'media', 'fotoboek']],
           ['label' => 'Leden & contributie', 'tabs' => ['leden', 'rekentabel']],
+          ['label' => 'Bestuur', 'tabs' => ['bestuursvergadering']],
           ['label' => 'Beheer', 'tabs' => ['changelog', 'gebruikers', 'log', 'backups']],
         ];
         $alleenMasterTabs = ['gebruikers', 'log', 'backups'];
@@ -5767,7 +6047,7 @@ if ($isMaster && file_exists($logBestand)) {
                   <div class="multiselect-paneel" hidden>
                     <input type="text" class="multiselect-zoek" placeholder="Zoeken">
                     <div class="multiselect-opties">
-                      <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
+                      <?php foreach ($beheerTabsToewijsbaar as $tabSleutel => $tabLabel): ?>
                         <label class="multiselect-optie">
                           <input type="checkbox" name="tabs[]" value="<?php echo $tabSleutel; ?>" <?php if (!$gHeeftBeperking || in_array($tabSleutel, $g['tabs'], true)) echo 'checked'; ?>>
                           <span><?php echo htmlspecialchars($tabLabel); ?></span>
@@ -5817,7 +6097,7 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="multiselect-paneel" hidden>
               <input type="text" class="multiselect-zoek" placeholder="Zoeken">
               <div class="multiselect-opties">
-                <?php foreach ($beheerTabsAlle as $tabSleutel => $tabLabel): ?>
+                <?php foreach ($beheerTabsToewijsbaar as $tabSleutel => $tabLabel): ?>
                   <label class="multiselect-optie">
                     <input type="checkbox" name="tabs[]" value="<?php echo $tabSleutel; ?>" checked>
                     <span><?php echo htmlspecialchars($tabLabel); ?></span>
@@ -6067,6 +6347,61 @@ if ($isMaster && file_exists($logBestand)) {
           </div>
         </div>
 
+        <div class="rij-2">
+          <div class="veld">
+            <label for="lid-bestuursfunctie">Rol in het bestuur</label>
+            <select id="lid-bestuursfunctie" name="bestuursfunctie">
+              <option value="">Geen bestuursfunctie</option>
+              <?php foreach ($ledenFunctieLabels as $sleutel => $label): ?>
+                <option value="<?php echo htmlspecialchars($sleutel); ?>"<?php echo ($ledenBewerkLid['bestuursfunctie'] ?? '') === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+              <?php endforeach; ?>
+            </select>
+            <p class="hint">Voorzitter, penningmeester en secretaris zijn ook bestuurslid, dus die kies je hier gewoon los. Alles behalve "geen" telt mee als bestuurslid en geeft straks toegang tot het tabblad Bestuursvergadering.</p>
+          </div>
+          <div class="veld">
+            <label>Commissies</label>
+            <?php if (count($ledenCommissieLijst) === 0): ?>
+              <p class="hint">Er zijn nog geen commissies. Je maakt ze aan onderaan het tabblad Leden, daarna kun je ze hier aanvinken.</p>
+            <?php else: ?>
+              <div class="leden-vinkgroep">
+                <?php foreach ($ledenCommissieLijst as $cSleutel => $cNaam): ?>
+                  <label class="leden-vink">
+                    <input type="checkbox" name="commissies[]" value="<?php echo htmlspecialchars($cSleutel); ?>"<?php echo in_array($cSleutel, (array) ($ledenBewerkLid['commissies'] ?? []), true) ? ' checked' : ''; ?>>
+                    <?php echo htmlspecialchars($cNaam); ?>
+                  </label>
+                <?php endforeach; ?>
+              </div>
+              <p class="hint">Een bestuurslid mag ook in een commissie zitten, en een commissielid hoeft geen bestuurslid te zijn.</p>
+            <?php endif; ?>
+          </div>
+        </div>
+
+        <?php if ($isMaster): ?>
+          <div class="veld">
+            <label for="lid-beheer-account">Inlogaccount voor beheer.php</label>
+            <?php $lidAccount = trim((string) ($ledenBewerkLid['beheer_account'] ?? '')); ?>
+            <?php
+              $accountNamen = ['beheerder'];
+              foreach ($gebruikersLijst as $g) {
+                if (isset($g['gebruikersnaam']) && $g['gebruikersnaam'] !== '') $accountNamen[] = $g['gebruikersnaam'];
+              }
+              $accountBekend = $lidAccount === '' || in_array($lidAccount, $accountNamen, true);
+            ?>
+            <select id="lid-beheer-account" name="beheer_account">
+              <option value=""<?php echo $lidAccount === '' ? ' selected' : ''; ?>>Geen koppeling</option>
+              <?php if (!$accountBekend): ?>
+                <option value="<?php echo htmlspecialchars($lidAccount); ?>" selected><?php echo htmlspecialchars($lidAccount); ?> (account bestaat niet meer)</option>
+              <?php endif; ?>
+              <?php foreach ($accountNamen as $accountNaam): ?>
+                <option value="<?php echo htmlspecialchars($accountNaam); ?>"<?php echo $lidAccount === $accountNaam ? ' selected' : ''; ?>><?php echo htmlspecialchars($accountNaam); ?></option>
+              <?php endforeach; ?>
+            </select>
+            <p class="hint">Hiermee weet de beheerpagina welk lid er achter een inlognaam zit, zodat de rol hierboven toegang kan geven. Dit veld zie en wijzig je alleen als beheerder: anders zou iedereen met toegang tot dit tabblad zichzelf tot bestuurslid kunnen benoemen.</p>
+          </div>
+        <?php elseif (trim((string) ($ledenBewerkLid['beheer_account'] ?? '')) !== ''): ?>
+          <p class="hint">Gekoppeld aan inlognaam <?php echo htmlspecialchars($ledenBewerkLid['beheer_account']); ?>. Alleen de beheerder kan die koppeling aanpassen.</p>
+        <?php endif; ?>
+
         <div class="veld">
           <label>In de WhatsAppgroep</label>
           <label class="leden-vink"><input type="checkbox" name="whatsapp" value="1" <?php echo !empty($ledenBewerkLid['whatsapp']) ? 'checked' : ''; ?>> Toegevoegd</label>
@@ -6196,6 +6531,23 @@ if ($isMaster && file_exists($logBestand)) {
             <?php endforeach; ?>
             <option value="leeg">Niet ingevuld <?php echo $ledenJaar; ?></option>
           </select>
+          <select id="leden-filter-rol" aria-label="Filteren op rol">
+            <option value="">Alle rollen</option>
+            <optgroup label="Bestuur">
+              <option value="bestuur">Alle bestuursleden</option>
+              <?php foreach ($ledenFunctieLabels as $fSleutel => $fLabel): ?>
+                <option value="functie:<?php echo htmlspecialchars($fSleutel); ?>"><?php echo htmlspecialchars($fLabel); ?></option>
+              <?php endforeach; ?>
+            </optgroup>
+            <?php if (count($ledenCommissieLijst) > 0): ?>
+              <optgroup label="Commissies">
+                <?php foreach ($ledenCommissieLijst as $cSleutel => $cNaam): ?>
+                  <option value="commissie:<?php echo htmlspecialchars($cSleutel); ?>"><?php echo htmlspecialchars($cNaam); ?></option>
+                <?php endforeach; ?>
+              </optgroup>
+            <?php endif; ?>
+            <option value="geen">Zonder rol</option>
+          </select>
           <div class="leden-sorteer-mobiel">
             <select id="leden-sorteer" aria-label="Sorteren op">
               <option value="">Standaardvolgorde</option>
@@ -6253,12 +6605,29 @@ if ($isMaster && file_exists($logBestand)) {
                   // veld in de data, dus die moet je er hier los bij zoeken zodat "jeugdlid"
                   // of "senior" typen ook echt iets oplevert.
                   $zoekJeugd = $jeugd === true ? 'jeugdlid jeugd' : ($jeugd === false ? 'senior seniorlid' : '');
-                  $zoek = strtolower(ledenVolledigeNaam($l) . ' ' . ($l['email'] ?? '') . ' ' . ($l['telefoon'] ?? '') . ' ' . ($l['nummer'] ?? '') . ' ' . ($l['gemeente'] ?? '') . ' ' . $zoekJeugd);
+                  $rolTekst = ledenRolTekst($l, $ledenCommissieLijst);
+                  // "bestuur" en "bestuurslid" moeten ook een voorzitter of
+                  // penningmeester opleveren, want die zijn dat ook.
+                  $zoekRol = $rolTekst . (ledenIsBestuurslid($l) ? ' bestuur bestuurslid' : '');
+                  $zoek = strtolower(ledenVolledigeNaam($l) . ' ' . ($l['email'] ?? '') . ' ' . ($l['telefoon'] ?? '') . ' ' . ($l['nummer'] ?? '') . ' ' . ($l['gemeente'] ?? '') . ' ' . $zoekJeugd . ' ' . $zoekRol);
                   $sorteerStatus = $ledenStatusVolgorde[$l['status'] ?? ''] ?? 999;
                   $sorteerContributie = ($c !== null && $c['bedrag'] !== null) ? (float) $c['bedrag'] : -1;
                   $sorteerContact = strtolower(trim((($l['email'] ?? '') !== '') ? $l['email'] : ($l['telefoon'] ?? '')));
+                  // Losse sleutels voor het rolfilter. "bestuur" zit er bij
+                  // elke functie bij, zodat "alle bestuursleden" ook de
+                  // voorzitter en de penningmeester oplevert.
+                  $rolSleutels = [];
+                  if (ledenIsBestuurslid($l)) {
+                    $rolSleutels[] = 'bestuur';
+                    $rolSleutels[] = 'functie:' . $l['bestuursfunctie'];
+                  }
+                  foreach ((isset($l['commissies']) && is_array($l['commissies'])) ? $l['commissies'] : [] as $cs) {
+                    if (isset($ledenCommissieLijst[$cs])) $rolSleutels[] = 'commissie:' . $cs;
+                  }
+                  if (count($rolSleutels) === 0) $rolSleutels[] = 'geen';
                 ?>
                 <tr data-status="<?php echo htmlspecialchars($l['status'] ?? ''); ?>" data-contributie="<?php echo htmlspecialchars($c === null ? 'leeg' : ($c['status'] ?? 'open')); ?>" data-zoek="<?php echo htmlspecialchars($zoek); ?>"
+                    data-rol="<?php echo htmlspecialchars(' ' . implode(' ', $rolSleutels) . ' '); ?>"
                     data-href="beheer.php?lid=<?php echo urlencode($l['id']); ?>#leden"
                     data-sort-nr="<?php echo (int) ($l['nummer'] ?? 0); ?>"
                     data-sort-naam="<?php echo htmlspecialchars(ledenSorteernaam($l)); ?>"
@@ -6270,7 +6639,8 @@ if ($isMaster && file_exists($logBestand)) {
                   <td data-label="Nr"><span class="lc"><?php echo htmlspecialchars((string) ($l['nummer'] ?? '')); ?></span></td>
                   <td class="lc-kop">
                     <span class="lc"><strong><?php echo htmlspecialchars(ledenVolledigeNaam($l)); ?></strong>
-                    <?php if (($l['bron'] ?? '') === 'aanmeldformulier'): ?><span class="leden-bron">via formulier</span><?php endif; ?></span>
+                    <?php if (($l['bron'] ?? '') === 'aanmeldformulier'): ?><span class="leden-bron">via formulier</span><?php endif; ?>
+                    <?php if ($rolTekst !== ''): ?><span class="leden-rol"><?php echo htmlspecialchars($rolTekst); ?></span><?php endif; ?></span>
                   </td>
                   <td data-label="Leeftijd"><span class="lc"><?php echo $leeftijd === null ? '&mdash;' : ($leeftijd . ($jeugd ? ' (jeugd)' : '')); ?></span></td>
                   <td data-label="Status"><span class="lc"><span class="leden-badge lb-<?php echo htmlspecialchars($l['status'] ?? ''); ?>"><?php echo htmlspecialchars($ledenStatusLabels[$l['status'] ?? ''] ?? '?'); ?></span></span></td>
@@ -6300,6 +6670,44 @@ if ($isMaster && file_exists($logBestand)) {
           <p class="hint" id="leden-geen-resultaat" hidden>Geen leden gevonden met deze zoekopdracht.</p>
         </div>
       <?php endif; ?>
+    </div>
+
+    <div class="kaart">
+      <h1>Commissies</h1>
+      <p class="sub">De lijst die je bij een lid kunt aanvinken onder Vereniging. Een naam aanpassen mag altijd: de koppeling met de leden blijft gewoon staan.<?php if ($ledenBestuurAantal > 0): ?> Er <?php echo $ledenBestuurAantal === 1 ? 'is 1 lid' : 'zijn ' . $ledenBestuurAantal . ' leden'; ?> met een bestuursfunctie.<?php endif; ?></p>
+
+      <form method="post" action="beheer.php#leden" onsubmit="return this.querySelectorAll('input[type=checkbox]:checked').length === 0 || confirm('Aangevinkte commissies worden verwijderd en ook bij alle leden weggehaald. Doorgaan?');">
+        <input type="hidden" name="formulier" value="leden_commissies">
+        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+
+        <?php if (count($ledenCommissieLijst) === 0): ?>
+          <p class="hint">Nog geen commissies. Vul hieronder een naam in, bijvoorbeeld Kantine, Baanonderhoud of Activiteiten.</p>
+        <?php else: ?>
+          <?php foreach ($ledenCommissieLijst as $cSleutel => $cNaam): ?>
+            <div class="leden-commissie-regel">
+              <div class="veld">
+                <label for="commissie-<?php echo htmlspecialchars($cSleutel); ?>">Naam</label>
+                <input type="text" id="commissie-<?php echo htmlspecialchars($cSleutel); ?>" name="commissie[<?php echo htmlspecialchars($cSleutel); ?>][naam]" maxlength="60" value="<?php echo htmlspecialchars($cNaam); ?>">
+              </div>
+              <span class="leden-commissie-aantal"><?php echo (int) ($ledenCommissieTellingen[$cSleutel] ?? 0); ?> <?php echo ((int) ($ledenCommissieTellingen[$cSleutel] ?? 0)) === 1 ? 'lid' : 'leden'; ?></span>
+              <label class="leden-vink leden-vink-weg"><input type="checkbox" name="commissie[<?php echo htmlspecialchars($cSleutel); ?>][verwijderen]" value="1"> Verwijderen</label>
+            </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
+
+        <div class="rij-2" style="margin-top:16px;">
+          <div class="veld">
+            <label for="commissie-nieuw-1">Nieuwe commissie</label>
+            <input type="text" id="commissie-nieuw-1" name="commissie_nieuw[]" maxlength="60" placeholder="Bijvoorbeeld Kantine">
+          </div>
+          <div class="veld">
+            <label for="commissie-nieuw-2">Nog een nieuwe commissie</label>
+            <input type="text" id="commissie-nieuw-2" name="commissie_nieuw[]" maxlength="60" placeholder="Bijvoorbeeld Baanonderhoud">
+          </div>
+        </div>
+
+        <button type="submit">Commissies opslaan</button>
+      </form>
     </div>
 
     <div class="kaart">
@@ -6390,6 +6798,190 @@ if ($isMaster && file_exists($logBestand)) {
     <?php endif; ?>
     </div>
 
+    <?php endif; ?>
+
+    <?php if (in_array('bestuursvergadering', $toegestaneTabs, true)): ?>
+    <div class="tab-paneel" id="tab-bestuursvergadering">
+    <!-- ===== BESTUURSVERGADERING ===== -->
+    <?php if ($vergaderingBewerk !== null): ?>
+      <div class="kaart">
+        <div class="kaart-header">
+          <div>
+            <h1><?php echo $vergaderingNieuw ? 'Nieuwe vergadering' : htmlspecialchars(vergaderingWeergavenaam($vergaderingBewerk)); ?></h1>
+            <p class="sub">
+              <?php if ($vergaderingNieuw): ?>
+                Vul in elk geval een datum in. De rest kan later, bijvoorbeeld de notulen na afloop.
+              <?php else: ?>
+                Vergadering <?php echo (int) $vergaderingBewerk['nummer']; ?><?php if (($vergaderingBewerk['aangemaakt_door'] ?? '') !== ''): ?>, aangemaakt door <?php echo htmlspecialchars($vergaderingBewerk['aangemaakt_door']); ?><?php endif; ?>.
+              <?php endif; ?>
+            </p>
+          </div>
+          <a class="knop-klein" href="beheer.php#bestuursvergadering">Terug naar het overzicht</a>
+        </div>
+
+        <?php if (isset($melding['bestuursvergadering'])): ?>
+          <div class="melding <?php echo $meldingType['bestuursvergadering']; ?>"><?php echo htmlspecialchars($melding['bestuursvergadering']); ?></div>
+        <?php endif; ?>
+
+        <form method="post" action="beheer.php#bestuursvergadering">
+          <input type="hidden" name="formulier" value="vergadering_opslaan">
+          <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+          <input type="hidden" name="vergadering_id" value="<?php echo $vergaderingNieuw ? '' : htmlspecialchars($vergaderingBewerk['id']); ?>">
+
+          <div class="sectie-kop">Wanneer en waar</div>
+          <div class="rij-3">
+            <div class="veld">
+              <label for="verg-datum">Datum</label>
+              <input type="text" inputmode="numeric" id="verg-datum" name="datum" maxlength="10" placeholder="dd/mm/jjjj" value="<?php echo htmlspecialchars(datumWeergave($vergaderingBewerk['datum'])); ?>">
+            </div>
+            <div class="veld">
+              <label for="verg-tijd">Aanvang</label>
+              <input type="text" id="verg-tijd" name="tijd" maxlength="5" placeholder="20:00" value="<?php echo htmlspecialchars($vergaderingBewerk['tijd']); ?>">
+            </div>
+            <div class="veld">
+              <label for="verg-status">Status</label>
+              <select id="verg-status" name="status">
+                <?php foreach ($vergaderingStatusLabels as $sleutel => $label): ?>
+                  <option value="<?php echo htmlspecialchars($sleutel); ?>"<?php echo $vergaderingBewerk['status'] === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </div>
+
+          <div class="rij-2">
+            <div class="veld">
+              <label for="verg-titel">Titel</label>
+              <input type="text" id="verg-titel" name="titel" maxlength="120" placeholder="Bijvoorbeeld Jaarvergadering" value="<?php echo htmlspecialchars($vergaderingBewerk['titel']); ?>">
+              <p class="hint">Mag leeg blijven, dan staat de datum in het overzicht.</p>
+            </div>
+            <div class="veld">
+              <label for="verg-locatie">Locatie</label>
+              <input type="text" id="verg-locatie" name="locatie" maxlength="120" placeholder="Kantine" value="<?php echo htmlspecialchars($vergaderingBewerk['locatie']); ?>">
+            </div>
+          </div>
+
+          <div class="sectie-kop">Aanwezigheid</div>
+          <?php if (count($bestuursLeden) === 0): ?>
+            <p class="hint">Er staat nog niemand met een bestuursfunctie in de ledenadministratie. Zet die rol bij het tabblad Leden onder Vereniging, dan verschijnt hier vanzelf een presentielijst.</p>
+          <?php else: ?>
+            <p class="hint">De lijst volgt de bestuursfuncties uit de ledenadministratie. Niets aanvinken betekent gewoon "nog niet ingevuld".</p>
+            <?php foreach ($bestuursLeden as $bl): ?>
+              <?php $keuzeNu = $vergaderingBewerk['aanwezigheid'][$bl['id']] ?? ''; ?>
+              <div class="verg-aanwezig-regel">
+                <span class="verg-aanwezig-naam">
+                  <strong><?php echo htmlspecialchars(ledenVolledigeNaam($bl)); ?></strong>
+                  <span class="leden-rol"><?php echo htmlspecialchars($ledenFunctieLabels[$bl['bestuursfunctie']] ?? ''); ?></span>
+                </span>
+                <span class="verg-aanwezig-keuze">
+                  <label class="leden-vink"><input type="radio" name="aanwezigheid[<?php echo htmlspecialchars($bl['id']); ?>]" value=""<?php echo $keuzeNu === '' ? ' checked' : ''; ?>> Onbekend</label>
+                  <?php foreach ($vergaderingAanwezigheidLabels as $aSleutel => $aLabel): ?>
+                    <label class="leden-vink"><input type="radio" name="aanwezigheid[<?php echo htmlspecialchars($bl['id']); ?>]" value="<?php echo htmlspecialchars($aSleutel); ?>"<?php echo $keuzeNu === $aSleutel ? ' checked' : ''; ?>> <?php echo htmlspecialchars($aLabel); ?></label>
+                  <?php endforeach; ?>
+                </span>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+
+          <div class="sectie-kop">Agendapunten</div>
+          <p class="hint">Het lege blok onderaan voegt een punt toe. Een punt zonder onderwerp wordt niet opgeslagen.</p>
+          <?php foreach ($vergaderingAgendaBlokken as $ai => $punt): ?>
+            <div class="verg-agendapunt">
+              <div class="verg-agendapunt-kop"><?php echo trim((string) $punt['onderwerp']) === '' ? 'Nieuw agendapunt' : 'Punt ' . ($ai + 1); ?></div>
+              <div class="rij-2">
+                <div class="veld">
+                  <label for="verg-a-onderwerp-<?php echo $ai; ?>">Onderwerp</label>
+                  <input type="text" id="verg-a-onderwerp-<?php echo $ai; ?>" name="agenda[<?php echo $ai; ?>][onderwerp]" maxlength="160" value="<?php echo htmlspecialchars((string) $punt['onderwerp']); ?>">
+                </div>
+                <div class="veld">
+                  <label for="verg-a-indiener-<?php echo $ai; ?>">Ingebracht door</label>
+                  <input type="text" id="verg-a-indiener-<?php echo $ai; ?>" name="agenda[<?php echo $ai; ?>][indiener]" maxlength="80" value="<?php echo htmlspecialchars((string) $punt['indiener']); ?>">
+                </div>
+              </div>
+              <div class="veld">
+                <label for="verg-a-toelichting-<?php echo $ai; ?>">Toelichting</label>
+                <textarea id="verg-a-toelichting-<?php echo $ai; ?>" name="agenda[<?php echo $ai; ?>][toelichting]" maxlength="4000" style="min-height:60px;"><?php echo htmlspecialchars((string) $punt['toelichting']); ?></textarea>
+              </div>
+              <div class="veld">
+                <label for="verg-a-besluit-<?php echo $ai; ?>">Besluit</label>
+                <textarea id="verg-a-besluit-<?php echo $ai; ?>" name="agenda[<?php echo $ai; ?>][besluit]" maxlength="4000" style="min-height:60px;"><?php echo htmlspecialchars((string) $punt['besluit']); ?></textarea>
+                <p class="hint">Vul je na afloop in. Zo staat bij elk punt wat er uiteindelijk is afgesproken.</p>
+              </div>
+              <?php if (trim((string) $punt['onderwerp']) !== ''): ?>
+                <label class="leden-vink leden-vink-weg"><input type="checkbox" name="agenda[<?php echo $ai; ?>][verwijderen]" value="1"> Dit punt verwijderen</label>
+              <?php endif; ?>
+            </div>
+          <?php endforeach; ?>
+
+          <div class="sectie-kop">Notulen</div>
+          <div class="veld">
+            <label for="verg-notulen">Verslag</label>
+            <textarea id="verg-notulen" name="notulen" maxlength="20000" style="min-height:200px;"><?php echo htmlspecialchars($vergaderingBewerk['notulen']); ?></textarea>
+            <p class="hint">Vrije tekst. Wat per agendapunt is besloten hoort bij dat punt zelf, hier komt de rest van het verslag.</p>
+          </div>
+
+          <button type="submit">Vergadering opslaan</button>
+        </form>
+
+        <?php if (!$vergaderingNieuw): ?>
+          <form method="post" action="beheer.php#bestuursvergadering" onsubmit="return confirm('Deze vergadering definitief verwijderen? De vorige versie blijft in de back-ups staan.');" style="margin-top:14px;">
+            <input type="hidden" name="formulier" value="vergadering_verwijderen">
+            <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+            <input type="hidden" name="vergadering_id" value="<?php echo htmlspecialchars($vergaderingBewerk['id']); ?>">
+            <button type="submit" class="knop-klein">Vergadering verwijderen</button>
+          </form>
+        <?php endif; ?>
+      </div>
+    <?php else: ?>
+      <div class="kaart">
+        <div class="kaart-header">
+          <div>
+            <h1>Bestuursvergaderingen</h1>
+            <p class="sub">Ieder bestuurslid kan hier een vergadering aanmaken en bijwerken, ongeacht de functie. Alleen leden met een bestuursfunctie in de ledenadministratie zien dit tabblad.</p>
+          </div>
+          <a class="knop-toevoegen" href="beheer.php?vergadering=nieuw#bestuursvergadering">Nieuwe vergadering</a>
+        </div>
+
+        <?php if (isset($melding['bestuursvergadering'])): ?>
+          <div class="melding <?php echo $meldingType['bestuursvergadering']; ?>"><?php echo htmlspecialchars($melding['bestuursvergadering']); ?></div>
+        <?php endif; ?>
+
+        <?php if (count($vergaderingenLijst) === 0): ?>
+          <p class="hint">Nog geen vergaderingen. Maak er een aan met de knop hierboven.</p>
+        <?php else: ?>
+          <div class="leden-tabel-wrap">
+            <table class="leden-tabel" id="vergaderingen-tabel">
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Vergadering</th>
+                  <th>Status</th>
+                  <th>Agenda</th>
+                  <th>Aanwezig</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($vergaderingenLijst as $v): ?>
+                  <?php $telling = vergaderingAanwezigheidTelling($v); ?>
+                  <tr data-href="beheer.php?vergadering=<?php echo urlencode($v['id']); ?>#bestuursvergadering">
+                    <td data-label="Datum"><span class="lc"><?php echo htmlspecialchars(datumWeergave($v['datum'])); ?><?php if (($v['tijd'] ?? '') !== ''): ?> <?php echo htmlspecialchars($v['tijd']); ?><?php endif; ?></span></td>
+                    <td class="lc-kop">
+                      <span class="lc"><strong><?php echo htmlspecialchars(vergaderingWeergavenaam($v)); ?></strong>
+                      <?php if (($v['locatie'] ?? '') !== ''): ?><span class="leden-bron"><?php echo htmlspecialchars($v['locatie']); ?></span><?php endif; ?></span>
+                    </td>
+                    <td data-label="Status"><span class="lc"><span class="leden-badge vb-<?php echo htmlspecialchars($v['status']); ?>"><?php echo htmlspecialchars($vergaderingStatusLabels[$v['status']] ?? $v['status']); ?></span></span></td>
+                    <td data-label="Agenda"><span class="lc"><?php echo count($v['agenda']); ?> <?php echo count($v['agenda']) === 1 ? 'punt' : 'punten'; ?></span></td>
+                    <td data-label="Aanwezig"><span class="lc"><?php echo $telling['aanwezig'] > 0 || $telling['afgemeld'] > 0 || $telling['afwezig'] > 0 ? $telling['aanwezig'] . ' van ' . count($bestuursLeden) : '<span class="leden-leeg">niet ingevuld</span>'; ?></span></td>
+                    <td class="lc-actie"><a class="knop-klein" href="beheer.php?vergadering=<?php echo urlencode($v['id']); ?>#bestuursvergadering">Openen</a></td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+    </div>
     <?php endif; ?>
 
     <?php if (in_array('rekentabel', $toegestaneTabs, true)): ?>
@@ -7294,6 +7886,21 @@ if ($isMaster && file_exists($logBestand)) {
       });
       document.addEventListener('click', paneelSluiten);
     })();
+    // ===== Klikken op een vergaderingsrij =====
+    // Losse afhandeling, want de klikafhandeling van de ledentabel hangt
+    // aan die ene tbody en geldt dus niet voor deze tabel. Zelfde gedrag:
+    // een klik op een link binnen de rij doet gewoon zijn eigen ding.
+    (function () {
+      var vergTabel = document.getElementById('vergaderingen-tabel');
+      if (!vergTabel) return;
+      vergTabel.addEventListener('click', function (e) {
+        if (e.target.closest('a, input')) return;
+        var rij = e.target.closest('tr[data-href]');
+        if (!rij) return;
+        window.location.href = rij.getAttribute('data-href');
+      });
+    })();
+
     // ===== Zoeken en filteren in de ledenlijst =====
     // In de pagina zelf, zodat er niet bij elke toetsaanslag herladen hoeft
     // te worden. Zonder JavaScript blijft gewoon de hele lijst zichtbaar.
@@ -7301,6 +7908,7 @@ if ($isMaster && file_exists($logBestand)) {
       var zoek = document.getElementById('leden-zoek');
       var filter = document.getElementById('leden-filter-status');
       var filterContributie = document.getElementById('leden-filter-contributie');
+      var filterRol = document.getElementById('leden-filter-rol');
       var tabel = document.getElementById('leden-tabel');
       // Geen return hier: dat brak per ongeluk ook de "Gebruik ..."-knop
       // en (in potentie) de vertaalknoppen hieronder, want die staan in
@@ -7328,12 +7936,16 @@ if ($isMaster && file_exists($logBestand)) {
         var term = zoek.value.trim().toLowerCase();
         var status = filter.value;
         var contributie = filterContributie ? filterContributie.value : '';
+        var rol = filterRol ? filterRol.value : '';
         var zichtbaar = 0;
         Array.prototype.forEach.call(rijen, function (rij) {
           var pastTekst = term === '' || (rij.getAttribute('data-zoek') || '').indexOf(term) !== -1;
           var pastStatus = status === '' || rij.getAttribute('data-status') === status;
           var pastContributie = contributie === '' || rij.getAttribute('data-contributie') === contributie;
-          var toon = pastTekst && pastStatus && pastContributie;
+          // Spaties eromheen, anders zou "functie:bestuurslid" ook matchen
+          // op een filter dat alleen "bestuur" zoekt.
+          var pastRol = rol === '' || (rij.getAttribute('data-rol') || '').indexOf(' ' + rol + ' ') !== -1;
+          var toon = pastTekst && pastStatus && pastContributie && pastRol;
           rij.hidden = !toon;
           if (toon) zichtbaar++;
         });
@@ -7344,6 +7956,7 @@ if ($isMaster && file_exists($logBestand)) {
       zoek.addEventListener('input', filteren);
       filter.addEventListener('change', filteren);
       if (filterContributie) filterContributie.addEventListener('change', filteren);
+      if (filterRol) filterRol.addEventListener('change', filteren);
 
       // ===== Klikbare statusbadges bovenaan =====
       // Klik op bijvoorbeeld "Nieuw: 3" zet het statusfilter hierboven op
