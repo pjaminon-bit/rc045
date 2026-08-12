@@ -23,6 +23,13 @@
 
 return [
 
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'opgelost',
+    'titel' => 'Datum aaneengeschreven invullen werkte nergens in beheer',
+    'tekst' => 'Een datum als 01092026 gaf de melding "Die datum begrijp ik niet". Zulke invoer wordt nu ook gelezen als 01/09/2026: bij een vergadering, een lid (geboortedatum, inschrijfdatum, contributie), en bij Agenda, Nieuws, Media en Fotoboek.',
+  ],
+
   // ===== augustus 2026 =====
   [
     'datum' => '2026-08-12',

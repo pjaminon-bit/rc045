@@ -615,8 +615,9 @@ function ledenZetContributie($lid, $jaar, $regel) {
 
 // ===== Datums en ja/nee =====
 
-// Accepteert 2026-08-08, 08-08-2026, 8/8/2026, 8 aug 2026 en het
-// serienummer dat Excel gebruikt (dagen sinds 30-12-1899).
+// Accepteert 2026-08-08, 08-08-2026, 8/8/2026, 8 aug 2026, aaneengeschreven
+// 08082026 (ddmmjjjj) en het serienummer dat Excel gebruikt (dagen sinds
+// 30-12-1899).
 function ledenParseDatum($waarde) {
   $waarde = trim((string) $waarde);
   if ($waarde === '') return '';
@@ -624,6 +625,14 @@ function ledenParseDatum($waarde) {
   if (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $waarde, $m)) {
     if (!checkdate((int) $m[2], (int) $m[3], (int) $m[1])) return '';
     return sprintf('%04d-%02d-%02d', (int) $m[1], (int) $m[2], (int) $m[3]);
+  }
+
+  if (preg_match('/^(\d{2})(\d{2})(\d{4})$/', $waarde, $m)) {
+    $dag = (int) $m[1]; $maand = (int) $m[2]; $jaar = (int) $m[3];
+    if (checkdate($maand, $dag, $jaar)) {
+      return sprintf('%04d-%02d-%02d', $jaar, $maand, $dag);
+    }
+    return '';
   }
 
   if (preg_match('/^\d{1,5}$/', $waarde)) {

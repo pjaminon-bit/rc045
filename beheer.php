@@ -1247,11 +1247,12 @@ function datumWeergave($iso) {
   return '';
 }
 
-// dd/mm/jjjj (of dd-mm-jjjj) uit een formulier terugzetten naar yyyy-mm-dd.
-// Ongeldige of lege invoer wordt gewoon een lege datum.
+// dd/mm/jjjj (of dd-mm-jjjj, of aaneengeschreven als 8 cijfers ddmmjjjj)
+// uit een formulier terugzetten naar yyyy-mm-dd. Ongeldige of lege invoer
+// wordt gewoon een lege datum.
 function datumNaarIso($tekst) {
   $tekst = trim((string) $tekst);
-  if (preg_match('#^(\d{2})[/-](\d{2})[/-](\d{4})$#', $tekst, $m)) {
+  if (preg_match('#^(\d{2})[/-]?(\d{2})[/-]?(\d{4})$#', $tekst, $m)) {
     $dag = (int) $m[1]; $maand = (int) $m[2]; $jaar = (int) $m[3];
     if (checkdate($maand, $dag, $jaar)) {
       return sprintf('%04d-%02d-%02d', $jaar, $maand, $dag);
