@@ -25,6 +25,27 @@ return [
 
   [
     'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Tabblad Takenlijst',
+    'tekst' => 'Bestuurstaken bijhouden met een status (open, in behandeling, afgerond), desgewenst gekoppeld aan een bestuursvergadering, een ledenvergadering/ALV of een commissie. Staat bij Bestuur, alleen zichtbaar voor leden met een bestuursfunctie.',
+  ],
+
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Tabblad Ledenvergadering, inclusief ALV',
+    'tekst' => 'Ledenvergaderingen en ALV\'s los van de bestuursvergaderingen bijhouden, met een eigen nummering. Een ALV is qua opzet gewoon een ledenvergadering met dat label erbij. Datum, tijd, locatie, agendapunten, notulen en een presentielijst tegen de actieve leden, net als bij de bestuursvergadering maar dan voor de hele club.',
+  ],
+
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Tabblad Commissies: bestuurslid en commissiehoofd erbij',
+    'tekst' => 'De commissielijst is een eigen tabblad geworden (stond eerst onderaan Leden) en heeft nu ook een verantwoordelijk bestuurslid en een commissiehoofd per commissie. Een commissiehoofd hoeft geen bestuurslid te zijn. Aanmaken, hernoemen en verwijderen werkt zoals voorheen.',
+  ],
+
+  [
+    'datum' => '2026-08-12',
     'cat' => 'verbeterd',
     'titel' => 'Datums met streepjes, tijd van een vergadering ook meteen herschreven',
     'tekst' => 'Datumvelden in beheer tonen nu dd-mm-jjjj in plaats van dd/mm/jjjj. De aanvangstijd van een vergadering werd bij het opslaan al herkend (2100 werd 21:00), dat gebeurt nu ook meteen bij het verlaten van het veld, net als bij een datum.',
