@@ -25,6 +25,13 @@ return [
 
   [
     'datum' => '2026-08-12',
+    'cat' => 'beveiliging',
+    'titel' => 'Vergaderingen en takenlijst afgeschermd via .htaccess',
+    'tekst' => 'De databestanden van bestuursvergaderingen, ledenvergaderingen/ALV\'s en de takenlijst stonden nog niet in de blokkeerregel, terwijl de code er al wel van uitging.',
+  ],
+
+  [
+    'datum' => '2026-08-12',
     'cat' => 'nieuw',
     'titel' => 'Tabblad Takenlijst',
     'tekst' => 'Bestuurstaken bijhouden met een status (open, in behandeling, afgerond), desgewenst gekoppeld aan een bestuursvergadering, een ledenvergadering/ALV of een commissie. Staat bij Bestuur, alleen zichtbaar voor leden met een bestuursfunctie.',
