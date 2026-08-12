@@ -57,6 +57,117 @@ function ledenContributieStatussen() {
   ];
 }
 
+// ===== Rollen binnen de vereniging =====
+// Vaste bestuursfuncties. Voorzitter, penningmeester en secretaris zijn
+// per definitie ook bestuurslid, dus dit is één keuzelijst en geen los
+// vinkje "is bestuurslid" ernaast. Wie hier iets anders dan leeg heeft
+// staan, telt als bestuurslid.
+
+function ledenBestuursfuncties() {
+  return [
+    'voorzitter'     => 'Voorzitter',
+    'penningmeester' => 'Penningmeester',
+    'secretaris'     => 'Secretaris',
+    'bestuurslid'    => 'Bestuurslid',
+  ];
+}
+
+function ledenIsBestuurslid($lid) {
+  $functie = trim((string) ($lid['bestuursfunctie'] ?? ''));
+  return $functie !== '' && array_key_exists($functie, ledenBestuursfuncties());
+}
+
+// Commissies stelt de club zelf samen. Ze staan in hetzelfde bestand als
+// de leden, onder de sleutel 'commissies': een object van sleutel naar
+// naam. De sleutel is een vaste, veilige variant van de naam en verandert
+// niet meer als de naam later wordt aangepast, zodat de koppeling met de
+// leden blijft kloppen bij een hernoeming.
+
+function ledenCommissieSleutel($tekst) {
+  $tekst = trim((string) $tekst);
+  if ($tekst === '') return '';
+  if (function_exists('iconv')) {
+    $om = @iconv('UTF-8', 'ASCII//TRANSLIT', $tekst);
+    if ($om !== false) $tekst = $om;
+  }
+  $tekst = strtolower($tekst);
+  $tekst = preg_replace('/[^a-z0-9]+/', '_', $tekst);
+  $tekst = trim($tekst, '_');
+  return substr($tekst, 0, 40);
+}
+
+// De commissielijst uit het ledenbestand, opgeschoond. Geeft altijd
+// sleutel => naam terug, ook als er nog nooit een commissie is aangemaakt.
+function ledenCommissies($data) {
+  $lijst = [];
+  if (isset($data['commissies']) && is_array($data['commissies'])) {
+    foreach ($data['commissies'] as $sleutel => $naam) {
+      $sleutel = ledenCommissieSleutel($sleutel);
+      $naam = ledenKort($naam, 60);
+      if ($sleutel === '' || $naam === '') continue;
+      $lijst[$sleutel] = $naam;
+    }
+  }
+  return $lijst;
+}
+
+// De commissies van één lid als namen, in de volgorde van de lijst.
+// Sleutels van commissies die niet meer bestaan vallen weg.
+function ledenCommissieNamen($lid, $commissies) {
+  $vanLid = isset($lid['commissies']) && is_array($lid['commissies']) ? $lid['commissies'] : [];
+  $namen = [];
+  foreach ($commissies as $sleutel => $naam) {
+    if (in_array($sleutel, $vanLid, true)) $namen[] = $naam;
+  }
+  return $namen;
+}
+
+// Korte omschrijving van de rol, bijvoorbeeld "Penningmeester, Kantine".
+function ledenRolTekst($lid, $commissies = []) {
+  $delen = [];
+  $functies = ledenBestuursfuncties();
+  $functie = (string) ($lid['bestuursfunctie'] ?? '');
+  if (isset($functies[$functie])) $delen[] = $functies[$functie];
+  foreach (ledenCommissieNamen($lid, $commissies) as $naam) $delen[] = $naam;
+  return implode(', ', $delen);
+}
+
+// Voor de import: "Penningmeester" of "bestuur" uit een CSV terugvertalen
+// naar een sleutel. Onbekende tekst betekent geen bestuursfunctie.
+function ledenBestuursfunctieUitTekst($tekst) {
+  $t = strtolower(trim((string) $tekst));
+  if ($t === '') return '';
+  if (strpos($t, 'voorzitter') !== false) return 'voorzitter';
+  if (strpos($t, 'penning') !== false) return 'penningmeester';
+  if (strpos($t, 'secretaris') !== false) return 'secretaris';
+  if (strpos($t, 'bestuur') !== false) return 'bestuurslid';
+  return '';
+}
+
+// De rol van de ingelogde beheergebruiker. De koppeling loopt via het veld
+// beheer_account op het lid: daar staat de inlognaam waarmee dat lid op
+// beheer.php inlogt. Zonder koppeling is er geen rol en dus geen extra
+// toegang. Die koppeling wordt bewust alleen door de beheerder (master)
+// gezet: anders kan iedereen met toegang tot het tabblad Leden zichzelf
+// tot voorzitter benoemen en zo een tabblad binnenlopen.
+function ledenRolVanGebruiker($gebruikersnaam) {
+  $leeg = ['lid' => null, 'bestuurslid' => false, 'functie' => '', 'commissies' => []];
+  $gebruikersnaam = trim((string) $gebruikersnaam);
+  if ($gebruikersnaam === '') return $leeg;
+  $data = ledenLees();
+  foreach ($data['leden'] as $lid) {
+    $koppeling = trim((string) ($lid['beheer_account'] ?? ''));
+    if ($koppeling === '' || strcasecmp($koppeling, $gebruikersnaam) !== 0) continue;
+    return [
+      'lid'         => $lid,
+      'bestuurslid' => ledenIsBestuurslid($lid),
+      'functie'     => (string) ($lid['bestuursfunctie'] ?? ''),
+      'commissies'  => isset($lid['commissies']) && is_array($lid['commissies']) ? $lid['commissies'] : [],
+    ];
+  }
+  return $leeg;
+}
+
 function ledenLanden() {
   return [
     'boven' => ['Nederland', 'Duitsland', 'België'],
@@ -383,6 +494,7 @@ function ledenVeldGrenzen() {
     'straat' => 100, 'huisnummer' => 20, 'postcode' => 20, 'gemeente' => 80, 'land' => 40,
     'telefoon' => 40, 'email' => 120,
     'opmerking' => 1000, 'taken' => 300, 'transponder' => 60, 'auto' => 120,
+    'beheer_account' => 60,
   ];
 }
 
@@ -438,6 +550,35 @@ function ledenNormaliseer($invoer, $bestaand = null) {
     $lid['status'] = $invoer['status'];
   } elseif (!isset($lid['status']) || !isset($statussen[$lid['status']])) {
     $lid['status'] = 'nieuw';
+  }
+
+  // Bestuursfunctie: een sleutel uit ledenBestuursfuncties(), of leeg.
+  // Komt er tekst binnen (import uit Excel), dan wordt die eerst vertaald.
+  if (array_key_exists('bestuursfunctie', $invoer)) {
+    $functie = trim((string) $invoer['bestuursfunctie']);
+    if (!array_key_exists($functie, ledenBestuursfuncties())) {
+      $functie = ledenBestuursfunctieUitTekst($functie);
+    }
+    $lid['bestuursfunctie'] = $functie;
+  } elseif (!isset($lid['bestuursfunctie'])) {
+    $lid['bestuursfunctie'] = '';
+  }
+
+  // Commissies: een lijst sleutels. Uit het formulier komt een array met
+  // vinkjes, uit een import een tekstveld met komma's ertussen. Of de
+  // commissie ook echt bestaat wordt hier niet gecontroleerd, dat doet de
+  // aanroeper die de commissielijst bij de hand heeft.
+  if (array_key_exists('commissies', $invoer)) {
+    $ruw = $invoer['commissies'];
+    if (!is_array($ruw)) $ruw = preg_split('/[,;]/', (string) $ruw);
+    $gekozen = [];
+    foreach ($ruw as $item) {
+      $sleutel = ledenCommissieSleutel($item);
+      if ($sleutel !== '' && !in_array($sleutel, $gekozen, true)) $gekozen[] = $sleutel;
+    }
+    $lid['commissies'] = $gekozen;
+  } elseif (!isset($lid['commissies']) || !is_array($lid['commissies'])) {
+    $lid['commissies'] = [];
   }
 
   if (!isset($lid['id']) || $lid['id'] === '') $lid['id'] = ledenNieuwId();
@@ -554,6 +695,8 @@ function ledenCsvKolommen() {
     'transponder'    => ['transponder', 'transpondernummer'],
     'auto'           => ['auto', "auto's", 'wagen'],
     'status'         => ['status', 'lidstatus'],
+    'bestuursfunctie' => ['bestuursfunctie', 'bestuur', 'rol', 'functie'],
+    'commissies'     => ['commissies', 'commissie'],
     // Deze twee staan wel in het Excel-bestand maar worden niet opgeslagen:
     // leeftijd en jeugd/senior rekent de beheerpagina zelf uit de geboorte-
     // datum en de rekentabel. Ze staan hier alleen zodat de importcontrole
