@@ -820,23 +820,78 @@ function ledenContributieStatusUitTekst($tekst) {
   return 'open';
 }
 
-// Zoekt een bestaand lid op mailadres, en anders op naam plus
-// geboortedatum. Zo maakt een tweede import geen dubbele regels aan.
-function ledenZoekBestaande($data, $kandidaat) {
-  $email = strtolower(trim((string) ($kandidaat['email'] ?? '')));
-  $naam = strtolower(ledenVolledigeNaam($kandidaat));
-  $geb = trim((string) ($kandidaat['geboortedatum'] ?? ''));
+// Zoekt een bestaand lid bij een importregel. Geeft de index terug plus
+// waarop de herkenning is gebaseerd, zodat de importcontrole kan laten
+// zien waarom een regel als "bijgewerkt" wordt aangemerkt.
+//
+// De volgorde loopt van hard naar zacht bewijs:
+//   1. mailadres              uniek genoeg om op zichzelf te staan
+//   2. lidnummer plus naam    allebei gelijk is sterk; alleen het nummer
+//                             niet, want een handmatig toegevoegd lid en
+//                             een importregel kunnen per ongeluk hetzelfde
+//                             nummer hebben terwijl het twee mensen zijn
+//   3. naam plus geboortedatum
+//   4. alleen de naam         alleen als die maar één keer voorkomt en er
+//                             niets tegenspreekt (zie hieronder)
+//
+// Die vierde stap zat er eerst niet in. Gevolg: een lid zonder mailadres
+// én zonder geboortedatum werd bij een tweede import niet herkend en kwam
+// er een tweede keer bij te staan, ook bij een export die je meteen weer
+// inleest. Om te voorkomen dat twee verschillende mensen met dezelfde naam
+// samengevoegd worden, telt die stap alleen als er precies één lid met die
+// naam is en geen van de andere gegevens elkaar tegenspreekt.
+function ledenZoekBestaandeMet($data, $kandidaat) {
+  $geen = ['index' => null, 'reden' => ''];
+  $email  = strtolower(trim((string) ($kandidaat['email'] ?? '')));
+  $naam   = strtolower(ledenVolledigeNaam($kandidaat));
+  $geb    = trim((string) ($kandidaat['geboortedatum'] ?? ''));
+  $nummer = (int) ($kandidaat['nummer'] ?? 0);
 
-  foreach ($data['leden'] as $i => $lid) {
-    $lidEmail = strtolower(trim((string) ($lid['email'] ?? '')));
-    if ($email !== '' && $lidEmail !== '' && $email === $lidEmail) return $i;
+  if ($email !== '') {
+    foreach ($data['leden'] as $i => $lid) {
+      $lidEmail = strtolower(trim((string) ($lid['email'] ?? '')));
+      if ($lidEmail !== '' && $lidEmail === $email) return ['index' => $i, 'reden' => 'mailadres'];
+    }
   }
-  if ($naam !== '' && $geb !== '') {
+
+  if ($naam === '') return $geen;
+
+  if ($nummer > 0) {
+    foreach ($data['leden'] as $i => $lid) {
+      if ((int) ($lid['nummer'] ?? 0) !== $nummer) continue;
+      if (strtolower(ledenVolledigeNaam($lid)) === $naam) return ['index' => $i, 'reden' => 'lidnummer en naam'];
+    }
+  }
+
+  if ($geb !== '') {
     foreach ($data['leden'] as $i => $lid) {
       if (strtolower(ledenVolledigeNaam($lid)) === $naam && trim((string) ($lid['geboortedatum'] ?? '')) === $geb) {
-        return $i;
+        return ['index' => $i, 'reden' => 'naam en geboortedatum'];
       }
     }
   }
-  return null;
+
+  $treffers = [];
+  foreach ($data['leden'] as $i => $lid) {
+    if (strtolower(ledenVolledigeNaam($lid)) === $naam) $treffers[] = $i;
+  }
+  // Meer dan één naamgenoot: dan is de naam alleen geen bewijs meer en
+  // wordt de regel als nieuw lid behandeld. Beter een dubbele regel die je
+  // ziet staan dan stilletjes de verkeerde persoon overschrijven.
+  if (count($treffers) !== 1) return $geen;
+
+  $lid = $data['leden'][$treffers[0]];
+  $lidEmail  = strtolower(trim((string) ($lid['email'] ?? '')));
+  $lidGeb    = trim((string) ($lid['geboortedatum'] ?? ''));
+  $lidNummer = (int) ($lid['nummer'] ?? 0);
+  if ($email !== '' && $lidEmail !== '' && $email !== $lidEmail) return $geen;
+  if ($geb !== '' && $lidGeb !== '' && $geb !== $lidGeb) return $geen;
+  if ($nummer > 0 && $lidNummer > 0 && $nummer !== $lidNummer) return $geen;
+
+  return ['index' => $treffers[0], 'reden' => 'naam'];
+}
+
+// Alleen de index, voor de plekken die verder niets met de reden doen.
+function ledenZoekBestaande($data, $kandidaat) {
+  return ledenZoekBestaandeMet($data, $kandidaat)['index'];
 }
