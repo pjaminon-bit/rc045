@@ -26,6 +26,30 @@ return [
   // ===== augustus 2026 =====
   [
     'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Tabblad Bestuursvergadering',
+    'tekst' => 'Vergaderingen vastleggen met datum, tijd, locatie, presentielijst, agendapunten en notulen. Bij elk agendapunt kun je na afloop het besluit invullen. Ieder bestuurslid kan een vergadering aanmaken en bijwerken, ongeacht de functie. Het tabblad is alleen zichtbaar voor leden met een bestuursfunctie.',
+  ],
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Rol bij een lid: bestuursfunctie en commissies',
+    'tekst' => 'Onder Vereniging staat nu een keuzelijst voor voorzitter, penningmeester, secretaris of bestuurslid, plus vinkjes voor de commissies. Voorzitter, penningmeester en secretaris tellen automatisch mee als bestuurslid, en een bestuurslid mag ook in een commissie zitten. De rol bepaalt wie het tabblad Bestuursvergadering ziet.',
+  ],
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Commissies zelf samenstellen',
+    'tekst' => 'Onderaan het tabblad Leden staat een lijst waarin je commissies toevoegt, hernoemt of verwijdert, met het aantal leden erbij. Hernoemen laat de koppeling met de leden intact; verwijderen haalt de commissie ook bij alle leden weg.',
+  ],
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'verbeterd',
+    'titel' => 'Ledenlijst: filteren en zoeken op rol',
+    'tekst' => 'Nieuwe keuzelijst voor alle bestuursleden, een losse functie, een commissie of juist de leden zonder rol. De rol staat ook onder de naam in het overzicht en je kunt erop zoeken. Bestuursfunctie en commissies zitten daarnaast in de CSV-export en worden bij een import weer herkend.',
+  ],
+  [
+    'datum' => '2026-08-12',
     'cat' => 'opgelost',
     'titel' => 'Beheerpaneel op telefoon: piepkleine invulvelden en pagina buiten beeld',
     'tekst' => 'Bij Vragen, Sponsors, Agenda, Nieuws en de tekstpagina\'s werden invulvelden soms tot één letter breed samengedrukt, met grote lege gaten ertussen, en liep de kaart buiten het scherm. De vertaalvelden staan op een smal scherm nu netjes onder elkaar en de kopregels breken af in plaats van de pagina breder te maken.',
