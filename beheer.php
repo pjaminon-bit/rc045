@@ -7922,7 +7922,7 @@ if ($isMaster && file_exists($logBestand)) {
             <input type="hidden" name="formulier" value="otaak_uitgevoerd">
             <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
             <input type="hidden" name="otaak_id" value="<?php echo htmlspecialchars($otaakBewerk['id']); ?>">
-            <button type="submit" class="knop-klein">Nu uitgevoerd melden</button>
+            <button type="submit" class="knop-klein">Uitvoering melden</button>
           </form>
 
           <?php if (count($otaakBewerk['geschiedenis']) > 0): ?>
@@ -7979,7 +7979,7 @@ if ($isMaster && file_exists($logBestand)) {
                 </select>
               <?php else: ?>
                 <label>Zichtbaar voor</label>
-                <p class="hint" style="margin-top:8px;">Leden (alleen bestuursleden kunnen een taak op "Bestuursleden" zetten)</p>
+                <p class="hint" style="margin-top:8px;">Leden (alleen bestuursleden kunnen een taak op "Bestuursleden" zetten).</p>
               <?php endif; ?>
             </div>
           </div>
@@ -7987,8 +7987,9 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="veld">
             <label class="leden-vink">
               <input type="checkbox" name="actief" value="1"<?php echo !empty($otaakBewerk['actief']) ? ' checked' : ''; ?>>
-              Actief (staat de taak tijdelijk stil, bijvoorbeeld buiten het seizoen, vink dan uit)
+              Actief
             </label>
+            <p class="hint" style="margin-top:2px;">Staat de taak tijdelijk stil, bijvoorbeeld buiten het seizoen? Vink dan uit. De taak blijft bewaard en kun je later weer aanzetten.</p>
           </div>
 
           <div class="veld">
@@ -8015,7 +8016,7 @@ if ($isMaster && file_exists($logBestand)) {
             <h1>Operationele taken</h1>
             <p class="sub">Terugkerende klussen die de club sowieso moet doen, met een uitvoeringsfrequentie en desgewenst een verantwoordelijk lid. Een taak met zichtbaarheid "Bestuursleden" zien alleen leden met een bestuursfunctie.</p>
           </div>
-          <a class="knop-toevoegen" href="beheer.php?otaak=nieuw#operationele_taken">Nieuwe taak</a>
+          <a class="knop-toevoegen" href="beheer.php?otaak=nieuw#operationele_taken">Nieuwe operationele taak</a>
         </div>
 
         <?php if (isset($melding['operationele_taken'])): ?>
