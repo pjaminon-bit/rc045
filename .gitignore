@@ -22,5 +22,12 @@ beheer-login-pogingen.json
 # DeepL API-sleutel voor de automatische vertaalknopjes in beheer.php
 vertaal-config.php
 
+# Ledenadministratie, vergaderingen (bestuur + leden/ALV) en de takenlijst:
+# server-only databestanden, staan om dezelfde reden nooit in GitHub. Werden
+# tot nu toe alleen door discipline nooit toegevoegd, nu ook expliciet hier.
+leden-data.php
+vergaderingen-data.php
+taken-data.php
+
 # macOS
 .DS_Store

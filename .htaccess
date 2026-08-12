@@ -23,6 +23,14 @@ RewriteRule ^beheer/?$ beheer.php [L]
   Require all denied
 </FilesMatch>
 
+# Bestuursvergaderingen, ledenvergaderingen/ALV's en de takenlijst: interne
+# stukken (notulen, besluiten), nooit rechtstreeks opvraagbaar. Het
+# vergaderingen-bestand stond hier eerder nog niet in terwijl de code er al
+# wel van uitging, alsnog toegevoegd.
+<FilesMatch "^(vergaderingen-data\.php|vergaderingen-opslag\.php|taken-data\.php|taken-opslag\.php)$">
+  Require all denied
+</FilesMatch>
+
 # DeepL-sleutel voor de vertaalknoppen in beheer.php: nooit rechtstreeks
 # opvraagbaar. Staat niet in GitHub (zie .gitignore), wordt handmatig via
 # FTP geupload, dus deze regel moet ook in de live .htaccess staan.

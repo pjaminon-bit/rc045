@@ -46,6 +46,31 @@ function vergaderingenAanwezigheid() {
   ];
 }
 
+// ===== Soorten =====
+// Twee registers in hetzelfde bestand: bestuursvergaderingen (tabblad
+// Bestuursvergadering, presentielijst per bestuurslid) en
+// ledenvergaderingen (tabblad Ledenvergadering, ook de ALV's). Elke
+// vergadering heeft precies één soort. Bestaande vergaderingen van vóór
+// deze indeling hebben nog geen 'soort' veld en worden als 'bestuur'
+// behandeld, zodat ze gewoon blijven staan waar ze stonden.
+function vergaderingenSoorten() {
+  return [
+    'bestuur' => 'Bestuursvergadering',
+    'leden'   => 'Ledenvergadering',
+  ];
+}
+
+// Alleen van toepassing als soort 'leden' is. Een ALV is qua opzet gewoon
+// een ledenvergadering, alleen met dit label erbij zodat 'm apart terug te
+// vinden is (bijvoorbeeld bij een taak die "besproken in de ALV" moet
+// worden).
+function vergaderingenLedenTypes() {
+  return [
+    'regulier' => 'Ledenvergadering',
+    'alv'      => 'ALV (jaarvergadering)',
+  ];
+}
+
 // ===== Lezen en schrijven =====
 
 function vergaderingenLeegBestand() {
@@ -104,13 +129,37 @@ function vergaderingNieuwId() {
   return 'verg_' . bin2hex(random_bytes(6));
 }
 
-function vergaderingVolgendNummer($data) {
-  $hoogste = (int) ($data['volgnummer'] ?? 0);
+// Bestuursvergaderingen en ledenvergaderingen tellen apart: vergadering 5
+// (bestuur) en ledenvergadering 3 zijn geen concurrenten van elkaar.
+// $data['volgnummer'] was ooit één getal (alleen bestuursvergaderingen); dat
+// blijft gewoon de teller voor 'bestuur'. Voor 'leden' begint het tellen bij
+// wat er al aan ledenvergaderingen in de lijst staat.
+function vergaderingVolgendNummer($data, $soort = 'bestuur') {
+  $hoogste = 0;
+  if ($soort === 'bestuur') {
+    $hoogste = (int) ($data['volgnummer'] ?? 0);
+  }
   foreach ($data['vergaderingen'] as $v) {
+    $vSoort = ($v['soort'] ?? 'bestuur') === '' ? 'bestuur' : ($v['soort'] ?? 'bestuur');
+    if ($vSoort !== $soort) continue;
     $n = (int) ($v['nummer'] ?? 0);
     if ($n > $hoogste) $hoogste = $n;
   }
   return $hoogste + 1;
+}
+
+// Alleen de vergaderingen van één soort, zelfde volgorde als
+// vergaderingenGesorteerd().
+function vergaderingenVanSoort($data, $soort, $oplopend = false) {
+  $lijst = array_values(array_filter($data['vergaderingen'], function ($v) use ($soort) {
+    $vSoort = ($v['soort'] ?? 'bestuur') === '' ? 'bestuur' : ($v['soort'] ?? 'bestuur');
+    return $vSoort === $soort;
+  }));
+  usort($lijst, function ($a, $b) use ($oplopend) {
+    $vergelijk = vergaderingSorteersleutel($a) <=> vergaderingSorteersleutel($b);
+    return $oplopend ? $vergelijk : -$vergelijk;
+  });
+  return $lijst;
 }
 
 // "19:30", "19.30", "1930" en "9:5" leveren allemaal 19:30 / 09:05 op.
@@ -156,8 +205,14 @@ function vergaderingenGesorteerd($data, $oplopend = false) {
 function vergaderingWeergavenaam($v) {
   $titel = trim((string) ($v['titel'] ?? ''));
   if ($titel !== '') return $titel;
+  $soort = ($v['soort'] ?? 'bestuur') === '' ? 'bestuur' : ($v['soort'] ?? 'bestuur');
+  if ($soort === 'leden') {
+    $prefix = ($v['ledenvergadering_type'] ?? '') === 'alv' ? 'ALV' : 'Ledenvergadering';
+  } else {
+    $prefix = 'Vergadering';
+  }
   $datum = trim((string) ($v['datum'] ?? ''));
-  return $datum === '' ? 'Vergadering zonder datum' : 'Vergadering ' . $datum;
+  return $datum === '' ? $prefix . ' zonder datum' : $prefix . ' ' . $datum;
 }
 
 // ===== Invoer opschonen =====
@@ -194,6 +249,26 @@ function vergaderingNormaliseer($invoer, $bestaand = null) {
     $v['status'] = $invoer['status'];
   } elseif (!isset($v['status']) || !isset($statussen[$v['status']])) {
     $v['status'] = 'gepland';
+  }
+
+  // Soort ligt vast zodra de vergadering bestaat: een bestuursvergadering
+  // wordt achteraf niet zomaar een ledenvergadering. Bij het aanmaken komt
+  // de soort van de aanroeper (welke knop/tabblad is gebruikt), niet uit
+  // het formulier zelf.
+  $soorten = vergaderingenSoorten();
+  if (!isset($v['soort']) || !isset($soorten[$v['soort']])) {
+    $v['soort'] = array_key_exists('soort', $invoer) && isset($soorten[$invoer['soort']]) ? $invoer['soort'] : 'bestuur';
+  }
+
+  $ledenTypes = vergaderingenLedenTypes();
+  if ($v['soort'] === 'leden') {
+    if (array_key_exists('ledenvergadering_type', $invoer) && isset($ledenTypes[$invoer['ledenvergadering_type']])) {
+      $v['ledenvergadering_type'] = $invoer['ledenvergadering_type'];
+    } elseif (!isset($v['ledenvergadering_type']) || !isset($ledenTypes[$v['ledenvergadering_type']])) {
+      $v['ledenvergadering_type'] = 'regulier';
+    }
+  } else {
+    $v['ledenvergadering_type'] = '';
   }
 
   if (array_key_exists('notulen', $invoer)) {

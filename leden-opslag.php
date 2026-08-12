@@ -101,11 +101,42 @@ function ledenCommissieSleutel($tekst) {
 function ledenCommissies($data) {
   $lijst = [];
   if (isset($data['commissies']) && is_array($data['commissies'])) {
-    foreach ($data['commissies'] as $sleutel => $naam) {
+    foreach ($data['commissies'] as $sleutel => $waarde) {
       $sleutel = ledenCommissieSleutel($sleutel);
+      // Oud formaat: sleutel => naam (string). Nieuw formaat: sleutel => [
+      // 'naam', 'bestuurslid_id', 'hoofd_lid_id' ]. Hier is alleen de naam
+      // nodig, dus dat werkt met allebei.
+      $naam = is_array($waarde) ? ($waarde['naam'] ?? '') : $waarde;
       $naam = ledenKort($naam, 60);
       if ($sleutel === '' || $naam === '') continue;
       $lijst[$sleutel] = $naam;
+    }
+  }
+  return $lijst;
+}
+
+// Zelfde lijst, maar met de volledige commissiegegevens: naam, het
+// verantwoordelijke bestuurslid en het commissiehoofd. Gebruikt door het
+// tabblad Commissies. Elders in de code (checkboxen bij een lid, export,
+// rolfilter) is alleen de naam nodig, die blijft via ledenCommissies() lopen
+// zodat die plekken niet hoeven te weten van dit uitgebreidere formaat.
+function ledenCommissiesVolledig($data) {
+  $lijst = [];
+  if (isset($data['commissies']) && is_array($data['commissies'])) {
+    foreach ($data['commissies'] as $sleutel => $waarde) {
+      $sleutel = ledenCommissieSleutel($sleutel);
+      if ($sleutel === '') continue;
+      if (is_array($waarde)) {
+        $naam = ledenKort($waarde['naam'] ?? '', 60);
+        $bestuurslidId = ledenKort($waarde['bestuurslid_id'] ?? '', 40);
+        $hoofdId = ledenKort($waarde['hoofd_lid_id'] ?? '', 40);
+      } else {
+        $naam = ledenKort($waarde, 60);
+        $bestuurslidId = '';
+        $hoofdId = '';
+      }
+      if ($naam === '') continue;
+      $lijst[$sleutel] = ['naam' => $naam, 'bestuurslid_id' => $bestuurslidId, 'hoofd_lid_id' => $hoofdId];
     }
   }
   return $lijst;
