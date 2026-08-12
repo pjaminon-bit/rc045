@@ -26,6 +26,12 @@ return [
   // ===== augustus 2026 =====
   [
     'datum' => '2026-08-12',
+    'cat' => 'opgelost',
+    'titel' => 'Import maakte dubbele leden aan bij een lid zonder mailadres en zonder geboortedatum',
+    'tekst' => 'Zo iemand werd bij een tweede import niet herkend en kwam er een tweede keer bij te staan, ook als je een export meteen weer inlas. De herkenning kijkt nu ook naar het lidnummer samen met de naam, en als laatste redmiddel naar alleen de naam, mits die maar bij één lid voorkomt en er niets tegenspreekt. Twee leden met dezelfde naam worden dus nooit stiekem samengevoegd. In het controleoverzicht staat per regel waarop hij herkend is, met een waarschuwing als dat alleen de naam was.',
+  ],
+  [
+    'datum' => '2026-08-12',
     'cat' => 'nieuw',
     'titel' => 'Tabblad Bestuursvergadering',
     'tekst' => 'Vergaderingen vastleggen met datum, tijd, locatie, presentielijst, agendapunten en notulen. Bij elk agendapunt kun je na afloop het besluit invullen. Ieder bestuurslid kan een vergadering aanmaken en bijwerken, ongeacht de functie. Het tabblad is alleen zichtbaar voor leden met een bestuursfunctie.',
