@@ -3752,6 +3752,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
     }
     $invoer['agenda'] = (isset($_POST['agenda']) && is_array($_POST['agenda'])) ? $_POST['agenda'] : [];
+    // Aanwezigheid komt als lid-id => keuze binnen, zelfde als bij de
+    // bestuursvergadering. Ontbreekt het hele blok, dan is er niets
+    // aangevinkt en hoort het ook leeg te worden.
+    $invoer['aanwezigheid'] = (isset($_POST['aanwezigheid']) && is_array($_POST['aanwezigheid'])) ? $_POST['aanwezigheid'] : [];
 
     if (trim((string) ($invoer['datum'] ?? '')) === '') {
       $melding['ledenvergadering'] = 'Vul een datum in, anders is de vergadering nergens terug te vinden.';
@@ -4425,10 +4429,22 @@ if ($vergaderingBewerk !== null) {
 // ===== Commissies (volledig, met bestuurslid en commissiehoofd) =====
 $ledenCommissieVolledigLijst = ledenCommissiesVolledig($ledenData);
 
+// Actieve leden voor de presentielijst bij een ledenvergadering: in
+// tegenstelling tot de bestuursvergadering (alleen bestuursleden) is bij
+// een ledenvergadering in principe elk actief lid uitgenodigd. Op naam
+// gesorteerd, geen functievolgorde zoals bij het bestuur.
+$ledenActiefVoorAanwezigheid = [];
+foreach ($ledenLijst as $l) {
+  if (($l['status'] ?? '') === 'actief') $ledenActiefVoorAanwezigheid[] = $l;
+}
+usort($ledenActiefVoorAanwezigheid, function ($a, $b) {
+  return ledenSorteernaam($a) <=> ledenSorteernaam($b);
+});
+
 // ===== Ledenvergaderingen (incl. ALV) =====
 // Zelfde bestand en functies als bij Bestuursvergadering, alleen gefilterd
-// op soort 'leden'. Geen presentielijst per lid: bij een ledenvergadering
-// is in principe de hele club uitgenodigd.
+// op soort 'leden'. Presentielijst loopt hier over alle actieve leden
+// ($ledenActiefVoorAanwezigheid hierboven), niet alleen het bestuur.
 $ledenvergaderingenLijst = vergaderingenVanSoort($vergaderingenData, 'leden');
 $vergaderingLedenTypeLabels = vergaderingenLedenTypes();
 
@@ -7399,6 +7415,27 @@ if ($isMaster && file_exists($logBestand)) {
             </div>
           </div>
 
+          <div class="sectie-kop">Aanwezigheid</div>
+          <?php if (count($ledenActiefVoorAanwezigheid) === 0): ?>
+            <p class="hint">Er staan nog geen actieve leden in de ledenadministratie, dus verschijnt hier nog geen presentielijst.</p>
+          <?php else: ?>
+            <p class="hint">De lijst volgt de actieve leden uit de ledenadministratie. Niets aanvinken betekent gewoon "nog niet ingevuld".</p>
+            <?php foreach ($ledenActiefVoorAanwezigheid as $al): ?>
+              <?php $keuzeNu = $ledenvergaderingBewerk['aanwezigheid'][$al['id']] ?? ''; ?>
+              <div class="verg-aanwezig-regel">
+                <span class="verg-aanwezig-naam">
+                  <strong><?php echo htmlspecialchars(ledenVolledigeNaam($al)); ?></strong>
+                </span>
+                <span class="verg-aanwezig-keuze">
+                  <label class="leden-vink"><input type="radio" name="aanwezigheid[<?php echo htmlspecialchars($al['id']); ?>]" value=""<?php echo $keuzeNu === '' ? ' checked' : ''; ?>> Onbekend</label>
+                  <?php foreach ($vergaderingAanwezigheidLabels as $aSleutel => $aLabel): ?>
+                    <label class="leden-vink"><input type="radio" name="aanwezigheid[<?php echo htmlspecialchars($al['id']); ?>]" value="<?php echo htmlspecialchars($aSleutel); ?>"<?php echo $keuzeNu === $aSleutel ? ' checked' : ''; ?>> <?php echo htmlspecialchars($aLabel); ?></label>
+                  <?php endforeach; ?>
+                </span>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+
           <div class="sectie-kop">Agendapunten</div>
           <p class="hint">Het lege blok onderaan voegt een punt toe. Een punt zonder onderwerp wordt niet opgeslagen.</p>
           <?php foreach ($ledenvergaderingAgendaBlokken as $ai => $punt): ?>
@@ -7474,11 +7511,13 @@ if ($isMaster && file_exists($logBestand)) {
                   <th>Soort</th>
                   <th>Status</th>
                   <th>Agenda</th>
+                  <th>Aanwezig</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
                 <?php foreach ($ledenvergaderingenLijst as $v): ?>
+                  <?php $lvTelling = vergaderingAanwezigheidTelling($v); ?>
                   <tr data-href="beheer.php?ledenvergadering=<?php echo urlencode($v['id']); ?>#ledenvergadering">
                     <td data-label="Datum"><span class="lc"><?php echo htmlspecialchars(datumWeergave($v['datum'])); ?><?php if (($v['tijd'] ?? '') !== ''): ?> <?php echo htmlspecialchars($v['tijd']); ?><?php endif; ?></span></td>
                     <td class="lc-kop">
@@ -7488,6 +7527,7 @@ if ($isMaster && file_exists($logBestand)) {
                     <td data-label="Soort"><span class="lc"><?php echo htmlspecialchars($vergaderingLedenTypeLabels[$v['ledenvergadering_type'] ?? 'regulier'] ?? 'Ledenvergadering'); ?></span></td>
                     <td data-label="Status"><span class="lc"><span class="leden-badge vb-<?php echo htmlspecialchars($v['status']); ?>"><?php echo htmlspecialchars($vergaderingStatusLabels[$v['status']] ?? $v['status']); ?></span></span></td>
                     <td data-label="Agenda"><span class="lc"><?php echo count($v['agenda']); ?> <?php echo count($v['agenda']) === 1 ? 'punt' : 'punten'; ?></span></td>
+                    <td data-label="Aanwezig"><span class="lc"><?php echo $lvTelling['aanwezig'] > 0 || $lvTelling['afgemeld'] > 0 || $lvTelling['afwezig'] > 0 ? $lvTelling['aanwezig'] . ' van ' . count($ledenActiefVoorAanwezigheid) : '<span class="leden-leeg">niet ingevuld</span>'; ?></span></td>
                     <td class="lc-actie"><a class="knop-klein" href="beheer.php?ledenvergadering=<?php echo urlencode($v['id']); ?>#ledenvergadering">Openen</a></td>
                   </tr>
                 <?php endforeach; ?>
