@@ -31,6 +31,12 @@ RewriteRule ^beheer/?$ beheer.php [L]
   Require all denied
 </FilesMatch>
 
+# Operationele taken: net als de takenlijst hierboven, deels alleen voor
+# bestuursleden bedoeld en dus nooit rechtstreeks opvraagbaar.
+<FilesMatch "^(operationele-taken-data\.php|operationele-taken-opslag\.php)$">
+  Require all denied
+</FilesMatch>
+
 # DeepL-sleutel voor de vertaalknoppen in beheer.php: nooit rechtstreeks
 # opvraagbaar. Staat niet in GitHub (zie .gitignore), wordt handmatig via
 # FTP geupload, dus deze regel moet ook in de live .htaccess staan.

@@ -25,6 +25,19 @@ return [
 
   [
     'datum' => '2026-08-12',
+    'cat' => 'nieuw',
+    'titel' => 'Tabblad Operationele taken',
+    'tekst' => 'Terugkerende klussen die de club sowieso moet doen, met een uitvoeringsfrequentie (dagelijks tot jaarlijks, of naar behoefte) en desgewenst een verantwoordelijk lid. Bij het afmelden als uitgevoerd komt de datum in de geschiedenis van die taak te staan. Een taak kan op "Bestuursleden" gezet worden: die ziet een lid zonder bestuursfunctie dan niet. Wie toegang tot dit tabblad krijgt, staat net als bij de andere tabbladen bij Gebruikers.',
+  ],
+  [
+    'datum' => '2026-08-12',
+    'cat' => 'verbeterd',
+    'titel' => 'Bestuurstaak toewijzen aan een lid',
+    'tekst' => 'Bij een taak in de Takenlijst staat nu ook een veld "Toegewezen aan", naast de bestaande koppeling met een vergadering of commissie.',
+  ],
+
+  [
+    'datum' => '2026-08-12',
     'cat' => 'beveiliging',
     'titel' => 'Vergaderingen en takenlijst afgeschermd via .htaccess',
     'tekst' => 'De databestanden van bestuursvergaderingen, ledenvergaderingen/ALV\'s en de takenlijst stonden nog niet in de blokkeerregel, terwijl de code er al wel van uitging.',

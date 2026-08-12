@@ -63,6 +63,7 @@ $dataMap      = __DIR__ . '/data';
 require_once __DIR__ . '/leden-opslag.php';
 require_once __DIR__ . '/vergaderingen-opslag.php';
 require_once __DIR__ . '/taken-opslag.php';
+require_once __DIR__ . '/operationele-taken-opslag.php';
 
 // Lockout bij te veel mislukte inlogpogingen (per gebruikersnaam, of
 // "beheerder" voor het beheerderswachtwoord): na $loginLockoutDrempel
@@ -1792,6 +1793,7 @@ $beheerTabsAlle = [
   'bestuursvergadering' => 'Bestuursvergadering',
   'ledenvergadering' => 'Ledenvergadering',
   'takenlijst' => 'Takenlijst',
+  'operationele_taken' => 'Operationele taken',
   'changelog'  => 'Changelog',
 ];
 
@@ -2164,6 +2166,9 @@ $formulierTab = [
   'ledenvergadering_verwijderen' => 'ledenvergadering',
   'taak_opslaan' => 'takenlijst',
   'taak_verwijderen' => 'takenlijst',
+  'otaak_opslaan' => 'operationele_taken',
+  'otaak_verwijderen' => 'operationele_taken',
+  'otaak_uitgevoerd' => 'operationele_taken',
   'changelog_toevoegen' => 'changelog', 'changelog_bewerken' => 'changelog',
   'changelog_verwijderen' => 'changelog',
 ];
@@ -3829,7 +3834,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     }
 
     $invoer = [];
-    foreach (['omschrijving', 'toelichting', 'status', 'commissie_id'] as $veld) {
+    foreach (['omschrijving', 'toelichting', 'status', 'commissie_id', 'toegewezen_aan'] as $veld) {
       if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
     }
 
@@ -3863,6 +3868,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $ledenDataVoorControle = ledenLees();
       $commissiesGeldig = ledenCommissies($ledenDataVoorControle);
       if (!isset($commissiesGeldig[$invoer['commissie_id']])) $invoer['commissie_id'] = '';
+    }
+
+    // En voor het toegewezen lid: moet echt (nog) bestaan in de ledenlijst.
+    if (($invoer['toegewezen_aan'] ?? '') !== '') {
+      $ledenDataVoorControle = isset($ledenDataVoorControle) ? $ledenDataVoorControle : ledenLees();
+      $toegewezenBestaatNog = false;
+      foreach ($ledenDataVoorControle['leden'] as $lc) {
+        if (($lc['id'] ?? '') === $invoer['toegewezen_aan']) { $toegewezenBestaatNog = true; break; }
+      }
+      if (!$toegewezenBestaatNog) $invoer['toegewezen_aan'] = '';
     }
 
     if (trim((string) ($invoer['omschrijving'] ?? '')) === '') {
@@ -3919,6 +3934,140 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } else {
       $melding['takenlijst'] = 'Verwijderen mislukt.';
       $meldingType['takenlijst'] = 'fout';
+    }
+
+  } elseif ($formulier === 'otaak_opslaan') {
+    // Een operationele taak aanmaken of bijwerken. Uitvoeringsgegevens
+    // (laatst_uitgevoerd, geschiedenis, ...) lopen niet via dit formulier
+    // maar via otaak_uitgevoerd hieronder.
+    $otakenData = otakenLees();
+    $id = trim($_POST['otaak_id'] ?? '');
+    $index = null;
+    foreach ($otakenData['taken'] as $i => $t) {
+      if (($t['id'] ?? '') === $id) { $index = $i; break; }
+    }
+    $bestaandOtaak = $index === null ? null : $otakenData['taken'][$index];
+
+    $invoer = [];
+    foreach (['omschrijving', 'toelichting', 'frequentie', 'toegewezen_aan'] as $veld) {
+      if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
+    }
+    $invoer['actief'] = isset($_POST['actief']) ? '1' : '';
+
+    // De zichtbaarheid (leden/bestuur) is alleen door een bestuurslid te
+    // wijzigen. Een gewoon lid met toegang tot dit tabblad kan wel taken
+    // aanmaken en bewerken, maar altijd met zichtbaarheid "leden": anders
+    // zou die zelf een taak kunnen maken die hij daarna niet meer terugziet,
+    // of erger, een bestaande bestuurs-only taak openbaar kunnen zetten.
+    if ($isBestuurslid && isset($_POST['zichtbaarheid'])) {
+      $invoer['zichtbaarheid'] = $_POST['zichtbaarheid'];
+    } elseif (!$isBestuurslid) {
+      $invoer['zichtbaarheid'] = 'leden';
+    }
+
+    // Het toegewezen lid moet echt (nog) bestaan.
+    if (($invoer['toegewezen_aan'] ?? '') !== '') {
+      $ledenDataVoorControle = ledenLees();
+      $toegewezenBestaatNog = false;
+      foreach ($ledenDataVoorControle['leden'] as $lc) {
+        if (($lc['id'] ?? '') === $invoer['toegewezen_aan']) { $toegewezenBestaatNog = true; break; }
+      }
+      if (!$toegewezenBestaatNog) $invoer['toegewezen_aan'] = '';
+    }
+
+    // Een niet-bestuurslid mag een bestaande bestuurs-only taak niet
+    // bewerken, ook niet als het formulier met een geknutseld verzoek
+    // binnenkomt (bv. een geraden otaak_id). Gewoon weigeren, in plaats
+    // van dit stilzwijgend als een nieuwe taak op te slaan.
+    $magOpslaan = true;
+    if (!$isBestuurslid && $bestaandOtaak !== null && ($bestaandOtaak['zichtbaarheid'] ?? 'leden') === 'bestuur') {
+      $magOpslaan = false;
+      $melding['operationele_taken'] = 'Die taak staat er niet (meer) in.';
+      $meldingType['operationele_taken'] = 'fout';
+    }
+
+    if (!$magOpslaan) {
+      // Niets doen: de foutmelding hierboven staat al klaar.
+    } elseif (trim((string) ($invoer['omschrijving'] ?? '')) === '') {
+      $melding['operationele_taken'] = 'Vul een omschrijving in, anders is de taak nergens op te herkennen.';
+      $meldingType['operationele_taken'] = 'fout';
+    } else {
+      $otaak = otaakNormaliseer($invoer, $bestaandOtaak);
+
+      if ($index === null) {
+        $otaak['nummer'] = otaakVolgendNummer($otakenData);
+        $otaak['aangemaakt_door'] = $huidigeGebruiker;
+        $otakenData['taken'][] = $otaak;
+        $otakenData['volgnummer'] = max((int) $otakenData['volgnummer'], (int) $otaak['nummer']);
+        $actie = 'aangemaakt';
+      } else {
+        $otakenData['taken'][$index] = $otaak;
+        $actie = 'bijgewerkt';
+      }
+
+      if (otakenSchrijf($otakenData)) {
+        schrijfLog($logBestand, $huidigeGebruiker, 'operationele_taken', $actie . ': ' . otaakWeergavenaam($otaak));
+        $_SESSION['flash']['operationele_taken'] = ['tekst' => 'Taak ' . $actie . ': ' . otaakWeergavenaam($otaak) . '.', 'type' => 'ok'];
+        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        header('Location: beheer.php#operationele_taken');
+        exit;
+      }
+      $melding['operationele_taken'] = 'Opslaan mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+      $meldingType['operationele_taken'] = 'fout';
+    }
+
+  } elseif ($formulier === 'otaak_verwijderen') {
+    $otakenData = otakenLees();
+    $id = trim($_POST['otaak_id'] ?? '');
+    $naam = '';
+    $gevonden = false;
+    foreach ($otakenData['taken'] as $i => $t) {
+      if (($t['id'] ?? '') !== $id) continue;
+      // Een niet-bestuurslid mag een bestuurs-only taak niet verwijderen.
+      if (!$isBestuurslid && ($t['zichtbaarheid'] ?? 'leden') === 'bestuur') break;
+      $naam = otaakWeergavenaam($t);
+      unset($otakenData['taken'][$i]);
+      $otakenData['taken'] = array_values($otakenData['taken']);
+      $gevonden = true;
+      break;
+    }
+    if (!$gevonden) {
+      $melding['operationele_taken'] = 'Die taak staat er niet (meer) in.';
+      $meldingType['operationele_taken'] = 'fout';
+    } elseif (otakenSchrijf($otakenData)) {
+      schrijfLog($logBestand, $huidigeGebruiker, 'operationele_taken', 'verwijderd: ' . $naam);
+      $_SESSION['flash']['operationele_taken'] = ['tekst' => 'Taak verwijderd. De vorige versie staat in de back-ups.', 'type' => 'ok'];
+      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      header('Location: beheer.php#operationele_taken');
+      exit;
+    } else {
+      $melding['operationele_taken'] = 'Verwijderen mislukt.';
+      $meldingType['operationele_taken'] = 'fout';
+    }
+
+  } elseif ($formulier === 'otaak_uitgevoerd') {
+    // Een taak afmelden: logt de uitvoering en berekent de volgende datum.
+    $otakenData = otakenLees();
+    $id = trim($_POST['otaak_id'] ?? '');
+    $index = null;
+    foreach ($otakenData['taken'] as $i => $t) {
+      if (($t['id'] ?? '') === $id) { $index = $i; break; }
+    }
+    if ($index === null || (!$isBestuurslid && ($otakenData['taken'][$index]['zichtbaarheid'] ?? 'leden') === 'bestuur')) {
+      $melding['operationele_taken'] = 'Die taak staat er niet (meer) in.';
+      $meldingType['operationele_taken'] = 'fout';
+    } else {
+      $otakenData['taken'][$index] = otaakMarkeerUitgevoerd($otakenData['taken'][$index], $huidigeGebruiker);
+      $naam = otaakWeergavenaam($otakenData['taken'][$index]);
+      if (otakenSchrijf($otakenData)) {
+        schrijfLog($logBestand, $huidigeGebruiker, 'operationele_taken', 'uitgevoerd gemeld: ' . $naam);
+        $_SESSION['flash']['operationele_taken'] = ['tekst' => 'Taak afgemeld: ' . $naam . '.', 'type' => 'ok'];
+        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        header('Location: beheer.php#operationele_taken');
+        exit;
+      }
+      $melding['operationele_taken'] = 'Afmelden mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+      $meldingType['operationele_taken'] = 'fout';
     }
 
   } elseif ($formulier === 'leden_export') {
@@ -4297,6 +4446,12 @@ if (file_exists($fotoboekTekstBestand)) {
 // eventueel het ene lid dat via ?lid=... bewerkt wordt.
 $ledenData = ledenLees();
 $ledenLijst = $ledenData['leden'];
+
+// Naam per lid-id, gebruikt bij de Takenlijst en Operationele taken om
+// snel de naam van een toegewezen lid te tonen zonder telkens de hele
+// ledenlijst te doorlopen.
+$ledenNaamBijId = [];
+foreach ($ledenLijst as $ln) { $ledenNaamBijId[$ln['id']] = ledenVolledigeNaam($ln); }
 usort($ledenLijst, function ($a, $b) { return ledenSorteernaam($a) <=> ledenSorteernaam($b); });
 
 $ledenStatusLabels = ledenStatussen();
@@ -4495,6 +4650,36 @@ if ($taakBewerkId === 'nieuw') {
 } elseif ($taakBewerkId !== '') {
   foreach ($takenLijst as $t) {
     if (($t['id'] ?? '') === $taakBewerkId) { $taakBewerk = $t; break; }
+  }
+}
+
+// ===== Operationele taken =====
+// Terugkerende klussen los van de bestuurstaken hierboven. Een taak met
+// zichtbaarheid "bestuur" mag een lid zonder bestuursfunctie nergens zien,
+// dus die worden hier al uit de lijst gefilterd (niet pas in de weergave).
+// $isBestuurslid komt uit het rechtenblok bovenin dit bestand.
+$otakenData = otakenLees();
+$otakenAlle = otakenGesorteerd($otakenData);
+$otaakFrequentieLabels = otaakFrequenties();
+$otaakZichtbaarheidLabels = otaakZichtbaarheden();
+$otaakStatusLabels = otaakStatusLabels();
+$otakenLijst = $isBestuurslid ? $otakenAlle : array_values(array_filter($otakenAlle, function ($t) {
+  return ($t['zichtbaarheid'] ?? 'leden') === 'leden';
+}));
+
+$otaakBewerkId = isset($_GET['otaak']) ? trim((string) $_GET['otaak']) : '';
+$otaakBewerk = null;
+$otaakNieuw = false;
+if ($otaakBewerkId === 'nieuw') {
+  $otaakNieuw = true;
+  $otaakBewerk = otaakNormaliseer(['zichtbaarheid' => 'leden', 'actief' => '1']);
+  $otaakBewerk['nummer'] = otaakVolgendNummer($otakenData);
+} elseif ($otaakBewerkId !== '') {
+  // Gezocht in de al-gefilterde lijst: zo kan een lid zonder bestuursfunctie
+  // een bestuurs-only taak ook niet openen door zelf het taak-id in de URL
+  // te raden of te onthouden.
+  foreach ($otakenLijst as $t) {
+    if (($t['id'] ?? '') === $otaakBewerkId) { $otaakBewerk = $t; break; }
   }
 }
 
@@ -4885,6 +5070,9 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-badge.tk-open, .leden-badge.tk-open:hover { background: #FEF3C7; color: #92400E; }
     .leden-badge.tk-in_behandeling, .leden-badge.tk-in_behandeling:hover { background: var(--teal-light); color: var(--teal-dark); }
     .leden-badge.tk-afgerond, .leden-badge.tk-afgerond:hover { background: #E8F5E9; color: #1B5E20; }
+    .leden-badge.ot-te_doen, .leden-badge.ot-te_doen:hover { background: #FEF3C7; color: #92400E; }
+    .leden-badge.ot-gepland, .leden-badge.ot-gepland:hover { background: var(--teal-light); color: var(--teal-dark); }
+    .leden-badge.ot-gepauzeerd, .leden-badge.ot-gepauzeerd:hover { background: #ECEFF1; color: #455A64; }
     .verg-aanwezig-regel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .verg-aanwezig-naam { flex: 1 1 min(200px, 100%); font-size: 14px; }
     .verg-aanwezig-naam .leden-rol { display: inline; margin-left: 8px; }
@@ -5162,6 +5350,7 @@ if ($isMaster && file_exists($logBestand)) {
           ['label' => 'Content', 'tabs' => ['mededeling', 'nieuws', 'agenda', 'contact', 'sponsors', 'faq', 'media', 'fotoboek']],
           ['label' => 'Leden & contributie', 'tabs' => ['leden', 'commissies', 'rekentabel']],
           ['label' => 'Bestuur', 'tabs' => ['bestuursvergadering', 'ledenvergadering', 'takenlijst']],
+          ['label' => 'Club', 'tabs' => ['operationele_taken']],
           ['label' => 'Beheer', 'tabs' => ['changelog', 'gebruikers', 'log', 'backups']],
         ];
         $alleenMasterTabs = ['gebruikers', 'log', 'backups'];
@@ -7573,7 +7762,7 @@ if ($isMaster && file_exists($logBestand)) {
             <input type="text" id="taak-omschrijving" name="omschrijving" maxlength="200" value="<?php echo htmlspecialchars($taakBewerk['omschrijving']); ?>">
           </div>
 
-          <div class="rij-2">
+          <div class="rij-3">
             <div class="veld">
               <label for="taak-status">Status</label>
               <select id="taak-status" name="status">
@@ -7588,6 +7777,15 @@ if ($isMaster && file_exists($logBestand)) {
                 <option value="">Geen</option>
                 <?php foreach ($ledenCommissieLijst as $cSleutel => $cNaam): ?>
                   <option value="<?php echo htmlspecialchars($cSleutel); ?>"<?php echo $taakBewerk['commissie_id'] === $cSleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($cNaam); ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="veld">
+              <label for="taak-toegewezen">Toegewezen aan</label>
+              <select id="taak-toegewezen" name="toegewezen_aan">
+                <option value="">Niemand</option>
+                <?php foreach ($ledenActiefVoorAanwezigheid as $tl): ?>
+                  <option value="<?php echo htmlspecialchars($tl['id']); ?>"<?php echo $taakBewerk['toegewezen_aan'] === $tl['id'] ? ' selected' : ''; ?>><?php echo htmlspecialchars(ledenVolledigeNaam($tl)); ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
@@ -7660,6 +7858,7 @@ if ($isMaster && file_exists($logBestand)) {
                   <th>Status</th>
                   <th>Besproken in</th>
                   <th>Commissie</th>
+                  <th>Toegewezen aan</th>
                   <th></th>
                 </tr>
               </thead>
@@ -7670,7 +7869,186 @@ if ($isMaster && file_exists($logBestand)) {
                     <td data-label="Status"><span class="lc"><span class="leden-badge tk-<?php echo htmlspecialchars($t['status']); ?>"><?php echo htmlspecialchars($taakStatusLabels[$t['status']] ?? $t['status']); ?></span></span></td>
                     <td data-label="Besproken in"><span class="lc"><?php $vergTekst = taakVergaderingTekst($t, $vergaderingenBijId); echo $vergTekst !== '' ? htmlspecialchars($vergTekst) : '<span class="leden-leeg">geen koppeling</span>'; ?></span></td>
                     <td data-label="Commissie"><span class="lc"><?php echo ($t['commissie_id'] !== '' && isset($ledenCommissieLijst[$t['commissie_id']])) ? htmlspecialchars($ledenCommissieLijst[$t['commissie_id']]) : '<span class="leden-leeg">geen</span>'; ?></span></td>
+                    <td data-label="Toegewezen aan"><span class="lc"><?php echo ($t['toegewezen_aan'] !== '' && isset($ledenNaamBijId[$t['toegewezen_aan']])) ? htmlspecialchars($ledenNaamBijId[$t['toegewezen_aan']]) : '<span class="leden-leeg">niemand</span>'; ?></span></td>
                     <td class="lc-actie"><a class="knop-klein" href="beheer.php?taak=<?php echo urlencode($t['id']); ?>#takenlijst">Openen</a></td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
+    <?php if (in_array('operationele_taken', $toegestaneTabs, true)): ?>
+    <div class="tab-paneel" id="tab-operationele_taken">
+    <!-- ===== OPERATIONELE TAKEN ===== -->
+    <?php if ($otaakBewerk !== null): ?>
+      <div class="kaart">
+        <div class="kaart-header">
+          <div>
+            <h1><?php echo $otaakNieuw ? 'Nieuwe operationele taak' : htmlspecialchars(otaakWeergavenaam($otaakBewerk)); ?></h1>
+            <p class="sub">
+              <?php if ($otaakNieuw): ?>
+                Een terugkerende klus die de club sowieso moet doen, met een frequentie en eventueel een lid dat ervoor verantwoordelijk is.
+              <?php else: ?>
+                Taak <?php echo (int) $otaakBewerk['nummer']; ?><?php if (($otaakBewerk['aangemaakt_door'] ?? '') !== ''): ?>, aangemaakt door <?php echo htmlspecialchars($otaakBewerk['aangemaakt_door']); ?><?php endif; ?>.
+              <?php endif; ?>
+            </p>
+          </div>
+          <a class="knop-klein" href="beheer.php#operationele_taken">Terug naar het overzicht</a>
+        </div>
+
+        <?php if (isset($melding['operationele_taken'])): ?>
+          <div class="melding <?php echo $meldingType['operationele_taken']; ?>"><?php echo htmlspecialchars($melding['operationele_taken']); ?></div>
+        <?php endif; ?>
+
+        <?php if (!$otaakNieuw): ?>
+          <div class="veld">
+            <label>Laatst uitgevoerd</label>
+            <p class="hint" style="margin-top:0;">
+              <?php if ($otaakBewerk['laatst_uitgevoerd'] !== ''): ?>
+                <?php echo htmlspecialchars(datumWeergave($otaakBewerk['laatst_uitgevoerd'])); ?><?php if ($otaakBewerk['laatst_uitgevoerd_door'] !== ''): ?> door <?php echo htmlspecialchars($otaakBewerk['laatst_uitgevoerd_door']); ?><?php endif; ?>
+                <?php if ($otaakBewerk['volgende_uitvoering'] !== ''): ?>, volgende keer rond <?php echo htmlspecialchars(datumWeergave($otaakBewerk['volgende_uitvoering'])); ?><?php endif; ?>
+              <?php else: ?>
+                Nog nooit gemeld als uitgevoerd.
+              <?php endif; ?>
+            </p>
+          </div>
+
+          <form method="post" action="beheer.php#operationele_taken" style="margin-bottom:18px;">
+            <input type="hidden" name="formulier" value="otaak_uitgevoerd">
+            <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+            <input type="hidden" name="otaak_id" value="<?php echo htmlspecialchars($otaakBewerk['id']); ?>">
+            <button type="submit" class="knop-klein">Nu uitgevoerd melden</button>
+          </form>
+
+          <?php if (count($otaakBewerk['geschiedenis']) > 0): ?>
+            <div class="veld">
+              <label>Eerdere keren</label>
+              <p class="hint" style="margin-top:0;">
+                <?php
+                  $geschRegels = [];
+                  foreach (array_slice($otaakBewerk['geschiedenis'], 0, 10) as $g) {
+                    $geschRegels[] = datumWeergave($g['datum'] ?? '') . (($g['door'] ?? '') !== '' ? ' (' . $g['door'] . ')' : '');
+                  }
+                  echo htmlspecialchars(implode(', ', $geschRegels));
+                ?>
+              </p>
+            </div>
+          <?php endif; ?>
+        <?php endif; ?>
+
+        <form method="post" action="beheer.php#operationele_taken">
+          <input type="hidden" name="formulier" value="otaak_opslaan">
+          <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+          <input type="hidden" name="otaak_id" value="<?php echo $otaakNieuw ? '' : htmlspecialchars($otaakBewerk['id']); ?>">
+
+          <div class="veld">
+            <label for="otaak-omschrijving">Omschrijving</label>
+            <input type="text" id="otaak-omschrijving" name="omschrijving" maxlength="200" value="<?php echo htmlspecialchars($otaakBewerk['omschrijving']); ?>">
+          </div>
+
+          <div class="rij-3">
+            <div class="veld">
+              <label for="otaak-frequentie">Uitvoeringsfrequentie</label>
+              <select id="otaak-frequentie" name="frequentie">
+                <?php foreach ($otaakFrequentieLabels as $sleutel => $label): ?>
+                  <option value="<?php echo htmlspecialchars($sleutel); ?>"<?php echo $otaakBewerk['frequentie'] === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="veld">
+              <label for="otaak-toegewezen">Toegewezen aan</label>
+              <select id="otaak-toegewezen" name="toegewezen_aan">
+                <option value="">Niemand</option>
+                <?php foreach ($ledenActiefVoorAanwezigheid as $tl): ?>
+                  <option value="<?php echo htmlspecialchars($tl['id']); ?>"<?php echo $otaakBewerk['toegewezen_aan'] === $tl['id'] ? ' selected' : ''; ?>><?php echo htmlspecialchars(ledenVolledigeNaam($tl)); ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="veld">
+              <?php if ($isBestuurslid): ?>
+                <label for="otaak-zichtbaarheid">Zichtbaar voor</label>
+                <select id="otaak-zichtbaarheid" name="zichtbaarheid">
+                  <?php foreach ($otaakZichtbaarheidLabels as $sleutel => $label): ?>
+                    <option value="<?php echo htmlspecialchars($sleutel); ?>"<?php echo $otaakBewerk['zichtbaarheid'] === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+                  <?php endforeach; ?>
+                </select>
+              <?php else: ?>
+                <label>Zichtbaar voor</label>
+                <p class="hint" style="margin-top:8px;">Leden (alleen bestuursleden kunnen een taak op "Bestuursleden" zetten)</p>
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <div class="veld">
+            <label class="leden-vink">
+              <input type="checkbox" name="actief" value="1"<?php echo !empty($otaakBewerk['actief']) ? ' checked' : ''; ?>>
+              Actief (staat de taak tijdelijk stil, bijvoorbeeld buiten het seizoen, vink dan uit)
+            </label>
+          </div>
+
+          <div class="veld">
+            <label for="otaak-toelichting">Toelichting</label>
+            <textarea id="otaak-toelichting" name="toelichting" maxlength="4000" style="min-height:100px;"><?php echo htmlspecialchars($otaakBewerk['toelichting']); ?></textarea>
+          </div>
+
+          <button type="submit">Taak opslaan</button>
+        </form>
+
+        <?php if (!$otaakNieuw): ?>
+          <form method="post" action="beheer.php#operationele_taken" onsubmit="return confirm('Deze taak definitief verwijderen? De vorige versie blijft in de back-ups staan.');" style="margin-top:14px;">
+            <input type="hidden" name="formulier" value="otaak_verwijderen">
+            <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+            <input type="hidden" name="otaak_id" value="<?php echo htmlspecialchars($otaakBewerk['id']); ?>">
+            <button type="submit" class="knop-klein">Taak verwijderen</button>
+          </form>
+        <?php endif; ?>
+      </div>
+    <?php else: ?>
+      <div class="kaart">
+        <div class="kaart-header">
+          <div>
+            <h1>Operationele taken</h1>
+            <p class="sub">Terugkerende klussen die de club sowieso moet doen, met een uitvoeringsfrequentie en desgewenst een verantwoordelijk lid. Een taak met zichtbaarheid "Bestuursleden" zien alleen leden met een bestuursfunctie.</p>
+          </div>
+          <a class="knop-toevoegen" href="beheer.php?otaak=nieuw#operationele_taken">Nieuwe taak</a>
+        </div>
+
+        <?php if (isset($melding['operationele_taken'])): ?>
+          <div class="melding <?php echo $meldingType['operationele_taken']; ?>"><?php echo htmlspecialchars($melding['operationele_taken']); ?></div>
+        <?php endif; ?>
+
+        <?php if (count($otakenLijst) === 0): ?>
+          <p class="hint">Nog geen operationele taken. Maak er een aan met de knop hierboven.</p>
+        <?php else: ?>
+          <div class="leden-tabel-wrap">
+            <table class="leden-tabel" id="operationele-taken-tabel">
+              <thead>
+                <tr>
+                  <th>Taak</th>
+                  <th>Frequentie</th>
+                  <th>Toegewezen aan</th>
+                  <th>Status</th>
+                  <?php if ($isBestuurslid): ?><th>Zichtbaar voor</th><?php endif; ?>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($otakenLijst as $t): ?>
+                  <?php $otStatus = otaakStatus($t); ?>
+                  <tr data-href="beheer.php?otaak=<?php echo urlencode($t['id']); ?>#operationele_taken">
+                    <td class="lc-kop"><span class="lc"><strong><?php echo htmlspecialchars(otaakWeergavenaam($t)); ?></strong></span></td>
+                    <td data-label="Frequentie"><span class="lc"><?php echo htmlspecialchars($otaakFrequentieLabels[$t['frequentie']] ?? $t['frequentie']); ?></span></td>
+                    <td data-label="Toegewezen aan"><span class="lc"><?php echo ($t['toegewezen_aan'] !== '' && isset($ledenNaamBijId[$t['toegewezen_aan']])) ? htmlspecialchars($ledenNaamBijId[$t['toegewezen_aan']]) : '<span class="leden-leeg">niemand</span>'; ?></span></td>
+                    <td data-label="Status"><span class="lc"><span class="leden-badge ot-<?php echo htmlspecialchars($otStatus); ?>"><?php echo htmlspecialchars($otaakStatusLabels[$otStatus] ?? $otStatus); ?><?php if ($otStatus === 'gepland' && $t['volgende_uitvoering'] !== ''): ?> (<?php echo htmlspecialchars(datumWeergave($t['volgende_uitvoering'])); ?>)<?php endif; ?></span></span></td>
+                    <?php if ($isBestuurslid): ?>
+                      <td data-label="Zichtbaar voor"><span class="lc"><?php echo htmlspecialchars($otaakZichtbaarheidLabels[$t['zichtbaarheid']] ?? $t['zichtbaarheid']); ?></span></td>
+                    <?php endif; ?>
+                    <td class="lc-actie"><a class="knop-klein" href="beheer.php?otaak=<?php echo urlencode($t['id']); ?>#operationele_taken">Openen</a></td>
                   </tr>
                 <?php endforeach; ?>
               </tbody>
@@ -8671,7 +9049,7 @@ if ($isMaster && file_exists($logBestand)) {
     })();
     // Zelfde gedrag voor Ledenvergaderingen en Takenlijst: aparte tabellen,
     // dus aparte listener, net als hierboven bij de bestuursvergaderingen.
-    ['ledenvergaderingen-tabel', 'takenlijst-tabel'].forEach(function (tabelId) {
+    ['ledenvergaderingen-tabel', 'takenlijst-tabel', 'operationele-taken-tabel'].forEach(function (tabelId) {
       var tabel = document.getElementById(tabelId);
       if (!tabel) return;
       tabel.addEventListener('click', function (e) {

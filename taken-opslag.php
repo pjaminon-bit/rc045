@@ -207,6 +207,14 @@ function taakNormaliseer($invoer, $bestaand = null) {
     $t['commissie_id'] = '';
   }
 
+  // Toegewezen aan: het lid dat de taak oppakt. Alleen de sleutel, of het
+  // lid nog echt bestaat controleert de aanroeper (net als bij commissie_id).
+  if (array_key_exists('toegewezen_aan', $invoer)) {
+    $t['toegewezen_aan'] = ledenKort($invoer['toegewezen_aan'], 40);
+  } elseif (!isset($t['toegewezen_aan'])) {
+    $t['toegewezen_aan'] = '';
+  }
+
   if (!isset($t['id']) || $t['id'] === '') $t['id'] = taakNieuwId();
   if (!isset($t['nummer'])) $t['nummer'] = 0;
   if (!isset($t['aangemaakt'])) $t['aangemaakt'] = date('c');
