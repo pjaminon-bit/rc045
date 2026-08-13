@@ -24,6 +24,13 @@
 return [
 
   [
+    'datum' => '2026-08-13',
+    'cat' => 'verbeterd',
+    'titel' => 'Opmaak en teksten van de hele site nagelopen',
+    'tekst' => 'Typefouten en ontbrekende leestekens gecorrigeerd, dubbele stijlregels samengevoegd, lazy loading toegevoegd aan de footer-afbeeldingen, en dode code (ongebruikte teksten en CSS) opgeruimd.',
+  ],
+
+  [
     'datum' => '2026-08-12',
     'cat' => 'nieuw',
     'titel' => 'Tabblad Operationele taken',
