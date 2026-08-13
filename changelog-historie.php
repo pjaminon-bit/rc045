@@ -25,6 +25,12 @@ return [
 
   [
     'datum' => '2026-08-13',
+    'cat' => 'nieuw',
+    'titel' => 'Tabblad Evenementen',
+    'tekst' => 'Activiteiten waar leden zich voor kunnen aanmelden, zoals een clubdag of wedstrijd, met datum, locatie, een optioneel maximaal aantal deelnemers en een deelnemerslijst. Het bestuur beheert die lijst voorlopig zelf, net als de presentielijst bij een ledenvergadering; zodra er een ledenportaal is, kunnen leden zich daar straks ook zelf voor aan- of afmelden. Een evenement kan op "Bestuursleden" gezet worden: die ziet een lid zonder bestuursfunctie dan niet. Wie toegang tot dit tabblad krijgt, staat net als bij de andere tabbladen bij Gebruikers.',
+  ],
+  [
+    'datum' => '2026-08-13',
     'cat' => 'opgelost',
     'titel' => 'Taalvlaggetjes onzichtbaar in Chrome, Edge en Brave op Windows',
     'tekst' => 'De vlaggen bij de taalkeuze stonden als emoji in de tekst. Windows levert zelf geen vlag-emoji mee aan Chromium-browsers (Chrome, Edge, Brave), waardoor daar twee letters te zien waren in plaats van een vlaggetje; in Firefox ging dit toevallig wel goed omdat die browser zijn eigen emoji-lettertype meelevert. De vlaggen zijn nu kleine afbeeldingen (SVG) die overal hetzelfde tonen.',

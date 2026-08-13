@@ -64,6 +64,7 @@ require_once __DIR__ . '/leden-opslag.php';
 require_once __DIR__ . '/vergaderingen-opslag.php';
 require_once __DIR__ . '/taken-opslag.php';
 require_once __DIR__ . '/operationele-taken-opslag.php';
+require_once __DIR__ . '/evenementen-opslag.php';
 
 // Lockout bij te veel mislukte inlogpogingen (per gebruikersnaam, of
 // "beheerder" voor het beheerderswachtwoord): na $loginLockoutDrempel
@@ -1794,6 +1795,7 @@ $beheerTabsAlle = [
   'ledenvergadering' => 'Ledenvergadering',
   'takenlijst' => 'Takenlijst',
   'operationele_taken' => 'Operationele taken',
+  'evenementen' => 'Evenementen',
   'changelog'  => 'Changelog',
 ];
 
@@ -2169,6 +2171,8 @@ $formulierTab = [
   'otaak_opslaan' => 'operationele_taken',
   'otaak_verwijderen' => 'operationele_taken',
   'otaak_uitgevoerd' => 'operationele_taken',
+  'evenement_opslaan' => 'evenementen',
+  'evenement_verwijderen' => 'evenementen',
   'changelog_toevoegen' => 'changelog', 'changelog_bewerken' => 'changelog',
   'changelog_verwijderen' => 'changelog',
 ];
@@ -4070,6 +4074,116 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $meldingType['operationele_taken'] = 'fout';
     }
 
+  } elseif ($formulier === 'evenement_opslaan') {
+    // Een evenement aanmaken of bijwerken, inclusief de deelnemerslijst.
+    // Voor nu beheert het bestuur die lijst hier zelf, net als de
+    // presentielijst bij een ledenvergadering (zie het opslagbestand voor
+    // de gedachte achter deze opzet, met het oog op een later ledenportaal).
+    $evenementenData = evenementenLees();
+    $id = trim($_POST['evenement_id'] ?? '');
+    $index = null;
+    foreach ($evenementenData['evenementen'] as $i => $ev) {
+      if (($ev['id'] ?? '') === $id) { $index = $i; break; }
+    }
+    $bestaandEvenement = $index === null ? null : $evenementenData['evenementen'][$index];
+
+    $invoer = [];
+    foreach (['titel', 'omschrijving', 'tijd', 'locatie', 'capaciteit'] as $veld) {
+      if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
+    }
+    $invoer['datum'] = ledenParseDatum($_POST['datum'] ?? '');
+    // Deelnemers komen als lid-id => "1" binnen (alleen aangevinkte
+    // checkboxen sturen mee), dus de sleutels zijn de lid-id's zelf.
+    $invoer['deelnemers'] = (isset($_POST['deelnemers']) && is_array($_POST['deelnemers']))
+      ? array_keys($_POST['deelnemers']) : [];
+
+    // De zichtbaarheid (leden/bestuur) is alleen door een bestuurslid te
+    // wijzigen, zelfde reden als bij Operationele taken: anders zou een
+    // gewoon lid een bestuurs-only evenement openbaar kunnen zetten, of een
+    // eigen evenement maken dat hij daarna niet meer terugziet.
+    if ($isBestuurslid && isset($_POST['zichtbaarheid'])) {
+      $invoer['zichtbaarheid'] = $_POST['zichtbaarheid'];
+    } elseif (!$isBestuurslid) {
+      $invoer['zichtbaarheid'] = 'leden';
+    }
+
+    // Een niet-bestuurslid mag een bestaand bestuurs-only evenement niet
+    // bewerken, ook niet via een geraden evenement_id.
+    $magOpslaan = true;
+    if (!$isBestuurslid && $bestaandEvenement !== null && ($bestaandEvenement['zichtbaarheid'] ?? 'leden') === 'bestuur') {
+      $magOpslaan = false;
+      $melding['evenementen'] = 'Dat evenement staat er niet (meer) in.';
+      $meldingType['evenementen'] = 'fout';
+    }
+
+    if (!$magOpslaan) {
+      // Niets doen: de foutmelding hierboven staat al klaar.
+    } elseif (trim((string) ($invoer['titel'] ?? '')) === '') {
+      $melding['evenementen'] = 'Vul een titel in, anders is het evenement nergens op te herkennen.';
+      $meldingType['evenementen'] = 'fout';
+    } else {
+      // Deelnemers moeten echt (nog) bestaan, anders slipt een verwijderd
+      // lid ongemerkt in de lijst.
+      $ledenDataVoorControle = ledenLees();
+      $bestaandeLidIds = [];
+      foreach ($ledenDataVoorControle['leden'] as $lc) { $bestaandeLidIds[$lc['id']] = true; }
+      $invoer['deelnemers'] = array_values(array_filter($invoer['deelnemers'], function ($lidId) use ($bestaandeLidIds) {
+        return isset($bestaandeLidIds[$lidId]);
+      }));
+
+      $evenement = evenementNormaliseer($invoer, $bestaandEvenement);
+
+      if ($index === null) {
+        $evenement['nummer'] = evenementVolgendNummer($evenementenData);
+        $evenement['aangemaakt_door'] = $huidigeGebruiker;
+        $evenementenData['evenementen'][] = $evenement;
+        $evenementenData['volgnummer'] = max((int) $evenementenData['volgnummer'], (int) $evenement['nummer']);
+        $actie = 'aangemaakt';
+      } else {
+        $evenementenData['evenementen'][$index] = $evenement;
+        $actie = 'bijgewerkt';
+      }
+
+      if (evenementenSchrijf($evenementenData)) {
+        schrijfLog($logBestand, $huidigeGebruiker, 'evenementen', $actie . ': ' . evenementWeergavenaam($evenement));
+        $_SESSION['flash']['evenementen'] = ['tekst' => 'Evenement ' . $actie . ': ' . evenementWeergavenaam($evenement) . '.', 'type' => 'ok'];
+        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        header('Location: beheer.php#evenementen');
+        exit;
+      }
+      $melding['evenementen'] = 'Opslaan mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
+      $meldingType['evenementen'] = 'fout';
+    }
+
+  } elseif ($formulier === 'evenement_verwijderen') {
+    $evenementenData = evenementenLees();
+    $id = trim($_POST['evenement_id'] ?? '');
+    $naam = '';
+    $gevonden = false;
+    foreach ($evenementenData['evenementen'] as $i => $ev) {
+      if (($ev['id'] ?? '') !== $id) continue;
+      // Een niet-bestuurslid mag een bestuurs-only evenement niet verwijderen.
+      if (!$isBestuurslid && ($ev['zichtbaarheid'] ?? 'leden') === 'bestuur') break;
+      $naam = evenementWeergavenaam($ev);
+      unset($evenementenData['evenementen'][$i]);
+      $evenementenData['evenementen'] = array_values($evenementenData['evenementen']);
+      $gevonden = true;
+      break;
+    }
+    if (!$gevonden) {
+      $melding['evenementen'] = 'Dat evenement staat er niet (meer) in.';
+      $meldingType['evenementen'] = 'fout';
+    } elseif (evenementenSchrijf($evenementenData)) {
+      schrijfLog($logBestand, $huidigeGebruiker, 'evenementen', 'verwijderd: ' . $naam);
+      $_SESSION['flash']['evenementen'] = ['tekst' => 'Evenement verwijderd. De vorige versie staat in de back-ups.', 'type' => 'ok'];
+      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      header('Location: beheer.php#evenementen');
+      exit;
+    } else {
+      $melding['evenementen'] = 'Verwijderen mislukt.';
+      $meldingType['evenementen'] = 'fout';
+    }
+
   } elseif ($formulier === 'leden_export') {
     // Het hele ledenbestand als CSV, met puntkomma's zodat Excel in het
     // Nederlands het zonder importwizard opent, en een BOM zodat accenten
@@ -4683,6 +4797,32 @@ if ($otaakBewerkId === 'nieuw') {
   }
 }
 
+// ===== Evenementen =====
+// Zelfde opzet als Operationele taken hierboven: een evenement met
+// zichtbaarheid "bestuur" wordt hier al uit de lijst gefilterd, niet pas
+// in de weergave, zodat een lid zonder bestuursfunctie het ook niet via
+// een geraden id kan openen.
+$evenementenData = evenementenLees();
+$evenementenAlle = evenementenGesorteerd($evenementenData);
+$evenementZichtbaarheidLabels = evenementZichtbaarheden();
+$evenementStatusLabels = evenementStatusLabels();
+$evenementenLijst = $isBestuurslid ? $evenementenAlle : array_values(array_filter($evenementenAlle, function ($ev) {
+  return ($ev['zichtbaarheid'] ?? 'leden') === 'leden';
+}));
+
+$evenementBewerkId = isset($_GET['evenement']) ? trim((string) $_GET['evenement']) : '';
+$evenementBewerk = null;
+$evenementNieuw = false;
+if ($evenementBewerkId === 'nieuw') {
+  $evenementNieuw = true;
+  $evenementBewerk = evenementNormaliseer(['zichtbaarheid' => 'leden']);
+  $evenementBewerk['nummer'] = evenementVolgendNummer($evenementenData);
+} elseif ($evenementBewerkId !== '') {
+  foreach ($evenementenLijst as $ev) {
+    if (($ev['id'] ?? '') === $evenementBewerkId) { $evenementBewerk = $ev; break; }
+  }
+}
+
 // Dubbele lidnummers. Kan gebeuren als er handmatig een lid is toegevoegd
 // (dat krijgt het eerstvolgende vrije nummer) en er daarna een import komt
 // waarin dat nummer al aan iemand anders vastzit. Geen fout die iets kapot
@@ -5073,6 +5213,9 @@ if ($isMaster && file_exists($logBestand)) {
     .leden-badge.ot-te_doen, .leden-badge.ot-te_doen:hover { background: #FEF3C7; color: #92400E; }
     .leden-badge.ot-gepland, .leden-badge.ot-gepland:hover { background: var(--teal-light); color: var(--teal-dark); }
     .leden-badge.ot-gepauzeerd, .leden-badge.ot-gepauzeerd:hover { background: #ECEFF1; color: #455A64; }
+    .leden-badge.ev-aankomend, .leden-badge.ev-aankomend:hover { background: var(--teal-light); color: var(--teal-dark); }
+    .leden-badge.ev-geweest, .leden-badge.ev-geweest:hover { background: #ECEFF1; color: #455A64; }
+    .leden-badge.ev-vol, .leden-badge.ev-vol:hover { background: #FEF3C7; color: #92400E; }
     .verg-aanwezig-regel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .verg-aanwezig-naam { flex: 1 1 min(200px, 100%); font-size: 14px; }
     .verg-aanwezig-naam .leden-rol { display: inline; margin-left: 8px; }
@@ -5350,7 +5493,7 @@ if ($isMaster && file_exists($logBestand)) {
           ['label' => 'Content', 'tabs' => ['mededeling', 'nieuws', 'agenda', 'contact', 'sponsors', 'faq', 'media', 'fotoboek']],
           ['label' => 'Leden & contributie', 'tabs' => ['leden', 'commissies', 'rekentabel']],
           ['label' => 'Bestuur', 'tabs' => ['bestuursvergadering', 'ledenvergadering', 'takenlijst']],
-          ['label' => 'Operationeel', 'tabs' => ['operationele_taken']],
+          ['label' => 'Operationeel', 'tabs' => ['operationele_taken', 'evenementen']],
           ['label' => 'Beheer', 'tabs' => ['changelog', 'gebruikers', 'log', 'backups']],
         ];
         $alleenMasterTabs = ['gebruikers', 'log', 'backups'];
@@ -8061,6 +8204,164 @@ if ($isMaster && file_exists($logBestand)) {
     </div>
     <?php endif; ?>
 
+    <?php if (in_array('evenementen', $toegestaneTabs, true)): ?>
+    <div class="tab-paneel" id="tab-evenementen">
+    <!-- ===== EVENEMENTEN ===== -->
+    <?php if ($evenementBewerk !== null): ?>
+      <div class="kaart">
+        <div class="kaart-header">
+          <div>
+            <h1><?php echo $evenementNieuw ? 'Nieuw evenement' : htmlspecialchars(evenementWeergavenaam($evenementBewerk)); ?></h1>
+            <p class="sub">
+              <?php if ($evenementNieuw): ?>
+                Een activiteit waar leden zich voor kunnen aanmelden, zoals een clubdag of een wedstrijd.
+              <?php else: ?>
+                Evenement <?php echo (int) $evenementBewerk['nummer']; ?><?php if (($evenementBewerk['aangemaakt_door'] ?? '') !== ''): ?>, aangemaakt door <?php echo htmlspecialchars($evenementBewerk['aangemaakt_door']); ?><?php endif; ?>.
+              <?php endif; ?>
+            </p>
+          </div>
+          <a class="knop-klein" href="beheer.php#evenementen">Terug naar het overzicht</a>
+        </div>
+
+        <?php if (isset($melding['evenementen'])): ?>
+          <div class="melding <?php echo $meldingType['evenementen']; ?>"><?php echo htmlspecialchars($melding['evenementen']); ?></div>
+        <?php endif; ?>
+
+        <form method="post" action="beheer.php#evenementen">
+          <input type="hidden" name="formulier" value="evenement_opslaan">
+          <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+          <input type="hidden" name="evenement_id" value="<?php echo $evenementNieuw ? '' : htmlspecialchars($evenementBewerk['id']); ?>">
+
+          <div class="veld">
+            <label for="ev-titel">Titel</label>
+            <input type="text" id="ev-titel" name="titel" maxlength="160" value="<?php echo htmlspecialchars($evenementBewerk['titel']); ?>">
+          </div>
+
+          <div class="rij-3">
+            <div class="veld">
+              <label for="ev-datum">Datum</label>
+              <input type="text" inputmode="numeric" id="ev-datum" name="datum" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($evenementBewerk['datum'])); ?>">
+            </div>
+            <div class="veld">
+              <label for="ev-tijd">Aanvang</label>
+              <input type="text" id="ev-tijd" name="tijd" maxlength="5" placeholder="10:00" value="<?php echo htmlspecialchars($evenementBewerk['tijd']); ?>">
+            </div>
+            <div class="veld">
+              <label for="ev-locatie">Locatie</label>
+              <input type="text" id="ev-locatie" name="locatie" maxlength="120" placeholder="Baan RC045" value="<?php echo htmlspecialchars($evenementBewerk['locatie']); ?>">
+            </div>
+          </div>
+
+          <div class="rij-2">
+            <div class="veld">
+              <label for="ev-capaciteit">Maximaal aantal deelnemers</label>
+              <input type="number" id="ev-capaciteit" name="capaciteit" min="0" max="9999" placeholder="onbeperkt" value="<?php echo ((int) $evenementBewerk['capaciteit']) > 0 ? (int) $evenementBewerk['capaciteit'] : ''; ?>">
+              <p class="hint">Leeg laten voor een onbeperkt aantal plekken.</p>
+            </div>
+            <div class="veld">
+              <?php if ($isBestuurslid): ?>
+                <label for="ev-zichtbaarheid">Zichtbaar voor</label>
+                <select id="ev-zichtbaarheid" name="zichtbaarheid">
+                  <?php foreach ($evenementZichtbaarheidLabels as $sleutel => $label): ?>
+                    <option value="<?php echo htmlspecialchars($sleutel); ?>"<?php echo $evenementBewerk['zichtbaarheid'] === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+                  <?php endforeach; ?>
+                </select>
+              <?php else: ?>
+                <label>Zichtbaar voor</label>
+                <p class="hint" style="margin-top:8px;">Leden (alleen bestuursleden kunnen een evenement op "Bestuursleden" zetten).</p>
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <div class="veld">
+            <label for="ev-omschrijving">Omschrijving</label>
+            <textarea id="ev-omschrijving" name="omschrijving" maxlength="4000" style="min-height:100px;"><?php echo htmlspecialchars($evenementBewerk['omschrijving']); ?></textarea>
+          </div>
+
+          <div class="sectie-kop">Aanmeldingen</div>
+          <?php if (count($ledenActiefVoorAanwezigheid) === 0): ?>
+            <p class="hint">Er staan nog geen actieve leden in de ledenadministratie, dus is er nog niemand om aan te melden.</p>
+          <?php else: ?>
+            <p class="hint">Vink aan wie meedoet. Zodra er een ledenportaal is, kunnen leden zich hier straks ook zelf voor aan- of afmelden.</p>
+            <?php foreach ($ledenActiefVoorAanwezigheid as $al): ?>
+              <div class="verg-aanwezig-regel">
+                <span class="verg-aanwezig-naam">
+                  <strong><?php echo htmlspecialchars(ledenVolledigeNaam($al)); ?></strong>
+                </span>
+                <span class="verg-aanwezig-keuze">
+                  <label class="leden-vink"><input type="checkbox" name="deelnemers[<?php echo htmlspecialchars($al['id']); ?>]" value="1"<?php echo in_array($al['id'], $evenementBewerk['deelnemers'], true) ? ' checked' : ''; ?>> Aangemeld</label>
+                </span>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+
+          <button type="submit">Evenement opslaan</button>
+        </form>
+
+        <?php if (!$evenementNieuw): ?>
+          <form method="post" action="beheer.php#evenementen" onsubmit="return confirm('Dit evenement definitief verwijderen? De vorige versie blijft in de back-ups staan.');" style="margin-top:14px;">
+            <input type="hidden" name="formulier" value="evenement_verwijderen">
+            <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+            <input type="hidden" name="evenement_id" value="<?php echo htmlspecialchars($evenementBewerk['id']); ?>">
+            <button type="submit" class="knop-klein">Evenement verwijderen</button>
+          </form>
+        <?php endif; ?>
+      </div>
+    <?php else: ?>
+      <div class="kaart">
+        <div class="kaart-header">
+          <div>
+            <h1>Evenementen</h1>
+            <p class="sub">Activiteiten waar leden zich voor kunnen aanmelden. Een evenement met zichtbaarheid "Bestuursleden" is alleen zichtbaar voor leden met een bestuursfunctie.</p>
+          </div>
+          <a class="knop-toevoegen" href="beheer.php?evenement=nieuw#evenementen">Nieuw evenement</a>
+        </div>
+
+        <?php if (isset($melding['evenementen'])): ?>
+          <div class="melding <?php echo $meldingType['evenementen']; ?>"><?php echo htmlspecialchars($melding['evenementen']); ?></div>
+        <?php endif; ?>
+
+        <?php if (count($evenementenLijst) === 0): ?>
+          <p class="hint">Nog geen evenementen. Maak er een aan met de knop hierboven.</p>
+        <?php else: ?>
+          <div class="leden-tabel-wrap">
+            <table class="leden-tabel" id="evenementen-tabel">
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Evenement</th>
+                  <th>Aanmeldingen</th>
+                  <th>Status</th>
+                  <?php if ($isBestuurslid): ?><th>Zichtbaar voor</th><?php endif; ?>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($evenementenLijst as $ev): ?>
+                  <?php $evStatus = evenementStatus($ev); $evAantal = evenementAantalDeelnemers($ev); $evCapaciteit = (int) $ev['capaciteit']; ?>
+                  <tr data-href="beheer.php?evenement=<?php echo urlencode($ev['id']); ?>#evenementen">
+                    <td data-label="Datum"><span class="lc"><?php echo $ev['datum'] !== '' ? htmlspecialchars(datumWeergave($ev['datum'])) : '<span class="leden-leeg">nog te plannen</span>'; ?><?php if (($ev['tijd'] ?? '') !== ''): ?> <?php echo htmlspecialchars($ev['tijd']); ?><?php endif; ?></span></td>
+                    <td class="lc-kop">
+                      <span class="lc"><strong><?php echo htmlspecialchars(evenementWeergavenaam($ev)); ?></strong>
+                      <?php if (($ev['locatie'] ?? '') !== ''): ?><span class="leden-bron"><?php echo htmlspecialchars($ev['locatie']); ?></span><?php endif; ?></span>
+                    </td>
+                    <td data-label="Aanmeldingen"><span class="lc"><?php echo $evAantal; ?><?php echo $evCapaciteit > 0 ? ' van ' . $evCapaciteit : ''; ?><?php if (evenementIsVol($ev)): ?> <span class="leden-badge ev-vol">Vol</span><?php endif; ?></span></td>
+                    <td data-label="Status"><span class="lc"><span class="leden-badge ev-<?php echo htmlspecialchars($evStatus); ?>"><?php echo htmlspecialchars($evenementStatusLabels[$evStatus] ?? $evStatus); ?></span></span></td>
+                    <?php if ($isBestuurslid): ?>
+                      <td data-label="Zichtbaar voor"><span class="lc"><?php echo htmlspecialchars($evenementZichtbaarheidLabels[$ev['zichtbaarheid']] ?? $ev['zichtbaarheid']); ?></span></td>
+                    <?php endif; ?>
+                    <td class="lc-actie"><a class="knop-klein" href="beheer.php?evenement=<?php echo urlencode($ev['id']); ?>#evenementen">Openen</a></td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <?php if (in_array('rekentabel', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-rekentabel">
     <!-- ===== REKENTABEL CONTRIBUTIE (bewerkbaar) ===== -->
@@ -9050,7 +9351,7 @@ if ($isMaster && file_exists($logBestand)) {
     })();
     // Zelfde gedrag voor Ledenvergaderingen en Takenlijst: aparte tabellen,
     // dus aparte listener, net als hierboven bij de bestuursvergaderingen.
-    ['ledenvergaderingen-tabel', 'takenlijst-tabel', 'operationele-taken-tabel'].forEach(function (tabelId) {
+    ['ledenvergaderingen-tabel', 'takenlijst-tabel', 'operationele-taken-tabel', 'evenementen-tabel'].forEach(function (tabelId) {
       var tabel = document.getElementById(tabelId);
       if (!tabel) return;
       tabel.addEventListener('click', function (e) {

@@ -37,6 +37,13 @@ RewriteRule ^beheer/?$ beheer.php [L]
   Require all denied
 </FilesMatch>
 
+# Evenementen: de deelnemerslijst is geen publieke informatie en een deel
+# van de evenementen is alleen voor bestuursleden bedoeld, dus ook dit
+# bestand nooit rechtstreeks opvraagbaar.
+<FilesMatch "^(evenementen-data\.php|evenementen-opslag\.php)$">
+  Require all denied
+</FilesMatch>
+
 # DeepL-sleutel voor de vertaalknoppen in beheer.php: nooit rechtstreeks
 # opvraagbaar. Staat niet in GitHub (zie .gitignore), wordt handmatig via
 # FTP geupload, dus deze regel moet ook in de live .htaccess staan.

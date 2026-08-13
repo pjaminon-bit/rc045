@@ -28,6 +28,8 @@ vertaal-config.php
 leden-data.php
 vergaderingen-data.php
 taken-data.php
+operationele-taken-data.php
+evenementen-data.php
 
 # macOS
 .DS_Store
