@@ -5350,7 +5350,7 @@ if ($isMaster && file_exists($logBestand)) {
           ['label' => 'Content', 'tabs' => ['mededeling', 'nieuws', 'agenda', 'contact', 'sponsors', 'faq', 'media', 'fotoboek']],
           ['label' => 'Leden & contributie', 'tabs' => ['leden', 'commissies', 'rekentabel']],
           ['label' => 'Bestuur', 'tabs' => ['bestuursvergadering', 'ledenvergadering', 'takenlijst']],
-          ['label' => 'Club', 'tabs' => ['operationele_taken']],
+          ['label' => 'Operationeel', 'tabs' => ['operationele_taken']],
           ['label' => 'Beheer', 'tabs' => ['changelog', 'gebruikers', 'log', 'backups']],
         ];
         $alleenMasterTabs = ['gebruikers', 'log', 'backups'];
@@ -8014,7 +8014,7 @@ if ($isMaster && file_exists($logBestand)) {
         <div class="kaart-header">
           <div>
             <h1>Operationele taken</h1>
-            <p class="sub">Terugkerende klussen die de club sowieso moet doen, met een uitvoeringsfrequentie en desgewenst een verantwoordelijk lid. Een taak met zichtbaarheid "Bestuursleden" zien alleen leden met een bestuursfunctie.</p>
+            <p class="sub">Terugkerende klussen die de club sowieso moet doen, met een uitvoeringsfrequentie en desgewenst een verantwoordelijk lid. Een taak met zichtbaarheid "Bestuursleden" is alleen zichtbaar voor leden met een bestuursfunctie.</p>
           </div>
           <a class="knop-toevoegen" href="beheer.php?otaak=nieuw#operationele_taken">Nieuwe operationele taak</a>
         </div>

@@ -60,10 +60,6 @@
     
     .media-link:hover { color: var(--teal); border-color: var(--teal); }
     
-    .media-card-unavailable { opacity: 0.6; }
-    
-    .media-unavailable-tag { display: inline-block; font-size: 11px; font-weight: 700; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 100px; padding: 2px 10px; margin-bottom: 16px; }
-    
     @media (max-width: 700px) {
       .media-grid { grid-template-columns: 1fr; }
       .media-card { flex-direction: column; gap: 16px; padding: 20px; }
@@ -125,14 +121,14 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <img width="400" height="423" src="rc045-logo.png" alt="RC045">
+        <img width="400" height="423" src="rc045-logo.png" alt="RC045" loading="lazy" decoding="async">
         <p id="footer-brand-text" data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
         <div class="footer-social">
           <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook" id="footer-facebook-link">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true" loading="lazy" decoding="async">
           </a>
           <span title="Instagram (binnenkort)" style="opacity: 0.3; display: flex; align-items: center;" aria-label="Instagram binnenkort beschikbaar">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true" loading="lazy" decoding="async">
           </span>
         </div>
       </div>
@@ -178,21 +174,6 @@ const i18n = {
     'nav.location': 'Locatie', 'nav.photobook': 'Fotoboek', 'nav.contact': 'Contact', 'nav.join': 'Lid worden',
     'hero.label': 'Over ons', 'hero.title': 'Media',
     'hero.sub': 'Voordat wij een eigen baan hadden, gaf de media ons veelvuldig aandacht. Hier vind je een overzicht van die berichtgevingen.',
-    'media.date1': '8 november 2020', 'media.title1': 'Interview Omroep Landgraaf',
-    'media.desc1': 'Omroep Landgraaf bracht een interview over onze RC-autoclub, nog voordat we een eigen baan hadden.',
-    'media.date2': '6 december 2020', 'media.title2': 'Interview Omroep Landgraaf: Caravanrace',
-    'media.desc2': 'Een tweede interview met Omroep Landgraaf, ditmaal over de Caravanrace die onze leden organiseerden.',
-    'media.date3': '25 april 2021', 'media.title3': 'Artikel Omroep Landgraaf',
-    'media.desc3': 'Omroep Landgraaf schreef een artikel over RC045 en de groeiende populariteit van onze hobby in de regio.',
-    'media.date4': '29 april 2021', 'media.title4': 'Artikel ZO-NWS: Club RC-auto\'s groeit uit jasje',
-    'media.desc4': 'ZO-NWS berichtte over de snelle groei van RC045 en de zoektocht naar een eigen locatie voor onze baan.',
-    'media.date5': '4 mei 2021', 'media.title5': 'Route Regio: op zoek naar een nieuwe locatie',
-    'media.desc5': 'L1 volgde RC045 in de zoektocht naar een nieuwe locatie voor de club.',
-    'media.date7': '20 november 2022', 'media.title7': 'Interview Omroep Landgraaf: opening nieuwe locatie',
-    'media.desc7': 'Omroep Landgraaf was aanwezig bij de opening van onze nieuwe baan aan de Wijngaardsberg in Kerkrade, nadat we waren verhuisd vanaf het veldje bij sporthal Strijthagen.',
-    'media.date6': '13 februari 2024', 'media.title6': 'Route Regio: eindelijk een eigen terrein',
-    'media.desc6': 'Ruim twee jaar later keerde L1 terug: RC045 had eindelijk een eigen terrein gevonden.',
-    'media.watch': 'Bekijk op Facebook →', 'media.read': 'Lees het artikel →', 'media.watchreport': 'Bekijk de reportage →',
     'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
     'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.photobook': 'Fotoboek',
     'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
@@ -206,21 +187,6 @@ const i18n = {
     'nav.location': 'Location', 'nav.photobook': 'Photo book', 'nav.contact': 'Contact', 'nav.join': 'Become a member',
     'hero.label': 'About us', 'hero.title': 'Media',
     'hero.sub': 'Before we had our own track, the media paid us frequent attention. Here you will find an overview of those features.',
-    'media.date1': '8 November 2020', 'media.title1': 'Interview Omroep Landgraaf',
-    'media.desc1': 'Omroep Landgraaf aired an interview about our RC car club, before we had our own track.',
-    'media.date2': '6 December 2020', 'media.title2': 'Interview Omroep Landgraaf: Caravanrace',
-    'media.desc2': 'A second interview with Omroep Landgraaf, this time about the Caravanrace organised by our members.',
-    'media.date3': '25 April 2021', 'media.title3': 'Article Omroep Landgraaf',
-    'media.desc3': 'Omroep Landgraaf wrote an article about RC045 and the growing popularity of our hobby in the region.',
-    'media.date4': '29 April 2021', 'media.title4': 'Article ZO-NWS: RC car club outgrows itself',
-    'media.desc4': 'ZO-NWS reported on the rapid growth of RC045 and the search for a dedicated location for our track.',
-    'media.date5': '4 May 2021', 'media.title5': 'Route Regio: looking for a new location',
-    'media.desc5': 'L1 followed RC045\'s search for a new location for the club.',
-    'media.date7': '20 November 2022', 'media.title7': 'Omroep Landgraaf interview: new location opening',
-    'media.desc7': 'Omroep Landgraaf attended the opening of our new track at the Wijngaardsberg in Kerkrade, after our move from the field near sports hall Strijthagen.',
-    'media.date6': '13 February 2024', 'media.title6': 'Route Regio: finally our own site',
-    'media.desc6': 'Over two years later, L1 returned: RC045 had finally found its own site.',
-    'media.watch': 'Watch on Facebook →', 'media.read': 'Read the article →', 'media.watchreport': 'Watch the report →',
     'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
     'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.photobook': 'Photo book',
     'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
@@ -234,21 +200,6 @@ const i18n = {
     'nav.location': 'Standort', 'nav.photobook': 'Fotobuch', 'nav.contact': 'Kontakt', 'nav.join': 'Mitglied werden',
     'hero.label': 'Über uns', 'hero.title': 'Medien',
     'hero.sub': 'Bevor wir eine eigene Strecke hatten, schenkten uns die Medien häufig Aufmerksamkeit. Hier findest du eine Übersicht dieser Berichterstattungen.',
-    'media.date1': '8. November 2020', 'media.title1': 'Interview Omroep Landgraaf',
-    'media.desc1': 'Omroep Landgraaf brachte ein Interview über unseren RC-Auto-Verein, noch bevor wir eine eigene Strecke hatten.',
-    'media.date2': '6. Dezember 2020', 'media.title2': 'Interview Omroep Landgraaf: Caravanrace',
-    'media.desc2': 'Ein zweites Interview mit Omroep Landgraaf, diesmal über das Caravanrennen, das unsere Mitglieder organisierten.',
-    'media.date3': '25. April 2021', 'media.title3': 'Artikel Omroep Landgraaf',
-    'media.desc3': 'Omroep Landgraaf schrieb einen Artikel über RC045 und die wachsende Beliebtheit unseres Hobbys in der Region.',
-    'media.date4': '29. April 2021', 'media.title4': 'Artikel ZO-NWS: RC-Auto-Club wächst aus den Nähten',
-    'media.desc4': 'ZO-NWS berichtete über das schnelle Wachstum von RC045 und die Suche nach einem eigenen Gelände für unsere Strecke.',
-    'media.date5': '4. Mai 2021', 'media.title5': 'Route Regio: auf der Suche nach einem neuen Gelände',
-    'media.desc5': 'L1 begleitete RC045 bei der Suche nach einem neuen Gelände für den Verein.',
-    'media.date7': '20. November 2022', 'media.title7': 'Interview Omroep Landgraaf: Eröffnung des neuen Geländes',
-    'media.desc7': 'Omroep Landgraaf war bei der Eröffnung unserer neuen Bahn am Wijngaardsberg in Kerkrade dabei, nachdem wir vom Feld bei der Sporthalle Strijthagen umgezogen waren.',
-    'media.date6': '13. Februar 2024', 'media.title6': 'Route Regio: endlich ein eigenes Gelände',
-    'media.desc6': 'Über zwei Jahre später kehrte L1 zurück: RC045 hatte endlich ein eigenes Gelände gefunden.',
-    'media.watch': 'Auf Facebook ansehen →', 'media.read': 'Artikel lesen →', 'media.watchreport': 'Reportage ansehen →',
     'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
     'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.photobook': 'Fotobuch',
     'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
@@ -381,7 +332,7 @@ window.addEventListener('scroll', function() {
         var linkEl = document.createElement('a');
         linkEl.href = mi.link;
         linkEl.target = '_blank';
-        linkEl.rel = 'noopener';
+        linkEl.rel = 'noopener noreferrer';
         linkEl.className = 'media-link';
         linkEl.textContent = linktekstTekst;
         body.appendChild(linkEl);

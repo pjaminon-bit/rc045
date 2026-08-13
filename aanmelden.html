@@ -8,7 +8,7 @@
   <meta property="og:title" content="RC045 - Bashers of the South">
   <meta property="og:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
   <meta property="og:image" content="https://rc045.nl/rc045-logo.png">
-  <meta property="og:url" content="https://rc045.nl">
+  <meta property="og:url" content="https://rc045.nl/aanmelden.html">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="nl_NL">
   <meta name="twitter:card" content="summary_large_image">
@@ -146,7 +146,7 @@
     
     .faq-item.open .faq-answer { max-height: 600px; padding-top: 12px; }
     
-    .btn-primary { background: var(--teal); color: white; width: 100%; justify-content: center; margin-top: 24px; font-size: 17px; padding: 16px; }
+    .btn-primary { width: 100%; justify-content: center; margin-top: 24px; font-size: 17px; padding: 16px; }
     
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     
@@ -379,13 +379,13 @@
       <div class="akkoord-group">
         <input type="checkbox" id="akkoord-reglement" name="akkoord_reglement" value="ja">
         <label for="akkoord-reglement">
-          <span data-i18n="form.agree1a">Ik ga akkoord met het</span> <a href="baanreglement.html" data-i18n="form.agree1link">baanreglement</a> <span data-i18n="form.agree1b">van RC045 en verklaar dit gelezen en begrepen te hebben.</span> <span style="color:var(--teal);">*</span>
+          <span data-i18n="form.agree1a">Ik ga akkoord met het</span> <a href="baanreglement.html" data-i18n="form.agree1link">baanreglement</a> <span data-i18n="form.agree1b">van RC045 en verklaar dit gelezen en begrepen te hebben.</span> <span style="color:var(--teal); font-weight:700;">*</span>
         </label>
       </div>
       <div class="akkoord-group" style="margin-top: 10px;">
         <input type="checkbox" id="akkoord-betaling" name="akkoord_betaling" value="ja">
         <label for="akkoord-betaling">
-          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong id="am-iban-number-inline">NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button" data-i18n="iban.copy">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".</span> <span style="color:var(--teal);">*</span>
+          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong id="am-iban-number-inline">NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button" data-i18n="iban.copy">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".</span> <span style="color:var(--teal); font-weight:700;">*</span>
         </label>
       </div>
 
@@ -416,14 +416,14 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <img width="400" height="423" src="rc045-logo.png" alt="RC045">
+        <img width="400" height="423" src="rc045-logo.png" alt="RC045" loading="lazy" decoding="async">
         <p id="footer-brand-text" data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
         <div class="footer-social">
           <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook" id="footer-facebook-link">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true" loading="lazy" decoding="async">
           </a>
           <span title="Instagram (binnenkort)" style="opacity: 0.3; display: flex; align-items: center;" aria-label="Instagram binnenkort beschikbaar">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true" loading="lazy" decoding="async">
           </span>
         </div>
       </div>
@@ -540,23 +540,22 @@
       'bedankt.stap3': 'Je bent van harte welkom op onze baan zodra je lidmaatschap is bevestigd!',
       'bedankt.home': '🏠 Naar de hoofdpagina', 'bedankt.location': '📍 Hoe kom ik er?',
       'bedankt.close': 'Sluiten',
-      'form.sent': '✓ Aanmelding verzonden',
+      'form.sent': '✓ Aanmelding verzonden', 'form.sending': '⏳ Aanmelding verzenden...',
       'faq.title': 'Veelgestelde vragen',
       'form.submit': 'Aanmelden bij RC045 →',
-      'err.required': 'Dit veld is verplicht',
-      'warn.contact': '⚠️ We hebben een e-mailadres of mobiel nummer van je nodig om contact op te nemen',
-      'warn.email': '⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl)',
-      'warn.mobile': '⚠️ Vul een geldig mobiel nummer in (minimaal 9 cijfers)',
+      'err.required': 'Dit veld is verplicht.',
+      'warn.contact': '⚠️ We hebben een e-mailadres of mobiel nummer van je nodig om contact op te nemen.',
+      'warn.email': '⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl).',
+      'warn.mobile': '⚠️ Vul een geldig mobiel nummer in (minimaal 9 cijfers).',
       'warn.agree': '⚠️ Je dient akkoord te gaan met beide verklaringen om je te kunnen aanmelden.',
       'warn.error': '❌ Er ging iets mis. Probeer het opnieuw of mail naar bestuur@rc045.nl',
       'success.title': '✅ Aanmelding ontvangen! We nemen zo snel mogelijk contact met je op.',
       'success.sub': 'Vergeet niet de contributie over te maken via de betalingsinstructies hierboven.',
       'jeugd.badge': '🎯 Jeugdlid (t/m {leeftijd} jaar)', 'senior.badge': '✓ Seniorlid ({leeftijdplus}+)',
       'contrib.jeugd': 'Jeugdlid', 'contrib.senior': 'Seniorlid',
-      'contrib.inschrijving': 'inschrijving in', 'contrib.prorata': 'je betaalt vanaf',
+      'contrib.inschrijving': 'inschrijving in', 'contrib.prorata': 'je betaalt vanaf', 'contrib.label': 'Contributie',
       'contrib.inschrijfkosten': 'Eenmalige inschrijfkosten', 'contrib.totaal': 'Totaal over te maken',
       'contrib.volledig': 'Contributie {jaarnext}', 'contrib.niet_overmaken': 'nog niet over te maken',
-      'contrib.december': 'Bij inschrijving in december betaal je nu alleen de €10 eenmalige inschrijfkosten. De contributie voor 2027 hoeft nog niet te worden overgemaakt.',
     },
     en: {
       'nav.about': 'About us', 'nav.membership': 'Membership', 'nav.track': 'The track',
@@ -579,7 +578,7 @@
       'form.agree2': 'I agree to the membership fee obligation and will transfer the amount due as soon as possible to',
       'form.agree2b': 'in the name of RC045, quoting my first and last name plus "contributie RC045 {jaar}".',
       'iban.title': 'Payment details', 'iban.name': 'In the name of RC045',
-      'iban.ref': 'Please include: first name + last name + "contributie RC045 {jaar}"',
+      'iban.ref': 'Reference: first name + last name + "contributie RC045 {jaar}"',
       'iban.copy': '📋 Copy', 'iban.copied': 'Copied!',
       'bedankt.title': 'Welcome to RC045!',
       'bedankt.sub': 'Your registration has been received. The board will contact you as soon as possible to confirm your membership.',
@@ -588,23 +587,22 @@
       'bedankt.stap3': 'You are very welcome at our track once your membership is confirmed!',
       'bedankt.home': '🏠 Go to the homepage', 'bedankt.location': '📍 How to find us?',
       'bedankt.close': 'Close',
-      'form.sent': '✓ Registration sent',
+      'form.sent': '✓ Registration sent', 'form.sending': '⏳ Sending registration...',
       'faq.title': 'Frequently asked questions',
       'form.submit': 'Register with RC045 →',
-      'err.required': 'This field is required',
-      'warn.contact': '⚠️ We need an email address or mobile number to contact you',
-      'warn.email': '⚠️ Please enter a valid email address (e.g. name@example.com)',
-      'warn.mobile': '⚠️ Please enter a valid mobile number (at least 9 digits)',
+      'err.required': 'This field is required.',
+      'warn.contact': '⚠️ We need an email address or mobile number to contact you.',
+      'warn.email': '⚠️ Please enter a valid email address (e.g. name@example.com).',
+      'warn.mobile': '⚠️ Please enter a valid mobile number (at least 9 digits).',
       'warn.agree': '⚠️ You must agree to both declarations in order to register.',
       'warn.error': '❌ Something went wrong. Please try again or email bestuur@rc045.nl',
       'success.title': '✅ Registration received! We will contact you as soon as possible.',
       'success.sub': 'Don\'t forget to transfer the membership fee using the payment instructions above.',
       'jeugd.badge': '🎯 Youth member (up to {leeftijd})', 'senior.badge': '✓ Senior member ({leeftijdplus}+)',
       'contrib.jeugd': 'Youth member', 'contrib.senior': 'Senior member',
-      'contrib.inschrijving': 'registration in', 'contrib.prorata': 'you pay from',
+      'contrib.inschrijving': 'registration in', 'contrib.prorata': 'you pay from', 'contrib.label': 'Membership fee',
       'contrib.inschrijfkosten': 'One-time registration fee', 'contrib.totaal': 'Total to transfer',
       'contrib.volledig': 'Membership fee {jaarnext}', 'contrib.niet_overmaken': 'not due yet',
-      'contrib.december': 'If you register in December, you only pay the €10 one-time registration fee now. The membership fee for 2027 does not need to be transferred yet.',
     },
     de: {
       'nav.about': 'Über uns', 'nav.membership': 'Mitgliedschaft', 'nav.track': 'Die Strecke',
@@ -630,29 +628,28 @@
       'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 {jaar}"',
       'iban.copy': '📋 Kopieren', 'iban.copied': 'Kopiert!',
       'bedankt.title': 'Willkommen bei RC045!',
-      'bedankt.sub': 'Deine Anmeldung ist eingegangen. Der Vorstand meldet sich so schnell wie möglich bei dir, um deine Mitgliedschaft zu bestätigen.',
+      'bedankt.sub': 'Deine Anmeldung ist eingegangen. Der Vorstand wird sich so schnell wie möglich bei dir melden, um deine Mitgliedschaft zu bestätigen.',
       'bedankt.stap1': 'Überweise den Mitgliedsbeitrag mit den untenstehenden Angaben. Gib deinen Namen deutlich an.',
       'bedankt.stap2': 'Warte auf die Bestätigung des Vorstands per E-Mail oder WhatsApp.',
       'bedankt.stap3': 'Du bist herzlich willkommen auf unserer Strecke, sobald deine Mitgliedschaft bestätigt ist!',
       'bedankt.home': '🏠 Zur Hauptseite', 'bedankt.location': '📍 Wie komme ich hin?',
       'bedankt.close': 'Schließen',
-      'form.sent': '✓ Anmeldung gesendet',
+      'form.sent': '✓ Anmeldung gesendet', 'form.sending': '⏳ Anmeldung wird gesendet...',
       'faq.title': 'Häufig gestellte Fragen',
       'form.submit': 'Bei RC045 anmelden →',
-      'err.required': 'Dieses Feld ist erforderlich',
-      'warn.contact': '⚠️ Wir benötigen eine E-Mail-Adresse oder Handynummer, um dich zu kontaktieren',
-      'warn.email': '⚠️ Bitte gib eine gültige E-Mail-Adresse ein (z.B. name@beispiel.de)',
-      'warn.mobile': '⚠️ Bitte gib eine gültige Handynummer ein (mindestens 9 Ziffern)',
+      'err.required': 'Dieses Feld ist erforderlich.',
+      'warn.contact': '⚠️ Wir benötigen eine E-Mail-Adresse oder Handynummer, um dich zu kontaktieren.',
+      'warn.email': '⚠️ Bitte gib eine gültige E-Mail-Adresse ein (z.B. name@beispiel.de).',
+      'warn.mobile': '⚠️ Bitte gib eine gültige Handynummer ein (mindestens 9 Ziffern).',
       'warn.agree': '⚠️ Du musst beiden Erklärungen zustimmen, um dich anmelden zu können.',
       'warn.error': '❌ Etwas ist schiefgelaufen. Bitte versuche es erneut oder schreibe an bestuur@rc045.nl',
       'success.title': '✅ Anmeldung erhalten! Wir werden uns so schnell wie möglich bei dir melden.',
       'success.sub': 'Vergiss nicht, den Mitgliedsbeitrag gemäß den obigen Zahlungsanweisungen zu überweisen.',
       'jeugd.badge': '🎯 Jugendmitglied (bis {leeftijd} Jahre)', 'senior.badge': '✓ Seniorenmitglied ({leeftijdplus}+)',
       'contrib.jeugd': 'Jugendmitglied', 'contrib.senior': 'Seniorenmitglied',
-      'contrib.inschrijving': 'Anmeldung im', 'contrib.prorata': 'du zahlst ab',
+      'contrib.inschrijving': 'Anmeldung im', 'contrib.prorata': 'du zahlst ab', 'contrib.label': 'Mitgliedsbeitrag',
       'contrib.inschrijfkosten': 'Einmalige Anmeldegebühr', 'contrib.totaal': 'Gesamt zu überweisen',
       'contrib.volledig': 'Mitgliedsbeitrag {jaarnext}', 'contrib.niet_overmaken': 'noch nicht fällig',
-      'contrib.december': 'Bei Anmeldung im Dezember zahlst du jetzt nur die einmalige Anmeldegebühr von €10. Der Mitgliedsbeitrag für 2027 muss noch nicht überwiesen werden.',
     }
   };
 
@@ -893,7 +890,7 @@
       <div class="contributie-bedrag">€${totaal},-</div>
       <div class="contributie-sub">${isJeugd ? t['contrib.jeugd'] : t['contrib.senior']} · ${t['contrib.inschrijving']} ${maandNamen[maand - 1]} ${jaar}</div>
       <div class="contributie-breakdown">
-        Contributie: €${contributie} (${t['contrib.prorata']} ${maandNamen[maand] || maandNamen[0]})<br>
+        ${t['contrib.label']}: €${contributie} (${t['contrib.prorata']} ${maandNamen[maand] || maandNamen[0]})<br>
         ${t['contrib.inschrijfkosten']}: €${rekentabelInschrijfkosten}<br>
         <strong style="font-size:16px;">${t['contrib.totaal']}: €${totaal}</strong><br><br>
         ${vulRekentabelTokens(t['contrib.volledig'])}: €${volledigeContributie} (${t['contrib.niet_overmaken']})
@@ -1001,7 +998,7 @@
     }
 
     // Verzenden
-    btn.textContent = '⏳ Aanmelding verzenden...';
+    btn.textContent = (i18n[currentLang] || i18n.nl)['form.sending'];
     btn.disabled = true;
 
     try {
@@ -1037,7 +1034,7 @@
       }
     } catch {
       formError.style.display = 'block';
-      btn.textContent = 'Aanmelden bij RC045 →';
+      btn.textContent = (i18n[currentLang] || i18n.nl)['form.submit'];
       btn.disabled = false;
     }
   });

@@ -79,8 +79,6 @@
     
     .btn-group { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 32px; }
     
-    .btn-primary { background: var(--teal); color: white; }
-    
     .btn-outline { background: transparent; color: var(--teal-dark); border: 1.5px solid var(--teal); }
     
     .btn-outline:hover { background: var(--teal-light); }.footer { padding: 32px 24px; text-align: center; font-size: 13px; }
@@ -189,6 +187,7 @@
       'iban.title': 'Betalingsgegevens', 'iban.name': 'T.n.v. RC045',
       'iban.ref': 'Vermeld bij overboeking: voornaam + achternaam + "contributie RC045 {jaar}"',
       'iban.copy': 'Kopieer',
+      'iban.copy.aria': 'Kopieer IBAN-nummer',
       'iban.copied': 'Gekopieerd!',
       'btn.home': '🏠 Naar de hoofdpagina', 'btn.location': '📍 Hoe kom ik er?'
     },
@@ -202,6 +201,7 @@
       'iban.title': 'Payment details', 'iban.name': 'In the name of RC045',
       'iban.ref': 'Reference: first name + last name + "contributie RC045 {jaar}"',
       'iban.copy': 'Copy',
+      'iban.copy.aria': 'Copy IBAN number',
       'iban.copied': 'Copied!',
       'btn.home': '🏠 Go to the homepage', 'btn.location': '📍 How to find us?'
     },
@@ -215,6 +215,7 @@
       'iban.title': 'Zahlungsdaten', 'iban.name': 'Auf den Namen RC045',
       'iban.ref': 'Verwendungszweck: Vorname + Nachname + "contributie RC045 {jaar}"',
       'iban.copy': 'Kopieren',
+      'iban.copy.aria': 'IBAN-Nummer kopieren',
       'iban.copied': 'Kopiert!',
       'btn.home': '🏠 Zur Hauptseite', 'btn.location': '📍 Wie komme ich hin?'
     }
@@ -285,6 +286,8 @@
     activeBtn.classList.add('active');
     activeBtn.setAttribute('aria-pressed', 'true');
     document.documentElement.lang = lang;
+    var ibanBtn = document.getElementById('ibanCopyBtn');
+    if (ibanBtn && t['iban.copy.aria']) ibanBtn.setAttribute('aria-label', t['iban.copy.aria']);
     localStorage.setItem('rc045_lang', lang);
     updateInternalLinks(lang);
     renderBedanktGegevens();

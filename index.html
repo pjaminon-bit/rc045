@@ -67,8 +67,6 @@
     
     .hero-buttons { display: flex; flex-wrap: wrap; gap: 12px; }
     
-    .btn-primary { background: var(--teal); color: white; }
-    
     .btn-outline { background: rgba(255,255,255,0.1); color: white; border: 1.5px solid rgba(255,255,255,0.3); backdrop-filter: blur(4px); }
     
     .btn-outline:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
@@ -714,17 +712,17 @@
           <div class="feature-card reveal reveal-delay-1">
             <div class="feature-card-icon">⚡</div>
             <h4 id="hp-feat1-title" data-i18n="feat1.title">Alleen elektrisch</h4>
-            <p id="hp-feat1-text" data-i18n="feat1.text">Nitro en benzine zijn niet toegestaan. Alle electrische auto's zijn welkom!</p>
+            <p id="hp-feat1-text" data-i18n="feat1.text">Nitro en benzine zijn niet toegestaan. Alle elektrische auto's zijn welkom!</p>
           </div>
           <div class="feature-card reveal reveal-delay-2">
             <div class="feature-card-icon">🏔️</div>
             <h4 id="hp-feat2-title" data-i18n="feat2.title">Crawler-baan</h4>
-            <p id="hp-feat2-text" data-i18n="feat2.text">Speciaal terrein voor crawlers en uitdagende obstakels, we breiden ons parcours regelmatig uit</p>
+            <p id="hp-feat2-text" data-i18n="feat2.text">Speciaal terrein voor crawlers en uitdagende obstakels, we breiden ons parcours regelmatig uit.</p>
           </div>
           <div class="feature-card reveal reveal-delay-3">
             <div class="feature-card-icon">🚀</div>
             <h4 id="hp-feat3-title" data-i18n="feat3.title">Jump-track</h4>
-            <p id="hp-feat3-text" data-i18n="feat3.text">Volle gas over de schans! Voor wie van actie houdt</p>
+            <p id="hp-feat3-text" data-i18n="feat3.text">Volle gas over de schans! Voor wie van actie houdt.</p>
           </div>
           <div class="feature-card reveal reveal-delay-4">
             <div class="feature-card-icon">👨‍👩‍👧</div>
@@ -965,7 +963,7 @@
       <div class="rule-card reveal reveal-delay-3"><div class="rule-card-num">03</div><h4 id="hp-rule3-title" data-i18n="rule3.title">Gastrijders</h4><p id="hp-rule3-text" data-i18n="rule3.text">Aanmelden bij een bestuurslid verplicht. Onder 16 jaar altijd begeleid door ouder/verzorger.</p></div>
       <div class="rule-card reveal reveal-delay-1"><div class="rule-card-num">04</div><h4 id="hp-rule4-title" data-i18n="rule4.title">Laden van accu's</h4><p id="hp-rule4-text" data-i18n="rule4.text">Accu's laden we alleen buiten, bij de daarvoor bestemde laadplek te herkennen aan het laadpaal-bord. Defecte accu's mag je niet weggooien in onze emmers, neem ze mee naar huis en voer ze zelf af.</p></div>
       <div class="rule-card reveal reveal-delay-2"><div class="rule-card-num">05</div><h4 id="hp-rule5-title" data-i18n="rule5.title">Opgeruimd staat netjes</h4><p id="hp-rule5-text" data-i18n="rule5.text">Ieder lid ruimt mee op. Afval scheiden we in de daarvoor aangewezen bakken. De kantine laten we schoon achter.</p></div>
-      <div class="rule-card reveal reveal-delay-3"><div class="rule-card-num">06</div><h4 id="hp-rule6-title" data-i18n="rule6.title">Geen alcohol of drugs</h4><p id="hp-rule6-text" data-i18n="rule6.text">Alcoholhoudende dranken en verdovende middelen zijn ten allen tijden verboden op het gehele terrein.</p></div>
+      <div class="rule-card reveal reveal-delay-3"><div class="rule-card-num">06</div><h4 id="hp-rule6-title" data-i18n="rule6.title">Geen alcohol of drugs</h4><p id="hp-rule6-text" data-i18n="rule6.text">Alcoholhoudende dranken en verdovende middelen zijn te allen tijde verboden op het gehele terrein.</p></div>
       <div class="rule-card reveal reveal-delay-1"><div class="rule-card-num">07</div><h4 id="hp-rule7-title" data-i18n="rule7.title">We rijden nooit op het asfalt</h4><p id="hp-rule7-text" data-i18n="rule7.text">Het is verboden om te rijden op het asfalt. Van de kantine naar het rijderspodium rijd je stapvoets.</p></div>
     </div>
     <a href="baanreglement.html" class="rules-link" id="hp-rules-link" data-i18n="rules.link">Volledig (statutair) baanreglement lezen →</a>
@@ -1086,7 +1084,7 @@
           <label for="email" id="hp-form-email" data-i18n="form.email">E-mailadres</label>
           <input type="email" id="email" name="email">
         </div>
-        <div id="email-warning" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
+        <div id="email-warning" data-i18n="warn.email" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
           ⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl)
         </div>
         <div class="form-group">
@@ -1100,10 +1098,10 @@
             <input type="tel" id="telefoon" style="flex:1;"><input type="hidden" id="telefoon-combined" name="telefoon">
           </div>
         </div>
-        <div id="phone-warning" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
+        <div id="phone-warning" data-i18n="warn.phone" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
           ⚠️ Vul een geldig telefoonnummer in (minimaal 9 cijfers)
         </div>
-        <div id="contact-warning" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
+        <div id="contact-warning" data-i18n="warn.contact" style="display:none; padding:12px 16px; background:#FEF3C7; border-radius:8px; color:#92400E; font-size:14px; font-weight:500;">
           ⚠️ We hebben een e-mailadres of telefoonnummer van je nodig om contact op te nemen.
         </div>
         <div class="form-group">
@@ -1119,10 +1117,10 @@
           <label for="bericht" id="hp-form-message" data-i18n="form.message">Bericht *</label>
           <textarea id="bericht" name="bericht" data-i18n-placeholder="form.message.ph" placeholder="Schrijf hier je vraag of bericht..." required></textarea>
         </div>
-        <div id="form-success" style="display:none; padding:16px; background:var(--teal-light); border-radius:8px; color:var(--teal-dark); font-weight:600; text-align:center;">
+        <div id="form-success" data-i18n="form.success" style="display:none; padding:16px; background:var(--teal-light); border-radius:8px; color:var(--teal-dark); font-weight:600; text-align:center;">
           ✅ Bericht verzonden! We nemen zo snel mogelijk contact op.
         </div>
-        <div id="form-error" style="display:none; padding:16px; background:#FEE2E2; border-radius:8px; color:#DC2626; font-weight:600; text-align:center;">
+        <div id="form-error" data-i18n="form.error" style="display:none; padding:16px; background:#FEE2E2; border-radius:8px; color:#DC2626; font-weight:600; text-align:center;">
           ❌ Er ging iets mis. Probeer het opnieuw of mail naar bestuur@rc045.nl
         </div>
         <div class="form-submit">
@@ -1196,9 +1194,9 @@
       'about.label': 'Wie zijn wij', 'about.title': 'Dé RC-vereniging van Zuid-Limburg',
       'about.p1': 'RC045 is een actieve vereniging voor liefhebbers van radiografisch bestuurbare auto\'s. We rijden met elektrische RC-auto\'s in alle schalen. Of je nu net begint of al jaren rijdt: bij ons ben je welkom.',
       'about.p2': 'We beschikken over een eigen baan in Eygelshoven, op het terrein van Kok Lexmond. Naast de basher baan hebben we ook een enorm crawler-parcours en een jump-track.',
-      'feat1.title': 'Alleen elektrisch', 'feat1.text': 'Nitro en benzine zijn niet toegestaan. Alle electrische auto\'s zijn welkom!',
-      'feat2.title': 'Crawler-baan', 'feat2.text': 'Speciaal terrein voor crawlers en uitdagende obstakels, we breiden ons parcours regelmatig uit',
-      'feat3.title': 'Jump-track', 'feat3.text': 'Volle gas over de schans! Voor wie van actie houdt',
+      'feat1.title': 'Alleen elektrisch', 'feat1.text': 'Nitro en benzine zijn niet toegestaan. Alle elektrische auto\'s zijn welkom!',
+      'feat2.title': 'Crawler-baan', 'feat2.text': 'Speciaal terrein voor crawlers en uitdagende obstakels, we breiden ons parcours regelmatig uit.',
+      'feat3.title': 'Jump-track', 'feat3.text': 'Volle gas over de schans! Voor wie van actie houdt.',
       'feat4.title': 'Voor iedereen', 'feat4.text': 'Vanaf 4 jaar is iedereen welkom!',
       'about.storylink': 'Lees het ontstaansverhaal →', 'about.medialink': 'RC045 in de media →', 'about.photos.title': 'Crawlerparcours',
       'pricing.label': 'Meedoen', 'pricing.title': 'Lid worden of een keer komen kijken?',
@@ -1207,7 +1205,7 @@
       'guest.text': 'Rij een hele dag mee op onze baan zonder lidmaatschap. Check onze openingstijden en kom gewoon langs, meld je wel even bij een (bestuurs)lid als je er bent!',
       'guest.adult': 'Volwassene (16+)', 'guest.youth': 'Jeugd (t/m 15 jaar)', 'guest.group': 'Groepen krijgen korting!',
       'guest.btn': 'Stuur ons een berichtje →',
-      'guest.notes': 'Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.\nKom je met 4 of meer personen? Meld je dan van te voren via het contactformulier of bestuur@rc045.nl',
+      'guest.notes': 'Begeleiding door ouder/verzorger verplicht voor -16 jaar. Tijdens besloten- of ledenevenementen is gastrijden niet mogelijk.\nKom je met 4 of meer personen? Meld je dan van te voren via het contactformulier of bestuur@rc045.nl.',
       'member.tag': 'Lidmaatschap', 'member.title': 'Word lid van RC045',
       'member.text': 'Onbeperkt rijden op alle banen, toegang tot de groepsapp, kennis delen met medehobbyisten en altijd iemand om je mee te helpen.',
       'member.youth': 'Jeugdlid (t/m 15 jaar)', 'member.senior': 'Seniorlid (16+)', 'member.fee': 'Eenmalige inschrijfkosten',
@@ -1232,7 +1230,7 @@
       'rule3.title': 'Gastrijders', 'rule3.text': 'Aanmelden bij een bestuurslid verplicht. Onder 16 jaar altijd begeleid door ouder/verzorger.',
       'rule4.title': 'Laden van accu\'s', 'rule4.text': 'Accu\'s laden we alleen buiten, bij de daarvoor bestemde laadplek te herkennen aan het laadpaal-bord. Defecte accu\'s mag je niet weggooien in onze emmers, neem ze mee naar huis en voer ze zelf af.',
       'rule5.title': 'Opgeruimd staat netjes', 'rule5.text': 'Ieder lid ruimt mee op. Afval scheiden we in de daarvoor aangewezen bakken. De kantine laten we schoon achter.',
-      'rule6.title': 'Geen alcohol of drugs', 'rule6.text': 'Alcoholhoudende dranken en verdovende middelen zijn ten allen tijden verboden op het gehele terrein.',
+      'rule6.title': 'Geen alcohol of drugs', 'rule6.text': 'Alcoholhoudende dranken en verdovende middelen zijn te allen tijde verboden op het gehele terrein.',
       'rule7.title': 'We rijden nooit op het asfalt', 'rule7.text': 'Het is verboden om te rijden op het asfalt. Van de kantine naar het rijderspodium rijd je stapvoets.', 'rules.link': 'Volledig (statutair) baanreglement lezen →',
       'loc.label': 'Bezoek ons', 'loc.title': 'Hoe vind je ons?',
       'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
@@ -1248,6 +1246,12 @@
       'form.select': 'Selecteer een onderwerp...', 'form.opt1': 'Vraag over lidmaatschap',
       'form.opt4': 'Sponsoring', 'form.opt5': 'Overige vragen',
       'form.message': 'Bericht *', 'form.message.ph': 'Schrijf hier je vraag of bericht...', 'form.send': 'Verstuur bericht →',
+      'warn.email': '⚠️ Vul een geldig e-mailadres in (bijv. naam@voorbeeld.nl)',
+      'warn.phone': '⚠️ Vul een geldig telefoonnummer in (minimaal 9 cijfers)',
+      'warn.contact': '⚠️ We hebben een e-mailadres of telefoonnummer van je nodig om contact op te nemen.',
+      'form.sending': '⏳ Verzenden...', 'form.sent': '✅ Verzonden!',
+      'form.success': '✅ Bericht verzonden! We nemen zo snel mogelijk contact op.',
+      'form.error': '❌ Er ging iets mis. Probeer het opnieuw of mail naar bestuur@rc045.nl',
       'footer.brand': 'Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto\'s in de regio Zuid-Limburg. Voor beginners én ervaren rijders.',
       'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.photobook': 'Fotoboek', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
       'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
@@ -1275,7 +1279,7 @@
       'guest.text': 'Ride all day on our track without a membership. Check our opening hours and just show up, and check in with a club member when you arrive!',
       'guest.adult': 'Adult (16+)', 'guest.youth': 'Youth (up to 15)', 'guest.group': 'Groups get a discount!',
       'guest.btn': 'Send us a message →',
-      'guest.notes': 'Supervision by a parent or guardian required for under 16. Not available during private or members-only events.\nComing with 4 or more people? Please let us know in advance via the contact form or bestuur@rc045.nl',
+      'guest.notes': 'Supervision by a parent or guardian required for under 16. Not available during private or members-only events.\nComing with 4 or more people? Please let us know in advance via the contact form or bestuur@rc045.nl.',
       'member.tag': 'Membership', 'member.title': 'Become a member of RC045',
       'member.text': 'Unlimited riding on all tracks, access to the group app, sharing knowledge with fellow hobbyists, and always someone to help you out.',
       'member.youth': 'Youth member (up to 15)', 'member.senior': 'Senior member (16+)', 'member.fee': 'One-time registration fee',
@@ -1316,6 +1320,12 @@
       'form.select': 'Select a subject...', 'form.opt1': 'Question about membership',
       'form.opt4': 'Sponsorship', 'form.opt5': 'Other questions',
       'form.message': 'Message *', 'form.message.ph': 'Write your question or message here...', 'form.send': 'Send message →',
+      'warn.email': '⚠️ Please enter a valid email address (e.g. name@example.com)',
+      'warn.phone': '⚠️ Please enter a valid phone number (at least 9 digits)',
+      'warn.contact': '⚠️ We need an email address or phone number to get in touch.',
+      'form.sending': '⏳ Sending...', 'form.sent': '✅ Sent!',
+      'form.success': '✅ Message sent! We will get back to you as soon as possible.',
+      'form.error': '❌ Something went wrong. Please try again or email bestuur@rc045.nl',
       'footer.brand': 'A friendly club for enthusiasts of electrically powered RC cars in the South Limburg region. For beginners and experienced riders alike.',
       'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.photobook': 'Photo book', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
       'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
@@ -1343,7 +1353,7 @@
       'guest.text': 'Fahre einen ganzen Tag auf unserer Strecke ohne Mitgliedschaft. Schau einfach vorbei, melde dich beim Ankommen kurz bei einem Vereinsmitglied!',
       'guest.adult': 'Erwachsener (16+)', 'guest.youth': 'Jugend (bis 15 Jahre)', 'guest.group': 'Gruppen bekommen Rabatt!',
       'guest.btn': 'Schick uns eine Nachricht →',
-      'guest.notes': 'Begleitung durch Elternteil oder Erziehungsberechtigte für unter 16 Jahre erforderlich. Nicht möglich bei geschlossenen Veranstaltungen.\nKommst du mit 4 oder mehr Personen? Melde dich dann immer vorher über das Kontaktformular oder bestuur@rc045.nl',
+      'guest.notes': 'Begleitung durch Elternteil oder Erziehungsberechtigte für unter 16 Jahre erforderlich. Nicht möglich bei geschlossenen Veranstaltungen.\nKommst du mit 4 oder mehr Personen? Melde dich dann immer vorher über das Kontaktformular oder bestuur@rc045.nl.',
       'member.tag': 'Mitgliedschaft', 'member.title': 'Werde Mitglied bei RC045',
       'member.text': 'Unbegrenztes Fahren auf allen Strecken, Zugang zur Gruppen-App, Wissensaustausch mit Gleichgesinnten und immer jemand zum Helfen.',
       'member.youth': 'Jugendmitglied (bis 15 Jahre)', 'member.senior': 'Seniorenmitglied (16+)', 'member.fee': 'Einmalige Anmeldegebühr',
@@ -1384,6 +1394,12 @@
       'form.select': 'Betreff auswählen...', 'form.opt1': 'Frage zur Mitgliedschaft',
       'form.opt4': 'Sponsoring', 'form.opt5': 'Sonstige Fragen',
       'form.message': 'Nachricht *', 'form.message.ph': 'Schreib hier deine Frage oder Nachricht...', 'form.send': 'Nachricht senden →',
+      'warn.email': '⚠️ Bitte gib eine gültige E-Mail-Adresse ein (z. B. name@beispiel.de)',
+      'warn.phone': '⚠️ Bitte gib eine gültige Telefonnummer ein (mindestens 9 Ziffern)',
+      'warn.contact': '⚠️ Wir benötigen eine E-Mail-Adresse oder Telefonnummer, um dich zu erreichen.',
+      'form.sending': '⏳ Wird gesendet...', 'form.sent': '✅ Gesendet!',
+      'form.success': '✅ Nachricht gesendet! Wir melden uns so schnell wie möglich.',
+      'form.error': '❌ Etwas ist schiefgelaufen. Versuch es erneut oder schreib an bestuur@rc045.nl',
       'footer.brand': 'Ein freundlicher Verein für Liebhaber von elektrisch angetriebenen RC-Autos in der Region Südlimburg. Für Anfänger und erfahrene Fahrer.',
       'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.photobook': 'Fotobuch', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
       'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
@@ -1479,7 +1495,7 @@
       }
       phoneWarning.style.display = 'none';
 
-      btn.textContent = '⏳ Verzenden...';
+      btn.textContent = i18n[currentLang]['form.sending'];
       btn.disabled = true;
       success.style.display = 'none';
       error.style.display = 'none';
@@ -1493,13 +1509,13 @@
         if (res.ok) {
           success.style.display = 'block';
           form.reset();
-          btn.textContent = '✅ Verzonden!';
+          btn.textContent = i18n[currentLang]['form.sent'];
         } else {
           throw new Error();
         }
       } catch {
         error.style.display = 'block';
-        btn.textContent = 'Verstuur bericht →';
+        btn.textContent = i18n[currentLang]['form.send'];
         btn.disabled = false;
       }
     });
