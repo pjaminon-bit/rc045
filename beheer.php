@@ -8814,9 +8814,9 @@ if ($isMaster && file_exists($logBestand)) {
 
       // ===== Menu-groepen in/uitklappen =====
       // Standaard staan alle groepen dicht (aria-expanded="false" + hidden
-      // in de HTML); hier komt alleen het klikgedrag bij. De groep met de
-      // actieve tab wordt door toonTab() hieronder vanzelf opengezet, zodat
-      // je bij het laden van de pagina altijd ziet welke tab actief is.
+      // in de HTML) en dat blijft ook zo bij het laden van de pagina, ook al
+      // is een tab uit die groep de actieve. Een groep gaat alleen open
+      // doordat je er zelf op klikt.
       var menuGroepLabels = document.querySelectorAll('.menu-groep-label');
       function zetGroepOpen(label, open) {
         if (!label) return;
@@ -8840,14 +8840,7 @@ if ($isMaster && file_exists($logBestand)) {
         menuItems.forEach(function(btn) {
           var actief = btn.getAttribute('data-tab') === naam;
           btn.classList.toggle('actief', actief);
-          if (actief) {
-            if (menuHuidigLabel) menuHuidigLabel.textContent = btn.textContent.trim();
-            var groepItems = btn.closest('.menu-groep-items');
-            if (groepItems) {
-              var label = document.querySelector('.menu-groep-label[data-groep="' + groepItems.getAttribute('data-groep') + '"]');
-              zetGroepOpen(label, true);
-            }
-          }
+          if (actief && menuHuidigLabel) menuHuidigLabel.textContent = btn.textContent.trim();
         });
       }
 

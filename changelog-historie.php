@@ -27,7 +27,7 @@ return [
     'datum' => '2026-08-13',
     'cat' => 'verbeterd',
     'titel' => 'Menu-groepen in beheerpaneel zijn inklapbaar',
-    'tekst' => 'De groepen in het menu links (Pagina\'s, Content, Leden & contributie, enz.) staan nu standaard dicht en klappen open door op de groepsnaam te klikken. De groep met de actief geopende tab klapt vanzelf open, zodat altijd zichtbaar blijft waar je bent.',
+    'tekst' => 'De groepen in het menu links (Pagina\'s, Content, Leden & contributie, enz.) staan nu standaard dicht en klappen open door op de groepsnaam te klikken. Ze blijven altijd dicht bij het laden, ook de groep met de actieve tab.',
   ],
   [
     'datum' => '2026-08-13',
