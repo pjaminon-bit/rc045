@@ -131,6 +131,19 @@ function evenementStatusLabels() {
   ];
 }
 
+// Of een evenement zichtbaar is voor een lid zonder bestuursfunctie: niet
+// alleen de ingestelde zichtbaarheid, ook een eventuele begindatum
+// inschrijving telt mee. Zo kan het bestuur een evenement al aanmaken en
+// voorbereiden zonder dat leden het meteen zien, en op de afgesproken
+// datum verschijnt het vanzelf. Geen begindatum ingevuld betekent: meteen
+// zichtbaar zodra de zichtbaarheid op "leden" staat.
+function evenementZichtbaarVoorLeden($e) {
+  if (($e['zichtbaarheid'] ?? 'leden') !== 'leden') return false;
+  $begin = trim((string) ($e['inschrijving_begin'] ?? ''));
+  if ($begin !== '' && $begin > date('Y-m-d')) return false;
+  return true;
+}
+
 // Aantal aanmeldingen. $e['deelnemers'] is een simpele lijst met lid-id's,
 // geen los-op-te-zoeken namen: die komen bij het tonen uit de
 // ledenadministratie (zelfde patroon als toegewezen_aan elders).
@@ -216,6 +229,23 @@ function evenementNormaliseer($invoer, $bestaand = null) {
     $e['datum'] = ledenGeldigeDatum((string) $invoer['datum']) ? $invoer['datum'] : '';
   } elseif (!isset($e['datum'])) {
     $e['datum'] = '';
+  }
+
+  // Begin- en einddatum inschrijving: ook al genormaliseerd door de
+  // aanroeper. Leeg mag: dan gelden er geen aparte inschrijvingsdata en is
+  // de gewone zichtbaarheid leidend (zie evenementZichtbaarVoorLeden()).
+  // De volgorde (eind niet voor begin) controleert de aanroeper, want hier
+  // is geen ruimte voor een foutmelding aan de gebruiker.
+  if (array_key_exists('inschrijving_begin', $invoer)) {
+    $e['inschrijving_begin'] = ledenGeldigeDatum((string) $invoer['inschrijving_begin']) ? $invoer['inschrijving_begin'] : '';
+  } elseif (!isset($e['inschrijving_begin'])) {
+    $e['inschrijving_begin'] = '';
+  }
+
+  if (array_key_exists('inschrijving_eind', $invoer)) {
+    $e['inschrijving_eind'] = ledenGeldigeDatum((string) $invoer['inschrijving_eind']) ? $invoer['inschrijving_eind'] : '';
+  } elseif (!isset($e['inschrijving_eind'])) {
+    $e['inschrijving_eind'] = '';
   }
 
   $capaciteitsGrens = 9999;

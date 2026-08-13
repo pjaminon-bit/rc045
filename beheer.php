@@ -4092,6 +4092,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
     }
     $invoer['datum'] = ledenParseDatum($_POST['datum'] ?? '');
+    $invoer['inschrijving_begin'] = ledenParseDatum($_POST['inschrijving_begin'] ?? '');
+    $invoer['inschrijving_eind'] = ledenParseDatum($_POST['inschrijving_eind'] ?? '');
     // Deelnemers komen als lid-id => "1" binnen (alleen aangevinkte
     // checkboxen sturen mee), dus de sleutels zijn de lid-id's zelf.
     $invoer['deelnemers'] = (isset($_POST['deelnemers']) && is_array($_POST['deelnemers']))
@@ -4107,10 +4109,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $invoer['zichtbaarheid'] = 'leden';
     }
 
-    // Een niet-bestuurslid mag een bestaand bestuurs-only evenement niet
-    // bewerken, ook niet via een geraden evenement_id.
+    // Een niet-bestuurslid mag een evenement dat voor hem niet zichtbaar is
+    // (bestuur-only, of nog voor de begindatum inschrijving) niet bewerken,
+    // ook niet via een geraden evenement_id. Zelfde functie als bij het
+    // filteren van de lijst hierboven, dus altijd dezelfde uitkomst.
     $magOpslaan = true;
-    if (!$isBestuurslid && $bestaandEvenement !== null && ($bestaandEvenement['zichtbaarheid'] ?? 'leden') === 'bestuur') {
+    if (!$isBestuurslid && $bestaandEvenement !== null && !evenementZichtbaarVoorLeden($bestaandEvenement)) {
       $magOpslaan = false;
       $melding['evenementen'] = 'Dat evenement staat er niet (meer) in.';
       $meldingType['evenementen'] = 'fout';
@@ -4120,6 +4124,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       // Niets doen: de foutmelding hierboven staat al klaar.
     } elseif (trim((string) ($invoer['titel'] ?? '')) === '') {
       $melding['evenementen'] = 'Vul een titel in, anders is het evenement nergens op te herkennen.';
+      $meldingType['evenementen'] = 'fout';
+    } elseif ($invoer['inschrijving_begin'] !== '' && $invoer['inschrijving_eind'] !== '' && $invoer['inschrijving_eind'] < $invoer['inschrijving_begin']) {
+      $melding['evenementen'] = 'De einddatum inschrijving ligt voor de begindatum. Controleer de datums.';
       $meldingType['evenementen'] = 'fout';
     } else {
       // Deelnemers moeten echt (nog) bestaan, anders slipt een verwijderd
@@ -4162,8 +4169,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $gevonden = false;
     foreach ($evenementenData['evenementen'] as $i => $ev) {
       if (($ev['id'] ?? '') !== $id) continue;
-      // Een niet-bestuurslid mag een bestuurs-only evenement niet verwijderen.
-      if (!$isBestuurslid && ($ev['zichtbaarheid'] ?? 'leden') === 'bestuur') break;
+      // Een niet-bestuurslid mag een evenement dat voor hem niet zichtbaar
+      // is (bestuur-only, of nog voor de begindatum inschrijving) niet
+      // verwijderen.
+      if (!$isBestuurslid && !evenementZichtbaarVoorLeden($ev)) break;
       $naam = evenementWeergavenaam($ev);
       unset($evenementenData['evenementen'][$i]);
       $evenementenData['evenementen'] = array_values($evenementenData['evenementen']);
@@ -4798,17 +4807,16 @@ if ($otaakBewerkId === 'nieuw') {
 }
 
 // ===== Evenementen =====
-// Zelfde opzet als Operationele taken hierboven: een evenement met
-// zichtbaarheid "bestuur" wordt hier al uit de lijst gefilterd, niet pas
-// in de weergave, zodat een lid zonder bestuursfunctie het ook niet via
-// een geraden id kan openen.
+// Zelfde opzet als Operationele taken hierboven: een evenement dat voor
+// een lid zonder bestuursfunctie niet zichtbaar is (bestuur-only, of nog
+// voor de begindatum inschrijving) wordt hier al uit de lijst gefilterd,
+// niet pas in de weergave, zodat zo iemand het ook niet via een geraden id
+// kan openen. Zie evenementZichtbaarVoorLeden() in evenementen-opslag.php.
 $evenementenData = evenementenLees();
 $evenementenAlle = evenementenGesorteerd($evenementenData);
 $evenementZichtbaarheidLabels = evenementZichtbaarheden();
 $evenementStatusLabels = evenementStatusLabels();
-$evenementenLijst = $isBestuurslid ? $evenementenAlle : array_values(array_filter($evenementenAlle, function ($ev) {
-  return ($ev['zichtbaarheid'] ?? 'leden') === 'leden';
-}));
+$evenementenLijst = $isBestuurslid ? $evenementenAlle : array_values(array_filter($evenementenAlle, 'evenementZichtbaarVoorLeden'));
 
 $evenementBewerkId = isset($_GET['evenement']) ? trim((string) $_GET['evenement']) : '';
 $evenementBewerk = null;
@@ -8219,6 +8227,9 @@ if ($isMaster && file_exists($logBestand)) {
                 Evenement <?php echo (int) $evenementBewerk['nummer']; ?><?php if (($evenementBewerk['aangemaakt_door'] ?? '') !== ''): ?>, aangemaakt door <?php echo htmlspecialchars($evenementBewerk['aangemaakt_door']); ?><?php endif; ?>.
               <?php endif; ?>
             </p>
+            <?php if (!$evenementNieuw && ($evenementBewerk['zichtbaarheid'] ?? 'leden') === 'leden' && !evenementZichtbaarVoorLeden($evenementBewerk)): ?>
+              <p class="hint" style="margin-top:6px;">Nog niet zichtbaar voor leden: dat gebeurt vanaf <?php echo htmlspecialchars(datumWeergave($evenementBewerk['inschrijving_begin'])); ?>.</p>
+            <?php endif; ?>
           </div>
           <a class="knop-klein" href="beheer.php#evenementen">Terug naar het overzicht</a>
         </div>
@@ -8249,6 +8260,19 @@ if ($isMaster && file_exists($logBestand)) {
             <div class="veld">
               <label for="ev-locatie">Locatie</label>
               <input type="text" id="ev-locatie" name="locatie" maxlength="120" placeholder="Baan RC045" value="<?php echo htmlspecialchars($evenementBewerk['locatie']); ?>">
+            </div>
+          </div>
+
+          <div class="rij-2">
+            <div class="veld">
+              <label for="ev-inschrijving-begin">Begindatum inschrijving</label>
+              <input type="text" inputmode="numeric" id="ev-inschrijving-begin" name="inschrijving_begin" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($evenementBewerk['inschrijving_begin'])); ?>">
+              <p class="hint">Leeg laten om het evenement meteen zichtbaar te maken. Anders is het pas vanaf deze datum zichtbaar voor leden: tot dan kun je het al wel rustig voorbereiden.</p>
+            </div>
+            <div class="veld">
+              <label for="ev-inschrijving-eind">Einddatum inschrijving</label>
+              <input type="text" inputmode="numeric" id="ev-inschrijving-eind" name="inschrijving_eind" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($evenementBewerk['inschrijving_eind'])); ?>">
+              <p class="hint">Alleen ter informatie: leden kunnen zich hier gewoon aangemeld blijven zien, dit sluit de aanmelding nog niet automatisch af.</p>
             </div>
           </div>
 
@@ -8359,7 +8383,7 @@ if ($isMaster && file_exists($logBestand)) {
                     <td data-label="Aanmeldingen"><span class="lc"><?php echo $evAantal; ?><?php echo $evCapaciteit > 0 ? ' van ' . $evCapaciteit : ''; ?><?php if (evenementIsVol($ev)): ?> <span class="leden-badge ev-vol">Vol</span><?php endif; ?></span></td>
                     <td data-label="Status"><span class="lc"><span class="leden-badge ev-<?php echo htmlspecialchars($evStatus); ?>"><?php echo htmlspecialchars($evenementStatusLabels[$evStatus] ?? $evStatus); ?></span></span></td>
                     <?php if ($isBestuurslid): ?>
-                      <td data-label="Zichtbaar voor"><span class="lc"><?php echo htmlspecialchars($evenementZichtbaarheidLabels[$ev['zichtbaarheid']] ?? $ev['zichtbaarheid']); ?></span></td>
+                      <td data-label="Zichtbaar voor"><span class="lc"><?php echo htmlspecialchars($evenementZichtbaarheidLabels[$ev['zichtbaarheid']] ?? $ev['zichtbaarheid']); ?><?php if (($ev['zichtbaarheid'] ?? 'leden') === 'leden' && !evenementZichtbaarVoorLeden($ev)): ?> <span class="leden-bron">nog niet zichtbaar</span><?php endif; ?></span></td>
                     <?php endif; ?>
                     <td class="lc-actie"><a class="knop-klein" href="beheer.php?evenement=<?php echo urlencode($ev['id']); ?>#evenementen">Openen</a></td>
                   </tr>

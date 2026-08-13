@@ -26,6 +26,12 @@ return [
   [
     'datum' => '2026-08-13',
     'cat' => 'nieuw',
+    'titel' => 'Begin- en einddatum inschrijving bij een evenement',
+    'tekst' => 'Een evenement kan al aangemaakt en voorbereid worden voordat het voor leden zichtbaar is: met een begindatum inschrijving verschijnt het pas op de afgesproken datum in de lijst voor leden (ook niet via een geraden link ervoor). De einddatum inschrijving is voor nu ter informatie.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'nieuw',
     'titel' => 'Betaalverzoek bij een evenement',
     'tekst' => 'Bij een evenement staat nu ook een veld om de link van een betaalverzoek in te plakken (bv. Tikkie), zodat leden meteen kunnen betalen. Is de link een echte http(s)-link, dan staat er ook een knop om die meteen te openen.',
   ],
