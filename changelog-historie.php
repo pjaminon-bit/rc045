@@ -26,6 +26,12 @@ return [
   [
     'datum' => '2026-08-13',
     'cat' => 'verbeterd',
+    'titel' => 'IBAN-kopieerknop gelijkgetrokken',
+    'tekst' => 'De knop op de bedankt-pagina had een ander uiterlijk en een aparte werking dan dezelfde knop op het aanmeldformulier. Nu identiek.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'verbeterd',
     'titel' => 'Opmaak en teksten van de hele site nagelopen',
     'tekst' => 'Typefouten en ontbrekende leestekens gecorrigeerd, dubbele stijlregels samengevoegd, lazy loading toegevoegd aan de footer-afbeeldingen, en dode code (ongebruikte teksten en CSS) opgeruimd.',
   ],
