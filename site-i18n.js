@@ -41,7 +41,11 @@ function updateInternalLinks(lang) {
     function toonKeuze() {
       var actief = wrap.querySelector('.lang-flag.active') || opties[0];
       if (!actief) return;
-      vlag.textContent = actief.getAttribute('data-vlag') || '';
+      // De vlag komt uit het bijbehorende menu-item (een kleine SVG, geen
+      // emoji): Windows heeft in Chrome/Edge/Brave geen vlag-emoji's in het
+      // systeemlettertype, dus die zouden daar als losse letters verschijnen.
+      var actiefVlag = actief.querySelector('.lang-menu-flag');
+      vlag.innerHTML = actiefVlag ? actiefVlag.innerHTML : '';
       code.textContent = actief.getAttribute('data-code') || '';
     }
 

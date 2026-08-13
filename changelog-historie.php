@@ -25,6 +25,12 @@ return [
 
   [
     'datum' => '2026-08-13',
+    'cat' => 'opgelost',
+    'titel' => 'Taalvlaggetjes onzichtbaar in Chrome, Edge en Brave op Windows',
+    'tekst' => 'De vlaggen bij de taalkeuze stonden als emoji in de tekst. Windows levert zelf geen vlag-emoji mee aan Chromium-browsers (Chrome, Edge, Brave), waardoor daar twee letters te zien waren in plaats van een vlaggetje; in Firefox ging dit toevallig wel goed omdat die browser zijn eigen emoji-lettertype meelevert. De vlaggen zijn nu kleine afbeeldingen (SVG) die overal hetzelfde tonen.',
+  ],
+  [
+    'datum' => '2026-08-13',
     'cat' => 'verbeterd',
     'titel' => 'IBAN-kopieerknop gelijkgetrokken',
     'tekst' => 'De knop op de bedankt-pagina had een ander uiterlijk en een aparte werking dan dezelfde knop op het aanmeldformulier. Nu identiek.',
