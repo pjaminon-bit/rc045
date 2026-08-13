@@ -26,6 +26,12 @@ return [
   [
     'datum' => '2026-08-13',
     'cat' => 'verbeterd',
+    'titel' => 'Operationele taken en evenementen verhuisd naar groep Bestuur',
+    'tekst' => 'Stonden eerst in een eigen groep "Operationeel", staan nu bij Bestuur samen met bestuursvergadering, ledenvergadering en takenlijst.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'verbeterd',
     'titel' => 'Menu-groepen in beheerpaneel zijn inklapbaar',
     'tekst' => 'De groepen in het menu links (Pagina\'s, Content, Leden & contributie, enz.) staan nu standaard dicht en klappen open door op de groepsnaam te klikken. Ze blijven altijd dicht bij het laden, ook de groep met de actieve tab.',
   ],
