@@ -5141,6 +5141,10 @@ if ($isMaster && file_exists($logBestand)) {
        uitklappaneel. */
     .menu-groep { display: flex; flex-direction: column; gap: 2px; }
     .menu-groep-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; margin: 10px 0 6px; padding: 5px 12px; font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; background: var(--teal-light); border: none; border-radius: 6px; cursor: pointer; font-family: inherit; }
+    /* Overschrijft de algemene "button:hover" regel (donkerteal achtergrond),
+       die hier de tekst onleesbaar maakte omdat de tekstkleur ook donkerteal
+       is. Hier blijft de achtergrond hetzelfde, alleen iets donkerder. */
+    .menu-groep-label:hover { background: var(--teal-light); color: var(--teal-dark); }
     .menu-groep:first-child .menu-groep-label { margin-top: 0; }
     .menu-groep-pijl { font-size: 10px; transition: transform 0.15s; }
     .menu-groep-label[aria-expanded="true"] .menu-groep-pijl { transform: rotate(90deg); }
