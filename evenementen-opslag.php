@@ -188,7 +188,7 @@ function evenementDeelnemersOpschonen($ruw) {
 // ===== Invoer opschonen =====
 
 function evenementVeldGrenzen() {
-  return ['titel' => 160, 'locatie' => 120, 'tijd' => 5];
+  return ['titel' => 160, 'locatie' => 120, 'tijd' => 5, 'betaalverzoek' => 500];
 }
 
 function evenementNormaliseer($invoer, $bestaand = null) {

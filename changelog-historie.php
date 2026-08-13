@@ -26,6 +26,12 @@ return [
   [
     'datum' => '2026-08-13',
     'cat' => 'nieuw',
+    'titel' => 'Betaalverzoek bij een evenement',
+    'tekst' => 'Bij een evenement staat nu ook een veld om de link van een betaalverzoek in te plakken (bv. Tikkie), zodat leden meteen kunnen betalen. Is de link een echte http(s)-link, dan staat er ook een knop om die meteen te openen.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'nieuw',
     'titel' => 'Tabblad Evenementen',
     'tekst' => 'Activiteiten waar leden zich voor kunnen aanmelden, zoals een clubdag of wedstrijd, met datum, locatie, een optioneel maximaal aantal deelnemers en een deelnemerslijst. Het bestuur beheert die lijst voorlopig zelf, net als de presentielijst bij een ledenvergadering; zodra er een ledenportaal is, kunnen leden zich daar straks ook zelf voor aan- of afmelden. Een evenement kan op "Bestuursleden" gezet worden: die ziet een lid zonder bestuursfunctie dan niet. Wie toegang tot dit tabblad krijgt, staat net als bij de andere tabbladen bij Gebruikers.',
   ],

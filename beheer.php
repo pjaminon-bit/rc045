@@ -4088,7 +4088,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $bestaandEvenement = $index === null ? null : $evenementenData['evenementen'][$index];
 
     $invoer = [];
-    foreach (['titel', 'omschrijving', 'tijd', 'locatie', 'capaciteit'] as $veld) {
+    foreach (['titel', 'omschrijving', 'tijd', 'locatie', 'capaciteit', 'betaalverzoek'] as $veld) {
       if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
     }
     $invoer['datum'] = ledenParseDatum($_POST['datum'] ?? '');
@@ -8271,6 +8271,17 @@ if ($isMaster && file_exists($logBestand)) {
                 <p class="hint" style="margin-top:8px;">Leden (alleen bestuursleden kunnen een evenement op "Bestuursleden" zetten).</p>
               <?php endif; ?>
             </div>
+          </div>
+
+          <div class="veld">
+            <label for="ev-betaalverzoek">Betaalverzoek</label>
+            <input type="text" id="ev-betaalverzoek" name="betaalverzoek" maxlength="500" placeholder="https://tikkie.me/pay/..." value="<?php echo htmlspecialchars($evenementBewerk['betaalverzoek']); ?>">
+            <p class="hint">
+              Plak hier de link van een betaalverzoek (bv. Tikkie), zodat leden meteen kunnen betalen bij het aanmelden.
+              <?php if ($evenementBewerk['betaalverzoek'] !== '' && preg_match('#^https?://#i', $evenementBewerk['betaalverzoek'])): ?>
+                <a href="<?php echo htmlspecialchars($evenementBewerk['betaalverzoek']); ?>" target="_blank" rel="noopener noreferrer">Huidige link openen &#8599;</a>
+              <?php endif; ?>
+            </p>
           </div>
 
           <div class="veld">
