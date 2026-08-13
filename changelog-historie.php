@@ -25,6 +25,12 @@ return [
 
   [
     'datum' => '2026-08-13',
+    'cat' => 'nieuw',
+    'titel' => 'Donker thema in het beheerpaneel',
+    'tekst' => 'Beheer.php had nog geen donkere stand, terwijl de rest van de site die al had. Zelfde knop en systeem als op de publieke pagina\'s (systeem/licht/donker, rechtsboven), inclusief een donkere versie van badges en meldingen.',
+  ],
+  [
+    'datum' => '2026-08-13',
     'cat' => 'verbeterd',
     'titel' => 'Operationele taken en evenementen verhuisd naar groep Bestuur',
     'tekst' => 'Stonden eerst in een eigen groep "Operationeel", staan nu bij Bestuur samen met bestuursvergadering, ledenvergadering en takenlijst.',

@@ -4916,6 +4916,28 @@ if ($isMaster && file_exists($logBestand)) {
       --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
       --border: #DDD8C0; --bg: #FAF6EC; --white: #FFFFFF;
     }
+
+    /* ===== Donker thema =====
+       Zelfde systeem als de publieke site: een data-thema attribuut op
+       <html>, gezet door het scriptje in de head hieronder ("systeem",
+       "licht" of "donker", onthouden per browsertab). Alle kleuren
+       hierboven zijn variabelen, dus de rest van dit stijlblok hoeft
+       niet te weten in welke stand de pagina staat. Badges en
+       meldingen die met vaste hexkleuren werken (niet met de
+       variabelen) krijgen verderop in dit bestand hun eigen donkere
+       versie. */
+    :root { color-scheme: light; }
+    :root[data-thema="donker"] {
+      color-scheme: dark;
+      --teal: #458E8A; --teal-dark: #7FC2BE; --teal-light: #1B2C2B;
+      --gold: #D3A72B; --gold-light: #262112; --rust: #C25A3B;
+      --dark: #F2EEE2; --text: #E3DFD1; --muted: #98A18C;
+      --border: #2E3626; --bg: #14180F; --white: #1C2116;
+    }
+    :root[data-thema="donker"] .kaart,
+    :root[data-thema="donker"] .logboek-filter-paneel,
+    :root[data-thema="donker"] .menu,
+    :root[data-thema="donker"] .multiselect-paneel { box-shadow: 0 4px 20px rgba(0,0,0,0.45); }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 16px 40px; overflow-wrap: break-word; }
     /* Vangnet: niets krijgt een eigen breedte mee die groter is dan de plek
@@ -4954,6 +4976,9 @@ if ($isMaster && file_exists($logBestand)) {
     .hint { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
     button { width: 100%; background: var(--teal); color: white; font-size: 16px; font-weight: 700; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
     button:hover { background: var(--teal-dark); }
+    .thema-switch { position: fixed; top: 16px; right: 16px; z-index: 50; width: 36px; height: 33px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; line-height: 1; border: 1px solid var(--border); background: var(--white); font-size: 15px; color: var(--text); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.12); transition: background 0.15s, border-color 0.15s; }
+    .thema-switch:hover { background: var(--teal-light); border-color: var(--teal); }
+    @media (max-width: 420px) { .thema-switch { top: 10px; right: 10px; width: 33px; } }
     .melding { padding: 12px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 18px; }
     .melding.ok { background: #E8F5E9; border: 1px solid #A5D6A7; color: #1B5E20; }
     .melding.fout { background: #FDECEA; border: 1px solid #F5B7B1; color: #7B241C; }
@@ -5404,6 +5429,7 @@ if ($isMaster && file_exists($logBestand)) {
     .fotoboek-foto-volgorde button:hover:not(:disabled) { background: var(--teal-light); color: var(--teal-dark); }
     .fotoboek-foto-volgorde button:disabled { opacity: 0.25; cursor: default; }
     .fotoboek-foto-blok img { width: 76px; height: 76px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: var(--bg); }
+    .sponsor-logo-preview { display: block; height: 32px; max-width: 160px; object-fit: contain; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; margin-bottom: 12px; }
     .fotoboek-video-thumb { width: 76px; height: 76px; border-radius: 6px; flex-shrink: 0; background-color: var(--bg); background-size: cover; background-position: center; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--muted); }
     .fotoboek-foto-velden { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
     .fotoboek-foto-velden input[type="text"] { font-size: 14px; padding: 8px 10px; }
@@ -5456,9 +5482,125 @@ if ($isMaster && file_exists($logBestand)) {
       .fotoboek-foto-blok { padding: 10px; gap: 8px; }
       .fotoboek-foto-blok img, .fotoboek-video-thumb { width: 60px; height: 60px; }
     }
+
+    /* ===== Donkere badges en meldingen =====
+       Deze klassen gebruiken vaste hexkleuren in plaats van de
+       variabelen hierboven (pastelvlak + verzadigde tekst), dus die
+       krijgen hier hun eigen donkere versie: een transparante tint van
+       dezelfde kleur met een lichtere tekstkleur erop. Gegroepeerd per
+       kleur in plaats van per klasse, want veel badges delen dezelfde
+       kleur. .leden-badge (de standaardgrijze) staat in de grijze groep. */
+    :root[data-thema="donker"] .sponsor-logo-preview { background: #F2EDE0; }
+    :root[data-thema="donker"] .melding.ok,
+    :root[data-thema="donker"] .leden-badge.cl-nieuw,
+    :root[data-thema="donker"] .leden-badge.lb-actief,
+    :root[data-thema="donker"] .leden-badge.lb-actief:hover,
+    :root[data-thema="donker"] .cb-betaald,
+    :root[data-thema="donker"] .leden-badge.vb-afgerond,
+    :root[data-thema="donker"] .leden-badge.vb-afgerond:hover,
+    :root[data-thema="donker"] .leden-badge.tk-afgerond,
+    :root[data-thema="donker"] .leden-badge.tk-afgerond:hover { background: rgba(74,222,128,0.16); color: #6FCF97; }
+    :root[data-thema="donker"] .melding.ok { border-color: rgba(74,222,128,0.35); }
+
+    :root[data-thema="donker"] .leden-badge.lb-verificatie,
+    :root[data-thema="donker"] .leden-badge.lb-verificatie:hover,
+    :root[data-thema="donker"] .cb-open,
+    :root[data-thema="donker"] .leden-badge.tk-open,
+    :root[data-thema="donker"] .leden-badge.tk-open:hover,
+    :root[data-thema="donker"] .leden-badge.ot-te_doen,
+    :root[data-thema="donker"] .leden-badge.ot-te_doen:hover,
+    :root[data-thema="donker"] .leden-badge.ev-vol,
+    :root[data-thema="donker"] .leden-badge.ev-vol:hover { background: rgba(211,167,43,0.18); color: #E5C25A; }
+
+    :root[data-thema="donker"] .leden-badge,
+    :root[data-thema="donker"] .leden-badge.cl-onderhoud,
+    :root[data-thema="donker"] .leden-badge.lb-opgezegd,
+    :root[data-thema="donker"] .leden-badge.lb-opgezegd:hover,
+    :root[data-thema="donker"] .cb-vervallen,
+    :root[data-thema="donker"] .leden-badge.vb-geannuleerd,
+    :root[data-thema="donker"] .leden-badge.vb-geannuleerd:hover,
+    :root[data-thema="donker"] .leden-badge.ot-gepauzeerd,
+    :root[data-thema="donker"] .leden-badge.ot-gepauzeerd:hover,
+    :root[data-thema="donker"] .leden-badge.ev-geweest,
+    :root[data-thema="donker"] .leden-badge.ev-geweest:hover { background: rgba(152,161,140,0.20); color: #C7CDBC; }
+
+    :root[data-thema="donker"] .leden-badge.cl-opgelost,
+    :root[data-thema="donker"] .leden-badge.lb-wacht_op_betaling,
+    :root[data-thema="donker"] .leden-badge.lb-wacht_op_betaling:hover { background: rgba(194,90,59,0.22); color: #E9A78F; }
+
+    :root[data-thema="donker"] .leden-badge.cl-beveiliging,
+    :root[data-thema="donker"] .leden-badge.lb-nieuw,
+    :root[data-thema="donker"] .leden-badge.lb-nieuw:hover { background: rgba(149,117,205,0.22); color: #C9B6F0; }
+
+    :root[data-thema="donker"] .melding.fout,
+    :root[data-thema="donker"] .leden-badge.lb-geweigerd,
+    :root[data-thema="donker"] .leden-badge.lb-geweigerd:hover { background: rgba(220,38,38,0.16); color: #F19393; }
+    :root[data-thema="donker"] .melding.fout { border-color: rgba(220,38,38,0.35); }
+    :root[data-thema="donker"] .knop-klein:hover { background: rgba(220,38,38,0.16); border-color: rgba(220,38,38,0.4); }
+
+    :root[data-thema="donker"] .cb-kwijtgescholden { background: rgba(59,130,246,0.20); color: #93C5FD; }
   </style>
+
+  <script>
+    // Themakeuze (systeem/licht/donker), zelfde opzet als site-i18n.js op
+    // de publieke pagina's, maar hier zelfstandig omdat beheer.php dat
+    // bestand niet laadt. Wordt zo vroeg mogelijk uitgevoerd (nog voor de
+    // rest van de pagina rendert) zodat er geen lichte flits te zien is
+    // als de bezoeker al voor donker had gekozen.
+    (function () {
+      var SLEUTEL = 'rc045_thema';
+      var STANDEN = ['systeem', 'licht', 'donker'];
+      var ICONEN = { systeem: '\ud83c\udf13', licht: '\u2600\ufe0f', donker: '\ud83c\udf19' };
+      var TEKST = { systeem: 'Thema: systeem', licht: 'Thema: licht', donker: 'Thema: donker' };
+      var donkerQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+      function gekozenStand() {
+        var opgeslagen = null;
+        try { opgeslagen = sessionStorage.getItem(SLEUTEL); } catch (e) { /* privemodus */ }
+        return STANDEN.indexOf(opgeslagen) === -1 ? 'systeem' : opgeslagen;
+      }
+
+      function werkKnopBij(stand) {
+        var knop = document.getElementById('thema-switch');
+        if (!knop) return;
+        knop.textContent = ICONEN[stand];
+        knop.setAttribute('aria-label', TEKST[stand]);
+        knop.setAttribute('title', TEKST[stand]);
+      }
+
+      function toepassen() {
+        var stand = gekozenStand();
+        var donker = stand === 'donker' || (stand === 'systeem' && donkerQuery && donkerQuery.matches);
+        document.documentElement.setAttribute('data-thema', donker ? 'donker' : 'licht');
+        werkKnopBij(stand);
+      }
+
+      function volgende() {
+        var nu = STANDEN.indexOf(gekozenStand());
+        var nieuw = STANDEN[(nu + 1) % STANDEN.length];
+        try { sessionStorage.setItem(SLEUTEL, nieuw); } catch (e) { /* privemodus */ }
+        toepassen();
+      }
+
+      toepassen();
+
+      if (donkerQuery) {
+        if (donkerQuery.addEventListener) donkerQuery.addEventListener('change', toepassen);
+        else if (donkerQuery.addListener) donkerQuery.addListener(toepassen);
+      }
+
+      function init() {
+        var knop = document.getElementById('thema-switch');
+        if (knop) knop.addEventListener('click', volgende);
+        werkKnopBij(gekozenStand());
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+      else init();
+    })();
+  </script>
 </head>
 <body>
+  <button type="button" id="thema-switch" class="thema-switch"></button>
   <div class="wrap">
 
   <?php if (!$configOk): ?>
@@ -6222,7 +6364,7 @@ if ($isMaster && file_exists($logBestand)) {
           <div class="item-blok">
             <div class="item-blok-nr">Sponsor <?php echo $i + 1; ?></div>
             <?php if (!empty($sp['logo'])): ?>
-              <img src="images/sponsors/<?php echo htmlspecialchars($sp['logo']); ?>" alt="" style="display:block; height:32px; max-width:160px; object-fit:contain; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:6px 10px; margin-bottom:12px;">
+              <img src="images/sponsors/<?php echo htmlspecialchars($sp['logo']); ?>" alt="" class="sponsor-logo-preview">
             <?php endif; ?>
             <div class="veld">
               <label for="sponsor-name-<?php echo $i; ?>">Naam</label>
