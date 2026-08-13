@@ -25,6 +25,12 @@ return [
 
   [
     'datum' => '2026-08-13',
+    'cat' => 'verbeterd',
+    'titel' => 'Datumkiezer naast elk datumveld',
+    'tekst' => 'Bij elk datumveld in het beheerpaneel (leden, vergaderingen, evenementen, nieuws, agenda, media, fotoboek, changelog) staat nu een kalenderknopje naast het handmatige invulveld. Het invulveld (dd-mm-jjjj) blijft gewoon werken zoals voorheen.',
+  ],
+  [
+    'datum' => '2026-08-13',
     'cat' => 'nieuw',
     'titel' => 'Eindtijd bij een evenement',
     'tekst' => 'Naast de aanvangstijd staat er nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals "9", "9.30" of "930". Staat de eindtijd voor de aanvang, dan volgt een foutmelding.',
