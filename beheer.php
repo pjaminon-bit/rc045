@@ -4996,10 +4996,15 @@ if ($isMaster && file_exists($logBestand)) {
        gelegd, zodat een klik overal op het knopje de systeemkalender opent. */
     .datum-invoer-rij { display: flex; gap: 8px; align-items: stretch; }
     .datum-invoer-rij input[type="text"] { flex: 1; min-width: 0; }
-    .datum-picker-wrap { position: relative; flex: 0 0 auto; width: 42px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .datum-picker-wrap { position: relative; flex: 0 0 auto; width: 42px; padding: 0; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s, border-color 0.15s; font: inherit; }
     .datum-picker-wrap:hover { background: var(--teal-light); border-color: var(--teal); }
     .datum-picker-icoon { font-size: 16px; pointer-events: none; }
-    .datum-picker-wrap input.datum-picker { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: none; padding: 0; margin: 0; }
+    /* Het echte input[type=date] wordt niet zelf aangeklikt (dat opent de
+       kalender in Chrome/Edge/Brave wel maar in Firefox lang niet altijd),
+       maar programmatisch geopend via showPicker() vanuit de knop hierboven.
+       Daarom hier onzichtbaar én pointer-events:none, zodat de klik altijd
+       bij de knop terechtkomt. */
+    .datum-picker-wrap input.datum-picker { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; pointer-events: none; border: none; padding: 0; margin: 0; }
     .item-blok .veld:last-child { margin-bottom: 0; }
     .taal-groep { padding-top: 12px; margin-top: 12px; border-top: 1px dashed var(--border); }
     .taal-groep:first-of-type { padding-top: 0; margin-top: 0; border-top: none; }
@@ -5903,7 +5908,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="nieuws-date-<?php echo $i; ?>">Datum</label>
                 <div class="datum-invoer-rij">
                   <input type="text" inputmode="numeric" id="nieuws-date-<?php echo $i; ?>" name="nieuws[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($ni['date'] ?? '')); ?>">
-                  <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="nieuws-date-<?php echo $i; ?>" tabindex="-1" aria-label="Datum kiezen"></div>
+                  <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="nieuws-date-<?php echo $i; ?>" tabindex="-1" aria-hidden="true"></button>
                 </div>
               </div>
               <div class="veld">
@@ -6015,7 +6020,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="agenda-date-<?php echo $i; ?>">Datum</label>
                 <div class="datum-invoer-rij">
                   <input type="text" inputmode="numeric" id="agenda-date-<?php echo $i; ?>" name="agenda[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($ev['date'] ?? '')); ?>">
-                  <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="agenda-date-<?php echo $i; ?>" tabindex="-1" aria-label="Datum kiezen"></div>
+                  <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="agenda-date-<?php echo $i; ?>" tabindex="-1" aria-hidden="true"></button>
                 </div>
               </div>
               <div class="veld">
@@ -6365,7 +6370,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <label for="media-date-<?php echo $i; ?>">Datum</label>
                 <div class="datum-invoer-rij">
                   <input type="text" inputmode="numeric" id="media-date-<?php echo $i; ?>" name="media[<?php echo $i; ?>][date]" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($mi['date'] ?? '')); ?>">
-                  <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="media-date-<?php echo $i; ?>" tabindex="-1" aria-label="Datum kiezen"></div>
+                  <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="media-date-<?php echo $i; ?>" tabindex="-1" aria-hidden="true"></button>
                 </div>
               </div>
               <div class="veld">
@@ -6532,7 +6537,7 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="fotoboek-<?php echo $slug; ?>-datum">Datum</label>
               <div class="datum-invoer-rij">
                 <input type="text" inputmode="numeric" id="fotoboek-<?php echo $slug; ?>-datum" name="datum" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($album['date'] ?? '')); ?>">
-                <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="fotoboek-<?php echo $slug; ?>-datum" tabindex="-1" aria-label="Datum kiezen"></div>
+                <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="fotoboek-<?php echo $slug; ?>-datum" tabindex="-1" aria-hidden="true"></button>
               </div>
               <p class="hint">Wordt getoond op de albumkaart op de website.</p>
             </div>
@@ -6902,7 +6907,7 @@ if ($isMaster && file_exists($logBestand)) {
             <label for="lid-inschrijfdatum">Inschrijfdatum</label>
             <div class="datum-invoer-rij">
               <input type="text" inputmode="numeric" id="lid-inschrijfdatum" name="inschrijfdatum" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($ledenBewerkLid['inschrijfdatum'])); ?>">
-              <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="lid-inschrijfdatum" tabindex="-1" aria-label="Datum kiezen"></div>
+              <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="lid-inschrijfdatum" tabindex="-1" aria-hidden="true"></button>
             </div>
           </div>
         </div>
@@ -6927,7 +6932,7 @@ if ($isMaster && file_exists($logBestand)) {
             <label for="lid-geboortedatum">Geboortedatum</label>
             <div class="datum-invoer-rij">
               <input type="text" inputmode="numeric" id="lid-geboortedatum" name="geboortedatum" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($ledenBewerkLid['geboortedatum'])); ?>">
-              <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="lid-geboortedatum" tabindex="-1" aria-label="Datum kiezen"></div>
+              <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="lid-geboortedatum" tabindex="-1" aria-hidden="true"></button>
             </div>
             <?php
               $bewerkLeeftijd = ledenLeeftijd($ledenBewerkLid['geboortedatum']);
@@ -7122,7 +7127,7 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="lid-c-betaald-<?php echo $ci; ?>">Betaald op</label>
               <div class="datum-invoer-rij">
                 <input type="text" inputmode="numeric" id="lid-c-betaald-<?php echo $ci; ?>" name="contributie[<?php echo $ci; ?>][betaald_op]" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave((string) ($regel['betaald_op'] ?? ''))); ?>">
-                <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="lid-c-betaald-<?php echo $ci; ?>" tabindex="-1" aria-label="Datum kiezen"></div>
+                <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="lid-c-betaald-<?php echo $ci; ?>" tabindex="-1" aria-hidden="true"></button>
               </div>
             </div>
             <div class="veld veld-breed">
@@ -7572,7 +7577,7 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="verg-datum">Datum</label>
               <div class="datum-invoer-rij">
                 <input type="text" inputmode="numeric" id="verg-datum" name="datum" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($vergaderingBewerk['datum'])); ?>">
-                <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="verg-datum" tabindex="-1" aria-label="Datum kiezen"></div>
+                <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="verg-datum" tabindex="-1" aria-hidden="true"></button>
               </div>
             </div>
             <div class="veld">
@@ -7768,7 +7773,7 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="lverg-datum">Datum</label>
               <div class="datum-invoer-rij">
                 <input type="text" inputmode="numeric" id="lverg-datum" name="datum" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($ledenvergaderingBewerk['datum'])); ?>">
-                <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="lverg-datum" tabindex="-1" aria-label="Datum kiezen"></div>
+                <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="lverg-datum" tabindex="-1" aria-hidden="true"></button>
               </div>
             </div>
             <div class="veld">
@@ -8295,7 +8300,7 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="ev-datum">Datum</label>
               <div class="datum-invoer-rij">
                 <input type="text" inputmode="numeric" id="ev-datum" name="datum" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($evenementBewerk['datum'])); ?>">
-                <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="ev-datum" tabindex="-1" aria-label="Datum kiezen"></div>
+                <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="ev-datum" tabindex="-1" aria-hidden="true"></button>
               </div>
             </div>
             <div class="veld">
@@ -8318,7 +8323,7 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="ev-inschrijving-begin">Begindatum inschrijving</label>
               <div class="datum-invoer-rij">
                 <input type="text" inputmode="numeric" id="ev-inschrijving-begin" name="inschrijving_begin" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($evenementBewerk['inschrijving_begin'])); ?>">
-                <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="ev-inschrijving-begin" tabindex="-1" aria-label="Datum kiezen"></div>
+                <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="ev-inschrijving-begin" tabindex="-1" aria-hidden="true"></button>
               </div>
               <p class="hint">Leeg laten om het evenement meteen zichtbaar te maken. Anders is het pas vanaf deze datum zichtbaar voor leden: tot dan kun je het al wel rustig voorbereiden.</p>
             </div>
@@ -8326,7 +8331,7 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="ev-inschrijving-eind">Einddatum inschrijving</label>
               <div class="datum-invoer-rij">
                 <input type="text" inputmode="numeric" id="ev-inschrijving-eind" name="inschrijving_eind" maxlength="10" placeholder="dd-mm-jjjj" value="<?php echo htmlspecialchars(datumWeergave($evenementBewerk['inschrijving_eind'])); ?>">
-                <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="ev-inschrijving-eind" tabindex="-1" aria-label="Datum kiezen"></div>
+                <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="ev-inschrijving-eind" tabindex="-1" aria-hidden="true"></button>
               </div>
               <p class="hint">Alleen ter informatie: leden kunnen zich hier gewoon aangemeld blijven zien, dit sluit de aanmelding nog niet automatisch af.</p>
             </div>
@@ -8550,7 +8555,7 @@ if ($isMaster && file_exists($logBestand)) {
               <label for="cl-nieuw-datum">Datum</label>
               <div class="datum-invoer-rij">
                 <input type="text" inputmode="numeric" id="cl-nieuw-datum" name="datum" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave(date('Y-m-d'))); ?>">
-                <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="cl-nieuw-datum" tabindex="-1" aria-label="Datum kiezen"></div>
+                <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="cl-nieuw-datum" tabindex="-1" aria-hidden="true"></button>
               </div>
             </div>
             <div class="veld">
@@ -8628,7 +8633,7 @@ if ($isMaster && file_exists($logBestand)) {
                           <label for="cl-datum-<?php echo $clI; ?>">Datum</label>
                           <div class="datum-invoer-rij">
                             <input type="text" inputmode="numeric" id="cl-datum-<?php echo $clI; ?>" name="datum" maxlength="10" placeholder="dd-mm-jjjj" pattern="\d{2}-\d{2}-\d{4}" value="<?php echo htmlspecialchars(datumWeergave($clRegel['datum'] ?? '')); ?>">
-                            <div class="datum-picker-wrap" title="Datum kiezen uit kalender"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="cl-datum-<?php echo $clI; ?>" tabindex="-1" aria-label="Datum kiezen"></div>
+                            <button type="button" class="datum-picker-wrap" title="Datum kiezen uit kalender" aria-label="Datum kiezen"><span class="datum-picker-icoon" aria-hidden="true">📅</span><input type="date" class="datum-picker" data-doel="cl-datum-<?php echo $clI; ?>" tabindex="-1" aria-hidden="true"></button>
                           </div>
                         </div>
                         <div class="veld">
@@ -9472,14 +9477,21 @@ if ($isMaster && file_exists($logBestand)) {
         var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || '').trim());
         return m ? (m[3] + '-' + m[2] + '-' + m[1]) : '';
       }
-      document.querySelectorAll('.datum-picker').forEach(function (picker) {
-        var doel = document.getElementById(picker.getAttribute('data-doel'));
-        if (!doel) return;
-        // Bij openen van de kalender vast op de al ingevulde datum starten,
-        // in plaats van steeds bij vandaag.
-        picker.addEventListener('click', function () {
+      document.querySelectorAll('.datum-picker-wrap').forEach(function (knop) {
+        var picker = knop.querySelector('.datum-picker');
+        var doel = picker ? document.getElementById(picker.getAttribute('data-doel')) : null;
+        if (!picker || !doel) return;
+        // Een klik op het onzichtbare input[type=date] zelf opent de kalender
+        // niet betrouwbaar in elke browser (met name Firefox niet), dus hier
+        // expliciet aanroepen vanuit de knop. Eerst vullen met de datum die al
+        // in het tekstveld staat, zodat je niet steeds bij vandaag begint.
+        knop.addEventListener('click', function () {
           var iso = tekstNaarIso(doel.value);
           if (iso) picker.value = iso;
+          if (typeof picker.showPicker === 'function') {
+            try { picker.showPicker(); return; } catch (err) { /* val terug op focus hieronder */ }
+          }
+          picker.focus();
         });
         picker.addEventListener('change', function () {
           var tekst = isoNaarTekst(picker.value);

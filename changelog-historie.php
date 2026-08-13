@@ -25,6 +25,12 @@ return [
 
   [
     'datum' => '2026-08-13',
+    'cat' => 'opgelost',
+    'titel' => 'Datumkiezer reageerde niet op klikken in Brave en Firefox',
+    'tekst' => 'Het kalenderknopje bij de datumvelden opende de kalender niet betrouwbaar. Nu wordt de kalender expliciet geopend zodra er op het knopje wordt geklikt, in elke browser.',
+  ],
+  [
+    'datum' => '2026-08-13',
     'cat' => 'verbeterd',
     'titel' => 'Datumkiezer naast elk datumveld',
     'tekst' => 'Bij elk datumveld in het beheerpaneel (leden, vergaderingen, evenementen, nieuws, agenda, media, fotoboek, changelog) staat nu een kalenderknopje naast het handmatige invulveld. Het invulveld (dd-mm-jjjj) blijft gewoon werken zoals voorheen.',
