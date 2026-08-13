@@ -26,6 +26,12 @@ return [
   [
     'datum' => '2026-08-13',
     'cat' => 'nieuw',
+    'titel' => 'Eindtijd bij een evenement',
+    'tekst' => 'Naast de aanvangstijd staat er nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals "9", "9.30" of "930". Staat de eindtijd voor de aanvang, dan volgt een foutmelding.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'nieuw',
     'titel' => 'Begin- en einddatum inschrijving bij een evenement',
     'tekst' => 'Een evenement kan al aangemaakt en voorbereid worden voordat het voor leden zichtbaar is: met een begindatum inschrijving verschijnt het pas op de afgesproken datum in de lijst voor leden (ook niet via een geraden link ervoor). De einddatum inschrijving is voor nu ter informatie.',
   ],

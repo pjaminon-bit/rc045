@@ -4088,12 +4088,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $bestaandEvenement = $index === null ? null : $evenementenData['evenementen'][$index];
 
     $invoer = [];
-    foreach (['titel', 'omschrijving', 'tijd', 'locatie', 'capaciteit', 'betaalverzoek'] as $veld) {
+    foreach (['titel', 'omschrijving', 'tijd', 'eindtijd', 'locatie', 'capaciteit', 'betaalverzoek'] as $veld) {
       if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
     }
     $invoer['datum'] = ledenParseDatum($_POST['datum'] ?? '');
     $invoer['inschrijving_begin'] = ledenParseDatum($_POST['inschrijving_begin'] ?? '');
     $invoer['inschrijving_eind'] = ledenParseDatum($_POST['inschrijving_eind'] ?? '');
+    $invoer['tijd'] = evenementParseTijd($_POST['tijd'] ?? '');
+    $invoer['eindtijd'] = evenementParseTijd($_POST['eindtijd'] ?? '');
     // Deelnemers komen als lid-id => "1" binnen (alleen aangevinkte
     // checkboxen sturen mee), dus de sleutels zijn de lid-id's zelf.
     $invoer['deelnemers'] = (isset($_POST['deelnemers']) && is_array($_POST['deelnemers']))
@@ -4127,6 +4129,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $meldingType['evenementen'] = 'fout';
     } elseif ($invoer['inschrijving_begin'] !== '' && $invoer['inschrijving_eind'] !== '' && $invoer['inschrijving_eind'] < $invoer['inschrijving_begin']) {
       $melding['evenementen'] = 'De einddatum inschrijving ligt voor de begindatum. Controleer de datums.';
+      $meldingType['evenementen'] = 'fout';
+    } elseif ($invoer['tijd'] !== '' && $invoer['eindtijd'] !== '' && $invoer['eindtijd'] < $invoer['tijd']) {
+      $melding['evenementen'] = 'De eindtijd ligt voor de aanvangstijd. Controleer de tijden.';
       $meldingType['evenementen'] = 'fout';
     } else {
       // Deelnemers moeten echt (nog) bestaan, anders slipt een verwijderd
@@ -8258,9 +8263,14 @@ if ($isMaster && file_exists($logBestand)) {
               <input type="text" id="ev-tijd" name="tijd" maxlength="5" placeholder="10:00" value="<?php echo htmlspecialchars($evenementBewerk['tijd']); ?>">
             </div>
             <div class="veld">
-              <label for="ev-locatie">Locatie</label>
-              <input type="text" id="ev-locatie" name="locatie" maxlength="120" placeholder="Baan RC045" value="<?php echo htmlspecialchars($evenementBewerk['locatie']); ?>">
+              <label for="ev-eindtijd">Eindtijd</label>
+              <input type="text" id="ev-eindtijd" name="eindtijd" maxlength="5" placeholder="17:00" value="<?php echo htmlspecialchars($evenementBewerk['eindtijd']); ?>">
             </div>
+          </div>
+
+          <div class="veld">
+            <label for="ev-locatie">Locatie</label>
+            <input type="text" id="ev-locatie" name="locatie" maxlength="120" placeholder="Baan RC045" value="<?php echo htmlspecialchars($evenementBewerk['locatie']); ?>">
           </div>
 
           <div class="rij-2">
@@ -8375,7 +8385,7 @@ if ($isMaster && file_exists($logBestand)) {
                 <?php foreach ($evenementenLijst as $ev): ?>
                   <?php $evStatus = evenementStatus($ev); $evAantal = evenementAantalDeelnemers($ev); $evCapaciteit = (int) $ev['capaciteit']; ?>
                   <tr data-href="beheer.php?evenement=<?php echo urlencode($ev['id']); ?>#evenementen">
-                    <td data-label="Datum"><span class="lc"><?php echo $ev['datum'] !== '' ? htmlspecialchars(datumWeergave($ev['datum'])) : '<span class="leden-leeg">nog te plannen</span>'; ?><?php if (($ev['tijd'] ?? '') !== ''): ?> <?php echo htmlspecialchars($ev['tijd']); ?><?php endif; ?></span></td>
+                    <td data-label="Datum"><span class="lc"><?php echo $ev['datum'] !== '' ? htmlspecialchars(datumWeergave($ev['datum'])) : '<span class="leden-leeg">nog te plannen</span>'; ?><?php if (($ev['tijd'] ?? '') !== ''): ?> <?php echo htmlspecialchars($ev['tijd']); ?><?php if (($ev['eindtijd'] ?? '') !== ''): ?> - <?php echo htmlspecialchars($ev['eindtijd']); ?><?php endif; ?><?php endif; ?></span></td>
                     <td class="lc-kop">
                       <span class="lc"><strong><?php echo htmlspecialchars(evenementWeergavenaam($ev)); ?></strong>
                       <?php if (($ev['locatie'] ?? '') !== ''): ?><span class="leden-bron"><?php echo htmlspecialchars($ev['locatie']); ?></span><?php endif; ?></span>

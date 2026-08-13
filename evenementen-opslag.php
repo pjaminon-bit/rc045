@@ -184,6 +184,26 @@ function evenementenGesorteerd($data) {
   return $lijst;
 }
 
+// Tijd (HH:MM) valideren en normaliseren. Accepteert ook varianten als
+// "9", "9.30" of "930", zelfde soepele aanpak als vergaderingParseTijd() in
+// vergaderingen-opslag.php. Ongeldige of lege invoer wordt gewoon leeg.
+function evenementParseTijd($waarde) {
+  $waarde = trim((string) $waarde);
+  if ($waarde === '') return '';
+  if (preg_match('/^(\d{1,2})[:.h ]?(\d{2})$/i', $waarde, $m)) {
+    $uur = (int) $m[1];
+    $minuut = (int) $m[2];
+    if ($uur > 23 || $minuut > 59) return '';
+    return sprintf('%02d:%02d', $uur, $minuut);
+  }
+  if (preg_match('/^(\d{1,2})$/', $waarde, $m)) {
+    $uur = (int) $m[1];
+    if ($uur > 23) return '';
+    return sprintf('%02d:00', $uur);
+  }
+  return '';
+}
+
 // Deelnemerslijst opschonen: alleen geldige, unieke lid-id's. Of een lid
 // nog echt bestaat controleert de aanroeper (net als bij toegewezen_aan),
 // hier alleen vorm en duplicaten.
@@ -201,7 +221,7 @@ function evenementDeelnemersOpschonen($ruw) {
 // ===== Invoer opschonen =====
 
 function evenementVeldGrenzen() {
-  return ['titel' => 160, 'locatie' => 120, 'tijd' => 5, 'betaalverzoek' => 500];
+  return ['titel' => 160, 'locatie' => 120, 'betaalverzoek' => 500];
 }
 
 function evenementNormaliseer($invoer, $bestaand = null) {
@@ -229,6 +249,20 @@ function evenementNormaliseer($invoer, $bestaand = null) {
     $e['datum'] = ledenGeldigeDatum((string) $invoer['datum']) ? $invoer['datum'] : '';
   } elseif (!isset($e['datum'])) {
     $e['datum'] = '';
+  }
+
+  // Aanvang en eindtijd: hier (in tegenstelling tot de datumvelden) zelf
+  // geparsed, dat hoeft de aanroeper dus niet apart te doen.
+  if (array_key_exists('tijd', $invoer)) {
+    $e['tijd'] = evenementParseTijd($invoer['tijd']);
+  } elseif (!isset($e['tijd'])) {
+    $e['tijd'] = '';
+  }
+
+  if (array_key_exists('eindtijd', $invoer)) {
+    $e['eindtijd'] = evenementParseTijd($invoer['eindtijd']);
+  } elseif (!isset($e['eindtijd'])) {
+    $e['eindtijd'] = '';
   }
 
   // Begin- en einddatum inschrijving: ook al genormaliseerd door de
