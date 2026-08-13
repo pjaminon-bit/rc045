@@ -5134,11 +5134,18 @@ if ($isMaster && file_exists($logBestand)) {
     .menu-item { width: 100%; text-align: left; flex: 0 0 auto; background: none; border: none; padding: 8px 12px; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; border-radius: 8px; transition: background 0.15s, color 0.15s; }
     .menu-item:hover { background: var(--teal-light); color: var(--teal-dark); }
     .menu-item.actief { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 2px 0 0 var(--teal); }
-    /* Stil kopje boven elke groep in het menu, geen eigen knop of kader:
-       puur om de 18 tabs in een paar hapklare blokken te laten lezen.
-       Zelfde opmaak op mobiel, daar staat het gewoon in het uitklappaneel. */
-    .menu-groep-label { margin: 10px 0 6px; padding: 5px 12px; font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; background: var(--teal-light); border-radius: 6px; }
-    .menu-groep-label:first-child { margin-top: 0; }
+    /* Klikbaar kopje boven elke groep in het menu: klapt de knoppen van die
+       groep in/uit. Standaard dicht (zie JS), puur om de 18 tabs in een
+       paar hapklare blokken te laten lezen in plaats van alles in één lange
+       kolom. Zelfde opmaak op mobiel, daar staat het gewoon in het
+       uitklappaneel. */
+    .menu-groep { display: flex; flex-direction: column; gap: 2px; }
+    .menu-groep-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; margin: 10px 0 6px; padding: 5px 12px; font-size: 12px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; background: var(--teal-light); border: none; border-radius: 6px; cursor: pointer; font-family: inherit; }
+    .menu-groep:first-child .menu-groep-label { margin-top: 0; }
+    .menu-groep-pijl { font-size: 10px; transition: transform 0.15s; }
+    .menu-groep-label[aria-expanded="true"] .menu-groep-pijl { transform: rotate(90deg); }
+    .menu-groep-items { display: flex; flex-direction: column; gap: 2px; }
+    .menu-groep-items[hidden] { display: none; }
     /* Zelfde idee als de menu-groepslabels, maar dan binnen een tab: bindt
        een aantal uitklapkaarten samen onder een hoofdstuk, puur visueel. */
     .sectie-kop { margin: 22px 0 8px; padding: 7px 14px; font-size: 13px; font-weight: 700; color: var(--teal-dark); text-transform: uppercase; letter-spacing: 0.04em; background: var(--teal-light); border-radius: 6px; }
@@ -5526,7 +5533,7 @@ if ($isMaster && file_exists($logBestand)) {
         ];
         $alleenMasterTabs = ['gebruikers', 'log', 'backups'];
       ?>
-      <?php foreach ($menuGroepen as $groep): ?>
+      <?php foreach ($menuGroepen as $groepIndex => $groep): ?>
         <?php
           $zichtbaar = [];
           foreach ($groep['tabs'] as $tabSleutel) {
@@ -5537,10 +5544,17 @@ if ($isMaster && file_exists($logBestand)) {
           }
         ?>
         <?php if (!empty($zichtbaar)): ?>
-      <div class="menu-groep-label"><?php echo htmlspecialchars($groep['label']); ?></div>
+      <div class="menu-groep">
+        <button type="button" class="menu-groep-label" data-groep="<?php echo $groepIndex; ?>" aria-expanded="false" aria-controls="menu-groep-items-<?php echo $groepIndex; ?>">
+          <span><?php echo htmlspecialchars($groep['label']); ?></span>
+          <span class="menu-groep-pijl" aria-hidden="true">&#9656;</span>
+        </button>
+        <div class="menu-groep-items" id="menu-groep-items-<?php echo $groepIndex; ?>" data-groep="<?php echo $groepIndex; ?>" hidden>
           <?php foreach ($zichtbaar as $tabSleutel): ?>
       <button type="button" class="menu-item" data-tab="<?php echo $tabSleutel; ?>"><?php echo htmlspecialchars($menuLabels[$tabSleutel]); ?></button>
           <?php endforeach; ?>
+        </div>
+      </div>
         <?php endif; ?>
       <?php endforeach; ?>
     </nav>
@@ -8794,6 +8808,25 @@ if ($isMaster && file_exists($logBestand)) {
         });
       }
 
+      // ===== Menu-groepen in/uitklappen =====
+      // Standaard staan alle groepen dicht (aria-expanded="false" + hidden
+      // in de HTML); hier komt alleen het klikgedrag bij. De groep met de
+      // actieve tab wordt door toonTab() hieronder vanzelf opengezet, zodat
+      // je bij het laden van de pagina altijd ziet welke tab actief is.
+      var menuGroepLabels = document.querySelectorAll('.menu-groep-label');
+      function zetGroepOpen(label, open) {
+        if (!label) return;
+        label.setAttribute('aria-expanded', open ? 'true' : 'false');
+        var items = document.getElementById('menu-groep-items-' + label.getAttribute('data-groep'));
+        if (items) items.hidden = !open;
+      }
+      menuGroepLabels.forEach(function(label) {
+        label.addEventListener('click', function() {
+          var open = label.getAttribute('aria-expanded') === 'true';
+          zetGroepOpen(label, !open);
+        });
+      });
+
       function toonTab(naam) {
         if (tabs.indexOf(naam) === -1) naam = tabs[0];
         tabs.forEach(function(t) {
@@ -8803,7 +8836,14 @@ if ($isMaster && file_exists($logBestand)) {
         menuItems.forEach(function(btn) {
           var actief = btn.getAttribute('data-tab') === naam;
           btn.classList.toggle('actief', actief);
-          if (actief && menuHuidigLabel) menuHuidigLabel.textContent = btn.textContent.trim();
+          if (actief) {
+            if (menuHuidigLabel) menuHuidigLabel.textContent = btn.textContent.trim();
+            var groepItems = btn.closest('.menu-groep-items');
+            if (groepItems) {
+              var label = document.querySelector('.menu-groep-label[data-groep="' + groepItems.getAttribute('data-groep') + '"]');
+              zetGroepOpen(label, true);
+            }
+          }
         });
       }
 

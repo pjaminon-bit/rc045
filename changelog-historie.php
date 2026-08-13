@@ -25,6 +25,12 @@ return [
 
   [
     'datum' => '2026-08-13',
+    'cat' => 'verbeterd',
+    'titel' => 'Menu-groepen in beheerpaneel zijn inklapbaar',
+    'tekst' => 'De groepen in het menu links (Pagina\'s, Content, Leden & contributie, enz.) staan nu standaard dicht en klappen open door op de groepsnaam te klikken. De groep met de actief geopende tab klapt vanzelf open, zodat altijd zichtbaar blijft waar je bent.',
+  ],
+  [
+    'datum' => '2026-08-13',
     'cat' => 'opgelost',
     'titel' => 'Datumkiezer reageerde niet op klikken in Brave en Firefox',
     'tekst' => 'Het kalenderknopje bij de datumvelden opende de kalender niet betrouwbaar. Nu wordt de kalender expliciet geopend zodra er op het knopje wordt geklikt, in elke browser.',
