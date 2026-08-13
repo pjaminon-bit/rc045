@@ -25,6 +25,12 @@ return [
 
   [
     'datum' => '2026-08-13',
+    'cat' => 'opgelost',
+    'titel' => 'Menu bijna onleesbaar in donkere stand',
+    'tekst' => 'Het menu links had een vaste crèmekleurige achtergrond in plaats van de themavariabele, waardoor de donkere tekstkleur er in de donkere stand bovenop bijna niet te lezen was.',
+  ],
+  [
+    'datum' => '2026-08-13',
     'cat' => 'nieuw',
     'titel' => 'Donker thema in het beheerpaneel',
     'tekst' => 'Beheer.php had nog geen donkere stand, terwijl de rest van de site die al had. Zelfde knop en systeem als op de publieke pagina\'s (systeem/licht/donker, rechtsboven), inclusief een donkere versie van badges en meldingen.',

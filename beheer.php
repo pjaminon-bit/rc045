@@ -4938,6 +4938,13 @@ if ($isMaster && file_exists($logBestand)) {
     :root[data-thema="donker"] .logboek-filter-paneel,
     :root[data-thema="donker"] .menu,
     :root[data-thema="donker"] .multiselect-paneel { box-shadow: 0 4px 20px rgba(0,0,0,0.45); }
+    /* Het sticky menu heeft zelf een vaste crème achtergrond (voor het
+       blur-effect), niet de --white variabele. Alleen op breed scherm: de
+       mobiele versie (hieronder bij max-width:860px) gebruikt al var(--white)
+       en flipt daardoor vanzelf mee. */
+    @media (min-width: 861px) {
+      :root[data-thema="donker"] .menu { background: rgba(20,24,15,0.95); }
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 16px 40px; overflow-wrap: break-word; }
     /* Vangnet: niets krijgt een eigen breedte mee die groter is dan de plek
