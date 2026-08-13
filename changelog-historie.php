@@ -32,6 +32,12 @@ return [
   [
     'datum' => '2026-08-13',
     'cat' => 'opgelost',
+    'titel' => 'Tekst onleesbaar bij hover op menu-groep',
+    'tekst' => 'Doordat het groepskopje in het menu een knop is geworden, verdween de tekst bij het hoveren erover (donkere tekst op donkere achtergrond). Hersteld naar een leesbaar contrast.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'opgelost',
     'titel' => 'Datumkiezer reageerde niet op klikken in Brave en Firefox',
     'tekst' => 'Het kalenderknopje bij de datumvelden opende de kalender niet betrouwbaar. Nu wordt de kalender expliciet geopend zodra er op het knopje wordt geklikt, in elke browser.',
   ],
