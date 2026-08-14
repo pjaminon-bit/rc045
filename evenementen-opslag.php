@@ -187,7 +187,10 @@ function evenementHeeftDeelnemer($e, $lidId) {
 // zonder de eerste erin en schrijft die er daarna overheen. Bij het bestuur
 // dat af en toe iets opslaat valt dat nooit op, bij zestig leden die zich
 // op dezelfde clubdag inschrijven wel. Vandaar een echte lock om de hele
-// cyclus. Het lockbestand staat in data-backups/, dat is server-only.
+// cyclus, met het gedeelde slot uit data-slot.php: hetzelfde slot dat
+// beheer.php en leden.php om hun opslaan-blok heen leggen, zodat een lid dat
+// zich inschrijft en een bestuurslid dat het evenement bewerkt niet
+// tegelijk kunnen schrijven.
 //
 // Geeft true bij succes. Bij false staat in $fout een uitlegbare reden.
 function evenementDeelnameWijzigen($evenementId, $lidId, $aanmelden, &$fout = null) {
@@ -199,17 +202,7 @@ function evenementDeelnameWijzigen($evenementId, $lidId, $aanmelden, &$fout = nu
     return false;
   }
 
-  $map = ledenBackupMap();
-  if (!is_dir($map) && !@mkdir($map, 0755, true)) {
-    $fout = 'Kan de opslag niet benaderen.';
-    return false;
-  }
-  $lock = @fopen($map . '/.evenementen.lock', 'c');
-  if ($lock === false || !flock($lock, LOCK_EX)) {
-    if ($lock !== false) fclose($lock);
-    $fout = 'Even te druk, probeer het zo nog eens.';
-    return false;
-  }
+  $slot = dataSlotOpen();
 
   try {
     $data = evenementenLees();
@@ -259,8 +252,7 @@ function evenementDeelnameWijzigen($evenementId, $lidId, $aanmelden, &$fout = nu
     }
     return true;
   } finally {
-    flock($lock, LOCK_UN);
-    fclose($lock);
+    dataSlotDicht($slot);
   }
 }
 
