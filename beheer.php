@@ -1,90 +1,47 @@
 <?php
 // ============================================================
 // RC045 beheerpagina
-// Login met gebruikersnaam + wachtwoord, of met het beheerderswachtwoord
-// voor gebruikersbeheer en het logboek. Vijf inhoudelijke onderdelen,
-// elk met een eigen formulier en eigen JSON-bestand in data/, die door
-// de website worden uitgelezen:
+// Inhoudelijke onderdelen, elk met een eigen formulier en eigen JSON-bestand
+// in data/, die door de website worden uitgelezen:
 //   - Afwijkende openingstijden -> data/actueel.json
 //   - Agenda (kaarten)     -> data/agenda.json
 //   - Veelgestelde vragen -> data/faq.json
 //   - Sponsors (logo's)   -> data/sponsors.json, bestanden in images/sponsors/
 //   - Fotoboek (albums)   -> data/fotoboek.json, bestanden in images/fotoboek/<slug>/
-// Beheerderswachtwoord staat in beheer-config.php (eenmalig handmatig
-// via FTP geupload). Gebruikers en het logboek staan in beheer-users.json
-// en beheer-log.json, die deze pagina zelf aanmaakt. Geen van deze drie
-// staat in GitHub, en alle drie moeten in .htaccess zijn afgeschermd
-// tegen rechtstreeks bezoeken.
+//
+// Inloggen zelf staat niet meer in dit bestand maar in auth.php: sessie,
+// CSRF, gebruikers, logboek, lockout en het rechtenmodel. Zie de toelichting
+// bovenin dat bestand, ook voor welke server-only bestanden erbij horen en
+// waarom die in .htaccess afgeschermd moeten zijn.
 // ============================================================
 
-date_default_timezone_set('Europe/Amsterdam');
-header('X-Robots-Tag: noindex, nofollow');
-header('Cache-Control: no-store');
-// Voorkomt dat deze pagina in een iframe op een andere site getoond kan
-// worden (clickjacking): X-Frame-Options voor oudere browsers, de CSP-regel
-// is de moderne vervanger. Beide beïnvloeden alleen framing, niet de eigen
-// inline <script>/<style> die deze pagina gebruikt.
-header('X-Frame-Options: DENY');
-header("Content-Security-Policy: frame-ancestors 'none'");
+// Inloggen, sessie, CSRF, het logboek, de lockout en het rechtenmodel staan
+// in auth.php, zodat een tweede afgeschermde pagina (leden.php) precies
+// hetzelfde gebruikt in plaats van een eigen inlogsysteem ernaast. Dit moet
+// vóór elke uitvoer gebeuren: auth.php stuurt headers en start de sessie.
+// Levert onder meer $configOk, $ingelogd, $huidigeGebruiker, $isMaster,
+// $csrfToken, $inlogFout, $melding/$meldingType, $usersBestand, $logBestand
+// en de back-upinstellingen die schrijfJson() hieronder gebruikt.
+require_once __DIR__ . '/auth.php';
 
-// ===== Sessie: een week ingelogd blijven, niet halverwege een lang formulier uitloggen =====
-$sessieduur = 60 * 60 * 24 * 7;
-ini_set('session.gc_maxlifetime', (string) $sessieduur);
-session_set_cookie_params([
-  'lifetime' => $sessieduur,
-  'path' => '/',
-  'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-  'httponly' => true,
-  'samesite' => 'Lax',
-]);
-session_start();
-
-// ===== CSRF-token: één per sessie, verplicht veld in elk formulier =====
-if (empty($_SESSION['csrf'])) {
-  $_SESSION['csrf'] = bin2hex(random_bytes(32));
-}
-$csrfToken = $_SESSION['csrf'];
-
-// Geeft true als het meegestuurde csrf-veld bij een POST klopt met de sessie.
-function csrfOk() {
-  return isset($_POST['csrf']) && hash_equals($_SESSION['csrf'], $_POST['csrf']);
-}
-
-$configPad    = __DIR__ . '/beheer-config.php';
-$usersBestand = __DIR__ . '/beheer-users.json';
-$logBestand   = __DIR__ . '/beheer-log.json';
-$loginPogingenBestand = __DIR__ . '/beheer-login-pogingen.json';
 $dataMap      = __DIR__ . '/data';
 
 // Ledenadministratie. De opslag en de hulpfuncties staan in een apart
 // bestand, omdat aanmelden-ontvangst.php ze ook nodig heeft. Zie de
 // toelichting bovenin dat bestand voor waar het ledenbestand staat en
-// waarom het niet in data/ hoort.
+// waarom het niet in data/ hoort. leden-opslag.php wordt al door auth.php
+// ingesloten (de rechten hangen aan de bestuursfunctie), maar staat hier
+// bewust ook: deze pagina gebruikt het rechtstreeks.
 require_once __DIR__ . '/leden-opslag.php';
 require_once __DIR__ . '/vergaderingen-opslag.php';
 require_once __DIR__ . '/taken-opslag.php';
 require_once __DIR__ . '/operationele-taken-opslag.php';
 require_once __DIR__ . '/evenementen-opslag.php';
 
-// Lockout bij te veel mislukte inlogpogingen (per gebruikersnaam, of
-// "beheerder" voor het beheerderswachtwoord): na $loginLockoutDrempel
-// mislukte pogingen binnen $loginLockoutVenster wordt verder inloggen voor
-// die ene gebruikersnaam tijdelijk geblokkeerd, ongeacht of het wachtwoord
-// daarna alsnog klopt. De sleep(2) verderop blijft ook bestaan als extra,
-// simpele afremming.
-$loginLockoutVenster = 15 * 60;
-$loginLockoutDrempel = 5;
-
-// Automatische back-up van de databestanden (data/*.json): vlak voordat
-// schrijfJson() een bestand overschrijft, gaat er eerst een tijdgestempelde
-// kopie naar data-backups/. Zo is een verkeerde opslag- of bugactie altijd
-// terug te draaien. Bewaartermijn gelijk aan het logboek (90 dagen), met een
-// hardstop per bestand zodat de map nooit ongelimiteerd kan groeien. Deze map
-// staat buiten data/ zodat hij apart in .htaccess geblokkeerd kan worden (de
-// bestanden in data/ zelf zijn bewust wel publiek opvraagbaar).
-$dataBackupMap              = __DIR__ . '/data-backups';
-$dataBackupBewaardagen      = 90;
-$dataBackupMaxPerBestand    = 200;
+// De instellingen voor de lockout bij mislukte inlogpogingen en voor de
+// automatische back-up van databestanden ($dataBackupMap en de twee
+// bewaargrenzen, gebruikt door schrijfJson() en maakDataBackup()) staan in
+// auth.php, omdat de inlogafhandeling ze daar zelf nodig heeft.
 
 $lockBestand    = $dataMap . '/.beheer.lock';
 $actueelBestand = $dataMap . '/actueel.json';
@@ -1269,35 +1226,8 @@ function datumNaarIso($tekst) {
 // bestand op (ouder dan $bewaardagen, met $maxPerBestand als hardstop).
 // Stil falen (@) is bewust: een mislukte back-up mag het opslaan van de
 // eigenlijke wijziging nooit blokkeren.
-function maakDataBackup($pad, $backupMap, $bewaardagen, $maxPerBestand) {
-  if (!file_exists($pad)) return; // nieuw bestand, er is nog niets te bewaren
-
-  if (!is_dir($backupMap)) {
-    @mkdir($backupMap, 0755, true);
-  }
-  $basisnaam = basename($pad);
-  $doelpad = $backupMap . '/' . date('Y-m-d_His') . '_' . $basisnaam;
-  @copy($pad, $doelpad);
-
-  $bestanden = @glob($backupMap . '/*_' . $basisnaam);
-  if ($bestanden === false || count($bestanden) === 0) return;
-  sort($bestanden); // tijdstempel voorop => alfabetisch is ook chronologisch
-
-  $grens = time() - $bewaardagen * 24 * 60 * 60;
-  $overgebleven = [];
-  foreach ($bestanden as $b) {
-    $tijd = @filemtime($b);
-    if ($tijd !== false && $tijd >= $grens) {
-      $overgebleven[] = $b;
-    } else {
-      @unlink($b);
-    }
-  }
-  $teveel = count($overgebleven) - $maxPerBestand;
-  for ($i = 0; $i < $teveel; $i++) {
-    @unlink($overgebleven[$i]);
-  }
-}
+// maakDataBackup() staat in auth.php: schrijfGebruikers() heeft hem daar ook
+// nodig en die functie hoort bij de inlogafhandeling.
 
 function schrijfJson($pad, $data) {
   global $dataBackupMap, $dataBackupBewaardagen, $dataBackupMaxPerBestand;
@@ -1595,180 +1525,11 @@ function verwijderMapRecursief($pad) {
   @rmdir($pad);
 }
 
-// ===== Gebruikers en logboek =====
-function laadGebruikers($pad) {
-  if (!file_exists($pad)) return [];
-  $json = json_decode(file_get_contents($pad), true);
-  return is_array($json) ? $json : [];
-}
-
-function schrijfGebruikers($pad, $gebruikers) {
-  global $dataBackupMap, $dataBackupBewaardagen, $dataBackupMaxPerBestand;
-  maakDataBackup($pad, $dataBackupMap, $dataBackupBewaardagen, $dataBackupMaxPerBestand);
-  return file_put_contents($pad, json_encode($gebruikers, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX) !== false;
-}
-
-function schrijfLog($pad, $gebruiker, $actie, $details = '') {
-  $log = [];
-  if (file_exists($pad)) {
-    $json = json_decode(file_get_contents($pad), true);
-    if (is_array($json)) $log = $json;
-  }
-  $log[] = ['tijd' => date('c'), 'gebruiker' => $gebruiker, 'actie' => $actie, 'details' => $details];
-
-  // Bewaren op tijd (een paar maanden), niet op een vast aantal regels: bij
-  // een vast aantal duwt een drukke dag (bijv. een grote foto-upload) meteen
-  // oudere, nog prima relevante regels eruit. De harde bovengrens van 5000 is
-  // alleen een noodrem tegen onbeperkte bestandsgroei, geen streefwaarde.
-  $bewaarGrens = strtotime('-90 days');
-  $log = array_values(array_filter($log, function($regel) use ($bewaarGrens) {
-    $tijd = strtotime($regel['tijd'] ?? '');
-    return $tijd === false || $tijd >= $bewaarGrens;
-  }));
-  if (count($log) > 5000) {
-    $log = array_slice($log, -5000);
-  }
-
-  file_put_contents($pad, json_encode($log, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
-}
-
-// ===== Lockout bij mislukte inlogpogingen =====
-// Bestandsformaat: { "gebruikersnaam-in-kleine-letters": [unix-tijdstip, ...] }
-// Alleen mislukte pogingen van de laatste $venster seconden tellen mee; ouder
-// wordt bij elke controle stilzwijgend opgeruimd.
-function laadLoginPogingen($pad) {
-  if (!file_exists($pad)) return [];
-  $json = json_decode(file_get_contents($pad), true);
-  return is_array($json) ? $json : [];
-}
-
-function schrijfLoginPogingen($pad, $pogingen) {
-  file_put_contents($pad, json_encode($pogingen, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
-}
-
-// Geeft het aantal hele minuten tot de lockout van $sleutel voorbij is, of 0
-// als er (nog) geen lockout actief is.
-function loginLockoutMinuten($pad, $sleutel, $venster, $drempel) {
-  $pogingen = laadLoginPogingen($pad);
-  $nu = time();
-  $recent = array_values(array_filter($pogingen[$sleutel] ?? [], function($t) use ($nu, $venster) {
-    return $t > $nu - $venster;
-  }));
-  if (count($recent) < $drempel) return 0;
-  return (int) ceil((min($recent) + $venster - $nu) / 60);
-}
-
-// Telt een mislukte poging voor $sleutel mee (en ruimt meteen verlopen
-// pogingen van diezelfde sleutel op).
-function loginPogingRegistreren($pad, $sleutel, $venster) {
-  $pogingen = laadLoginPogingen($pad);
-  $nu = time();
-  $recent = array_values(array_filter($pogingen[$sleutel] ?? [], function($t) use ($nu, $venster) {
-    return $t > $nu - $venster;
-  }));
-  $recent[] = $nu;
-  $pogingen[$sleutel] = $recent;
-  schrijfLoginPogingen($pad, $pogingen);
-}
-
-// Wist de teller voor $sleutel helemaal (na een geslaagde login).
-function loginPogingenWissen($pad, $sleutel) {
-  $pogingen = laadLoginPogingen($pad);
-  if (isset($pogingen[$sleutel])) {
-    unset($pogingen[$sleutel]);
-    schrijfLoginPogingen($pad, $pogingen);
-  }
-}
-
-$configOk = file_exists($configPad);
-if ($configOk) {
-  require $configPad; // definieert $BEHEER_WACHTWOORD
-  $configOk = isset($BEHEER_WACHTWOORD) && $BEHEER_WACHTWOORD !== '' && $BEHEER_WACHTWOORD !== 'VeranderDitWachtwoord';
-}
-
-// ===== Uitloggen =====
-// Bewust een POST-formulier met csrf-controle in plaats van een simpele link:
-// een gewone GET-link kan door een pagina van een ander (bijv. als afbeelding)
-// worden misbruikt om een ingelogde beheerder ongevraagd uit te loggen.
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'uitloggen' && csrfOk()) {
-  $_SESSION = [];
-  session_destroy();
-  header('Location: beheer.php');
-  exit;
-}
-
-$melding = [];
-$meldingType = [];
-$inlogFout = '';
-
-// Meldingen die via Post-Redirect-Get zijn doorgegeven (zie hieronder bij
-// "fotoboek_album_aanmaken"): één keer tonen en direct weer weggooien.
-if (!empty($_SESSION['flash']) && is_array($_SESSION['flash'])) {
-  foreach ($_SESSION['flash'] as $sleutel => $flash) {
-    $melding[$sleutel] = $flash['tekst'] ?? '';
-    $meldingType[$sleutel] = $flash['type'] ?? 'ok';
-  }
-  unset($_SESSION['flash']);
-}
-
-// ===== Inloggen =====
-// Gebruikersnaam leeg + het beheerderswachtwoord -> ingelogd als "beheerder",
-// met toegang tot gebruikersbeheer en het logboek. Een bekende gebruikersnaam
-// + bijbehorend wachtwoord -> gewone toegang tot de inhoud.
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'inloggen' && $configOk && !csrfOk()) {
-  $inlogFout = 'Sessie verlopen. Ververs de pagina en probeer het opnieuw.';
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'inloggen' && $configOk) {
-  $gebruikersnaamInvoer = trim($_POST['gebruikersnaam'] ?? '');
-  $wachtwoordInvoer = $_POST['wachtwoord'] ?? '';
-  $lockoutNaam = $gebruikersnaamInvoer === '' ? 'beheerder' : $gebruikersnaamInvoer;
-  $lockoutSleutel = strtolower($lockoutNaam);
-  $minutenTeWachten = loginLockoutMinuten($loginPogingenBestand, $lockoutSleutel, $loginLockoutVenster, $loginLockoutDrempel);
-
-  if ($minutenTeWachten > 0) {
-    // Te veel mislukte pogingen recent voor deze ene gebruikersnaam: het
-    // wachtwoord wordt niet eens meer gecontroleerd. Anders zou iemand met
-    // geduld de sleep(2) hieronder gewoon kunnen uitzitten en toch door
-    // blijven gokken.
-    $inlogFout = 'Te veel mislukte pogingen voor "' . $lockoutNaam . '". Probeer het over ' . $minutenTeWachten . ' minuut' . ($minutenTeWachten === 1 ? '' : 'en') . ' opnieuw.';
-  } elseif ($gebruikersnaamInvoer === '' && hash_equals($BEHEER_WACHTWOORD, $wachtwoordInvoer)) {
-    // Nieuw sessie-ID na succesvol inloggen (session fixation): zonder dit zou
-    // een sessie-ID dat van vóór het inloggen dateert (bijv. opgedrongen door
-    // een aanvaller) na login gewoon geldig blijven. "true" verwijdert meteen
-    // ook het oude sessiebestand op de server.
-    session_regenerate_id(true);
-    $_SESSION['gebruiker'] = 'beheerder';
-    $_SESSION['is_master'] = true;
-    loginPogingenWissen($loginPogingenBestand, $lockoutSleutel);
-    schrijfLog($logBestand, 'beheerder', 'login', '');
-    header('Location: beheer.php');
-    exit;
-  } else {
-    $gevondenGebruiker = null;
-    foreach (laadGebruikers($usersBestand) as $g) {
-      if (isset($g['gebruikersnaam']) && strcasecmp($g['gebruikersnaam'], $gebruikersnaamInvoer) === 0) {
-        $gevondenGebruiker = $g;
-        break;
-      }
-    }
-    if ($gevondenGebruiker && isset($gevondenGebruiker['hash']) && password_verify($wachtwoordInvoer, $gevondenGebruiker['hash'])) {
-      session_regenerate_id(true);
-      $_SESSION['gebruiker'] = $gevondenGebruiker['gebruikersnaam'];
-      $_SESSION['is_master'] = false;
-      loginPogingenWissen($loginPogingenBestand, $lockoutSleutel);
-      schrijfLog($logBestand, $gevondenGebruiker['gebruikersnaam'], 'login', '');
-      header('Location: beheer.php');
-      exit;
-    }
-
-    loginPogingRegistreren($loginPogingenBestand, $lockoutSleutel, $loginLockoutVenster);
-    sleep(2); // blijft daarnaast bestaan als simpele, extra afremming
-    $inlogFout = 'Gebruikersnaam of wachtwoord onjuist.';
-  }
-}
-
-$ingelogd = $configOk && isset($_SESSION['gebruiker']);
-$huidigeGebruiker = $_SESSION['gebruiker'] ?? '';
-$isMaster = $ingelogd && !empty($_SESSION['is_master']);
+// De gebruikers en het logboek (laadGebruikers, schrijfGebruikers,
+// schrijfLog), de lockout bij mislukte inlogpogingen, het inlezen van
+// beheer-config.php en de afhandeling van in- en uitloggen staan in
+// auth.php. Op dit punt zijn $configOk, $ingelogd, $huidigeGebruiker,
+// $isMaster, $inlogFout en $melding/$meldingType dus al gevuld.
 
 // ===== Rechten per gebruiker =====
 // Alle beheer-onderdelen die je per gewone gebruiker aan/uit kan zetten.
@@ -2091,55 +1852,21 @@ $baanreglementGroepen = [
   'Artikel 10' => ['a10_title', 'a10_body'],
 ];
 
-// Het eigen gebruikersrecord opzoeken (voor de rechten hieronder). Alleen
-// nodig voor gewone gebruikers, de beheerder (master) mag toch altijd alles.
-$huidigeGebruikerRecord = null;
-if ($ingelogd && !$isMaster) {
-  foreach (laadGebruikers($usersBestand) as $g) {
-    if (isset($g['gebruikersnaam']) && strcasecmp($g['gebruikersnaam'], $huidigeGebruiker) === 0) {
-      $huidigeGebruikerRecord = $g;
-      break;
-    }
-  }
-}
-
-// Welke tabs mag deze sessie zien/opslaan? Master: alles. Gewone gebruiker
-// zonder 'tabs'-veld (nog nooit ingesteld via Gebruikers): ook alles, net als
-// voor deze functie bestond, zodat bestaande gebruikers niet ineens buiten
-// de deur staan. Pas als er via Gebruikers expliciet een selectie is
-// opgeslagen, geldt die beperking.
-if ($isMaster) {
-  $toegestaneTabs = array_keys($beheerTabsAlle);
-} elseif ($huidigeGebruikerRecord && isset($huidigeGebruikerRecord['tabs']) && is_array($huidigeGebruikerRecord['tabs'])) {
-  $toegestaneTabs = array_values(array_intersect(array_keys($beheerTabsAlle), $huidigeGebruikerRecord['tabs']));
-} else {
-  $toegestaneTabs = array_keys($beheerTabsAlle);
-}
-
-// ===== Rechten via de rol in de ledenadministratie =====
-// Eén categorie tabbladen loopt niet via de vinkjes in Gebruikers maar via
-// de rol bij het lid: het (nog te bouwen) tabblad Bestuursvergadering. Wie
-// in het tabblad Leden een bestuursfunctie heeft staan (voorzitter,
-// penningmeester, secretaris of bestuurslid) en daar aan deze inlognaam is
-// gekoppeld, krijgt het tabblad erbij. Wie die functie niet heeft, raakt
-// het ook weer kwijt als het per ongeluk via Gebruikers is aangevinkt: de
-// rol is hier leidend, niet de checkboxlijst.
+// ===== Rechten =====
+// Welke tabbladen mag deze sessie zien en opslaan? De regels zelf staan in
+// authRechten() in auth.php, zodat leden.php straks precies hetzelfde
+// rechtenmodel gebruikt. Kort: master mag alles, een gewone gebruiker mag
+// wat er bij Gebruikers is aangevinkt (of alles als daar nooit iets is
+// ingesteld), en de tabbladen in $beheerTabsViaRol lopen niet via die
+// vinkjes maar via de bestuursfunctie in de ledenadministratie.
 //
-// Zolang een tabblad nog niet in $beheerTabsAlle staat, doet dit blok
+// Zolang een tabblad nog niet in $beheerTabsAlle staat, doet dat laatste
 // niets voor dat tabblad. Voeg het daar toe en de toegang regelt zich hier.
-$eigenRol = ($ingelogd && !$isMaster)
-  ? ledenRolVanGebruiker($huidigeGebruiker)
-  : ['lid' => null, 'bestuurslid' => false, 'functie' => '', 'commissies' => []];
-$isBestuurslid = $isMaster || $eigenRol['bestuurslid'];
-foreach ($beheerTabsViaRol as $rolTab) {
-  if (!isset($beheerTabsAlle[$rolTab])) continue;
-  $heeftNu = in_array($rolTab, $toegestaneTabs, true);
-  if ($isBestuurslid && !$heeftNu) {
-    $toegestaneTabs[] = $rolTab;
-  } elseif (!$isBestuurslid && $heeftNu) {
-    $toegestaneTabs = array_values(array_diff($toegestaneTabs, [$rolTab]));
-  }
-}
+$rechten = authRechten($beheerTabsAlle, $beheerTabsViaRol);
+$huidigeGebruikerRecord = $rechten['gebruikerRecord'];
+$toegestaneTabs         = $rechten['toegestaneTabs'];
+$eigenRol               = $rechten['eigenRol'];
+$isBestuurslid          = $rechten['isBestuurslid'];
 
 // Welk formulier hoort bij welk tabblad, om save-acties ook serverside te
 // blokkeren voor een tabblad waar iemand geen toegang toe heeft. Dit is de
@@ -5621,29 +5348,7 @@ if ($isMaster && file_exists($logBestand)) {
 
   <?php elseif (!$ingelogd): ?>
 
-    <div class="kaart kaart-smal">
-      <h1>Inloggen</h1>
-      <p class="sub">RC045 beheer</p>
-
-      <?php if ($inlogFout !== ''): ?>
-        <div class="melding fout"><?php echo htmlspecialchars($inlogFout); ?></div>
-      <?php endif; ?>
-
-      <form method="post" action="beheer.php">
-        <input type="hidden" name="formulier" value="inloggen">
-        <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
-        <div class="veld">
-          <label for="login-gebruikersnaam">Gebruikersnaam</label>
-          <input type="text" id="login-gebruikersnaam" name="gebruikersnaam" autocomplete="username" autocapitalize="off">
-        </div>
-        <div class="veld">
-          <label for="login-wachtwoord">Wachtwoord</label>
-          <input type="password" id="login-wachtwoord" name="wachtwoord" autocomplete="current-password" required>
-        </div>
-        <button type="submit">Inloggen</button>
-        <p class="hint">Beheerderswachtwoord om gebruikers te beheren? Laat gebruikersnaam leeg.</p>
-      </form>
-    </div>
+    <?php authInlogFormulier('RC045 beheer'); ?>
 
   <?php else: ?>
 
