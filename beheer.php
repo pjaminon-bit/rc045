@@ -39,41 +39,6 @@ require_once __DIR__ . '/operationele-taken-opslag.php';
 require_once __DIR__ . '/evenementen-opslag.php';
 require_once __DIR__ . '/paneel-hulp.php';
 
-// Een ledenaccount hoort hier niet. Meteen afvangen, vóór de POST-
-// afhandeling verderop: anders zou zo'n account met een handmatig
-// opgebouwd formulier alsnog kunnen opslaan. Uitloggen is op dit punt al
-// door auth.php afgehandeld, dus dat blijft gewoon werken.
-if ($ingelogd && authIsLedenaccount()) {
-  header('Content-Type: text/html; charset=utf-8');
-  ?><!DOCTYPE html>
-<html lang="nl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beheer</title>
-  <style>
-    body { font-family: system-ui, sans-serif; background: #FAF6EC; color: #2A3818; margin: 0; padding: 48px 24px; }
-    .kaart { max-width: 460px; margin: 0 auto; background: #fff; border: 1px solid #DDD8C0; border-radius: 12px; padding: 28px; }
-    h1 { font-size: 22px; margin: 0 0 12px; }
-    p { line-height: 1.6; margin: 0 0 16px; }
-    a.knop, button { display: inline-block; background: #3A7A77; color: #fff; border: 0; border-radius: 8px; padding: 10px 18px; font: inherit; cursor: pointer; text-decoration: none; }
-  </style>
-</head>
-<body>
-  <div class="kaart">
-    <h1>Geen toegang tot het beheer</h1>
-    <p>Je bent ingelogd als lid. Het ledengedeelte vind je op <a href="leden.php">de ledenpagina</a>.</p>
-    <form method="post" action="beheer.php">
-      <input type="hidden" name="formulier" value="uitloggen">
-      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
-      <button type="submit">Uitloggen</button>
-    </form>
-  </div>
-</body>
-</html><?php
-  exit;
-}
-
 // De instellingen voor de lockout bij mislukte inlogpogingen en voor de
 // automatische back-up van databestanden ($dataBackupMap en de twee
 // bewaargrenzen, gebruikt door schrijfJson() en maakDataBackup()) staan in
@@ -1875,6 +1840,43 @@ $toegestaneTabs         = $rechten['toegestaneTabs'];
 $eigenRol               = $rechten['eigenRol'];
 $isBestuurslid          = $rechten['isBestuurslid'];
 
+// Wie hier geen enkel tabblad mag zien, hoort niet op deze pagina. Dat is
+// precies de situatie van een account dat alleen voor het ledengedeelte is
+// aangemaakt: geen enkel beheertabblad aangevinkt. Meteen afvangen, vóór de
+// POST-afhandeling verderop, anders zou zo'n account met een handmatig
+// opgebouwd formulier alsnog iets kunnen opslaan. Uitloggen is op dit punt
+// al door auth.php gedaan, dus dat blijft werken.
+if ($ingelogd && !$isMaster && empty($toegestaneTabs)) {
+  header('Content-Type: text/html; charset=utf-8');
+  ?><!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beheer</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #FAF6EC; color: #2A3818; margin: 0; padding: 48px 24px; }
+    .kaart { max-width: 460px; margin: 0 auto; background: #fff; border: 1px solid #DDD8C0; border-radius: 12px; padding: 28px; }
+    h1 { font-size: 22px; margin: 0 0 12px; }
+    p { line-height: 1.6; margin: 0 0 16px; }
+    button { background: #3A7A77; color: #fff; border: 0; border-radius: 8px; padding: 10px 18px; font: inherit; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="kaart">
+    <h1>Geen toegang tot het beheer</h1>
+    <p>Voor dit account staat geen enkel beheertabblad aan. Het ledengedeelte vind je op <a href="leden.php">de ledenpagina</a>.</p>
+    <form method="post" action="beheer.php">
+      <input type="hidden" name="formulier" value="uitloggen">
+      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+      <button type="submit">Uitloggen</button>
+    </form>
+  </div>
+</body>
+</html><?php
+  exit;
+}
+
 // Welk formulier hoort bij welk tabblad, om save-acties ook serverside te
 // blokkeren voor een tabblad waar iemand geen toegang toe heeft. Dit is de
 // echte beveiliging; het menu en de tabbladen hieronder verbergen dingen
@@ -2962,14 +2964,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     // het formulier) worden gewoon genegeerd.
     $gekozenTabs = array_values(array_intersect(array_keys($beheerTabsToewijsbaar), (array) ($_POST['tabs'] ?? [])));
 
-    // Beheeraccount of ledenaccount. Bij een ledenaccount gaan alle
-    // beheertabbladen eraf, wat het formulier ook meestuurt: zo'n account
-    // is alleen bedoeld voor leden.php. Onbekende waarde valt terug op
-    // beheeraccount, dat is het gedrag van voor deze keuze.
-    $accountSoorten = authAccountSoorten();
-    $nieuweSoort = isset($accountSoorten[$_POST['accountsoort'] ?? '']) ? $_POST['accountsoort'] : 'beheer';
-    if ($nieuweSoort === 'lid') $gekozenTabs = [];
-
     if ($nieuweNaam === '' || !preg_match('/^[a-zA-Z0-9._-]{2,30}$/', $nieuweNaam)) {
       $melding['gebruikers'] = 'Gebruikersnaam moet 2 tot 30 tekens zijn: letters, cijfers, punt, streepje of underscore.';
       $meldingType['gebruikers'] = 'fout';
@@ -2999,7 +2993,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       }
       unset($g);
       if (!$bestondAl) {
-        $gebruikers[] = ['gebruikersnaam' => $nieuweNaam, 'hash' => password_hash($nieuwWachtwoord, PASSWORD_DEFAULT), 'aangemaakt' => date('c'), 'soort' => $nieuweSoort, 'tabs' => $gekozenTabs];
+        $gebruikers[] = ['gebruikersnaam' => $nieuweNaam, 'hash' => password_hash($nieuwWachtwoord, PASSWORD_DEFAULT), 'aangemaakt' => date('c'), 'tabs' => $gekozenTabs];
       }
       if (schrijfGebruikers($usersBestand, $gebruikers)) {
         $melding['gebruikers'] = $bestondAl ? ('Wachtwoord van "' . $nieuweNaam . '" is bijgewerkt.') : ('Gebruiker "' . $nieuweNaam . '" is aangemaakt.');
@@ -3020,10 +3014,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $gevonden = false;
     foreach ($gebruikers as &$g) {
       if (isset($g['gebruikersnaam']) && strcasecmp($g['gebruikersnaam'], $doelNaam) === 0) {
-        // Een ledenaccount houdt altijd nul beheertabbladen, ook als er een
-        // formulier met vinkjes binnenkomt. Het formulier ervoor wordt niet
-        // eens getoond; dit is de controle aan de serverkant.
-        if (($g['soort'] ?? 'beheer') === 'lid') $gekozenTabs = [];
         $g['tabs'] = $gekozenTabs;
         $gevonden = true;
         break;
@@ -4592,7 +4582,7 @@ if ($isMaster && file_exists($logBestand)) {
     <!-- ===== GEBRUIKERS ===== -->
     <div class="kaart">
       <h1>Gebruikers</h1>
-      <p class="sub">Bestuursleden die kunnen inloggen om de website bij te werken.</p>
+      <p class="sub">Iedereen die kan inloggen. Zonder aangevinkte tabbladen komt iemand alleen op de ledenpagina; met vinkjes ook hier in het beheer. Koppel een account bij Leden aan het juiste lid, anders ziet die persoon op de ledenpagina niets persoonlijks.</p>
 
       <?php if (isset($melding['gebruikers'])): ?>
         <div class="melding <?php echo $meldingType['gebruikers']; ?>"><?php echo htmlspecialchars($melding['gebruikers']); ?></div>
@@ -4607,15 +4597,16 @@ if ($isMaster && file_exists($logBestand)) {
             // hier, net als bij het bepalen van de echte rechten hierboven,
             // volledige toegang: alle vinkjes staan dan aan.
             $gHeeftBeperking = isset($g['tabs']) && is_array($g['tabs']);
-            // Accounts van vóór de accountsoort hebben het veld niet en zijn
-            // beheeraccounts, want dat waren ze ook.
-            $gSoort = ($g['soort'] ?? 'beheer') === 'lid' ? 'lid' : 'beheer';
+            // Geen enkel tabblad aangevinkt betekent: alleen de ledenpagina,
+            // geen toegang tot dit beheerscherm. Accounts zonder 'tabs'-veld
+            // (van voor die instelling) mogen nog alles, zie authRechten().
+            $gAlleenLeden = $gHeeftBeperking && count($g['tabs']) === 0;
           ?>
           <div class="gebruiker-rij">
             <div class="gebruiker-rij-boven">
               <div>
                 <strong><?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?></strong>
-                <span class="gebruiker-sinds"><?php echo $gSoort === 'lid' ? 'ledenaccount' : 'beheeraccount'; ?></span>
+                <span class="gebruiker-sinds"><?php echo $gAlleenLeden ? 'alleen ledenpagina' : 'ook beheer'; ?></span>
                 <?php if (!empty($g['aangemaakt'])): ?>
                   <span class="gebruiker-sinds">sinds <?php echo htmlspecialchars(date('d-m-Y', strtotime($g['aangemaakt']))); ?></span>
                 <?php endif; ?>
@@ -4627,9 +4618,6 @@ if ($isMaster && file_exists($logBestand)) {
                 <button type="submit" class="knop-klein">Verwijderen</button>
               </form>
             </div>
-            <?php if ($gSoort === 'lid'): ?>
-              <p class="hint">Ledenaccount: geen toegang tot dit beheerscherm. Koppel het account bij Leden aan het juiste lid.</p>
-            <?php else: ?>
             <form method="post" action="beheer.php#gebruikers" class="gebruiker-tabs-form">
               <input type="hidden" name="formulier" value="gebruiker_tabs_bijwerken">
               <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
@@ -4660,7 +4648,6 @@ if ($isMaster && file_exists($logBestand)) {
               </div>
               <button type="submit" class="knop-klein">Toegang opslaan</button>
             </form>
-            <?php endif; ?>
           </div>
         <?php endforeach; ?>
       <?php endif; ?>
@@ -4685,25 +4672,11 @@ if ($isMaster && file_exists($logBestand)) {
           <label for="nieuw-wachtwoord-herhaald">Wachtwoord herhalen</label>
           <input type="password" id="nieuw-wachtwoord-herhaald" name="nieuw_wachtwoord_herhaald" autocomplete="new-password" required>
         </div>
-        <div class="veld">
-          <label>Soort account</label>
-          <div class="leden-vinkgroep">
-            <label class="leden-vink">
-              <input type="radio" name="accountsoort" value="beheer" checked data-accountsoort>
-              <span>Beheeraccount, voor de website</span>
-            </label>
-            <label class="leden-vink">
-              <input type="radio" name="accountsoort" value="lid" data-accountsoort>
-              <span>Ledenaccount, alleen voor het ledengedeelte</span>
-            </label>
-          </div>
-          <p class="hint">Een ledenaccount komt niet in dit beheerscherm en krijgt geen enkel tabblad hieronder, ook niet als er vinkjes aanstaan. Koppel het account daarna bij Leden aan het juiste lid, anders ziet die persoon niets.</p>
-        </div>
         <div class="veld" id="nieuwe-gebruiker-tabs">
           <label id="nieuwe-gebruiker-tabs-label">Toegang tot</label>
           <div class="multiselect">
             <button type="button" class="multiselect-trigger" aria-expanded="false" aria-labelledby="nieuwe-gebruiker-tabs-label">
-              <span class="multiselect-label">Alles</span>
+              <span class="multiselect-label">Niets geselecteerd</span>
               <span class="multiselect-pijl" aria-hidden="true">▾</span>
             </button>
             <div class="multiselect-paneel" hidden>
@@ -4711,7 +4684,7 @@ if ($isMaster && file_exists($logBestand)) {
               <div class="multiselect-opties">
                 <?php foreach ($beheerTabsToewijsbaar as $tabSleutel => $tabLabel): ?>
                   <label class="multiselect-optie">
-                    <input type="checkbox" name="tabs[]" value="<?php echo $tabSleutel; ?>" checked>
+                    <input type="checkbox" name="tabs[]" value="<?php echo $tabSleutel; ?>">
                     <span><?php echo htmlspecialchars($tabLabel); ?></span>
                   </label>
                 <?php endforeach; ?>
@@ -4722,26 +4695,10 @@ if ($isMaster && file_exists($logBestand)) {
               </div>
             </div>
           </div>
-          <p class="hint">Standaard staat alles aan. Geldt alleen bij het aanmaken van een nieuwe gebruiker; bij een bestaande gebruikersnaam (wachtwoord-reset) blijft de huidige toegang ongewijzigd, pas die hierboven per gebruiker aan.</p>
+          <p class="hint">Standaard staat alles uit: dan kan deze persoon alleen op de ledenpagina, niet in dit beheerscherm. Vink aan waar hij of zij wél bij mag. Achteraf aanpassen kan altijd, hierboven in de lijst. Geldt alleen bij het aanmaken; bij een bestaande gebruikersnaam wordt hier alleen het wachtwoord bijgewerkt en blijft de toegang zoals hij was.</p>
         </div>
         <button type="submit">Gebruiker opslaan</button>
       </form>
-      <script>
-        // Bij een ledenaccount is de tabbladenkeuze niet van toepassing:
-        // verbergen scheelt verwarring. De server negeert de vinkjes in dat
-        // geval sowieso, dit is alleen de schil eromheen.
-        (function () {
-          var blok = document.getElementById('nieuwe-gebruiker-tabs');
-          var keuzes = document.querySelectorAll('[data-accountsoort]');
-          if (!blok || !keuzes.length) return;
-          function bijwerken() {
-            var lid = document.querySelector('[data-accountsoort]:checked');
-            blok.hidden = !!(lid && lid.value === 'lid');
-          }
-          keuzes.forEach(function (k) { k.addEventListener('change', bijwerken); });
-          bijwerken();
-        })();
-      </script>
     </div>
     </div>
 
