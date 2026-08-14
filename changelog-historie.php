@@ -25,6 +25,25 @@ return [
 
   [
     'datum' => '2026-08-14',
+    'cat' => 'verbeterd',
+    'titel' => 'Gebruikers, Log en Back-ups zijn nu ook een vinkje',
+    'tekst' => 'Die drie waren alleen bereikbaar door met het beheerderswachtwoord in te loggen. Nu zijn het gewone rechten die je per gebruiker aan kunt zetten, net als de andere tabbladen. Let op wat je met Gebruikers weggeeft: wie dat heeft, kan zichzelf en anderen alles geven en wachtwoorden opnieuw instellen. Bestaande accounts krijgen ze niet vanzelf.',
+  ],
+  [
+    'datum' => '2026-08-14',
+    'cat' => 'verbeterd',
+    'titel' => 'Een lid aan een inlogaccount koppelen kan nu iedereen die de ledenadministratie bijhoudt',
+    'tekst' => 'Dat kon alleen met het beheerderswachtwoord, waardoor iemand met alle rechten toch geen account aan een lid kon hangen.',
+  ],
+  [
+    'datum' => '2026-08-14',
+    'cat' => 'beveiliging',
+    'titel' => 'Twee mensen die tegelijk opslaan overschrijven elkaar niet meer',
+    'tekst' => 'Alle gegevens worden gelezen, aangepast en in hun geheel teruggeschreven. Zonder slot leest de tweede nog de oude versie en schrijft daar overheen. Het beheer, de ledenpagina, het inschrijven op een evenement en het aanmeldformulier gebruiken nu allemaal hetzelfde slot. Vooral het aanmeldformulier was gevoelig: dat wordt op willekeurige momenten van buitenaf aangeroepen.',
+  ],
+
+  [
+    'datum' => '2026-08-14',
     'cat' => 'nieuw',
     'titel' => 'Ledenpagina op rc045.nl/leden',
     'tekst' => 'Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV\'s, en de evenementen waarvoor ze zich kunnen inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.',
