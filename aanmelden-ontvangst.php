@@ -97,6 +97,13 @@ if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
   antwoord(400, 'Dat mailadres ziet er niet geldig uit.');
 }
 
+// Vanaf hier wordt het ledenbestand gelezen, aangevuld en teruggeschreven.
+// Dat moet als geheel onder het slot: anders kan een aanmelding die
+// binnenkomt terwijl het bestuur net een lid opslaat, of terwijl er een
+// tweede aanmelding binnenkomt, het werk van de ander overschrijven. Het
+// slot valt vanzelf weg als dit script eindigt, ook via antwoord().
+$slot = dataSlotOpen();
+
 $data = ledenLees();
 
 // ===== Dubbele inzending =====
@@ -147,7 +154,10 @@ $lid = ledenZetContributie($lid, (int) date('Y'), $contributieRegel);
 $data['leden'][] = $lid;
 $data['volgnummer'] = $lid['nummer'];
 
-if (!ledenSchrijf($data)) {
+$opgeslagen = ledenSchrijf($data);
+dataSlotDicht($slot);
+
+if (!$opgeslagen) {
   antwoord(500, 'Opslaan mislukt.');
 }
 
