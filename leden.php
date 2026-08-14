@@ -184,9 +184,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       // niet mee. Altijd een array meegeven, anders zou het weghalen van
       // het laatste vinkje niets doen en zou de oude waarde blijven staan.
       $invoer['commissies'] = (isset($_POST['commissies']) && is_array($_POST['commissies'])) ? $_POST['commissies'] : [];
-      // De koppeling met een inlogaccount is alleen voor de beheerder.
-      // Voor iedereen anders blijft de bestaande waarde ongemoeid.
-      if ($isMaster) $invoer['beheer_account'] = trim((string) ($_POST['beheer_account'] ?? ''));
+      // De koppeling met een inlogaccount hoort bij het lid, dus wie dit
+      // tabblad mag bewerken mag hem ook zetten. Dat was eerst alleen de
+      // beheerder, wat betekende dat iemand met alle rechten toch geen
+      // account aan een lid kon hangen.
+      $invoer['beheer_account'] = trim((string) ($_POST['beheer_account'] ?? ''));
 
       $bestaand = $index === null ? null : $ledenData['leden'][$index];
       $lid = ledenNormaliseer($invoer, $bestaand);
@@ -1140,7 +1142,7 @@ $tabelSenior = rekentabelProRata((float) $rekentabelData['senior_jaarbedrag']);
 
 // De inlogaccounts, om een lid aan een account te kunnen koppelen. Zelfde
 // beperking als in beheer.php: alleen de beheerder ziet de lijst.
-$gebruikersLijst = $isMaster ? laadGebruikers($usersBestand) : [];
+$gebruikersLijst = in_array('leden', $toegestaneTabs, true) ? laadGebruikers($usersBestand) : [];
 
 // ===== Ledenadministratie =====
 // Het ledenbestand staat buiten data/ omdat het persoonsgegevens bevat;
@@ -1964,8 +1966,7 @@ $documentStatusLabels = vergaderingDocumentStatussen();
           </div>
         </div>
 
-        <?php if ($isMaster): ?>
-          <div class="veld">
+        <div class="veld">
             <label for="lid-beheer-account">Gekoppeld inlogaccount</label>
             <?php $lidAccount = trim((string) ($ledenBewerkLid['beheer_account'] ?? '')); ?>
             <?php
@@ -1984,11 +1985,8 @@ $documentStatusLabels = vergaderingDocumentStatussen();
                 <option value="<?php echo htmlspecialchars($accountNaam); ?>"<?php echo $lidAccount === $accountNaam ? ' selected' : ''; ?>><?php echo htmlspecialchars($accountNaam); ?></option>
               <?php endforeach; ?>
             </select>
-            <p class="hint">Hiermee weet de beheerpagina welk lid er achter een inlognaam zit, zodat de rol hierboven toegang kan geven. Dit veld zie en wijzig je alleen als beheerder: anders zou iedereen met toegang tot dit tabblad zichzelf tot bestuurslid kunnen benoemen.</p>
+            <p class="hint">Hiermee weet de ledenpagina welk lid er achter een inlognaam zit, zodat de bestuursfunctie hierboven de bijbehorende tabbladen kan geven. Maak het account eerst aan bij Gebruikers in het beheer.</p>
           </div>
-        <?php elseif (trim((string) ($ledenBewerkLid['beheer_account'] ?? '')) !== ''): ?>
-          <p class="hint">Gekoppeld aan inlognaam <?php echo htmlspecialchars($ledenBewerkLid['beheer_account']); ?>. Alleen de beheerder kan die koppeling aanpassen.</p>
-        <?php endif; ?>
 
         <div class="veld">
           <label>In de WhatsAppgroep</label>
