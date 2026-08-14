@@ -312,26 +312,10 @@ $ingelogd = $configOk && isset($_SESSION['gebruiker']);
 $huidigeGebruiker = $_SESSION['gebruiker'] ?? '';
 $isMaster = $ingelogd && !empty($_SESSION['is_master']);
 
-// ===== Accountsoort =====
-// Een account is er voor het beheer van de website, of voor een lid dat
-// alleen in het ledengedeelte hoort te komen. Het onderscheid staat als
-// 'soort' bij de gebruiker. Accounts van vóór dit veld hebben het niet en
-// gelden als beheeraccount, want dat waren ze ook.
-//
-// Dit is bewust geen vinkjeskwestie: in het formulier "nieuwe gebruiker"
-// staan alle beheertabbladen standaard aan, dus zonder deze scheiding zou
-// een ledenaccount dat het bestuur even snel aanmaakt de hele website
-// kunnen bewerken en de ledenadministratie kunnen inzien.
-function authAccountSoorten() {
-  return [
-    'beheer' => 'Beheeraccount',
-    'lid'    => 'Ledenaccount',
-  ];
-}
-
-// Het gebruikersrecord van de ingelogde persoon, of null (voor de master en
-// voor niet-ingelogd). Onthouden na de eerste keer: zowel de rechten als de
-// accountsoort hebben het nodig en het staat in een JSON-bestand.
+// ===== Het gebruikersrecord =====
+// Onthouden na de eerste keer: zowel de rechten als de pagina's zelf hebben
+// het nodig en het staat in een JSON-bestand. Geeft null voor de master
+// (ingelogd met het beheerderswachtwoord) en voor niet-ingelogd.
 function authGebruikerRecord() {
   static $record = false;
   global $ingelogd, $isMaster, $huidigeGebruiker, $usersBestand;
@@ -347,20 +331,6 @@ function authGebruikerRecord() {
     }
   }
   return $record;
-}
-
-// 'beheer' of 'lid'. De master (ingelogd met het beheerderswachtwoord) is
-// altijd beheer.
-function authAccountSoort() {
-  global $isMaster;
-  if ($isMaster) return 'beheer';
-  $record = authGebruikerRecord();
-  $soort = $record['soort'] ?? 'beheer';
-  return isset(authAccountSoorten()[$soort]) ? $soort : 'beheer';
-}
-
-function authIsLedenaccount() {
-  return authAccountSoort() === 'lid';
 }
 
 // ===== Rechten =====
