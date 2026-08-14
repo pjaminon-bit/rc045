@@ -36,7 +36,6 @@ require_once __DIR__ . '/evenementen-opslag.php';
 require_once __DIR__ . '/paneel-hulp.php';
 
 $dataMap = __DIR__ . '/data';
-$lockBestand = $dataMap . '/.beheer.lock';
 $rekentabelBestand = $dataMap . '/rekentabel.json';
 
 // ===== Wie is dit? =====
@@ -133,13 +132,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $formulier = '';
   }
 
-  // Eén lock over het hele opslaan-blok, van inlezen tot wegschrijven. Zelfde
-  // lockbestand als beheer.php gebruikt, zodat twee bestuursleden die op de
-  // twee pagina's tegelijk iets opslaan elkaar niet kunnen overschrijven.
-  // Lukt het openen niet (zeldzaam), dan gaat het opslaan gewoon door zonder
-  // lock in plaats van helemaal te mislukken.
-  $lockHandle = @fopen($lockBestand, 'c');
-  if ($lockHandle) flock($lockHandle, LOCK_EX);
+  // Eén slot over het hele opslaan-blok, van inlezen tot wegschrijven. Zie
+  // data-slot.php: hetzelfde slot dat beheer.php, het aanmeldformulier en
+  // het inschrijven op een evenement gebruiken, zodat die vier elkaar nooit
+  // kunnen overschrijven.
+  $lockHandle = dataSlotOpen();
 
   // Herkent een POST die door PHP zelf al is afgewezen omdat het geheel
   // groter was dan post_max_size: $_POST en $_FILES komen dan allebei leeg
@@ -247,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         if (ledenSchrijf($ledenData)) {
           schrijfLog($logBestand, $huidigeGebruiker, 'leden', $actie . ': ' . ledenVolledigeNaam($lid) . ' (nr ' . $lid['nummer'] . ')');
           $_SESSION['flash']['leden'] = ['tekst' => 'Lid ' . $actie . ': ' . ledenVolledigeNaam($lid) . '.', 'type' => 'ok'];
-          if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+          dataSlotDicht($lockHandle);
           header('Location: leden.php#leden');
           exit;
         }
@@ -281,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $naamVoorLog = $naam !== '' ? $naam : 'lid zonder naam (nr ' . $nummer . ')';
         schrijfLog($logBestand, $huidigeGebruiker, 'leden', 'verwijderd: ' . $naamVoorLog);
         $_SESSION['flash']['leden'] = ['tekst' => 'Lid verwijderd: ' . $naamVoorLog . '. Terugzetten kan via een back-up.', 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        dataSlotDicht($lockHandle);
         header('Location: leden.php#leden');
         exit;
       }
@@ -307,7 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         if (ledenSchrijf($ledenData)) {
           schrijfLog($logBestand, $huidigeGebruiker, 'leden', 'status ' . ledenVolledigeNaam($l) . ' -> ' . $statussen[$nieuw]);
           $_SESSION['flash']['leden'] = ['tekst' => ledenVolledigeNaam($l) . ' staat nu op "' . $statussen[$nieuw] . '".', 'type' => 'ok'];
-          if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+          dataSlotDicht($lockHandle);
           header('Location: leden.php#leden');
           exit;
         }
@@ -344,7 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (count($namen) > 0 && ledenSchrijf($ledenData)) {
         schrijfLog($logBestand, $huidigeGebruiker, 'leden', count($namen) . ' leden -> ' . $statussen[$nieuw] . ': ' . implode(', ', $namen));
         $_SESSION['flash']['leden'] = ['tekst' => count($namen) . ' leden staan nu op "' . $statussen[$nieuw] . '".', 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        dataSlotDicht($lockHandle);
         header('Location: leden.php#leden');
         exit;
       }
@@ -423,7 +420,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (count($verwijderd) > 0) $samenvatting[] = 'verwijderd: ' . implode(', ', $verwijderd);
       schrijfLog($logBestand, $huidigeGebruiker, 'commissies', 'commissies bijgewerkt' . (count($samenvatting) > 0 ? ' (' . implode('; ', $samenvatting) . ')' : ''));
       $_SESSION['flash']['commissies'] = ['tekst' => 'Commissies opgeslagen.', 'type' => 'ok'];
-      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      dataSlotDicht($lockHandle);
       header('Location: leden.php#commissies');
       exit;
     }
@@ -477,7 +474,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (vergaderingenSchrijf($vergaderingenData)) {
         schrijfLog($logBestand, $huidigeGebruiker, 'bestuursvergadering', $actie . ': ' . vergaderingWeergavenaam($vergadering));
         $_SESSION['flash']['bestuursvergadering'] = ['tekst' => 'Vergadering ' . $actie . ': ' . vergaderingWeergavenaam($vergadering) . '.', 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        dataSlotDicht($lockHandle);
         header('Location: leden.php#bestuursvergadering');
         exit;
       }
@@ -504,7 +501,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } elseif (vergaderingenSchrijf($vergaderingenData)) {
       schrijfLog($logBestand, $huidigeGebruiker, 'bestuursvergadering', 'verwijderd: ' . $naam);
       $_SESSION['flash']['bestuursvergadering'] = ['tekst' => 'Vergadering verwijderd. De vorige versie staat in de back-ups.', 'type' => 'ok'];
-      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      dataSlotDicht($lockHandle);
       header('Location: leden.php#bestuursvergadering');
       exit;
     } else {
@@ -563,7 +560,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (vergaderingenSchrijf($vergaderingenData)) {
         schrijfLog($logBestand, $huidigeGebruiker, 'ledenvergadering', $actie . ': ' . vergaderingWeergavenaam($vergadering));
         $_SESSION['flash']['ledenvergadering'] = ['tekst' => vergaderingWeergavenaam($vergadering) . ' ' . $actie . '.', 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        dataSlotDicht($lockHandle);
         header('Location: leden.php#ledenvergadering');
         exit;
       }
@@ -591,7 +588,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } elseif (vergaderingenSchrijf($vergaderingenData)) {
       schrijfLog($logBestand, $huidigeGebruiker, 'ledenvergadering', 'verwijderd: ' . $naam);
       $_SESSION['flash']['ledenvergadering'] = ['tekst' => 'Vergadering verwijderd. De vorige versie staat in de back-ups.', 'type' => 'ok'];
-      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      dataSlotDicht($lockHandle);
       header('Location: leden.php#ledenvergadering');
       exit;
     } else {
@@ -677,7 +674,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (takenSchrijf($takenData)) {
         schrijfLog($logBestand, $huidigeGebruiker, 'takenlijst', $actie . ': ' . taakWeergavenaam($taak));
         $_SESSION['flash']['takenlijst'] = ['tekst' => 'Taak ' . $actie . ': ' . taakWeergavenaam($taak) . '.', 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        dataSlotDicht($lockHandle);
         header('Location: leden.php#takenlijst');
         exit;
       }
@@ -704,7 +701,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } elseif (takenSchrijf($takenData)) {
       schrijfLog($logBestand, $huidigeGebruiker, 'takenlijst', 'verwijderd: ' . $naam);
       $_SESSION['flash']['takenlijst'] = ['tekst' => 'Taak verwijderd. De vorige versie staat in de back-ups.', 'type' => 'ok'];
-      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      dataSlotDicht($lockHandle);
       header('Location: leden.php#takenlijst');
       exit;
     } else {
@@ -784,7 +781,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (otakenSchrijf($otakenData)) {
         schrijfLog($logBestand, $huidigeGebruiker, 'operationele_taken', $actie . ': ' . otaakWeergavenaam($otaak));
         $_SESSION['flash']['operationele_taken'] = ['tekst' => 'Taak ' . $actie . ': ' . otaakWeergavenaam($otaak) . '.', 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        dataSlotDicht($lockHandle);
         header('Location: leden.php#operationele_taken');
         exit;
       }
@@ -813,7 +810,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } elseif (otakenSchrijf($otakenData)) {
       schrijfLog($logBestand, $huidigeGebruiker, 'operationele_taken', 'verwijderd: ' . $naam);
       $_SESSION['flash']['operationele_taken'] = ['tekst' => 'Taak verwijderd. De vorige versie staat in de back-ups.', 'type' => 'ok'];
-      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      dataSlotDicht($lockHandle);
       header('Location: leden.php#operationele_taken');
       exit;
     } else {
@@ -838,7 +835,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (otakenSchrijf($otakenData)) {
         schrijfLog($logBestand, $huidigeGebruiker, 'operationele_taken', 'uitgevoerd gemeld: ' . $naam);
         $_SESSION['flash']['operationele_taken'] = ['tekst' => 'Taak afgemeld: ' . $naam . '.', 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        dataSlotDicht($lockHandle);
         header('Location: leden.php#operationele_taken');
         exit;
       }
@@ -931,7 +928,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       if (evenementenSchrijf($evenementenData)) {
         schrijfLog($logBestand, $huidigeGebruiker, 'evenementen', $actie . ': ' . evenementWeergavenaam($evenement));
         $_SESSION['flash']['evenementen'] = ['tekst' => 'Evenement ' . $actie . ': ' . evenementWeergavenaam($evenement) . '.', 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        dataSlotDicht($lockHandle);
         header('Location: leden.php#evenementen');
         exit;
       }
@@ -962,7 +959,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } elseif (evenementenSchrijf($evenementenData)) {
       schrijfLog($logBestand, $huidigeGebruiker, 'evenementen', 'verwijderd: ' . $naam);
       $_SESSION['flash']['evenementen'] = ['tekst' => 'Evenement verwijderd. De vorige versie staat in de back-ups.', 'type' => 'ok'];
-      if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+      dataSlotDicht($lockHandle);
       header('Location: leden.php#evenementen');
       exit;
     } else {
@@ -1036,7 +1033,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     fclose($uit);
 
     schrijfLog($logBestand, $huidigeGebruiker, 'leden', 'export van ' . count($ledenData['leden']) . ' leden');
-    if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+    dataSlotDicht($lockHandle);
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="rc045-leden-' . date('Ymd') . '.csv"');
     echo "\xEF\xBB\xBF" . $csv;
@@ -1109,7 +1106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         unset($_SESSION['leden_import']);
         schrijfLog($logBestand, $huidigeGebruiker, 'leden', "import: $nieuw nieuw, $bijgewerkt bijgewerkt");
         $_SESSION['flash']['leden'] = ['tekst' => "Import klaar: $nieuw nieuwe leden, $bijgewerkt bijgewerkt. De vorige versie staat in de back-ups.", 'type' => 'ok'];
-        if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+        dataSlotDicht($lockHandle);
         header('Location: leden.php#leden');
         exit;
       }
@@ -1125,7 +1122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
 
   }
 
-  if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+  dataSlotDicht($lockHandle);
 }
 
 // ===== Gegevens klaarzetten =====
