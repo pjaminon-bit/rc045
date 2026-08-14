@@ -60,6 +60,33 @@ function vergaderingenSoorten() {
   ];
 }
 
+// Status van de agenda en van de notulen, los van de status van de
+// vergadering zelf. Alleen van toepassing bij soort 'leden': leden zien de
+// agenda altijd, met dit label erbij zodat duidelijk is of er nog aan
+// gesleuteld wordt, maar de notulen pas als die op definitief staan.
+function vergaderingDocumentStatussen() {
+  return [
+    'concept'    => 'Concept',
+    'definitief' => 'Definitief',
+  ];
+}
+
+// Mag een gewoon lid de agenda van deze vergadering zien? Elke
+// ledenvergadering met agendapunten, ook als de agenda nog concept is.
+function vergaderingAgendaZichtbaarVoorLeden($v) {
+  return (($v['soort'] ?? 'bestuur') === 'leden') && !empty($v['agenda']);
+}
+
+// Mag een gewoon lid de notulen zien? Alleen als ze er zijn en op definitief
+// staan. Vergaderingen van vóór dit veld hebben geen notulen_status en
+// tellen daarom als concept: liever een keer te weinig getoond dan een half
+// getypt verslag rondgestuurd.
+function vergaderingNotulenZichtbaarVoorLeden($v) {
+  if (($v['soort'] ?? 'bestuur') !== 'leden') return false;
+  if (trim((string) ($v['notulen'] ?? '')) === '') return false;
+  return ($v['notulen_status'] ?? 'concept') === 'definitief';
+}
+
 // Alleen van toepassing als soort 'leden' is. Een ALV is qua opzet gewoon
 // een ledenvergadering, alleen met dit label erbij zodat 'm apart terug te
 // vinden is (bijvoorbeeld bij een taak die "besproken in de ALV" moet
@@ -269,6 +296,23 @@ function vergaderingNormaliseer($invoer, $bestaand = null) {
     }
   } else {
     $v['ledenvergadering_type'] = '';
+  }
+
+  // Agenda- en notulenstatus: bepalen wat leden op leden.php te zien
+  // krijgen. Alleen bij een ledenvergadering; bij een bestuursvergadering
+  // blijven ze leeg, die stukken zijn sowieso niet voor leden.
+  $docStatussen = vergaderingDocumentStatussen();
+  if ($v['soort'] === 'leden') {
+    foreach (['agenda_status', 'notulen_status'] as $veld) {
+      if (array_key_exists($veld, $invoer) && isset($docStatussen[$invoer[$veld]])) {
+        $v[$veld] = $invoer[$veld];
+      } elseif (!isset($v[$veld]) || !isset($docStatussen[$v[$veld]])) {
+        $v[$veld] = 'concept';
+      }
+    }
+  } else {
+    $v['agenda_status'] = '';
+    $v['notulen_status'] = '';
   }
 
   if (array_key_exists('notulen', $invoer)) {
