@@ -159,6 +159,111 @@ function evenementIsVol($e) {
   return evenementAantalDeelnemers($e) >= $capaciteit;
 }
 
+// Staat de inschrijving op dit moment open? Los van vol of niet, dat is een
+// aparte vraag. Geen einddatum ingevuld betekent: open tot het evenement
+// geweest is.
+function evenementInschrijvingOpen($e) {
+  if (!evenementZichtbaarVoorLeden($e)) return false;
+  if (evenementStatus($e) !== 'aankomend') return false;
+  $eind = trim((string) ($e['inschrijving_eind'] ?? ''));
+  if ($eind !== '' && $eind < date('Y-m-d')) return false;
+  return true;
+}
+
+// Is dit lid ingeschreven?
+function evenementHeeftDeelnemer($e, $lidId) {
+  $lidId = trim((string) $lidId);
+  if ($lidId === '') return false;
+  return in_array($lidId, is_array($e['deelnemers'] ?? null) ? $e['deelnemers'] : [], true);
+}
+
+// ===== Zelf in- en uitschrijven =====
+// Eén lid aan- of afmelden voor één evenement, gebruikt door leden.php.
+//
+// Waarom dit hier staat en niet in de pagina: lezen, wijzigen en
+// terugschrijven moet als geheel afgeschermd zijn. LOCK_EX op
+// file_put_contents() beschermt alleen het schrijven zelf, dus als twee
+// leden tegelijk op "inschrijven" drukken, leest de tweede het bestand nog
+// zonder de eerste erin en schrijft die er daarna overheen. Bij het bestuur
+// dat af en toe iets opslaat valt dat nooit op, bij zestig leden die zich
+// op dezelfde clubdag inschrijven wel. Vandaar een echte lock om de hele
+// cyclus. Het lockbestand staat in data-backups/, dat is server-only.
+//
+// Geeft true bij succes. Bij false staat in $fout een uitlegbare reden.
+function evenementDeelnameWijzigen($evenementId, $lidId, $aanmelden, &$fout = null) {
+  $fout = '';
+  $evenementId = trim((string) $evenementId);
+  $lidId = trim((string) $lidId);
+  if ($evenementId === '' || $lidId === '') {
+    $fout = 'Onbekend evenement of lid.';
+    return false;
+  }
+
+  $map = ledenBackupMap();
+  if (!is_dir($map) && !@mkdir($map, 0755, true)) {
+    $fout = 'Kan de opslag niet benaderen.';
+    return false;
+  }
+  $lock = @fopen($map . '/.evenementen.lock', 'c');
+  if ($lock === false || !flock($lock, LOCK_EX)) {
+    if ($lock !== false) fclose($lock);
+    $fout = 'Even te druk, probeer het zo nog eens.';
+    return false;
+  }
+
+  try {
+    $data = evenementenLees();
+    $index = null;
+    foreach ($data['evenementen'] as $i => $e) {
+      if (($e['id'] ?? '') === $evenementId) { $index = $i; break; }
+    }
+    if ($index === null) {
+      $fout = 'Dit evenement bestaat niet meer.';
+      return false;
+    }
+
+    $e = $data['evenementen'][$index];
+    if (!evenementZichtbaarVoorLeden($e)) {
+      $fout = 'Dit evenement is niet voor jou beschikbaar.';
+      return false;
+    }
+    if (!evenementInschrijvingOpen($e)) {
+      $fout = 'De inschrijving voor dit evenement is gesloten.';
+      return false;
+    }
+
+    $stondIngeschreven = evenementHeeftDeelnemer($e, $lidId);
+    if ($aanmelden && $stondIngeschreven) return true;  // al goed, niets te doen
+    if (!$aanmelden && !$stondIngeschreven) return true;
+
+    if ($aanmelden) {
+      // Pas hier controleren, met het bestand onder de lock: tussen het
+      // tonen van de pagina en deze klik kan de laatste plek weg zijn.
+      if (evenementIsVol($e)) {
+        $fout = 'Dit evenement zit vol.';
+        return false;
+      }
+      $e['deelnemers'][] = $lidId;
+    } else {
+      $e['deelnemers'] = array_values(array_filter(
+        is_array($e['deelnemers'] ?? null) ? $e['deelnemers'] : [],
+        function ($id) use ($lidId) { return $id !== $lidId; }
+      ));
+    }
+    $e['gewijzigd'] = date('c');
+    $data['evenementen'][$index] = $e;
+
+    if (!evenementenSchrijf($data)) {
+      $fout = 'Opslaan mislukt. Probeer het nog eens.';
+      return false;
+    }
+    return true;
+  } finally {
+    flock($lock, LOCK_UN);
+    fclose($lock);
+  }
+}
+
 // Aankomend boven geweest, daarbinnen aankomend op dichtstbijzijnde datum
 // eerst en geweest op meest recente datum eerst. Evenementen zonder datum
 // (nog te plannen) staan bovenaan bij aankomend.
