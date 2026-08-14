@@ -38,6 +38,41 @@ require_once __DIR__ . '/taken-opslag.php';
 require_once __DIR__ . '/operationele-taken-opslag.php';
 require_once __DIR__ . '/evenementen-opslag.php';
 
+// Een ledenaccount hoort hier niet. Meteen afvangen, vóór de POST-
+// afhandeling verderop: anders zou zo'n account met een handmatig
+// opgebouwd formulier alsnog kunnen opslaan. Uitloggen is op dit punt al
+// door auth.php afgehandeld, dus dat blijft gewoon werken.
+if ($ingelogd && authIsLedenaccount()) {
+  header('Content-Type: text/html; charset=utf-8');
+  ?><!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beheer</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #FAF6EC; color: #2A3818; margin: 0; padding: 48px 24px; }
+    .kaart { max-width: 460px; margin: 0 auto; background: #fff; border: 1px solid #DDD8C0; border-radius: 12px; padding: 28px; }
+    h1 { font-size: 22px; margin: 0 0 12px; }
+    p { line-height: 1.6; margin: 0 0 16px; }
+    a.knop, button { display: inline-block; background: #3A7A77; color: #fff; border: 0; border-radius: 8px; padding: 10px 18px; font: inherit; cursor: pointer; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="kaart">
+    <h1>Geen toegang tot het beheer</h1>
+    <p>Je bent ingelogd als lid. Het ledengedeelte vind je op <a href="leden.php">de ledenpagina</a>.</p>
+    <form method="post" action="beheer.php">
+      <input type="hidden" name="formulier" value="uitloggen">
+      <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
+      <button type="submit">Uitloggen</button>
+    </form>
+  </div>
+</body>
+</html><?php
+  exit;
+}
+
 // De instellingen voor de lockout bij mislukte inlogpogingen en voor de
 // automatische back-up van databestanden ($dataBackupMap en de twee
 // bewaargrenzen, gebruikt door schrijfJson() en maakDataBackup()) staan in
@@ -2971,6 +3006,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     // het formulier) worden gewoon genegeerd.
     $gekozenTabs = array_values(array_intersect(array_keys($beheerTabsToewijsbaar), (array) ($_POST['tabs'] ?? [])));
 
+    // Beheeraccount of ledenaccount. Bij een ledenaccount gaan alle
+    // beheertabbladen eraf, wat het formulier ook meestuurt: zo'n account
+    // is alleen bedoeld voor leden.php. Onbekende waarde valt terug op
+    // beheeraccount, dat is het gedrag van voor deze keuze.
+    $accountSoorten = authAccountSoorten();
+    $nieuweSoort = isset($accountSoorten[$_POST['accountsoort'] ?? '']) ? $_POST['accountsoort'] : 'beheer';
+    if ($nieuweSoort === 'lid') $gekozenTabs = [];
+
     if ($nieuweNaam === '' || !preg_match('/^[a-zA-Z0-9._-]{2,30}$/', $nieuweNaam)) {
       $melding['gebruikers'] = 'Gebruikersnaam moet 2 tot 30 tekens zijn: letters, cijfers, punt, streepje of underscore.';
       $meldingType['gebruikers'] = 'fout';
@@ -3000,7 +3043,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       }
       unset($g);
       if (!$bestondAl) {
-        $gebruikers[] = ['gebruikersnaam' => $nieuweNaam, 'hash' => password_hash($nieuwWachtwoord, PASSWORD_DEFAULT), 'aangemaakt' => date('c'), 'tabs' => $gekozenTabs];
+        $gebruikers[] = ['gebruikersnaam' => $nieuweNaam, 'hash' => password_hash($nieuwWachtwoord, PASSWORD_DEFAULT), 'aangemaakt' => date('c'), 'soort' => $nieuweSoort, 'tabs' => $gekozenTabs];
       }
       if (schrijfGebruikers($usersBestand, $gebruikers)) {
         $melding['gebruikers'] = $bestondAl ? ('Wachtwoord van "' . $nieuweNaam . '" is bijgewerkt.') : ('Gebruiker "' . $nieuweNaam . '" is aangemaakt.');
@@ -3021,6 +3064,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $gevonden = false;
     foreach ($gebruikers as &$g) {
       if (isset($g['gebruikersnaam']) && strcasecmp($g['gebruikersnaam'], $doelNaam) === 0) {
+        // Een ledenaccount houdt altijd nul beheertabbladen, ook als er een
+        // formulier met vinkjes binnenkomt. Het formulier ervoor wordt niet
+        // eens getoond; dit is de controle aan de serverkant.
+        if (($g['soort'] ?? 'beheer') === 'lid') $gekozenTabs = [];
         $g['tabs'] = $gekozenTabs;
         $gevonden = true;
         break;
@@ -3484,7 +3531,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     }
 
     $invoer = ['soort' => 'leden'];
-    foreach (['titel', 'datum', 'tijd', 'locatie', 'status', 'notulen', 'ledenvergadering_type'] as $veld) {
+    foreach (['titel', 'datum', 'tijd', 'locatie', 'status', 'notulen', 'ledenvergadering_type', 'agenda_status', 'notulen_status'] as $veld) {
       if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
     }
     $invoer['agenda'] = (isset($_POST['agenda']) && is_array($_POST['agenda'])) ? $_POST['agenda'] : [];
@@ -6554,11 +6601,15 @@ if ($isMaster && file_exists($logBestand)) {
             // hier, net als bij het bepalen van de echte rechten hierboven,
             // volledige toegang: alle vinkjes staan dan aan.
             $gHeeftBeperking = isset($g['tabs']) && is_array($g['tabs']);
+            // Accounts van vóór de accountsoort hebben het veld niet en zijn
+            // beheeraccounts, want dat waren ze ook.
+            $gSoort = ($g['soort'] ?? 'beheer') === 'lid' ? 'lid' : 'beheer';
           ?>
           <div class="gebruiker-rij">
             <div class="gebruiker-rij-boven">
               <div>
                 <strong><?php echo htmlspecialchars($g['gebruikersnaam'] ?? ''); ?></strong>
+                <span class="gebruiker-sinds"><?php echo $gSoort === 'lid' ? 'ledenaccount' : 'beheeraccount'; ?></span>
                 <?php if (!empty($g['aangemaakt'])): ?>
                   <span class="gebruiker-sinds">sinds <?php echo htmlspecialchars(date('d-m-Y', strtotime($g['aangemaakt']))); ?></span>
                 <?php endif; ?>
@@ -6570,6 +6621,9 @@ if ($isMaster && file_exists($logBestand)) {
                 <button type="submit" class="knop-klein">Verwijderen</button>
               </form>
             </div>
+            <?php if ($gSoort === 'lid'): ?>
+              <p class="hint">Ledenaccount: geen toegang tot dit beheerscherm. Koppel het account bij Leden aan het juiste lid.</p>
+            <?php else: ?>
             <form method="post" action="beheer.php#gebruikers" class="gebruiker-tabs-form">
               <input type="hidden" name="formulier" value="gebruiker_tabs_bijwerken">
               <input type="hidden" name="csrf" value="<?php echo htmlspecialchars($csrfToken); ?>">
@@ -6600,6 +6654,7 @@ if ($isMaster && file_exists($logBestand)) {
               </div>
               <button type="submit" class="knop-klein">Toegang opslaan</button>
             </form>
+            <?php endif; ?>
           </div>
         <?php endforeach; ?>
       <?php endif; ?>
@@ -6625,6 +6680,20 @@ if ($isMaster && file_exists($logBestand)) {
           <input type="password" id="nieuw-wachtwoord-herhaald" name="nieuw_wachtwoord_herhaald" autocomplete="new-password" required>
         </div>
         <div class="veld">
+          <label>Soort account</label>
+          <div class="leden-vinkgroep">
+            <label class="leden-vink">
+              <input type="radio" name="accountsoort" value="beheer" checked data-accountsoort>
+              <span>Beheeraccount, voor de website</span>
+            </label>
+            <label class="leden-vink">
+              <input type="radio" name="accountsoort" value="lid" data-accountsoort>
+              <span>Ledenaccount, alleen voor het ledengedeelte</span>
+            </label>
+          </div>
+          <p class="hint">Een ledenaccount komt niet in dit beheerscherm en krijgt geen enkel tabblad hieronder, ook niet als er vinkjes aanstaan. Koppel het account daarna bij Leden aan het juiste lid, anders ziet die persoon niets.</p>
+        </div>
+        <div class="veld" id="nieuwe-gebruiker-tabs">
           <label id="nieuwe-gebruiker-tabs-label">Toegang tot</label>
           <div class="multiselect">
             <button type="button" class="multiselect-trigger" aria-expanded="false" aria-labelledby="nieuwe-gebruiker-tabs-label">
@@ -6651,6 +6720,22 @@ if ($isMaster && file_exists($logBestand)) {
         </div>
         <button type="submit">Gebruiker opslaan</button>
       </form>
+      <script>
+        // Bij een ledenaccount is de tabbladenkeuze niet van toepassing:
+        // verbergen scheelt verwarring. De server negeert de vinkjes in dat
+        // geval sowieso, dit is alleen de schil eromheen.
+        (function () {
+          var blok = document.getElementById('nieuwe-gebruiker-tabs');
+          var keuzes = document.querySelectorAll('[data-accountsoort]');
+          if (!blok || !keuzes.length) return;
+          function bijwerken() {
+            var lid = document.querySelector('[data-accountsoort]:checked');
+            blok.hidden = !!(lid && lid.value === 'lid');
+          }
+          keuzes.forEach(function (k) { k.addEventListener('change', bijwerken); });
+          bijwerken();
+        })();
+      </script>
     </div>
     </div>
 
@@ -7696,6 +7781,15 @@ if ($isMaster && file_exists($logBestand)) {
 
           <div class="sectie-kop">Agendapunten</div>
           <p class="hint">Het lege blok onderaan voegt een punt toe. Een punt zonder onderwerp wordt niet opgeslagen.</p>
+          <div class="veld">
+            <label for="lverg-agenda-status">Status van de agenda</label>
+            <select id="lverg-agenda-status" name="agenda_status">
+              <?php foreach (vergaderingDocumentStatussen() as $sleutel => $label): ?>
+                <option value="<?php echo htmlspecialchars($sleutel); ?>"<?php echo ($ledenvergaderingBewerk['agenda_status'] ?? 'concept') === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+              <?php endforeach; ?>
+            </select>
+            <p class="hint">Leden zien de agenda op de ledenpagina hoe dan ook, met dit label erbij. Zet hem op definitief zodra er niets meer verandert.</p>
+          </div>
           <?php foreach ($ledenvergaderingAgendaBlokken as $ai => $punt): ?>
             <div class="verg-agendapunt">
               <div class="verg-agendapunt-kop"><?php echo trim((string) $punt['onderwerp']) === '' ? 'Nieuw agendapunt' : 'Punt ' . ($ai + 1); ?></div>
@@ -7729,6 +7823,15 @@ if ($isMaster && file_exists($logBestand)) {
             <label for="lverg-notulen">Verslag</label>
             <textarea id="lverg-notulen" name="notulen" maxlength="20000" style="min-height:200px;"><?php echo htmlspecialchars($ledenvergaderingBewerk['notulen']); ?></textarea>
             <p class="hint">Vrije tekst. Wat per agendapunt is besloten hoort bij dat punt zelf, hier komt de rest van het verslag.</p>
+          </div>
+          <div class="veld">
+            <label for="lverg-notulen-status">Status van de notulen</label>
+            <select id="lverg-notulen-status" name="notulen_status">
+              <?php foreach (vergaderingDocumentStatussen() as $sleutel => $label): ?>
+                <option value="<?php echo htmlspecialchars($sleutel); ?>"<?php echo ($ledenvergaderingBewerk['notulen_status'] ?? 'concept') === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+              <?php endforeach; ?>
+            </select>
+            <p class="hint">Zolang dit op concept staat zien leden het verslag niet. Pas op definitief zetten als de notulen zijn vastgesteld.</p>
           </div>
 
           <button type="submit">Vergadering opslaan</button>
