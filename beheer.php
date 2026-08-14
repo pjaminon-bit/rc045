@@ -1510,9 +1510,15 @@ function verwijderMapRecursief($pad) {
 // $isMaster, $inlogFout en $melding/$meldingType dus al gevuld.
 
 // ===== Rechten per gebruiker =====
-// Alle beheer-onderdelen die je per gewone gebruiker aan/uit kan zetten.
-// Gebruikers, Log en Back-ups horen hier bewust niet bij: die blijven altijd
-// beheerder-only, dat is geen instelling die je per gebruiker kan weggeven.
+// Alle beheer-onderdelen die je per gebruiker aan of uit kan zetten. Ook
+// Gebruikers, Log en Back-ups: die waren alleen bereikbaar met het
+// beheerderswachtwoord, maar zijn nu net zo goed een vinkje.
+//
+// Let op wat je met Gebruikers weggeeft: wie dat tabblad heeft, kan zichzelf
+// en anderen elk ander tabblad geven en wachtwoorden opnieuw instellen. Dat
+// is in de praktijk hetzelfde als volledige toegang. Het beheerderswachtwoord
+// uit beheer-config.php blijft de terugvaloptie: dat werkt altijd en staat
+// niet in deze lijst.
 $beheerTabsAlle = [
   'homepage'   => 'Homepage',
   'ontstaan'   => 'Ontstaan',
@@ -1529,6 +1535,9 @@ $beheerTabsAlle = [
   'fotoboek'   => 'Fotoboek',
   'rekentabel' => 'Rekentabel',
   'changelog'  => 'Changelog',
+  'gebruikers' => 'Gebruikers',
+  'log'        => 'Log',
+  'backups'    => 'Back-ups',
 ];
 
 // Tabbladen die niet via de vinkjes bij Gebruikers gaan maar via de rol in
@@ -1839,6 +1848,19 @@ $toegestaneTabs         = $rechten['toegestaneTabs'];
 $eigenRol               = $rechten['eigenRol'];
 $isBestuurslid          = $rechten['isBestuurslid'];
 
+// Gebruikers, Log en Back-ups waren tot nu toe alleen bereikbaar met het
+// beheerderswachtwoord en zijn nu een vinkje net als de rest. Een account
+// waarvoor nooit een selectie is opgeslagen mag volgens authRechten() alles,
+// en zou er daardoor stilzwijgend drie rechten bij krijgen die het nooit
+// heeft gehad. Dus: wie geen expliciete selectie heeft, krijgt deze drie
+// niet. Zodra je de toegang van zo'n account een keer opslaat, gelden gewoon
+// de vinkjes.
+$nieuweRechten = ['gebruikers', 'log', 'backups'];
+$heeftEigenSelectie = is_array($huidigeGebruikerRecord['tabs'] ?? null);
+if (!$isMaster && !$heeftEigenSelectie) {
+  $toegestaneTabs = array_values(array_diff($toegestaneTabs, $nieuweRechten));
+}
+
 // Wie hier geen enkel tabblad mag zien, hoort niet op deze pagina. Dat is
 // precies de situatie van een account dat alleen voor het ledengedeelte is
 // aangemaakt: geen enkel beheertabblad aangevinkt. Meteen afvangen, vóór de
@@ -1894,6 +1916,10 @@ $formulierTab = [
   'fotoboek_album_aanmaken' => 'fotoboek', 'fotoboek_album_bewerken' => 'fotoboek',
   'changelog_toevoegen' => 'changelog', 'changelog_bewerken' => 'changelog',
   'changelog_verwijderen' => 'changelog',
+  'gebruiker_toevoegen' => 'gebruikers',
+  'gebruiker_tabs_bijwerken' => 'gebruikers',
+  'gebruiker_verwijderen' => 'gebruikers',
+  'backup_herstellen' => 'backups',
 ];
 
 // ===== Inhoud opslaan (openingstijden / agenda / faq / sponsors / gebruikers) =====
@@ -2954,7 +2980,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       }
     }
 
-  } elseif ($formulier === 'gebruiker_toevoegen' && $isMaster) {
+  } elseif ($formulier === 'gebruiker_toevoegen') {
     $nieuweNaam = trim($_POST['nieuwe_gebruikersnaam'] ?? '');
     $nieuwWachtwoord = $_POST['nieuw_wachtwoord'] ?? '';
     $nieuwWachtwoordHerhaald = $_POST['nieuw_wachtwoord_herhaald'] ?? '';
@@ -3003,7 +3029,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       }
     }
 
-  } elseif ($formulier === 'gebruiker_tabs_bijwerken' && $isMaster) {
+  } elseif ($formulier === 'gebruiker_tabs_bijwerken') {
     // Alleen de toegang aanpassen, los van het wachtwoord: dit is de knop
     // per gebruiker in het overzicht, niet het formulier hieronder.
     $doelNaam = trim($_POST['gebruikersnaam'] ?? '');
@@ -3030,9 +3056,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $meldingType['gebruikers'] = 'fout';
     }
 
-  } elseif ($formulier === 'gebruiker_verwijderen' && $isMaster) {
+  } elseif ($formulier === 'gebruiker_verwijderen') {
     $teVerwijderen = trim($_POST['gebruikersnaam'] ?? '');
     $gebruikers = laadGebruikers($usersBestand);
+    if (!$isMaster && strcasecmp($teVerwijderen, $huidigeGebruiker) === 0) {
+      // Jezelf verwijderen terwijl je ermee ingelogd bent: dat is nooit de
+      // bedoeling en je bent er meteen mee buitengesloten.
+      $melding['gebruikers'] = 'Je kunt je eigen account niet verwijderen.';
+      $meldingType['gebruikers'] = 'fout';
+      $gebruikers = null;
+    }
+    if ($gebruikers === null) {
+      // Al afgehandeld hierboven.
+    } else {
     $nieuweLijst = array_values(array_filter($gebruikers, function($g) use ($teVerwijderen) {
       return !isset($g['gebruikersnaam']) || strcasecmp($g['gebruikersnaam'], $teVerwijderen) !== 0;
     }));
@@ -3047,8 +3083,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $melding['gebruikers'] = 'Verwijderen mislukt. Controleer de schrijfrechten in de hoofdmap van de server.';
       $meldingType['gebruikers'] = 'fout';
     }
+    }
 
-  } elseif ($formulier === 'backup_herstellen' && $isMaster) {
+  } elseif ($formulier === 'backup_herstellen') {
     $sleutel = $_POST['sleutel'] ?? '';
     // basename() eerst: het POST-veld mag nooit een pad bevatten, alleen een
     // kale bestandsnaam. Zo kan dit veld nooit gebruikt worden om buiten
@@ -3356,9 +3393,9 @@ foreach ($changelogLijst as $clRegel) {
   if (isset($changelogTellingen[$clCatSleutel])) $changelogTellingen[$clCatSleutel]++;
 }
 
-$gebruikersLijst = $isMaster ? laadGebruikers($usersBestand) : [];
+$gebruikersLijst = in_array('gebruikers', $toegestaneTabs, true) ? laadGebruikers($usersBestand) : [];
 $logRegels = [];
-if ($isMaster && file_exists($logBestand)) {
+if (in_array('log', $toegestaneTabs, true) && file_exists($logBestand)) {
   $json = json_decode(file_get_contents($logBestand), true);
   if (is_array($json)) $logRegels = array_reverse($json);
 }
@@ -3417,7 +3454,7 @@ if ($isMaster && file_exists($logBestand)) {
         // Menu-indeling: alleen groepering van de knoppen hierboven, geen
         // wijziging aan welke tabs een gebruiker mag zien. Groepslabel
         // verschijnt alleen als er in die groep ook echt iets zichtbaar is.
-        $menuLabels = $beheerTabsAlle + ['gebruikers' => 'Gebruikers', 'log' => 'Log', 'backups' => 'Back-ups'];
+        $menuLabels = $beheerTabsAlle;
         // Volgorde binnen elke groep volgt nu ook de site: bij Pagina's
         // eerst de doorloop van de aanmeldflow (Aanmelden -> Bedankt, niet
         // andersom), bij Content de homepage top-naar-onder (mededeling
@@ -3429,16 +3466,12 @@ if ($isMaster && file_exists($logBestand)) {
           ['label' => 'Contributie', 'tabs' => ['rekentabel']],
           ['label' => 'Beheer', 'tabs' => ['changelog', 'gebruikers', 'log', 'backups']],
         ];
-        $alleenMasterTabs = ['gebruikers', 'log', 'backups'];
       ?>
       <?php foreach ($menuGroepen as $groepIndex => $groep): ?>
         <?php
           $zichtbaar = [];
           foreach ($groep['tabs'] as $tabSleutel) {
-            $magZien = in_array($tabSleutel, $alleenMasterTabs, true)
-              ? $isMaster
-              : in_array($tabSleutel, $toegestaneTabs, true);
-            if ($magZien) $zichtbaar[] = $tabSleutel;
+            if (in_array($tabSleutel, $toegestaneTabs, true)) $zichtbaar[] = $tabSleutel;
           }
         ?>
         <?php if (!empty($zichtbaar)): ?>
@@ -4574,7 +4607,7 @@ if ($isMaster && file_exists($logBestand)) {
 
     <?php endif; ?>
 
-    <?php if ($isMaster): ?>
+    <?php if (in_array('gebruikers', $toegestaneTabs, true)): ?>
 
     <div class="tab-paneel" id="tab-gebruikers">
     <!-- ===== GEBRUIKERS ===== -->
@@ -4699,7 +4732,9 @@ if ($isMaster && file_exists($logBestand)) {
       </form>
     </div>
     </div>
+    <?php endif; ?>
 
+    <?php if (in_array('log', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-log">
     <!-- ===== LOGBOEK ===== -->
     <div class="kaart">
@@ -4727,7 +4762,9 @@ if ($isMaster && file_exists($logBestand)) {
       <?php endif; ?>
     </div>
     </div>
+    <?php endif; ?>
 
+    <?php if (in_array('backups', $toegestaneTabs, true)): ?>
     <div class="tab-paneel" id="tab-backups">
     <!-- ===== BACK-UPS ===== -->
     <?php if (isset($melding['backups'])): ?>
