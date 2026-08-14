@@ -24,6 +24,55 @@
 return [
 
   [
+    'datum' => '2026-08-14',
+    'cat' => 'nieuw',
+    'titel' => 'Ledenpagina op rc045.nl/leden',
+    'tekst' => 'Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV\'s, en de evenementen waarvoor ze zich kunnen inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.',
+  ],
+  [
+    'datum' => '2026-08-14',
+    'cat' => 'nieuw',
+    'titel' => 'Leden schrijven zich zelf in voor een evenement',
+    'tekst' => 'Met de capaciteit erbij, zodat een vol evenement dicht gaat, en het betaalverzoek dat zichtbaar wordt zodra iemand is ingeschreven. De deelnemerslijst blijft dezelfde als die het bestuur in het tabblad Evenementen ziet.',
+  ],
+  [
+    'datum' => '2026-08-14',
+    'cat' => 'nieuw',
+    'titel' => 'Agenda en notulen op concept of definitief',
+    'tekst' => 'Bij een ledenvergadering staat nu per stuk of het concept of definitief is. Leden zien de agenda altijd, met dat label erbij, en het verslag pas als de notulen op definitief staan. Vergaderingen van voor deze instelling tellen als concept.',
+  ],
+  [
+    'datum' => '2026-08-14',
+    'cat' => 'verbeterd',
+    'titel' => 'Beheer gaat alleen nog over de website',
+    'tekst' => 'Alles wat over de vereniging gaat is naar de ledenpagina verhuisd. Wat er in het beheer overblijft zijn de pagina\'s, de content, de rekentabel en de changelog. De schermen zelf zijn niet veranderd, ze staan alleen op een andere plek.',
+  ],
+  [
+    'datum' => '2026-08-14',
+    'cat' => 'verbeterd',
+    'titel' => 'Toegang tot het beheer en tot de ledenpagina staan los van elkaar',
+    'tekst' => 'Iemand kan tegelijk gewoon lid zijn en de website beheren. Bij een gebruiker bepalen de aangevinkte tabbladen wat hij kan: zonder vinkjes alleen de ledenpagina, met vinkjes ook het beheer. Achteraf aanpassen kan altijd.',
+  ],
+  [
+    'datum' => '2026-08-14',
+    'cat' => 'beveiliging',
+    'titel' => 'Een nieuwe gebruiker krijgt niet meer standaard alles',
+    'tekst' => 'Bij het aanmaken stonden alle beheertabbladen aangevinkt, waardoor een account dat even snel werd aangemaakt de hele website kon bewerken en de ledenadministratie kon inzien. Ze staan nu standaard uit.',
+  ],
+  [
+    'datum' => '2026-08-14',
+    'cat' => 'beveiliging',
+    'titel' => 'Twee leden die tegelijk inschrijven overschrijven elkaar niet meer',
+    'tekst' => 'Bij het in- en uitschrijven wordt het evenementenbestand nu als geheel vergrendeld, van lezen tot terugschrijven. Ook de controle op de capaciteit gebeurt binnen dat slot, zodat er niemand extra bij kan als de laatste plek net weg is.',
+  ],
+  [
+    'datum' => '2026-08-14',
+    'cat' => 'onderhoud',
+    'titel' => 'Opmaak en scripts gedeeld tussen beheer en ledenpagina',
+    'tekst' => 'De opmaak en de scripts van de afgeschermde schermen stonden in beheer.php zelf en zouden voor de ledenpagina een tweede keer nodig zijn. Ze staan nu in paneel.css, paneel.js en paneel-thema.js, die allebei de pagina\'s gebruiken. Inloggen zit in auth.php, ook gedeeld, zodat er maar een plek is waar wachtwoorden en rechten worden gecontroleerd.',
+  ],
+
+  [
     'datum' => '2026-08-13',
     'cat' => 'opgelost',
     'titel' => 'Menu bijna onleesbaar in donkere stand',
