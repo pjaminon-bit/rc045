@@ -44,7 +44,6 @@ require_once __DIR__ . '/paneel-hulp.php';
 // bewaargrenzen, gebruikt door schrijfJson() en maakDataBackup()) staan in
 // auth.php, omdat de inlogafhandeling ze daar zelf nodig heeft.
 
-$lockBestand    = $dataMap . '/.beheer.lock';
 $actueelBestand = $dataMap . '/actueel.json';
 $agendaBestand  = $dataMap . '/agenda.json';
 $faqBestand     = $dataMap . '/faq.json';
@@ -1907,15 +1906,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $formulier = '';
   }
 
-  // Eén lock over het hele opslaan-blok: van inlezen van het huidige JSON-bestand
-  // tot wegschrijven van de nieuwe versie. Zonder dit zouden twee gelijktijdige
-  // opslag-acties (bijv. twee bestuursleden die tegelijk iets bewerken) elkaar
-  // stilletjes kunnen overschrijven, omdat schrijfJson() alleen tijdens het
-  // schrijven zelf een lock had, niet tijdens het hele lees-wijzig-schrijf-traject.
-  // Lukt het openen van het lock-bestand niet (zeldzaam), dan gaat het opslaan
-  // gewoon door zonder lock in plaats van helemaal te mislukken.
-  $lockHandle = @fopen($lockBestand, 'c');
-  if ($lockHandle) flock($lockHandle, LOCK_EX);
+  // Eén slot over het hele opslaan-blok: van inlezen van het huidige bestand
+  // tot wegschrijven van de nieuwe versie. Zonder dit zouden twee
+  // gelijktijdige opslag-acties elkaar stilletjes kunnen overschrijven,
+  // omdat schrijfJson() alleen tijdens het schrijven zelf een lock heeft en
+  // niet tijdens het hele lees-wijzig-schrijf-traject. Zie data-slot.php;
+  // leden.php, het aanmeldformulier en het inschrijven op een evenement
+  // gebruiken hetzelfde slot.
+  $lockHandle = dataSlotOpen();
 
   // Herkent een POST die door PHP zelf al is afgewezen omdat het geheel groter
   // was dan upload_max_filesize/post_max_size: $_POST en $_FILES komen dan
@@ -3106,7 +3104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
   // taken en evenementen staan in leden.php.
   }
 
-  if ($lockHandle) { flock($lockHandle, LOCK_UN); fclose($lockHandle); }
+  dataSlotDicht($lockHandle);
 }
 
 // ===== Huidige inhoud inlezen voor de formulieren =====
