@@ -27,13 +27,35 @@ $maandNamen  = [1 => 'Januari', 2 => 'Februari', 3 => 'Maart', 4 => 'April', 5 =
 
 // Standaardbedragen, alleen gebruikt zolang data/rekentabel.json nog niet
 // bestaat. Het tabblad Rekentabel in beheer.php schrijft dat bestand.
+// De twee _volgend-velden zijn de jaarcontributie voor het jaar na
+// 'jaar'. Ze zijn bewust leeg zolang de ledenvergadering die niet heeft
+// vastgesteld: dan geldt overal het bedrag van dit jaar, precies zoals het
+// vóór deze velden ging.
 $rekentabelStandaard = [
   'jaar' => date('Y'),
   'inschrijfkosten' => 10,
   'jeugd_jaarbedrag' => 50,
   'senior_jaarbedrag' => 100,
   'jeugd_leeftijd_tot' => 15,
+  'jeugd_jaarbedrag_volgend' => '',
+  'senior_jaarbedrag_volgend' => '',
 ];
+
+// Jaarcontributie voor een bepaald jaar. Alleen twee jaren zijn bekend: het
+// contributiejaar zelf, en het jaar erna via de _volgend-velden. Staan die
+// leeg, of gaat het om een ander jaar, dan is het bedrag van dit jaar het
+// antwoord. Zo blijft een oude rekentabel.json zonder die velden gewoon
+// werken.
+function rekentabelJaarbedrag($rekentabelData, $jeugd, $jaar = null) {
+  $sleutel = $jeugd ? 'jeugd_jaarbedrag' : 'senior_jaarbedrag';
+  if ($jaar !== null && (int) $jaar === (int) $rekentabelData['jaar'] + 1) {
+    $volgend = $rekentabelData[$sleutel . '_volgend'] ?? '';
+    if ($volgend !== '' && $volgend !== null && is_numeric($volgend)) {
+      return (float) $volgend;
+    }
+  }
+  return (float) $rekentabelData[$sleutel];
+}
 
 // De pro-ratatabel: wie in maand $m lid wordt betaalt naar rato van de
 // resterende maanden. December is null, dan betaal je niets meer voor dit
