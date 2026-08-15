@@ -676,6 +676,11 @@
   let rekentabelInschrijfkosten = 10;
   let volledigeContributieSenior = 100;
   let volledigeContributieJeugd = 50;
+  // Jaarcontributie voor het jaar na rekentabelJaar. null = nog niet
+  // vastgesteld door de ledenvergadering; dan blijft het bedrag van dit jaar
+  // staan, precies zoals het ging voordat deze velden bestonden.
+  let volgendJaarContributieSenior = null;
+  let volgendJaarContributieJeugd = null;
   let tabelSenior = {
     1: 92, 2: 83, 3: 75, 4: 67, 5: 58, 6: 50,
     7: 42, 8: 33, 9: 25, 10: 17, 11: 8, 12: null
@@ -693,6 +698,24 @@
     for (let m = 1; m <= 11; m++) tabel[m] = Math.round(jaarbedrag * (12 - m) / 12);
     tabel[12] = null;
     return tabel;
+  }
+
+  // Het bedrag dat een nieuw lid volgend jaar betaalt: het apart ingestelde
+  // bedrag voor dat jaar, of anders dat van dit jaar.
+  function contributieVolgendJaar(isJeugd) {
+    if (isJeugd) {
+      return volgendJaarContributieJeugd !== null ? volgendJaarContributieJeugd : volledigeContributieJeugd;
+    }
+    return volgendJaarContributieSenior !== null ? volgendJaarContributieSenior : volledigeContributieSenior;
+  }
+
+  // Leeg veld, ontbrekend veld of iets onleesbaars wordt null: "niet
+  // ingevuld", niet 0. Een 0 zou anders als gratis lidmaatschap op de pagina
+  // belanden.
+  function rekentabelGetalOfNull(waarde) {
+    if (waarde === '' || waarde === null || waarde === undefined) return null;
+    const getal = Number(waarde);
+    return isNaN(getal) ? null : getal;
   }
 
   // Vervangt {jaar}/{jaarnext}/{leeftijd}/{leeftijdplus} in een vertaalde
@@ -867,7 +890,7 @@
     document.getElementById('jeugdlid-hidden').value = isJeugd ? 'Ja' : 'Nee';
 
     if (contributie === null) {
-      const volledigeContributie = isJeugd ? volledigeContributieJeugd : volledigeContributieSenior;
+      const volledigeContributie = contributieVolgendJaar(isJeugd);
       document.getElementById('contributiebedrag-hidden').value = `€${rekentabelInschrijfkosten} (${t['contrib.inschrijfkosten']}, nu) + €${volledigeContributie} (${vulRekentabelTokens(t['contrib.volledig'])}, ${t['contrib.niet_overmaken']})`;
 
       contentEl.innerHTML = `
@@ -883,7 +906,7 @@
     }
 
     const totaal = contributie + rekentabelInschrijfkosten;
-    const volledigeContributie = isJeugd ? volledigeContributieJeugd : volledigeContributieSenior;
+    const volledigeContributie = contributieVolgendJaar(isJeugd);
     document.getElementById('contributiebedrag-hidden').value = `€${contributie} + €${rekentabelInschrijfkosten} = €${totaal} (${t['contrib.totaal']}) + €${volledigeContributie} (${vulRekentabelTokens(t['contrib.volledig'])}, ${t['contrib.niet_overmaken']})`;
 
     contentEl.innerHTML = `
@@ -1110,6 +1133,8 @@
       if (isNaN(rekentabelInschrijfkosten)) rekentabelInschrijfkosten = 10;
       volledigeContributieJeugd = Number(rt.jeugd_jaarbedrag) || volledigeContributieJeugd;
       volledigeContributieSenior = Number(rt.senior_jaarbedrag) || volledigeContributieSenior;
+      volgendJaarContributieJeugd = rekentabelGetalOfNull(rt.jeugd_jaarbedrag_volgend);
+      volgendJaarContributieSenior = rekentabelGetalOfNull(rt.senior_jaarbedrag_volgend);
       tabelJeugd = rekentabelProRataJS(volledigeContributieJeugd);
       tabelSenior = rekentabelProRataJS(volledigeContributieSenior);
       vulTokensInDOM();
