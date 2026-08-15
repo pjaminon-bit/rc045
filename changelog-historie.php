@@ -24,6 +24,13 @@
 return [
 
   [
+    'datum' => '2026-08-15',
+    'cat' => 'nieuw',
+    'titel' => 'Contributie voor volgend jaar apart in te stellen',
+    'tekst' => 'Het aanmeldformulier noemde al wat je volgend jaar betaalt, maar rekende daarvoor met het bedrag van dit jaar. In het tabblad Rekentabel staan nu twee extra velden voor de jaarcontributie van volgend jaar, jeugd en senior. Zolang die leeg zijn verandert er niets; vul je ze in, dan ziet iemand die zich nu aanmeldt meteen het juiste bedrag, en biedt de ledenadministratie datzelfde bedrag aan bij een contributieregel voor dat jaar.',
+  ],
+
+  [
     'datum' => '2026-08-14',
     'cat' => 'verbeterd',
     'titel' => 'Gebruikers, Log en Back-ups zijn nu ook een vinkje',
