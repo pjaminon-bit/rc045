@@ -1235,7 +1235,11 @@ if ($ledenBewerkLid !== null) {
 function ledenBedragVoorstel($lid, $jaar, $rekentabelData) {
   $jeugd = ledenIsJeugd($lid, (int) $rekentabelData['jeugd_leeftijd_tot'], $jaar);
   if ($jeugd === null) return null;
-  return (float) ($jeugd ? $rekentabelData['jeugd_jaarbedrag'] : $rekentabelData['senior_jaarbedrag']);
+  // Voor het jaar na het contributiejaar gelden de aparte bedragen uit de
+  // rekentabel, als die al zijn ingevuld. Zonder dit zou het voorstel voor
+  // een nieuw jaar het oude bedrag blijven noemen, terwijl aanmelden.html
+  // het nieuwe al aan nieuwe leden laat zien.
+  return rekentabelJaarbedrag($rekentabelData, $jeugd, $jaar);
 }
 
 $ledenImport = isset($_SESSION['leden_import']) && is_array($_SESSION['leden_import']) ? $_SESSION['leden_import'] : null;
@@ -2018,11 +2022,19 @@ $documentStatusLabels = vergaderingDocumentStatussen();
             </div>
             <div class="veld">
               <label for="lid-c-bedrag-<?php echo $ci; ?>">Bedrag</label>
-              <?php $voorstel = $regel['jaar'] === '' ? null : ledenBedragVoorstel($ledenBewerkLid, (int) $regel['jaar'], $rekentabelData); ?>
+              <?php
+                $voorstel = $regel['jaar'] === '' ? null : ledenBedragVoorstel($ledenBewerkLid, (int) $regel['jaar'], $rekentabelData);
+                // De hele-jaarbedragen in de snelkeuze horen bij het jaar van
+                // deze regel, niet altijd bij het contributiejaar: anders
+                // biedt een regel voor volgend jaar het bedrag van dit jaar aan.
+                $rijJaar = $regel['jaar'] === '' ? null : (int) $regel['jaar'];
+                $rijSenior = rekentabelJaarbedrag($rekentabelData, false, $rijJaar);
+                $rijJeugd  = rekentabelJaarbedrag($rekentabelData, true,  $rijJaar);
+              ?>
               <select class="leden-bedrag-snelkeuze" data-doel="lid-c-bedrag-<?php echo $ci; ?>" aria-label="Snelkeuze bedrag" style="margin-bottom:6px;">
                 <option value="">Snelkeuze&hellip;</option>
-                <option value="<?php echo (int) round((float) $rekentabelData['senior_jaarbedrag']); ?>"><?php echo euro($rekentabelData['senior_jaarbedrag']); ?> (senior, heel jaar)</option>
-                <option value="<?php echo (int) round((float) $rekentabelData['jeugd_jaarbedrag']); ?>"><?php echo euro($rekentabelData['jeugd_jaarbedrag']); ?> (jeugd, heel jaar)</option>
+                <option value="<?php echo (int) round($rijSenior); ?>"><?php echo euro($rijSenior); ?> (senior, heel jaar)</option>
+                <option value="<?php echo (int) round($rijJeugd); ?>"><?php echo euro($rijJeugd); ?> (jeugd, heel jaar)</option>
                 <optgroup label="Pro-rata, vanaf instapmaand">
                   <?php for ($m = 1; $m <= 11; $m++): ?>
                     <option value="<?php echo (int) $tabelSenior[$m]; ?>"><?php echo euro($tabelSenior[$m]); ?> (senior, vanaf <?php echo $maandNamen[$m]; ?>)</option>
