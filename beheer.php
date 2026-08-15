@@ -2511,6 +2511,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     $jeugdJaarbedragNieuw   = str_replace(',', '.', trim($_POST['jeugd_jaarbedrag'] ?? ''));
     $seniorJaarbedragNieuw  = str_replace(',', '.', trim($_POST['senior_jaarbedrag'] ?? ''));
     $jeugdLeeftijdNieuw     = trim($_POST['jeugd_leeftijd_tot'] ?? '');
+    // Leeg mag: dan is de contributie voor volgend jaar nog niet vastgesteld
+    // en geldt overal het bedrag van dit jaar.
+    $jeugdVolgendNieuw      = str_replace(',', '.', trim($_POST['jeugd_jaarbedrag_volgend'] ?? ''));
+    $seniorVolgendNieuw     = str_replace(',', '.', trim($_POST['senior_jaarbedrag_volgend'] ?? ''));
 
     if ($jaar === '' || !preg_match('/^\d{4}$/', $jaar)) {
       $melding['rekentabel'] = 'Vul een geldig jaartal in (bijv. 2026).';
@@ -2527,6 +2531,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     } elseif (!ctype_digit($jeugdLeeftijdNieuw) || (int) $jeugdLeeftijdNieuw < 1 || (int) $jeugdLeeftijdNieuw > 99) {
       $melding['rekentabel'] = 'Leeftijdsgrens jeugd moet een heel getal tussen 1 en 99 zijn.';
       $meldingType['rekentabel'] = 'fout';
+    } elseif ($jeugdVolgendNieuw !== '' && (!is_numeric($jeugdVolgendNieuw) || $jeugdVolgendNieuw < 0)) {
+      $melding['rekentabel'] = 'Jaarbedrag jeugd volgend jaar moet leeg zijn of een bedrag van 0 of hoger.';
+      $meldingType['rekentabel'] = 'fout';
+    } elseif ($seniorVolgendNieuw !== '' && (!is_numeric($seniorVolgendNieuw) || $seniorVolgendNieuw < 0)) {
+      $melding['rekentabel'] = 'Jaarbedrag senior volgend jaar moet leeg zijn of een bedrag van 0 of hoger.';
+      $meldingType['rekentabel'] = 'fout';
     } else {
       $nieuweData = [
         'jaar' => $jaar,
@@ -2536,6 +2546,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         'jeugd_jaarbedrag' => (float) round((float) $jeugdJaarbedragNieuw),
         'senior_jaarbedrag' => (float) round((float) $seniorJaarbedragNieuw),
         'jeugd_leeftijd_tot' => (int) $jeugdLeeftijdNieuw,
+        // Leeg blijft leeg (nog niet vastgesteld), anders hele euro's.
+        'jeugd_jaarbedrag_volgend' => $jeugdVolgendNieuw === '' ? '' : (float) round((float) $jeugdVolgendNieuw),
+        'senior_jaarbedrag_volgend' => $seniorVolgendNieuw === '' ? '' : (float) round((float) $seniorVolgendNieuw),
       ];
       if (schrijfJson($rekentabelBestand, $nieuweData)) {
         $rekentabelData = $nieuweData;
@@ -2544,7 +2557,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $tabelSenior = rekentabelProRata((float) $nieuweData['senior_jaarbedrag']);
         $melding['rekentabel'] = 'Opgeslagen. De rekentabel en de contributiecalculator op aanmelden.html gebruiken meteen deze bedragen.';
         $meldingType['rekentabel'] = 'ok';
-        schrijfLog($logBestand, $huidigeGebruiker, 'rekentabel', "jaar $jaar, inschrijfkosten €$inschrijfkostenNieuw, jeugd €$jeugdJaarbedragNieuw, senior €$seniorJaarbedragNieuw");
+        $volgendJaarLog = ($jeugdVolgendNieuw === '' && $seniorVolgendNieuw === '')
+          ? 'volgend jaar nog niet vastgesteld'
+          : 'volgend jaar jeugd €' . ($jeugdVolgendNieuw === '' ? '-' : $jeugdVolgendNieuw) . ', senior €' . ($seniorVolgendNieuw === '' ? '-' : $seniorVolgendNieuw);
+        schrijfLog($logBestand, $huidigeGebruiker, 'rekentabel', "jaar $jaar, inschrijfkosten €$inschrijfkostenNieuw, jeugd €$jeugdJaarbedragNieuw, senior €$seniorJaarbedragNieuw, $volgendJaarLog");
       } else {
         $melding['rekentabel'] = 'Opslaan mislukt. Controleer de schrijfrechten van de map data op de server.';
         $meldingType['rekentabel'] = 'fout';
@@ -4811,7 +4827,7 @@ if (in_array('log', $toegestaneTabs, true) && file_exists($logBestand)) {
     <!-- ===== REKENTABEL CONTRIBUTIE (bewerkbaar) ===== -->
     <div class="kaart">
       <h1>Rekentabel contributie</h1>
-      <p class="sub">Deze bedragen bepalen zowel de referentietabel hieronder als de contributiecalculator op aanmelden.html. Wijzig ze hier één keer per jaar; beide plekken gebruiken automatisch dezelfde waarden.</p>
+      <p class="sub">Deze bedragen bepalen zowel de referentietabel hieronder als de contributiecalculator op aanmelden.html. Wijzig ze hier één keer per jaar; beide plekken gebruiken automatisch dezelfde waarden. De jaarcontributie voor volgend jaar staat er apart onder, omdat aanmelden.html die aan een nieuw lid laat zien.</p>
 
       <?php if (isset($melding['rekentabel'])): ?>
         <div class="melding <?php echo $meldingType['rekentabel']; ?>"><?php echo htmlspecialchars($melding['rekentabel']); ?></div>
@@ -4848,6 +4864,20 @@ if (in_array('log', $toegestaneTabs, true) && file_exists($logBestand)) {
             <p class="hint">Hele euro's, geen centen.</p>
           </div>
         </div>
+        <h2 class="leden-kop">Jaarcontributie <?php echo (int) $rekentabelData['jaar'] + 1; ?></h2>
+        <p class="hint">Vul deze pas in zodra de contributie voor <?php echo (int) $rekentabelData['jaar'] + 1; ?> is vastgesteld. Zolang ze leeg zijn, rekent de site voor volgend jaar met de bedragen van <?php echo htmlspecialchars($rekentabelData['jaar']); ?>. Wie zich nu aanmeldt ziet dit bedrag op aanmelden.html staan als de contributie die volgend jaar volgt, dus vul hier het nieuwe bedrag in zodra dat bekend is.</p>
+        <div class="rij-2">
+          <div class="veld">
+            <label for="rekentabel-jeugd-volgend">Jaarcontributie jeugd <?php echo (int) $rekentabelData['jaar'] + 1; ?></label>
+            <input type="number" id="rekentabel-jeugd-volgend" name="jeugd_jaarbedrag_volgend" min="0" step="1" value="<?php echo $rekentabelData['jeugd_jaarbedrag_volgend'] === '' || $rekentabelData['jeugd_jaarbedrag_volgend'] === null ? '' : htmlspecialchars((string) (int) round((float) $rekentabelData['jeugd_jaarbedrag_volgend'])); ?>" placeholder="nog niet vastgesteld">
+            <p class="hint">Leeg laten = zelfde bedrag als <?php echo htmlspecialchars($rekentabelData['jaar']); ?>.</p>
+          </div>
+          <div class="veld">
+            <label for="rekentabel-senior-volgend">Jaarcontributie senior <?php echo (int) $rekentabelData['jaar'] + 1; ?></label>
+            <input type="number" id="rekentabel-senior-volgend" name="senior_jaarbedrag_volgend" min="0" step="1" value="<?php echo $rekentabelData['senior_jaarbedrag_volgend'] === '' || $rekentabelData['senior_jaarbedrag_volgend'] === null ? '' : htmlspecialchars((string) (int) round((float) $rekentabelData['senior_jaarbedrag_volgend'])); ?>" placeholder="nog niet vastgesteld">
+            <p class="hint">Leeg laten = zelfde bedrag als <?php echo htmlspecialchars($rekentabelData['jaar']); ?>.</p>
+          </div>
+        </div>
         <p class="hint">De maandbedragen hieronder worden automatisch berekend als pro-rata deel van de jaarcontributie (hele euro's, naar boven/beneden afgerond). December is altijd alleen inschrijfkosten.</p>
         <button type="submit">Rekentabel opslaan</button>
       </form>
@@ -4874,7 +4904,12 @@ if (in_array('log', $toegestaneTabs, true) && file_exists($logBestand)) {
         </tr>
         <?php endforeach; ?>
       </table>
-      <p class="reken-noot">Bedragen zijn pro-rata contributie voor de resterende maanden plus <?php echo euro($inschrijfkosten); ?> eenmalige inschrijfkosten. Volledige jaarcontributie: jeugd <?php echo euro($rekentabelData['jeugd_jaarbedrag']); ?>, senior <?php echo euro($rekentabelData['senior_jaarbedrag']); ?>. Deze tabel en de calculator op aanmelden.html lezen allebei data/rekentabel.json, bewerk hierboven.</p>
+      <p class="reken-noot">Bedragen zijn pro-rata contributie voor de resterende maanden plus <?php echo euro($inschrijfkosten); ?> eenmalige inschrijfkosten. Volledige jaarcontributie: jeugd <?php echo euro($rekentabelData['jeugd_jaarbedrag']); ?>, senior <?php echo euro($rekentabelData['senior_jaarbedrag']); ?>. Voor <?php echo (int) $rekentabelData['jaar'] + 1; ?><?php
+  $volgendJeugd  = rekentabelJaarbedrag($rekentabelData, true,  (int) $rekentabelData['jaar'] + 1);
+  $volgendSenior = rekentabelJaarbedrag($rekentabelData, false, (int) $rekentabelData['jaar'] + 1);
+  $volgendIngevuld = ($rekentabelData['jeugd_jaarbedrag_volgend'] !== '' && $rekentabelData['jeugd_jaarbedrag_volgend'] !== null)
+                  || ($rekentabelData['senior_jaarbedrag_volgend'] !== '' && $rekentabelData['senior_jaarbedrag_volgend'] !== null);
+?>: jeugd <?php echo euro($volgendJeugd); ?>, senior <?php echo euro($volgendSenior); ?><?php echo $volgendIngevuld ? '' : ' (nog niet vastgesteld, daarom hetzelfde bedrag)'; ?>. Deze tabel en de calculator op aanmelden.html lezen allebei data/rekentabel.json, bewerk hierboven.</p>
     </div>
     </div>
 
