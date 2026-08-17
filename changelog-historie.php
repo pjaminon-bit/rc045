@@ -24,6 +24,13 @@
 return [
 
   [
+    'datum' => '2026-08-17',
+    'cat' => 'verbeterd',
+    'titel' => 'Notities bij de openingstijden staan nu als opsomming',
+    'tekst' => 'De regel over het onderhoud op de eerste zaterdag of zondag en de waarschuwing bij slecht weer stonden als doorlopende tekst onder elkaar. Ze staan nu als twee punten met een opsommingsteken, net als de notities onder de kaarten Gastrijden en Lidmaatschap. De uitroeptekens en het informatie-icoon zijn weg: het opsommingsteken doet dat werk nu. De teksten zelf blijven aan te passen in het tabblad Website bij Openingstijden.',
+  ],
+
+  [
     'datum' => '2026-08-15',
     'cat' => 'nieuw',
     'titel' => 'Contributie voor volgend jaar apart in te stellen',
