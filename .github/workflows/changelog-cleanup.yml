@@ -1,0 +1,56 @@
+name: Eenmalige changelog-cleanup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/changelog-cleanup.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Herstel alleen de twee oude changelogzinnen
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('changelog-historie.php')
+          s = p.read_text(encoding='utf-8')
+          fixes = {
+            "Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV's, en de evenementen waarvoor je je zelf kunt inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.":
+            "Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV's, en de evenementen waarvoor ze zich kunnen inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.",
+            "Naast de aanvangstijd staat nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals \"9\", \"9.30\" of \"930\". Staat de eindtijd voor de aanvang, dan volgt een foutmelding.":
+            "Naast de aanvangstijd staat er nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals \"9\", \"9.30\" of \"930\". Staat de eindtijd voor de aanvang, dan volgt een foutmelding."
+          }
+          for oud, nieuw in fixes.items():
+              if s.count(oud) != 1:
+                  raise SystemExit('Verwachte changelogzin niet uniek gevonden')
+              s = s.replace(oud, nieuw, 1)
+          p.write_text(s, encoding='utf-8')
+          Path('.github/workflows/changelog-cleanup.yml').unlink()
+          PY
+          git diff --check
+
+      - name: Commit cleanup
+        run: |
+          git config user.name 'pjaminon-bit'
+          git config user.email 'pjaminon@me.com'
+          git add -A
+          git commit -m 'Preserve historical changelog wording'
+          git push origin HEAD:main
+
+      - name: Publiceer gecorrigeerde staat naar Strato
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+        with:
+          username: ${{ secrets.FTP_USERNAME }}
+          server: ${{ secrets.FTP_SERVER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 22
+          sftp_only: true
+          local_path: './*'
+          remote_path: '/'
