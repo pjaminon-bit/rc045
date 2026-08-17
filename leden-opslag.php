@@ -3,8 +3,9 @@
 // RC045 ledenadministratie: opslag en hulpfuncties
 // ------------------------------------------------------------
 // Dit bestand bevat alleen functies en schrijft zelf niets naar
-// het scherm. Het wordt gebruikt door twee plekken:
-//   - beheer.php               (tabblad Leden: overzicht, bewerken, import)
+// het scherm. Het wordt gebruikt door meerdere plekken:
+//   - leden.php                (overzicht, bewerken, import)
+//   - auth.php                 (rol van een ingelogde gebruiker bepalen)
 //   - aanmelden-ontvangst.php  (nieuwe aanmeldingen van aanmelden.html)
 //
 // PRIVACY. Het ledenbestand bevat geboortedata, adressen, telefoon-
@@ -177,12 +178,22 @@ function ledenBestuursfunctieUitTekst($tekst) {
   return '';
 }
 
-// De rol van de ingelogde beheergebruiker. De koppeling loopt via het veld
-// beheer_account op het lid: daar staat de inlognaam waarmee dat lid op
-// beheer.php inlogt. Zonder koppeling is er geen rol en dus geen extra
-// toegang. Die koppeling wordt bewust alleen door de beheerder (master)
-// gezet: anders kan iedereen met toegang tot het tabblad Leden zichzelf
-// tot voorzitter benoemen en zo een tabblad binnenlopen.
+// Bestuursfunctie en beheer_account zijn geen gewone ledengegevens: samen
+// bepalen ze via authRechten() welke rolgebonden tabbladen een account krijgt.
+// De opslaglaag beschermt ze daarom centraal. Als auth.php aanwezig is, mag
+// alleen een account met het expliciete hoge-vertrouwensrecht "Gebruikers"
+// (of de master) ze wijzigen. Buiten een ingelogde auth-context, bijvoorbeeld
+// het openbare aanmeldformulier, is wijzigen altijd verboden.
+function ledenMagAutorisatieWijzigen() {
+  return function_exists('authMagLedenAutorisatieWijzigen') && authMagLedenAutorisatieWijzigen();
+}
+
+// De rol van de ingelogde gebruiker. De koppeling loopt via het veld
+// beheer_account op het lid: daar staat de inlognaam waarmee dat lid inlogt.
+// Zonder koppeling is er geen rol en dus geen extra toegang. Omdat dit veld
+// samen met bestuursfunctie autorisatie bepaalt, worden beide velden in
+// ledenNormaliseer() beschermd en alleen wijzigbaar door de master of iemand
+// met het expliciete recht Gebruikers.
 function ledenRolVanGebruiker($gebruikersnaam) {
   $leeg = ['lid' => null, 'bestuurslid' => false, 'functie' => '', 'commissies' => []];
   $gebruikersnaam = trim((string) $gebruikersnaam);
@@ -527,13 +538,16 @@ function ledenVeldGrenzen() {
     'straat' => 100, 'huisnummer' => 20, 'postcode' => 20, 'gemeente' => 80, 'land' => 40,
     'telefoon' => 40, 'email' => 120,
     'opmerking' => 1000, 'taken' => 300, 'transponder' => 60, 'auto' => 120,
-    'beheer_account' => 60,
   ];
 }
 
 // Maakt van losse invoer een compleet, opgeschoond lid. Onbekende velden
 // worden genegeerd. Geeft altijd dezelfde sleutels terug, in dezelfde
 // volgorde, zodat het JSON-bestand leesbaar blijft.
+//
+// Belangrijk: bestuursfunctie en beheer_account zijn autorisatievelden. Ze
+// worden hier centraal beschermd, zodat niet alleen het bewerkformulier maar
+// ook CSV-import en toekomstige aanroepers dezelfde beveiligingsregel krijgen.
 function ledenNormaliseer($invoer, $bestaand = null) {
   $lid = is_array($bestaand) ? $bestaand : [];
   $grenzen = ledenVeldGrenzen();
@@ -585,16 +599,35 @@ function ledenNormaliseer($invoer, $bestaand = null) {
     $lid['status'] = 'nieuw';
   }
 
-  // Bestuursfunctie: een sleutel uit ledenBestuursfuncties(), of leeg.
-  // Komt er tekst binnen (import uit Excel), dan wordt die eerst vertaald.
-  if (array_key_exists('bestuursfunctie', $invoer)) {
-    $functie = trim((string) $invoer['bestuursfunctie']);
-    if (!array_key_exists($functie, ledenBestuursfuncties())) {
-      $functie = ledenBestuursfunctieUitTekst($functie);
+  // Autorisatievelden. Onbevoegde aanroepers mogen de bestaande waarden niet
+  // veranderen; bij een nieuw lid blijven ze leeg. Dit blok zit vóór de rest
+  // van de rolverwerking zodat een handgemaakte POST of CSV-kolom nooit via
+  // een andere invoerroute om de beveiliging heen kan.
+  if (ledenMagAutorisatieWijzigen()) {
+    if (array_key_exists('beheer_account', $invoer)) {
+      $lid['beheer_account'] = ledenKort($invoer['beheer_account'], 60);
+    } elseif (!isset($lid['beheer_account'])) {
+      $lid['beheer_account'] = '';
     }
-    $lid['bestuursfunctie'] = $functie;
-  } elseif (!isset($lid['bestuursfunctie'])) {
-    $lid['bestuursfunctie'] = '';
+
+    if (array_key_exists('bestuursfunctie', $invoer)) {
+      $functie = trim((string) $invoer['bestuursfunctie']);
+      if (!array_key_exists($functie, ledenBestuursfuncties())) {
+        $functie = ledenBestuursfunctieUitTekst($functie);
+      }
+      $lid['bestuursfunctie'] = $functie;
+    } elseif (!isset($lid['bestuursfunctie'])) {
+      $lid['bestuursfunctie'] = '';
+    }
+  } else {
+    if (is_array($bestaand)) {
+      $lid['beheer_account'] = ledenKort($bestaand['beheer_account'] ?? '', 60);
+      $bestaandeFunctie = trim((string) ($bestaand['bestuursfunctie'] ?? ''));
+      $lid['bestuursfunctie'] = array_key_exists($bestaandeFunctie, ledenBestuursfuncties()) ? $bestaandeFunctie : '';
+    } else {
+      $lid['beheer_account'] = '';
+      $lid['bestuursfunctie'] = '';
+    }
   }
 
   // Commissies: een lijst sleutels. Uit het formulier komt een array met
