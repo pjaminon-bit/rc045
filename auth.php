@@ -53,12 +53,15 @@ ini_set('session.gc_maxlifetime', (string) $sessieduur);
 session_set_cookie_params([
   'lifetime' => $sessieduur,
   'path' => '/',
-// Hard op true, niet afgeleid uit $_SERVER['HTTPS']: Strato termineert TLS
-  // voor PHP uit, waardoor die variabele ook bij een https-bezoek leeg is en
-  // de cookie stilzwijgend zonder Secure-vlag verstuurd zou worden. HTTPS
-  // wordt in .htaccess afgedwongen, dus er is geen http-pad meer waarover
-  // deze cookie ooit zou moeten reizen.
-  'secure' => true,  'httponly' => true,
+  // Hard op true, niet afgeleid uit $_SERVER['HTTPS']: Strato handelt de
+  // beveiligde verbinding af voordat PHP aan de beurt is, waardoor die
+  // variabele ook bij een https-bezoek leeg blijft en de cookie stilzwijgend
+  // zonder Secure-vlag verstuurd zou worden. HTTPS wordt in .htaccess
+  // afgedwongen, dus er is geen http-pad meer waarover deze cookie zou
+  // moeten reizen. Let op: hierdoor werkt inloggen over http niet meer, de
+  // browser stuurt de cookie dan simpelweg niet mee.
+  'secure' => true,
+  'httponly' => true,
   'samesite' => 'Lax',
 ]);
 session_start();

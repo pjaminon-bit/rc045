@@ -25,6 +25,13 @@ return [
 
   [
     'datum' => '2026-08-17',
+    'cat' => 'beveiliging',
+    'titel' => 'Ingelogd blijven kan nu alleen nog over een beveiligde verbinding',
+    'tekst' => 'De site onthoudt met een cookie dat je bent ingelogd. Dat cookie hoort het stempel "alleen over een beveiligde verbinding versturen" te krijgen, maar of dat stempel erop kwam werd bepaald door een controle die bij onze hosting altijd negatief uitvalt: die handelt de beveiliging af voordat de site zelf aan de beurt is. In de praktijk ging het cookie dus zonder dat stempel de deur uit. Het staat nu altijd aan. Daarnaast stuurt de server iedereen die de site zonder beveiliging opvraagt eerst door naar de beveiligde versie, zodat er geen onbeveiligde weg naar het beheer en de ledenpagina meer bestaat.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
     'cat' => 'verbeterd',
     'titel' => 'De markering "alleen bij voldoende animo" is rustiger',
     'tekst' => 'Die stand was een massief goud vlak en schreeuwde harder dan de melding dat we gesloten zijn. Het is nu een open randje in goud met gewone tekst, zowel in de openingstijdenkaart als in de balk bovenaan de pagina. Zo loopt het op in zwaarte: een randje bij voldoende animo, een gevuld teal vlak bij alleen leden, een gevuld rood vlak bij gesloten.',
