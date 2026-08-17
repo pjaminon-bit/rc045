@@ -1,0 +1,34 @@
+name: Eenmalige correctie artikel 1 baanreglement
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-baanreglement-artikel1.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Pas correctie toe
+        run: |
+          python3 .github/fix-baanreglement-artikel1.py
+          php -l baanreglement.php
+          php -l changelog-historie.php
+          git diff --check
+          grep -q "id=\"br-a1-text\"" baanreglement.php
+          grep -q "var artikel1Tekst = tekstVoor('a1_body')" baanreglement.php
+          grep -q "fetch('data/contact.json'" baanreglement.php
+
+      - name: Commit correctie
+        run: |
+          git config user.name 'pjaminon-bit'
+          git config user.email 'pjaminon@me.com'
+          git add baanreglement.php changelog-historie.php
+          git commit -m 'Restore managed text for track regulation article 1'
+          git push origin HEAD:main
