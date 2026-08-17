@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'verbeterd',
+    'titel' => 'De markering "alleen bij voldoende animo" is rustiger',
+    'tekst' => 'Die stand was een massief goud vlak en schreeuwde harder dan de melding dat we gesloten zijn. Het is nu een open randje in goud met gewone tekst, zowel in de openingstijdenkaart als in de balk bovenaan de pagina. Zo loopt het op in zwaarte: een randje bij voldoende animo, een gevuld teal vlak bij alleen leden, een gevuld rood vlak bij gesloten.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'verbeterd',
     'titel' => 'De mededelingsbalk bovenaan is rustiger van kleur',
     'tekst' => 'De balk was een massief gouden vlak en las daardoor als een waarschuwing, ook bij een gewone mededeling. De balk heeft nu een zachte zandkleur met een groene onderlijn, dezelfde kleur als de knoppen. Het blokje Actueel in de openingstijdenkaart is meegelopen, zodat dezelfde melding op beide plekken hetzelfde oogt. In de donkere stand past de kleur zich net als de rest van de site aan.',
   ],
