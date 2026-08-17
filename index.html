@@ -35,7 +35,12 @@
     /* Ankers landen onder de vaste navigatiebalk in plaats van eronder te verdwijnen. */
     .hero, .section, .photo-strip { scroll-margin-top: 80px; }
     
-    .announce-bar { background: var(--gold); color: var(--dark); text-align: center; padding: 13px 20px; font-size: 15px; font-weight: 600; line-height: 1.5; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 1px solid rgba(0,0,0,0.12); }
+    /* De mededelingsbalk was een massief gouden vlak. Dat viel op als een
+       waarschuwing, terwijl het meestal gewoon een mededeling is. De kleur zit
+       nu in de onderlijn (teal, dezelfde kleur als de knoppen) en het vlak is
+       het zachte zand dat ook onder de kaarten zit. Beide kleuren zijn
+       variabelen, dus de donkere stand rolt automatisch mee. */
+    .announce-bar { background: var(--gold-light); color: var(--text); text-align: center; padding: 13px 20px; font-size: 15px; font-weight: 600; line-height: 1.5; display: flex; align-items: center; justify-content: center; gap: 10px; border-bottom: 2px solid var(--teal); }
     
     .announce-bar-icon { flex-shrink: 0; font-size: 17px; }
     
@@ -77,9 +82,9 @@
     
     #announce-text { white-space: pre-line; }
     
-    .actueel-hours { display: none; background: var(--gold-light); border: 1px solid rgba(200,154,26,0.35); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 14px; line-height: 1.6; }
+    .actueel-hours { display: none; background: var(--gold-light); border: 1px solid var(--teal); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 14px; line-height: 1.6; }
     
-    .actueel-hours strong { color: var(--rust); }
+    .actueel-hours strong { color: var(--teal-dark); }
     
     .actueel-hours-text { white-space: pre-line; }
     
