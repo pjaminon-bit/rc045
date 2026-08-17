@@ -437,11 +437,13 @@
     .hours-row.is-leden .hours-closed-note { display: block; background: var(--teal); }
     
     /* Alleen bij voldoende animo: de baan is die dag open, maar of het doorgaat
-       hangt van de opkomst af. Goud omdat het een voorbehoud is en geen
-       sluiting; de tijd blijft daarom ook hier gewoon leesbaar. */
-    .hours-row.is-animo { align-items: flex-start; background: rgba(200,154,26,0.10); border-left: 3px solid var(--gold); margin-left: -28px; margin-right: -28px; padding-left: 25px; padding-right: 28px; }
+       hangt van de opkomst af. Dat is de mildste van de drie afwijkingen, en
+       zo ziet hij er ook uit: geen gevuld vlak zoals bij gesloten (rust) en
+       alleen leden (teal), maar een open randje in goud. De tijd blijft
+       leesbaar, want de dag is niet afgelast. */
+    .hours-row.is-animo { align-items: flex-start; background: rgba(200,154,26,0.06); border-left: 3px solid var(--gold); margin-left: -28px; margin-right: -28px; padding-left: 25px; padding-right: 28px; }
     
-    .hours-row.is-animo .hours-closed-note { display: block; background: var(--gold); color: var(--dark); }
+    .hours-row.is-animo .hours-closed-note { display: block; background: transparent; color: var(--text); border: 1px solid var(--gold); font-weight: 600; }
     
     /* Zelfde melding in de info-balk bovenaan. Daar is bewust geen achtergrond
        en randje gebruikt: dat blok is een smalle strook van drie kolommen en
@@ -452,7 +454,7 @@
     
     .info-closed-note.is-leden { background: var(--teal); }
     
-    .info-closed-note.is-animo { background: var(--gold); color: var(--dark); }
+    .info-closed-note.is-animo { background: transparent; color: var(--text); border: 1px solid var(--gold); font-weight: 600; }
     
     /* Openingstijden-notities: zelfde opsommingsstijl als de notities onder de
        prijskaarten (.price-notes), zodat beide blokken er gelijk uitzien. */
