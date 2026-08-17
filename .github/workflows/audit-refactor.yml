@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Pas auditverbeteringen toe
         shell: bash
@@ -21,301 +23,32 @@ jobs:
           python3 <<'PY'
           from pathlib import Path
 
-          def replace_once(text, old, new, label):
-              count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f'{label}: verwacht 1 match, gevonden {count}')
-              return text.replace(old, new, 1)
-
-          # ---------------- auth.php ----------------
-          p = Path('auth.php')
-          s = p.read_text(encoding='utf-8')
-          s = s.replace(
-              '//   beheer-config.php          - het beheerderswachtwoord, handmatig via FTP',
-              '//   beheer-config.php          - hash van het beheerderswachtwoord, handmatig via FTP'
+          # De vorige workflow bevat het volledige patchscript. Dat script liep
+          # aantoonbaar door alle PHP-wijzigingen heen en strandde alleen op één
+          # te strikt ingesprongen JS-fragment. Hergebruik daarom exact dat script
+          # en vervang uitsluitend die laatste match door de echte bronvorm.
+          import subprocess
+          vorige = subprocess.check_output(
+              ['git', 'show', 'HEAD^:.github/workflows/audit-refactor.yml'],
+              text=True
           )
+          regels = vorige.splitlines()
+          begin = next(i for i, r in enumerate(regels) if "python3 <<'PY'" in r) + 1
+          einde = next(i for i in range(begin, len(regels)) if regels[i].strip() == 'PY')
+          code_regels = regels[begin:einde]
+          code = '\n'.join((r[10:] if r.startswith('          ') else r) for r in code_regels) + '\n'
 
-          old = """$configOk = file_exists($configPad);
-          if ($configOk) {
-            require $configPad; // definieert $BEHEER_WACHTWOORD
-            $configOk = isset($BEHEER_WACHTWOORD) && $BEHEER_WACHTWOORD !== '' && $BEHEER_WACHTWOORD !== 'VeranderDitWachtwoord';
-          }
-          """
-          new = """$configOk = file_exists($configPad);
-          $beheerGebruiktLegacyWachtwoord = false;
-          if ($configOk) {
-            require $configPad;
-
-            // Voorkeur: alleen een password_hash() in beheer-config.php bewaren.
-            // De oude plaintext-variabele blijft tijdelijk ondersteund zodat een
-            // deploy niemand buitensluit voordat het server-only configbestand via
-            // FTP is omgezet. Zodra een geldige hash aanwezig is, wordt het oude
-            // wachtwoord volledig genegeerd, ook als die variabele nog bestaat.
-            $beheerHashOk = isset($BEHEER_WACHTWOORD_HASH)
-              && is_string($BEHEER_WACHTWOORD_HASH)
-              && $BEHEER_WACHTWOORD_HASH !== ''
-              && ((password_get_info($BEHEER_WACHTWOORD_HASH)['algoName'] ?? 'unknown') !== 'unknown');
-            $beheerLegacyOk = isset($BEHEER_WACHTWOORD)
-              && is_string($BEHEER_WACHTWOORD)
-              && $BEHEER_WACHTWOORD !== ''
-              && $BEHEER_WACHTWOORD !== 'VeranderDitWachtwoord';
-
-            $configOk = $beheerHashOk || $beheerLegacyOk;
-            $beheerGebruiktLegacyWachtwoord = !$beheerHashOk && $beheerLegacyOk;
-          }
-
-          function authMasterWachtwoordKlopt($invoer) {
-            global $BEHEER_WACHTWOORD_HASH, $BEHEER_WACHTWOORD;
-
-            if (isset($BEHEER_WACHTWOORD_HASH)
-                && is_string($BEHEER_WACHTWOORD_HASH)
-                && $BEHEER_WACHTWOORD_HASH !== ''
-                && ((password_get_info($BEHEER_WACHTWOORD_HASH)['algoName'] ?? 'unknown') !== 'unknown')) {
-              return password_verify((string) $invoer, $BEHEER_WACHTWOORD_HASH);
-            }
-
-            // Alleen migratiepad voor bestaande installaties. Verwijder deze
-            // variabele uit beheer-config.php zodra de hash is ingesteld.
-            return isset($BEHEER_WACHTWOORD)
-              && is_string($BEHEER_WACHTWOORD)
-              && $BEHEER_WACHTWOORD !== ''
-              && hash_equals($BEHEER_WACHTWOORD, (string) $invoer);
-          }
-          """
-          s = replace_once(s, old, new, 'auth config')
-          s = replace_once(
-              s,
-              "} elseif ($gebruikersnaamInvoer === '' && hash_equals($BEHEER_WACHTWOORD, $wachtwoordInvoer)) {",
-              "} elseif ($gebruikersnaamInvoer === '' && authMasterWachtwoordKlopt($wachtwoordInvoer)) {",
-              'master login'
-          )
-
-          start = s.find('// ===== Responsebeveiliging voor leden.php =====')
-          end = s.find('// ===== Rechten =====', start)
-          if start == -1 or end == -1:
-              raise SystemExit('responsebufferblok in auth.php niet gevonden')
-          s = s[:start] + s[end:]
-          p.write_text(s.rstrip() + '\n', encoding='utf-8')
-
-          # ---------------- leden.php ----------------
-          p = Path('leden.php')
-          s = p.read_text(encoding='utf-8')
-
-          s = replace_once(
-              s,
-              "$isBestuurslid  = $rechten['isBestuurslid'];\n",
-              "$isBestuurslid  = $rechten['isBestuurslid'];\n$magLedenAutorisatieWijzigen = authMagLedenAutorisatieWijzigen();\n",
-              'leden capability'
-          )
-
-          marker = "];\n\n// ===== Zelf in- of uitschrijven voor een evenement ====="
-          helpers = """/* CSV-export veilig voor spreadsheetprogramma's. Waarden die na eventuele
-          voorloop-witruimte met =, +, - of @ beginnen, kunnen door Excel/LibreOffice
-          als formule worden uitgevoerd. Een apostrof dwingt zo'n cel tot tekst. */
-          function ledenCsvVeiligeCel($waarde) {
-            $waarde = (string) $waarde;
-            return ($waarde !== '' && preg_match('/^[\\x00-\\x20]*[=+\\-@]/u', $waarde))
-              ? "'" . $waarde
-              : $waarde;
-          }
-
-          function ledenCsvSchrijfRij($handle, array $rij) {
-            return fputcsv($handle, array_map('ledenCsvVeiligeCel', $rij), ';');
-          }
-
-          // ===== Zelf in- of uitschrijven voor een evenement ====="""
-          s = replace_once(s, marker, "];\n\n" + helpers, 'CSV helpers')
-
-          s = replace_once(
-              s,
-              "                'opmerking','taken','transponder','auto','nummer','bestuursfunctie'] as $veld) {",
-              "                'opmerking','taken','transponder','auto','nummer'] as $veld) {",
-              'autorisatie uit gewone velden'
-          )
-
-          old = """      // De koppeling met een inlogaccount hoort bij het lid, dus wie dit
-                // tabblad mag bewerken mag hem ook zetten. Dat was eerst alleen de
-                // beheerder, wat betekende dat iemand met alle rechten toch geen
-                // account aan een lid kon hangen.
-                $invoer['beheer_account'] = trim((string) ($_POST['beheer_account'] ?? ''));
-          """
-          new = """      // Bestuursfunctie en accountkoppeling zijn autorisatiegegevens. Alleen
-                // accounts met het expliciete recht Gebruikers mogen ze überhaupt
-                // vanuit dit formulier aan de normalisatielaag aanbieden. Die laag
-                // controleert dit daarnaast nogmaals centraal.
-                if ($magLedenAutorisatieWijzigen) {
-                  $invoer['bestuursfunctie'] = $_POST['bestuursfunctie'] ?? '';
-                  $invoer['beheer_account'] = trim((string) ($_POST['beheer_account'] ?? ''));
-                }
-          """
-          s = replace_once(s, old, new, 'autorisatie POST')
-
-          s = replace_once(s, "    fputcsv($uit, $kop, ';');", "    ledenCsvSchrijfRij($uit, $kop);", 'CSV kop')
-          s = replace_once(s, "      fputcsv($uit, $rij, ';');", "      ledenCsvSchrijfRij($uit, $rij);", 'CSV rij')
-
-          old = """// De inlogaccounts, om een lid aan een account te kunnen koppelen. Zelfde
-          // beperking als in beheer.php: alleen de beheerder ziet de lijst.
-          $gebruikersLijst = in_array('leden', $toegestaneTabs, true) ? laadGebruikers($usersBestand) : [];
-          """
-          new = """// De volledige accountlijst is autorisatie-informatie en wordt alleen
-          // ingelezen wanneer deze gebruiker de koppeling ook daadwerkelijk mag
-          // wijzigen. Zo komen andere inlognamen niet onnodig in de HTML terecht.
-          $gebruikersLijst = $magLedenAutorisatieWijzigen ? laadGebruikers($usersBestand) : [];
-          """
-          s = replace_once(s, old, new, 'accountlijst')
-
-          old = """          <div class=\"veld\">
-                      <label for=\"lid-bestuursfunctie\">Rol in het bestuur</label>
-                      <select id=\"lid-bestuursfunctie\" name=\"bestuursfunctie\">
-                        <option value=\"\">Geen bestuursfunctie</option>
-                        <?php foreach ($ledenFunctieLabels as $sleutel => $label): ?>
-                          <option value=\"<?php echo htmlspecialchars($sleutel); ?>\"<?php echo ($ledenBewerkLid['bestuursfunctie'] ?? '') === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
-                        <?php endforeach; ?>
-                      </select>
-                      <p class=\"hint\">Voorzitter, penningmeester en secretaris zijn ook bestuurslid, dus die kies je hier gewoon los. Alles behalve \"geen\" telt mee als bestuurslid en geeft straks toegang tot het tabblad Bestuursvergadering.</p>
-                    </div>
-          """
-          new = """          <div class=\"veld\">
-                      <label<?php echo $magLedenAutorisatieWijzigen ? ' for=\"lid-bestuursfunctie\"' : ''; ?>>Rol in het bestuur</label>
-                      <?php if ($magLedenAutorisatieWijzigen): ?>
-                        <select id=\"lid-bestuursfunctie\" name=\"bestuursfunctie\">
-                          <option value=\"\">Geen bestuursfunctie</option>
-                          <?php foreach ($ledenFunctieLabels as $sleutel => $label): ?>
-                            <option value=\"<?php echo htmlspecialchars($sleutel); ?>\"<?php echo ($ledenBewerkLid['bestuursfunctie'] ?? '') === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
-                          <?php endforeach; ?>
-                        </select>
-                        <p class=\"hint\">Voorzitter, penningmeester en secretaris zijn ook bestuurslid. Deze rol bepaalt mede de toegang tot de bestuursdelen.</p>
-                      <?php else: ?>
-                        <?php $functieNu = $ledenFunctieLabels[$ledenBewerkLid['bestuursfunctie'] ?? ''] ?? 'Geen bestuursfunctie'; ?>
-                        <p style=\"margin:8px 0 0;\"><strong><?php echo htmlspecialchars($functieNu); ?></strong></p>
-                        <p class=\"hint\">Alleen de hoofdbeheerder of iemand met het recht Gebruikers kan de bestuursrol wijzigen.</p>
-                      <?php endif; ?>
-                    </div>
-          """
-          s = replace_once(s, old, new, 'rol UI')
-
-          old = """        <div class=\"veld\">
-                      <label for=\"lid-beheer-account\">Gekoppeld inlogaccount</label>
-                      <?php $lidAccount = trim((string) ($ledenBewerkLid['beheer_account'] ?? '')); ?>
-                      <?php
-                        $accountNamen = ['beheerder'];
-                        foreach ($gebruikersLijst as $g) {
-                          if (isset($g['gebruikersnaam']) && $g['gebruikersnaam'] !== '') $accountNamen[] = $g['gebruikersnaam'];
-                        }
-                        $accountBekend = $lidAccount === '' || in_array($lidAccount, $accountNamen, true);
-                      ?>
-                      <select id=\"lid-beheer-account\" name=\"beheer_account\">
-                        <option value=\"\"<?php echo $lidAccount === '' ? ' selected' : ''; ?>>Geen koppeling</option>
-                        <?php if (!$accountBekend): ?>
-                          <option value=\"<?php echo htmlspecialchars($lidAccount); ?>\" selected><?php echo htmlspecialchars($lidAccount); ?> (account bestaat niet meer)</option>
-                        <?php endif; ?>
-                        <?php foreach ($accountNamen as $accountNaam): ?>
-                          <option value=\"<?php echo htmlspecialchars($accountNaam); ?>\"<?php echo $lidAccount === $accountNaam ? ' selected' : ''; ?>><?php echo htmlspecialchars($accountNaam); ?></option>
-                        <?php endforeach; ?>
-                      </select>
-                      <p class=\"hint\">Hiermee weet de ledenpagina welk lid er achter een inlognaam zit, zodat de bestuursfunctie hierboven de bijbehorende tabbladen kan geven. Maak het account eerst aan bij Gebruikers in het beheer.</p>
-                    </div>
-          """
-          new = """        <div class=\"veld\">
-                      <label<?php echo $magLedenAutorisatieWijzigen ? ' for=\"lid-beheer-account\"' : ''; ?>>Gekoppeld inlogaccount</label>
-                      <?php $lidAccount = trim((string) ($ledenBewerkLid['beheer_account'] ?? '')); ?>
-                      <?php if ($magLedenAutorisatieWijzigen): ?>
-                        <?php
-                          $accountNamen = ['beheerder'];
-                          foreach ($gebruikersLijst as $g) {
-                            if (isset($g['gebruikersnaam']) && $g['gebruikersnaam'] !== '') $accountNamen[] = $g['gebruikersnaam'];
-                          }
-                          $accountBekend = $lidAccount === '' || in_array($lidAccount, $accountNamen, true);
-                        ?>
-                        <select id=\"lid-beheer-account\" name=\"beheer_account\">
-                          <option value=\"\"<?php echo $lidAccount === '' ? ' selected' : ''; ?>>Geen koppeling</option>
-                          <?php if (!$accountBekend): ?>
-                            <option value=\"<?php echo htmlspecialchars($lidAccount); ?>\" selected><?php echo htmlspecialchars($lidAccount); ?> (account bestaat niet meer)</option>
-                          <?php endif; ?>
-                          <?php foreach ($accountNamen as $accountNaam): ?>
-                            <option value=\"<?php echo htmlspecialchars($accountNaam); ?>\"<?php echo $lidAccount === $accountNaam ? ' selected' : ''; ?>><?php echo htmlspecialchars($accountNaam); ?></option>
-                          <?php endforeach; ?>
-                        </select>
-                        <p class=\"hint\">Hiermee weet de ledenpagina welk lid er achter een inlognaam zit. Maak het account eerst aan bij Gebruikers in het beheer.</p>
-                      <?php else: ?>
-                        <p style=\"margin:8px 0 0;\"><strong><?php echo htmlspecialchars($lidAccount !== '' ? $lidAccount : 'Geen koppeling'); ?></strong></p>
-                        <p class=\"hint\">Alleen de hoofdbeheerder of iemand met het recht Gebruikers kan een inlogaccount koppelen of ontkoppelen.</p>
-                      <?php endif; ?>
-                    </div>
-          """
-          s = replace_once(s, old, new, 'account UI')
-
-          # CSV-import kan een bestuursfunctie-kolom bevatten, maar de centrale
-          # opslaglaag negeert die zonder het hoge vertrouwensrecht. Maak dat
-          # ook expliciet zichtbaar in de import-UX.
-          old = """        <p class=\"hint\">Er is nog niets gewijzigd. Regels die overeenkomen met een bestaand lid (zelfde mailadres, of zelfde naam en geboortedatum) worden bijgewerkt in plaats van dubbel toegevoegd.</p>
-          """
-          new = old + """        <?php if (!$magLedenAutorisatieWijzigen): ?>
-                    <p class=\"hint\">Bestuursfuncties uit het CSV-bestand worden met dit account niet gewijzigd; daarvoor is het expliciete recht Gebruikers nodig.</p>
-                  <?php endif; ?>
-          """
-          s = replace_once(s, old, new, 'import UX')
-
-          p.write_text(s, encoding='utf-8')
-
-          # ---------------- paneel-thema.js ----------------
-          p = Path('paneel-thema.js')
-          s = p.read_text(encoding='utf-8')
-          marker = '// ===== Leden: autorisatievelden alleen bewerkbaar met recht Gebruikers ====='
-          pos = s.find(marker)
-          if pos == -1:
-              raise SystemExit('oude leden-autorisatie-JS niet gevonden')
-          p.write_text(s[:pos].rstrip() + '\n', encoding='utf-8')
-
-          # Het losse capability-endpoint is door directe server-rendering niet
-          # meer nodig en vergroot anders alleen het onderhoudsoppervlak.
-          Path('leden-autorisatie-status.php').unlink(missing_ok=True)
-
-          # ---------------- seo-head.php ----------------
-          p = Path('seo-head.php')
-          s = p.read_text(encoding='utf-8')
-          old = '  echo "  <title>$titel</title>\\n";\n'
-          new = """  echo "  <title>$titel</title>\\n";
-            // De browser kan zonder reload van taal wisselen. Geef het gedeelde
-            // taalscript daarom de drie server-side titels mee; dit verandert niets
-            // aan SEO, maar houdt de tabtitel wel synchroon met de gekozen taal.
-            foreach (array_keys($RC045_TALEN) as $t) {
-              $liveTitel = htmlspecialchars($RC045_PAGINAS[$pagina][$t]['titel'], ENT_QUOTES, 'UTF-8');
-              echo "  <meta name=\\"rc045-title-$t\\" content=\\"$liveTitel\\">\\n";
-            }
-          """
-          s = replace_once(s, old, new, 'SEO live titels')
-          p.write_text(s, encoding='utf-8')
-
-          # ---------------- site-i18n.js ----------------
-          p = Path('site-i18n.js')
-          s = p.read_text(encoding='utf-8')
-          anchor = """function updateInternalLinks(lang) {
-          """
-          helper = """function updateLiveDocumentTitle(lang) {
-            var meta = document.querySelector('meta[name="rc045-title-' + lang + '"]');
-            if (meta && meta.getAttribute('content')) document.title = meta.getAttribute('content');
-          }
-
-          function updateInternalLinks(lang) {
-          """
-          s = replace_once(s, anchor, helper, 'title helper')
-          old = """      btn.addEventListener('click', function () {
-                    zetOpen(false);
-                    toonKeuze();
-                  });
-          """
-          new = """      btn.addEventListener('click', function () {
-                    zetOpen(false);
-                    toonKeuze();
-                    updateLiveDocumentTitle(document.documentElement.lang || 'nl');
-                  });
-          """
-          s = replace_once(s, old, new, 'title click')
-          p.write_text(s, encoding='utf-8')
-
-          # Eenmalige workflow verwijdert zichzelf in dezelfde commit als de fix.
-          Path('.github/workflows/audit-refactor.yml').unlink()
+          oud = "s = replace_once(s, old, new, 'title click')"
+          nieuw = """if s.count(old) == 1:
+              s = s.replace(old, new, 1)
+          else:
+              needle = \"        toonKeuze();\\n      });\\n    });\"
+              replacement = \"        toonKeuze();\\n        updateLiveDocumentTitle(document.documentElement.lang || 'nl');\\n      });\\n    });\"
+              s = replace_once(s, needle, replacement, 'title click fallback')"""
+          if code.count(oud) != 1:
+              raise SystemExit('Kon de oude title-click stap niet uniek vinden')
+          code = code.replace(oud, nieuw, 1)
+          exec(compile(code, 'audit-refactor.py', 'exec'), {'__name__': '__main__'})
           PY
 
       - name: Syntaxcontrole
@@ -336,6 +69,6 @@ jobs:
         run: |
           git config user.name 'pjaminon-bit'
           git config user.email 'pjaminon@me.com'
-          git add auth.php leden.php seo-head.php site-i18n.js paneel-thema.js leden-autorisatie-status.php .github/workflows/audit-refactor.yml
+          git add -A
           git commit -m 'Finish audit hardening and cleanup'
           git push origin HEAD:main
