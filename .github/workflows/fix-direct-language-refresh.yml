@@ -1,0 +1,31 @@
+name: Eenmalige correctie directe taalrefresh
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-direct-language-refresh.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Pas taalinitialisatie aan
+        run: |
+          python3 .github/fix-direct-language-refresh.py
+          php -l index.php
+          php -l changelog-historie.php
+          git diff --check
+          grep -q "Pas de opgeslagen/URL-taal pas toe nadat alle helpers" index.php
+          test "$(grep -c "if (currentLang !== 'nl') setLang(currentLang);" index.php)" -eq 1
+      - name: Commit wijziging
+        run: |
+          git config user.name 'pjaminon-bit'
+          git config user.email 'pjaminon@me.com'
+          git add index.php changelog-historie.php
+          git commit -m 'Fix direct English and German homepage refresh'
+          git push origin HEAD:main
