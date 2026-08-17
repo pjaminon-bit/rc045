@@ -1,0 +1,32 @@
+name: Eenmalige homepage i18n scope fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-homepage-i18n-scope.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Fix i18n scope
+        run: |
+          python3 .github/fix-homepage-i18n-scope.py
+          node --check homepage.js
+          node --check site-i18n.js
+          php -l index.php
+          git diff --check
+          grep -q 'getInitialLang(i18n)' homepage.js
+          grep -q 'function getInitialLang(translations)' site-i18n.js
+      - name: Commit fix
+        run: |
+          git config user.name 'pjaminon-bit'
+          git config user.email 'pjaminon@me.com'
+          git add homepage.js site-i18n.js
+          git commit -m 'Fix homepage i18n scope after refactor'
+          git push origin HEAD:main
