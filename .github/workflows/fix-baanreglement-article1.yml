@@ -1,0 +1,31 @@
+name: Eenmalige aanpassing artikel 1 baanreglement
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-baanreglement-article1.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Pas artikel 1 aan
+        run: |
+          python3 .github/fix-baanreglement-article1.py
+          php -l baanreglement.php
+          php -l changelog-historie.php
+          git diff --check
+          grep -q "baanreglementArtikel1Tekst" baanreglement.php
+          ! grep -q "renderBaanreglementOpeningstijden" baanreglement.php
+      - name: Commit wijziging
+        run: |
+          git config user.name 'pjaminon-bit'
+          git config user.email 'pjaminon@me.com'
+          git add baanreglement.php changelog-historie.php
+          git commit -m 'Use website opening hours reference in track regulations'
+          git push origin HEAD:main
