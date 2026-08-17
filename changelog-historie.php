@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'verbeterd',
+    'titel' => 'Een tijdelijke stand bij de openingstijden begint nu met "Deze"',
+    'tekst' => 'Er stond "Zondag alleen open voor leden", wat leest als een vaste afspraak voor elke zondag. Zet je een dag op alleen leden, gesloten, onderhoud of slecht weer, dan staat er nu "Deze zondag alleen open voor leden". De standen die wel bij de vaste opzet van een dag horen, alleen bij voldoende animo en de variant daarvan voor leden, blijven zonder "Deze", want die gelden elke week. Ook in het Engels ("This Sunday") en Duits ("Diesen Sonntag").',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'verbeterd',
     'titel' => 'Notities bij de openingstijden staan nu als opsomming',
     'tekst' => 'De regel over het onderhoud op de eerste zaterdag of zondag en de waarschuwing bij slecht weer stonden als doorlopende tekst onder elkaar. Ze staan nu als twee punten met een opsommingsteken, net als de notities onder de kaarten Gastrijden en Lidmaatschap. De uitroeptekens en het informatie-icoon zijn weg: het opsommingsteken doet dat werk nu. De teksten zelf blijven aan te passen in het tabblad Website bij Openingstijden.',
   ],
