@@ -10,6 +10,20 @@
 // foutmelding in plaats van een kale 500.
 // ============================================================
 
+// Dezelfde sessie-instellingen als auth.php, en om dezelfde reden: dit
+// bestand start zijn eigen sessie en zou zonder deze regels bij een verzoek
+// zonder bestaande sessie een cookie zetten met de standaardinstellingen,
+// dus zonder Secure en zonder SameSite. auth.php blijft de plek waar de
+// waarden worden bepaald; wijzig ze daar, en hier mee.
+ini_set('session.use_strict_mode', '1');
+$sessieduur = 60 * 60 * 24 * 7;
+session_set_cookie_params([
+  'lifetime' => $sessieduur,
+  'path' => '/',
+  'secure' => true,
+  'httponly' => true,
+  'samesite' => 'Lax',
+]);
 session_start();
 
 header('Content-Type: application/json');

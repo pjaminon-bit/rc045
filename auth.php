@@ -50,6 +50,12 @@ require_once __DIR__ . '/leden-opslag.php';
 // ===== Sessie: een week ingelogd blijven, niet halverwege een lang formulier uitloggen =====
 $sessieduur = 60 * 60 * 24 * 7;
 ini_set('session.gc_maxlifetime', (string) $sessieduur);
+// Weiger een sessie-ID dat PHP niet zelf heeft uitgegeven. Zonder dit
+// accepteert PHP elk ID dat in de cookie staat en maakt daar een lege sessie
+// mee aan, waardoor een ID dat na het uitloggen in de browser is blijven
+// hangen (of door een ander is opgedrongen) eindeloos blijft leven. Moet
+// vóór session_start() staan om effect te hebben.
+ini_set('session.use_strict_mode', '1');
 session_set_cookie_params([
   'lifetime' => $sessieduur,
   'path' => '/',
@@ -241,6 +247,22 @@ if ($configOk) {
 // worden misbruikt om een ingelogde beheerder ongevraagd uit te loggen.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'uitloggen' && csrfOk()) {
   $_SESSION = [];
+
+  // session_destroy() ruimt alleen de sessie op de server op; de browser
+  // blijft het sessie-ID daarna gewoon meesturen. Daarom de cookie ook
+  // expliciet laten verlopen, met exact dezelfde eigenschappen als waarmee
+  // hij is gezet: een browser ziet hem anders niet als dezelfde cookie en
+  // laat de oude gewoon staan.
+  $cookieParams = session_get_cookie_params();
+  setcookie(session_name(), '', [
+    'expires'  => time() - 42000,
+    'path'     => $cookieParams['path'],
+    'domain'   => $cookieParams['domain'],
+    'secure'   => $cookieParams['secure'],
+    'httponly' => $cookieParams['httponly'],
+    'samesite' => $cookieParams['samesite'],
+  ]);
+
   session_destroy();
   header('Location: ' . authHuidigePagina());
   exit;

@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'beveiliging',
+    'titel' => 'Uitloggen ruimt nu ook het kenmerk in je browser op',
+    'tekst' => 'Bij het uitloggen werd de sessie op de server weggegooid, maar het cookie waarmee je browser zich meldde bleef staan. Dat wordt nu ook opgeruimd. Daarnaast accepteert de site alleen nog een sessie die hij zelf heeft uitgegeven, zodat een oud of van buitenaf opgedrongen kenmerk niet kan blijven rondzingen. Dat telt vooral op een computer die je met anderen deelt. Voor het in- en uitloggen zelf verandert er niets. De vertaalknoppen in het beheerpaneel gebruiken nu dezelfde sessie-instellingen als de rest van de site.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'beveiliging',
     'titel' => 'Ingelogd blijven kan nu alleen nog over een beveiligde verbinding',
     'tekst' => 'De site onthoudt met een cookie dat je bent ingelogd. Dat cookie hoort het stempel "alleen over een beveiligde verbinding versturen" te krijgen, maar of dat stempel erop kwam werd bepaald door een controle die bij onze hosting altijd negatief uitvalt: die handelt de beveiliging af voordat de site zelf aan de beurt is. In de praktijk ging het cookie dus zonder dat stempel de deur uit. Het staat nu altijd aan. Daarnaast stuurt de server iedereen die de site zonder beveiliging opvraagt eerst door naar de beveiligde versie, zodat er geen onbeveiligde weg naar het beheer en de ledenpagina meer bestaat.',
   ],
