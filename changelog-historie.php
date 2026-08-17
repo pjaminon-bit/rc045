@@ -26,13 +26,6 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'beveiliging',
-    'titel' => 'Accountnamen afgeschermd en ledenexport veilig voor Excel',
-    'tekst' => 'Wie de ledenadministratie mag gebruiken maar niet het recht Gebruikers heeft, krijgt de bestuursrol en accountkoppeling alleen nog als alleen-lezen tekst en ontvangt de overige inlognamen niet meer in de HTML-bron. Daarnaast neutraliseert de CSV-export waarden die een spreadsheet als formule zou kunnen uitvoeren, zoals tekst die met =, +, - of @ begint.',
-  ],
-
-  [
-    'datum' => '2026-08-17',
-    'cat' => 'beveiliging',
     'titel' => 'Ledenbeheer kan geen bestuursrechten meer uitdelen',
     'tekst' => 'De bestuursfunctie van een lid en de koppeling met een inlogaccount bepalen welke bestuursdelen iemand kan openen. Iemand met alleen toegang tot Leden kon die twee velden zelf aanpassen en zo bestuursrechten krijgen, ook door een ander ledenrecord aan zijn account te koppelen. Die autorisatievelden zijn nu centraal beschermd: alleen de hoofdbeheerder of iemand met het expliciete recht Gebruikers mag ze wijzigen. Dezelfde bescherming geldt ook bij CSV-import, zodat een omweg via een importbestand niet mogelijk is. Gewone ledengegevens blijven voor ledenbeheerders gewoon bewerkbaar.',
   ],
@@ -165,9 +158,63 @@ return [
     'datum' => '2026-08-14',
     'cat' => 'onderhoud',
     'titel' => 'Opmaak en scripts gedeeld tussen beheer en ledenpagina',
-    'tekst' => 'De opmaak en de scripts van de afgeschermde schermen stonden in beheer.php zelf en zouden voor de ledenpagina een tweede keer nodig zijn. Ze staan nu in gedeelde bestanden, zodat wijzigingen op beide plekken tegelijk gelden.',
+    'tekst' => 'De opmaak en de scripts van de afgeschermde schermen stonden in beheer.php zelf en zouden voor de ledenpagina een tweede keer nodig zijn. Ze staan nu in paneel.css, paneel.js en paneel-thema.js, die allebei de pagina\'s gebruiken. Inloggen zit in auth.php, ook gedeeld, zodat er maar een plek is waar wachtwoorden en rechten worden gecontroleerd.',
   ],
 
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'opgelost',
+    'titel' => 'Menu bijna onleesbaar in donkere stand',
+    'tekst' => 'Het menu links had een vaste crèmekleurige achtergrond in plaats van de themavariabele, waardoor de donkere tekstkleur er in de donkere stand bovenop bijna niet te lezen was.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'nieuw',
+    'titel' => 'Donker thema in het beheerpaneel',
+    'tekst' => 'Beheer.php had nog geen donkere stand, terwijl de rest van de site die al had. Zelfde knop en systeem als op de publieke pagina\'s (systeem/licht/donker, rechtsboven), inclusief een donkere versie van badges en meldingen.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'verbeterd',
+    'titel' => 'Operationele taken en evenementen verhuisd naar groep Bestuur',
+    'tekst' => 'Stonden eerst in een eigen groep "Operationeel", staan nu bij Bestuur samen met bestuursvergadering, ledenvergadering en takenlijst.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'verbeterd',
+    'titel' => 'Menu-groepen in beheerpaneel zijn inklapbaar',
+    'tekst' => 'De groepen in het menu links (Pagina\'s, Content, Leden & contributie, enz.) staan nu standaard dicht en klappen open door op de groepsnaam te klikken. Ze blijven altijd dicht bij het laden, ook de groep met de actieve tab.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'opgelost',
+    'titel' => 'Tekst onleesbaar bij hover op menu-groep',
+    'tekst' => 'Doordat het groepskopje in het menu een knop is geworden, verdween de tekst bij het hoveren erover (donkere tekst op donkere achtergrond). Hersteld naar een leesbaar contrast.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'opgelost',
+    'titel' => 'Datumkiezer reageerde niet op klikken in Brave en Firefox',
+    'tekst' => 'Het kalenderknopje bij de datumvelden opende de kalender niet betrouwbaar. Nu wordt de kalender expliciet geopend zodra er op het knopje wordt geklikt, in elke browser.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'verbeterd',
+    'titel' => 'Datumkiezer naast elk datumveld',
+    'tekst' => 'Bij elk datumveld in het beheerpaneel (leden, vergaderingen, evenementen, nieuws, agenda, media, fotoboek, changelog) staat nu een kalenderknopje naast het handmatige invulveld. Het invulveld (dd-mm-jjjj) blijft gewoon werken zoals voorheen.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'nieuw',
+    'titel' => 'Eindtijd bij een evenement',
+    'tekst' => 'Naast de aanvangstijd staat er nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals "9", "9.30" of "930". Staat de eindtijd voor de aanvang, dan volgt een foutmelding.',
+  ],
+  [
+    'datum' => '2026-08-13',
+    'cat' => 'nieuw',
+    'titel' => 'Begin- en einddatum inschrijving bij een evenement',
+    'tekst' => 'Een evenement kan al aangemaakt en voorbereid worden voordat het voor leden zichtbaar is: met een begindatum inschrijving verschijnt het pas op de afgesproken datum in de lijst voor leden (ook niet via een geraden link ervoor). De einddatum inschrijving is voor nu ter informatie.',
+  ],
   [
     'datum' => '2026-08-13',
     'cat' => 'nieuw',
