@@ -1,20 +1,9 @@
-<!DOCTYPE html>
-<html lang="nl">
+<?php require_once __DIR__ . '/seo-head.php'; ?><!DOCTYPE html>
+<html lang="<?php echo rc045Taal(); ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Media – RC045 Bashers of the South</title>
-<meta name="description" content="RC045 in de media: interviews en artikelen van Omroep Landgraaf, ZO-NWS en L1 over onze RC-autoclub in Zuid-Limburg.">
-<meta property="og:title" content="RC045 - Bashers of the South">
-<meta property="og:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
-<meta property="og:image" content="https://rc045.nl/rc045-logo.png">
-<meta property="og:url" content="https://rc045.nl/media.html">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="nl_NL">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="RC045 - Bashers of the South">
-<meta name="twitter:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's.">
-<meta name="twitter:image" content="https://rc045.nl/rc045-logo.png">
+<?php rc045SeoHead('media'); ?>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -22,11 +11,6 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#1E2C13">
-<link rel="canonical" href="https://rc045.nl/media.html">
-<link rel="alternate" hreflang="nl" href="https://rc045.nl/media.html">
-<link rel="alternate" hreflang="en" href="https://rc045.nl/media.html?lang=en">
-<link rel="alternate" hreflang="de" href="https://rc045.nl/media.html?lang=de">
-<link rel="alternate" hreflang="x-default" href="https://rc045.nl/media.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">

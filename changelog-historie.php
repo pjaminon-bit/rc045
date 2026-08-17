@@ -25,6 +25,13 @@ return [
 
   [
     'datum' => '2026-08-17',
+    'cat' => 'opgelost',
+    'titel' => 'Google en social media zien de site nu in de juiste taal',
+    'tekst' => 'De site is drietalig, maar het omschakelen gebeurde pas in de browser. Google en zeker Facebook en WhatsApp kijken naar de pagina zoals die van de server komt, en die was altijd Nederlands: dezelfde Nederlandse titel voor alle drie de talen, en een Nederlandse omschrijving zodra iemand een Engelse of Duitse link deelde. Titel, omschrijving en deelbericht komen nu meteen in de goede taal van de server. De zes publieke pagina\'s hebben daarvoor een eigen Engelse en Duitse titel en omschrijving gekregen, en de sitemap vertelt Google nu ook dat de drie taalversies bij elkaar horen. Voor bezoekers verandert er niets, ook de adressen blijven hetzelfde.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
     'cat' => 'beveiliging',
     'titel' => 'Uitloggen ruimt nu ook het kenmerk in je browser op',
     'tekst' => 'Bij het uitloggen werd de sessie op de server weggegooid, maar het cookie waarmee je browser zich meldde bleef staan. Dat wordt nu ook opgeruimd. Daarnaast accepteert de site alleen nog een sessie die hij zelf heeft uitgegeven, zodat een oud of van buitenaf opgedrongen kenmerk niet kan blijven rondzingen. Dat telt vooral op een computer die je met anderen deelt. Voor het in- en uitloggen zelf verandert er niets. De vertaalknoppen in het beheerpaneel gebruiken nu dezelfde sessie-instellingen als de rest van de site.',
