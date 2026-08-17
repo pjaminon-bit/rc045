@@ -1,0 +1,33 @@
+name: Eenmalige correctie baanreglement Beheer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-baanreglement-beheer.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Pas beheer en publieke pagina aan
+        run: |
+          python3 .github/fix-baanreglement-beheer.py
+          php -l beheer.php
+          php -l baanreglement.php
+          php -l changelog-historie.php
+          git diff --check
+          grep -q "Artikel 1 wordt net als de overige artikelen volledig vanuit Beheer geladen" baanreglement.php
+          grep -q "baanreglementA1Oud" beheer.php
+          ! grep -q "baanreglementArtikel1Tekst" baanreglement.php
+      - name: Commit wijziging
+        run: |
+          git config user.name 'pjaminon-bit'
+          git config user.email 'pjaminon@me.com'
+          git add beheer.php baanreglement.php changelog-historie.php
+          git commit -m 'Restore managed article 1 regulations text'
+          git push origin HEAD:main
