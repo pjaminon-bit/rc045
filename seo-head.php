@@ -53,15 +53,15 @@ $RC045_PAGINAS = [
     'pad' => '/',
     'nl' => [
       'titel' => 'RC045 – Bashers of the South',
-      'omschrijving' => 'RC045 – Bashers of the South: een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners en ervaren hobbyisten, jong en oud.',
+      'omschrijving' => 'Gezellige RC-vereniging in Zuid-Limburg voor elektrisch aangedreven, radiografisch bestuurbare auto\'s. Eigen baan in Eygelshoven, voor jong en oud.',
     ],
     'en' => [
       'titel' => 'RC045 – Bashers of the South | RC car club in South Limburg',
-      'omschrijving' => 'RC045 – Bashers of the South: a friendly club in South Limburg for fans of electric radio controlled cars. For beginners and experienced hobbyists, young and old.',
+      'omschrijving' => 'Friendly RC car club in South Limburg for electric radio controlled cars. Our own track in Eygelshoven, for beginners and experienced drivers.',
     ],
     'de' => [
       'titel' => 'RC045 – Bashers of the South | RC-Car-Verein in Süd-Limburg',
-      'omschrijving' => 'RC045 – Bashers of the South: ein geselliger Verein in Süd-Limburg für Freunde elektrisch angetriebener, ferngesteuerter Autos. Für Anfänger und erfahrene Hobbyisten, jung und alt.',
+      'omschrijving' => 'Geselliger RC-Car-Verein in Süd-Limburg für ferngesteuerte Elektroautos. Eigene Bahn in Eygelshoven nahe Aachen, für Jung und Alt.',
     ],
   ],
 
