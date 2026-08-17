@@ -223,9 +223,13 @@ var sponsorCtaDefault = {
 };
 var sponsorCtaKeyword = { nl: 'contactformulier', en: 'contact form', de: 'Kontaktformular' };
 // Op de homepage staat het contactformulier op dezelfde pagina, elders niet.
+// De homepage kan door de PHP-migratie zowel als /, /index.html (publieke
+// rewrite) als /index.php (direct pad) worden bezocht. Behandel alle drie als
+// dezelfde pagina, zodat de sponsor-CTA altijd rechtstreeks naar #contact gaat.
 var sponsorContactLink = (function () {
-  var bestand = window.location.pathname.split('/').pop();
-  return (bestand === '' || bestand === 'index.html') ? '#contact' : 'index.html#contact';
+  var bestand = window.location.pathname.split('/').pop().toLowerCase();
+  var isHomepage = bestand === '' || bestand === 'index.html' || bestand === 'index.php';
+  return isHomepage ? '#contact' : 'index.html#contact';
 })();
 
 function sponsorTaal() {
