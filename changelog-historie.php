@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'beveiliging',
+    'titel' => 'Audit-afwerking: masterhash en directe rechtencontrole',
+    'tekst' => 'Het masterwachtwoord kan nu als password_hash worden opgeslagen; de bestaande plaintext-configuratie blijft tijdelijk als migratiepad werken zodat niemand door de wijziging wordt buitengesloten. Op de ledenpagina worden bestuursrol en accountkoppeling voortaan direct door PHP als bewerkbaar of alleen-lezen gerenderd, waardoor de JavaScript-omweg en het losse status-endpoint niet meer nodig zijn. De accountlijst wordt alleen ingelezen met het expliciete recht Gebruikers en CSV-formules worden direct bij het schrijven van de export geneutraliseerd. Ook de browser-tabtitel volgt nu een taalwissel zonder herladen.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'beveiliging',
     'titel' => 'Accountnamen afgeschermd en ledenexport veilig voor Excel',
     'tekst' => 'Wie de ledenadministratie mag gebruiken maar niet het recht Gebruikers heeft, krijgt de bestuursrol en accountkoppeling alleen nog als alleen-lezen tekst en ontvangt de overige inlognamen niet meer in de HTML-bron. Daarnaast neutraliseert de CSV-export waarden die een spreadsheet als formule zou kunnen uitvoeren, zoals tekst die met =, +, - of @ begint.',
   ],
@@ -123,7 +130,7 @@ return [
     'datum' => '2026-08-14',
     'cat' => 'nieuw',
     'titel' => 'Ledenpagina op rc045.nl/leden',
-    'tekst' => 'Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV\'s, en de evenementen waarvoor ze zich kunnen inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.',
+    'tekst' => 'Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV\'s, en de evenementen waarvoor je je zelf kunt inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.',
   ],
   [
     'datum' => '2026-08-14',
@@ -214,7 +221,7 @@ return [
     'datum' => '2026-08-13',
     'cat' => 'nieuw',
     'titel' => 'Eindtijd bij een evenement',
-    'tekst' => 'Naast de aanvangstijd staat er nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals "9", "9.30" of "930". Staat de eindtijd voor de aanvang, dan volgt een foutmelding.',
+    'tekst' => 'Naast de aanvangstijd staat nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals "9", "9.30" of "930". Staat de eindtijd voor de aanvang, dan volgt een foutmelding.',
   ],
   [
     'datum' => '2026-08-13',
