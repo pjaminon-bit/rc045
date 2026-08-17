@@ -289,8 +289,9 @@ body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; colo
 
 /* Tekst die in de lichte stand var(--dark) is. Niet in deze lijst:
    .announce-bar, .hours-row.is-animo .hours-closed-note en
-   .info-closed-note.is-animo, want die staan op een gouden vlak en
-   moeten juist donkere tekst houden. */
+   .info-closed-note.is-animo. Die stonden op een massief gouden vlak en
+   hadden daarom vaste donkere tekst; nu gebruiken ze var(--text) en
+   var(--gold-light), die in deze stand zelf al omklappen. */
 :root[data-thema="donker"] .nav-logo-text,
 :root[data-thema="donker"] .section-title,
 :root[data-thema="donker"] .feature-card h4,
@@ -313,6 +314,11 @@ body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; colo
    het kaartvlak geworden, dus deze twee moeten expliciet licht blijven. */
 :root[data-thema="donker"] .hours-closed-note,
 :root[data-thema="donker"] .info-closed-note { color: #F7F4EA; }
+
+/* De animo-markering is een open randje zonder vlak, dus daar hoort de
+   gewone tekstkleur bij en niet het wit van de gevulde markeringen. */
+:root[data-thema="donker"] .hours-row.is-animo .hours-closed-note,
+:root[data-thema="donker"] .info-closed-note.is-animo { color: var(--text); }
 
 /* Hover op de primaire knoppen gaat in de donkere stand juist dieper in
    plaats van lichter, anders wordt witte tekst onleesbaar. */
