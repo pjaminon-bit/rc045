@@ -1,0 +1,50 @@
+name: Eenmalige live homepage smoke-test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/smoke-homepage-refactor.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Controleer Chrome
+        run: google-chrome --version
+      - name: Test Nederlands
+        run: |
+          google-chrome --headless --no-sandbox --disable-gpu --virtual-time-budget=7000 --dump-dom 'https://rc045.nl/?smoke=nl' > /tmp/nl.html
+          grep -q 'Dé RC-vereniging van Zuid-Limburg' /tmp/nl.html
+          grep -q 'Heb je een vraag?' /tmp/nl.html
+          grep -q '6464 EZ Eygelshoven' /tmp/nl.html
+          grep -q 'Website door' /tmp/nl.html
+          grep -q 'homepage.js' /tmp/nl.html
+      - name: Test Engels direct geladen
+        run: |
+          google-chrome --headless --no-sandbox --disable-gpu --virtual-time-budget=7000 --dump-dom 'https://rc045.nl/?lang=en&smoke=1' > /tmp/en.html
+          grep -q 'lang="en"' /tmp/en.html
+          grep -q 'The RC club of South Limburg' /tmp/en.html
+          grep -q 'Got a question?' /tmp/en.html
+          grep -q 'Opening hours' /tmp/en.html
+          grep -q 'Website by' /tmp/en.html
+          grep -q '6464 EZ Eygelshoven' /tmp/en.html
+      - name: Test Duits direct geladen
+        run: |
+          google-chrome --headless --no-sandbox --disable-gpu --virtual-time-budget=7000 --dump-dom 'https://rc045.nl/?lang=de&smoke=1' > /tmp/de.html
+          grep -q 'lang="de"' /tmp/de.html
+          grep -q 'Der RC-Verein in Südlimburg' /tmp/de.html
+          grep -q 'Hast du eine Frage?' /tmp/de.html
+          grep -q 'Öffnungszeiten' /tmp/de.html
+          grep -q 'Website von' /tmp/de.html
+          grep -q '6464 EZ Eygelshoven' /tmp/de.html
+      - name: Test dynamische onderdelen
+        run: |
+          grep -q 'agenda-card' /tmp/nl.html
+          grep -q 'prijs-senior' /tmp/nl.html
+          grep -q 'status-indicator' /tmp/nl.html
+          grep -q 'footer-sponsors' /tmp/nl.html
+          grep -q 'contact-form' /tmp/nl.html
