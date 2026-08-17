@@ -29,9 +29,8 @@ jobs:
 
       - name: Commit hardening
         run: |
-          rm .github/audit-hardening.py .github/workflows/audit-hardening.yml
           git config user.name 'pjaminon-bit'
           git config user.email 'pjaminon@me.com'
-          git add -A
-          git commit -m 'Harden login limits data locking and deploy chain'
+          git add auth.php data-slot.php changelog-historie.php
+          git commit -m 'Harden login limits and data locking'
           git push origin HEAD:main
