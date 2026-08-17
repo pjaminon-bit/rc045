@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'fix',
+    'titel' => 'Baanreglement verwijst voortaan naar actuele openingstijden',
+    'tekst' => 'Artikel 1 bevat geen concrete openingstijden meer. Het verwijst naar de actuele tijden op de website, vermeldt de vrijdagse publicatietermijn, de ledenavond op woensdag, de betekenis van tot einde en de mogelijkheid van sluiting bij slecht weer of onvoorziene omstandigheden. De tekst is opgenomen in NL, EN en DE.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'fix',
     'titel' => 'Dubbele openingstijden in baanreglement voorkomen',
     'tekst' => 'Openingstijdenregels die nog in de via Beheer opgeslagen tekst van artikel 1 staan, worden op de publieke pagina automatisch weggelaten. De overige beheertekst blijft zichtbaar en de actuele tijden komen uitsluitend uit contact.json.',
   ],

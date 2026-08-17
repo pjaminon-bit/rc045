@@ -118,14 +118,7 @@
       <div class="artikel-title" id="br-a1-title" data-i18n="a1.title">Openingstijden van de baan</div>
     </div>
     <div class="artikel-body" id="br-a1-body">
-      <div id="br-a1-text">
-        <p data-i18n="a1.p1">"Tot einde" wil zeggen dat bij onvoldoende animo het RC045-terrein zal worden gesloten door de sleutelhouder. Sluiting van het RC045-terrein zal ook via de WhatsApp groep van RC045 worden gecommuniceerd.</p>
-      </div>
-      <ul id="br-opening-hours">
-        <li id="br-hours-wed">Woensdag: 19:00 – 22:00 — alleen bij voldoende animo</li>
-        <li id="br-hours-sat">Zaterdag: 10:00 – 15:00</li>
-        <li id="br-hours-sun">Zondag: 10:00 – 15:00</li>
-      </ul>
+      <div id="br-a1-text"></div>
     </div>
   </div>
 
@@ -497,60 +490,7 @@ function setLang(lang) {
   renderSponsorCta();
     renderNavFooterTeksten();
   renderBaanreglementTekst();
-  renderBaanreglementOpeningstijden();
 }
-
-// ===== OPENINGSTIJDEN BAANREGLEMENT (data/contact.json, bijwerken via beheer.php) =====
-// Artikel 1 gebruikt exact dezelfde beheerde openingstijden en dagstatussen als
-// de homepage. Zo kunnen het baanreglement en de homepage nooit uiteenlopen.
-var baanreglementContactData = null;
-var baanreglementUrenTekst = {
-  nl: { wed: 'Woensdag', sat: 'Zaterdag', sun: 'Zondag', animo: 'alleen bij voldoende animo', animo_leden: 'alleen bij voldoende animo, en alleen voor leden', leden: 'alleen open voor leden', gesloten: 'gesloten', onderhoud: 'gesloten i.v.m. onderhoud', weer: 'gesloten i.v.m. slecht weer', note: 'Deze openingstijden worden automatisch bijgewerkt vanuit de actuele openingstijden op de website.' },
-  en: { wed: 'Wednesday', sat: 'Saturday', sun: 'Sunday', animo: 'only if enough people turn up', animo_leden: 'only if enough people turn up, and members only', leden: 'members only', gesloten: 'closed', onderhoud: 'closed for maintenance', weer: 'closed due to bad weather', note: 'These opening hours are updated automatically from the current opening hours on the website.' },
-  de: { wed: 'Mittwoch', sat: 'Samstag', sun: 'Sonntag', animo: 'nur bei genügend Andrang', animo_leden: 'nur bei genügend Andrang und nur für Mitglieder', leden: 'nur für Mitglieder geöffnet', gesloten: 'geschlossen', onderhoud: 'wegen Wartung geschlossen', weer: 'wegen schlechten Wetters geschlossen', note: 'Diese Öffnungszeiten werden automatisch aus den aktuellen Öffnungszeiten der Website übernommen.' }
-};
-function baanreglementVanTot(vanTot, terugval) {
-  if (!vanTot || !vanTot.van || !vanTot.tot) return terugval;
-  return vanTot.van + ' – ' + vanTot.tot;
-}
-function baanreglementIsDicht(status) { return status === 'gesloten' || status === 'onderhoud' || status === 'weer'; }
-function baanreglementIsAnimo(status) { return status === 'animo' || status === 'animo_leden'; }
-function baanreglementIsAfwijkend(status) { return status === 'leden' || baanreglementIsAnimo(status) || baanreglementIsDicht(status); }
-function baanreglementDagStatus(dag, terugval) {
-  terugval = terugval || 'open';
-  var status = (dag && dag.status) || '';
-  if (!baanreglementIsAfwijkend(status)) {
-    if (dag && dag.gesloten) status = 'onderhoud';
-    else return terugval;
-  }
-  if (baanreglementIsAnimo(status)) return status;
-  if (dag && dag.status_tot) {
-    var verval = new Date(dag.status_tot);
-    if (!isNaN(verval.getTime()) && Date.now() > verval.getTime()) return terugval;
-  }
-  return status;
-}
-function renderBaanreglementOpeningstijden() {
-  var tekst = baanreglementUrenTekst[currentLang] || baanreglementUrenTekst.nl;
-  var oh = (baanreglementContactData && baanreglementContactData.openingstijden) || {};
-  var dagen = [
-    { key: 'wed', data: oh.woensdag || {}, fallbackTijd: '19:00 – 22:00', fallbackStatus: 'animo', el: 'br-hours-wed' },
-    { key: 'sat', data: oh.zaterdag || {}, fallbackTijd: '10:00 – 15:00', fallbackStatus: 'open', el: 'br-hours-sat' },
-    { key: 'sun', data: oh.zondag || {}, fallbackTijd: '10:00 – 15:00', fallbackStatus: 'open', el: 'br-hours-sun' }
-  ];
-  dagen.forEach(function (dag) {
-    var tijd = baanreglementVanTot(dag.data, dag.fallbackTijd);
-    var status = baanreglementDagStatus(dag.data, dag.fallbackStatus);
-    var regel = tekst[dag.key] + ': ' + tijd;
-    if (status !== 'open' && tekst[status]) regel += ' — ' + tekst[status];
-    var el = document.getElementById(dag.el);
-    if (el) el.textContent = regel;
-  });
-}
-fetch('data/contact.json', { cache: 'no-store' })
-  .then(function (r) { return r.ok ? r.json() : null; })
-  .then(function (d) { baanreglementContactData = d || null; renderBaanreglementOpeningstijden(); })
-  .catch(function () { renderBaanreglementOpeningstijden(); });
 
 // ===== TEKST BAANREGLEMENT (data/baanreglement.json, bijwerken via beheer.php) =====
 // De ondertitel, introtekst en de tien artikelen stonden hiervoor vast in dit
@@ -560,6 +500,11 @@ fetch('data/contact.json', { cache: 'no-store' })
 // Nederlandse tekst. Elk artikel is in beheer één tekstvak: een lege regel
 // erin wordt hier weer als aparte alinea getoond (de losse bullets/
 // subartikelen van hiervoor zijn dus samengevoegd tot gewone alinea's).
+var baanreglementArtikel1Tekst = {
+  nl: 'De actuele openingstijden van de baan worden op de website van RC045 gepubliceerd en kunnen indien nodig worden aangepast. De openingstijden voor het betreffende weekend worden uiterlijk vrijdag om 20.00 uur bekendgemaakt.\n\nDe woensdagavond is uitsluitend toegankelijk voor leden van RC045.\n\nWanneer bij een openingstijd “tot einde” wordt vermeld, betekent dit dat het RC045-terrein bij onvoldoende animo eerder kan worden gesloten door de aanwezige sleutelhouder. Een dergelijke sluiting wordt ook via de WhatsApp-groep van RC045 gecommuniceerd.\n\nBij slecht weer of andere onvoorziene omstandigheden kan het RC045-terrein geheel of gedeeltelijk gesloten blijven. De beslissing hierover wordt genomen door het bestuur van RC045. Controleer daarom voor vertrek altijd de actuele informatie op de website.',
+  en: 'The current opening hours of the track are published on the RC045 website and may be adjusted when necessary. The opening hours for the relevant weekend will be announced no later than Friday at 20:00.\n\nWednesday evenings are exclusively for RC045 members.\n\nWhen an opening time states “until closing”, this means that the RC045 premises may close earlier if there is insufficient attendance. The decision to close will be made by the key holder present at the premises and will also be communicated via the RC045 WhatsApp group.\n\nIn case of bad weather or other unforeseen circumstances, the RC045 premises may remain fully or partially closed. This decision is made by the RC045 board. Therefore, always check the latest information on the website before travelling to the track.',
+  de: 'Die aktuellen Öffnungszeiten der Strecke werden auf der RC045-Website veröffentlicht und können bei Bedarf angepasst werden. Die Öffnungszeiten für das jeweilige Wochenende werden spätestens freitags um 20:00 Uhr bekannt gegeben.\n\nMittwochabends ist die Strecke ausschließlich für Mitglieder von RC045 geöffnet.\n\nWenn bei einer Öffnungszeit „bis Ende“ angegeben ist, bedeutet dies, dass das RC045-Gelände bei zu geringer Beteiligung früher durch den anwesenden Schlüsselinhaber geschlossen werden kann. Eine solche Schließung wird ebenfalls über die WhatsApp-Gruppe von RC045 bekannt gegeben.\n\nBei schlechtem Wetter oder anderen unvorhergesehenen Umständen kann das RC045-Gelände ganz oder teilweise geschlossen bleiben. Die Entscheidung darüber trifft der Vorstand von RC045. Bitte prüfe daher vor der Anfahrt immer die aktuellen Informationen auf der Website.'
+};
 var baanreglementData = null;
 var baanreglementArtikelen = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 function renderBaanreglementTekst() {
@@ -581,37 +526,17 @@ function renderBaanreglementTekst() {
   zetTekst('br-intro-text', 'intro_text');
   zetTekst('br-a1-title', 'a1_title');
 
-  // Artikel 1 blijft volledig tekstueel beheerbaar. Alleen het aparte
-  // openingstijdenblok eronder komt uit contact.json.
-  var artikel1Tekst = tekstVoor('a1_body');
-  if (artikel1Tekst) {
-    var artikel1Body = document.getElementById('br-a1-text');
-    if (artikel1Body) {
-      // Openingstijden mogen in de beheertekst blijven staan voor leesbaarheid
-      // in Beheer, maar worden op de publieke pagina niet dubbel getoond. Het
-      // centrale blok uit contact.json is de enige bron voor actuele tijden.
-      function isOpeningstijdRegel(regel) {
-        var schoon = String(regel || '')
-          .trim()
-          .replace(/^[-*•–—]\s*/, '')
-          .toLowerCase();
-        var begintMetDag = /^(woensdag(?:avond)?|wednesday(?: evening)?|mittwoch(?:abend)?|zaterdag|saturday|samstag|zondag|sunday|sonntag)\b/.test(schoon);
-        var bevatTijd = /\b\d{1,2}[:.]\d{2}\b/.test(schoon);
-        return begintMetDag && bevatTijd;
-      }
-      var artikel1TekstZonderUren = artikel1Tekst
-        .split(/\r?\n/)
-        .filter(function (regel) { return !isOpeningstijdRegel(regel); })
-        .join('\n')
-        .trim();
-      var artikel1Alineas = artikel1TekstZonderUren.split(/\n\s*\n/).map(function (a) { return a.trim(); }).filter(Boolean);
-      artikel1Body.innerHTML = '';
-      artikel1Alineas.forEach(function (alinea) {
-        var p = document.createElement('p');
-        p.textContent = alinea;
-        artikel1Body.appendChild(p);
-      });
-    }
+  // Artikel 1 verwijst bewust naar de actuele openingstijden op de homepage.
+  // Concrete tijden staan hier niet meer, zodat het reglement nooit veroudert.
+  var artikel1Body = document.getElementById('br-a1-text');
+  if (artikel1Body) {
+    var artikel1Tekst = baanreglementArtikel1Tekst[currentLang] || baanreglementArtikel1Tekst.nl;
+    artikel1Body.innerHTML = '';
+    artikel1Tekst.split(/\n\s*\n/).forEach(function (alinea) {
+      var paragraaf = document.createElement('p');
+      paragraaf.textContent = alinea;
+      artikel1Body.appendChild(paragraaf);
+    });
   }
 
   baanreglementArtikelen.forEach(function (n) {
