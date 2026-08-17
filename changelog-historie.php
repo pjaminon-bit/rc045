@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'opgelost',
+    'titel' => 'Sponsorlink op de homepage herkent index.php weer',
+    'tekst' => 'Na de overgang van index.html naar index.php herkende het gedeelde taalscript een rechtstreeks bezoek aan /index.php niet meer als de homepage. Daardoor wees de sponsoroproep in de footer daar via index.html terug naar het contactformulier. De homepage-detectie accepteert nu /, index.html en index.php, zodat de link altijd rechtstreeks naar het contactformulier op dezelfde pagina gaat.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'opgelost',
     'titel' => 'Google en social media zien de site nu in de juiste taal',
     'tekst' => 'De site is drietalig, maar het omschakelen gebeurde pas in de browser. Google en zeker Facebook en WhatsApp kijken naar de pagina zoals die van de server komt, en die was altijd Nederlands: dezelfde Nederlandse titel voor alle drie de talen, en een Nederlandse omschrijving zodra iemand een Engelse of Duitse link deelde. Titel, omschrijving en deelbericht komen nu meteen in de goede taal van de server. De publieke pagina\'s hebben daarvoor een eigen Engelse en Duitse titel en omschrijving gekregen, en de sitemap vertelt Google nu ook dat de drie taalversies bij elkaar horen. De omschrijving van de homepage is in alle drie de talen ingekort, want Google kapt na ongeveer 155 tekens af en de laatste zin viel weg. Voor bezoekers verandert er niets, ook de adressen blijven hetzelfde.',
   ],
