@@ -3,7 +3,6 @@ from pathlib import Path
 p = Path('baanreglement.php')
 s = p.read_text(encoding='utf-8')
 
-# 1. Artikel 1 HTML: geen dynamisch urenblok meer; alleen tekst.
 old_html = '''    <div class="artikel-body" id="br-a1-body">
       <div id="br-a1-text">
         <p data-i18n="a1.p1">"Tot einde" wil zeggen dat bij onvoldoende animo het RC045-terrein zal worden gesloten door de sleutelhouder. Sluiting van het RC045-terrein zal ook via de WhatsApp groep van RC045 worden gecommuniceerd.</p>
@@ -21,18 +20,14 @@ if old_html not in s:
     raise SystemExit('artikel 1 HTML niet gevonden')
 s = s.replace(old_html, new_html, 1)
 
-# 2. Verwijder aanroep naar dynamische uren bij taalwissel.
 s = s.replace('  renderBaanreglementTekst();\n  renderBaanreglementOpeningstijden();\n', '  renderBaanreglementTekst();\n', 1)
 
-# 3. Verwijder complete contact.json/openingstijden-sectie.
 start = s.find('// ===== OPENINGSTIJDEN BAANREGLEMENT (data/contact.json, bijwerken via beheer.php) =====')
 end = s.find('// ===== TEKST BAANREGLEMENT (data/baanreglement.json, bijwerken via beheer.php) =====')
 if start == -1 or end == -1 or end <= start:
     raise SystemExit('openingstijden JS-sectie niet gevonden')
 s = s[:start] + s[end:]
 
-# 4. Voeg vaste, vertaalde artikel-1 tekst toe. Deze tekst is bewust niet meer gekoppeld
-# aan concrete tijden; de actuele tijden staan uitsluitend op de homepage.
 marker = 'var baanreglementData = null;\n'
 fixed = '''var baanreglementArtikel1Tekst = {
   nl: 'De actuele openingstijden van de baan worden op de website van RC045 gepubliceerd en kunnen indien nodig worden aangepast. De openingstijden voor het betreffende weekend worden uiterlijk vrijdag om 20.00 uur bekendgemaakt.\\n\\nDe woensdagavond is uitsluitend toegankelijk voor leden van RC045.\\n\\nWanneer bij een openingstijd “tot einde” wordt vermeld, betekent dit dat het RC045-terrein bij onvoldoende animo eerder kan worden gesloten door de aanwezige sleutelhouder. Een dergelijke sluiting wordt ook via de WhatsApp-groep van RC045 gecommuniceerd.\\n\\nBij slecht weer of andere onvoorziene omstandigheden kan het RC045-terrein geheel of gedeeltelijk gesloten blijven. De beslissing hierover wordt genomen door het bestuur van RC045. Controleer daarom voor vertrek altijd de actuele informatie op de website.',
@@ -44,11 +39,10 @@ if marker not in s:
     raise SystemExit('baanreglementData marker niet gevonden')
 s = s.replace(marker, fixed + marker, 1)
 
-# 5. Vervang de eerdere complexe artikel-1 renderer door de vaste tekst in de gekozen taal.
 a1_start = s.find("  // Artikel 1 blijft volledig tekstueel beheerbaar.")
 if a1_start == -1:
     raise SystemExit('oude artikel-1 renderer start niet gevonden')
-a2_marker = "  baanreglementArtikelen.forEach(function (nr) {"
+a2_marker = "  baanreglementArtikelen.forEach(function (n) {"
 a1_end = s.find(a2_marker, a1_start)
 if a1_end == -1:
     raise SystemExit('artikel-1 renderer einde niet gevonden')
@@ -67,10 +61,8 @@ new_render = '''  // Artikel 1 verwijst bewust naar de actuele openingstijden op
 
 '''
 s = s[:a1_start] + new_render + s[a1_end:]
-
 p.write_text(s, encoding='utf-8')
 
-# Changelog
 c = Path('changelog-historie.php')
 cs = c.read_text(encoding='utf-8')
 titel = "'titel' => 'Baanreglement verwijst voortaan naar actuele openingstijden'"
