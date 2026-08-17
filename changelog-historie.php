@@ -130,7 +130,7 @@ return [
     'datum' => '2026-08-14',
     'cat' => 'nieuw',
     'titel' => 'Ledenpagina op rc045.nl/leden',
-    'tekst' => 'Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV\'s, en de evenementen waarvoor je je zelf kunt inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.',
+    'tekst' => 'Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV\'s, en de evenementen waarvoor ze zich kunnen inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.',
   ],
   [
     'datum' => '2026-08-14',
@@ -221,7 +221,7 @@ return [
     'datum' => '2026-08-13',
     'cat' => 'nieuw',
     'titel' => 'Eindtijd bij een evenement',
-    'tekst' => 'Naast de aanvangstijd staat nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals "9", "9.30" of "930". Staat de eindtijd voor de aanvang, dan volgt een foutmelding.',
+    'tekst' => 'Naast de aanvangstijd staat er nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals "9", "9.30" of "930". Staat de eindtijd voor de aanvang, dan volgt een foutmelding.',
   ],
   [
     'datum' => '2026-08-13',
