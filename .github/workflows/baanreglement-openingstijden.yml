@@ -17,7 +17,7 @@ jobs:
 
       - name: Pas functionele wijzigingen toe
         run: |
-          python3 .github/baanreglement-openingstijden.py
+          python3 .github/baanreglement-openingstijden-v2.py
           php -l baanreglement.php
           php -l changelog-historie.php
           git diff --check
