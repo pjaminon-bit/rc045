@@ -25,6 +25,13 @@ return [
 
   [
     'datum' => '2026-08-17',
+    'cat' => 'verbetering',
+    'titel' => 'Baanreglement gebruikt voortaan de beheerde openingstijden',
+    'tekst' => 'Artikel 1 van het baanreglement haalt de openingstijden en tijdelijke dagstatussen nu uit dezelfde contact.json als de homepage. Daardoor worden wijzigingen vanuit Beheer automatisch op beide plekken doorgevoerd. Ook is de oude /Lidmaatschap/-route permanent doorgestuurd naar de lidmaatschapssectie op de homepage.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
     'cat' => 'beveiliging',
     'titel' => 'Loginlimieten, datalock en deployketen verder aangescherpt',
     'tekst' => 'Mislukte logins worden nu atomair bijgehouden onder een apart slot en begrensd per account én per gehasht bron-IP. De centrale lees-wijzig-schrijf-lock faalt voortaan gesloten met HTTP 503 in plaats van zonder lock door te gaan. De GitHub deploy-workflow heeft expliciet alleen contents: read en zowel checkout als de SFTP-action zijn op vaste commit-SHA’s gepind.',

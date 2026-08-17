@@ -118,12 +118,12 @@
       <div class="artikel-title" id="br-a1-title" data-i18n="a1.title">Openingstijden van de baan</div>
     </div>
     <div class="artikel-body" id="br-a1-body">
-      <ul>
-        <li data-i18n="a1.b1">Woensdagavond 18:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)</li>
-        <li data-i18n="a1.b2">Zaterdag 10:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)</li>
-        <li data-i18n="a1.b3">Zondag 10:00 uur tot einde</li>
+      <ul id="br-opening-hours">
+        <li id="br-hours-wed">Woensdag: 19:00 – 22:00 — alleen bij voldoende animo</li>
+        <li id="br-hours-sat">Zaterdag: 10:00 – 15:00</li>
+        <li id="br-hours-sun">Zondag: 10:00 – 15:00</li>
       </ul>
-      <p data-i18n="a1.p1">"Tot einde" wil zeggen dat bij onvoldoende animo het RC045-terrein zal worden gesloten door de sleutelhouder. Sluiting van het RC045-terrein zal ook via de WhatsApp groep van RC045 worden gecommuniceerd.</p>
+      <p id="br-hours-note">Deze openingstijden worden automatisch bijgewerkt vanuit de actuele openingstijden op de website.</p>
     </div>
   </div>
 
@@ -495,7 +495,62 @@ function setLang(lang) {
   renderSponsorCta();
     renderNavFooterTeksten();
   renderBaanreglementTekst();
+  renderBaanreglementOpeningstijden();
 }
+
+// ===== OPENINGSTIJDEN BAANREGLEMENT (data/contact.json, bijwerken via beheer.php) =====
+// Artikel 1 gebruikt exact dezelfde beheerde openingstijden en dagstatussen als
+// de homepage. Zo kunnen het baanreglement en de homepage nooit uiteenlopen.
+var baanreglementContactData = null;
+var baanreglementUrenTekst = {
+  nl: { wed: 'Woensdag', sat: 'Zaterdag', sun: 'Zondag', animo: 'alleen bij voldoende animo', animo_leden: 'alleen bij voldoende animo, en alleen voor leden', leden: 'alleen open voor leden', gesloten: 'gesloten', onderhoud: 'gesloten i.v.m. onderhoud', weer: 'gesloten i.v.m. slecht weer', note: 'Deze openingstijden worden automatisch bijgewerkt vanuit de actuele openingstijden op de website.' },
+  en: { wed: 'Wednesday', sat: 'Saturday', sun: 'Sunday', animo: 'only if enough people turn up', animo_leden: 'only if enough people turn up, and members only', leden: 'members only', gesloten: 'closed', onderhoud: 'closed for maintenance', weer: 'closed due to bad weather', note: 'These opening hours are updated automatically from the current opening hours on the website.' },
+  de: { wed: 'Mittwoch', sat: 'Samstag', sun: 'Sonntag', animo: 'nur bei genügend Andrang', animo_leden: 'nur bei genügend Andrang und nur für Mitglieder', leden: 'nur für Mitglieder geöffnet', gesloten: 'geschlossen', onderhoud: 'wegen Wartung geschlossen', weer: 'wegen schlechten Wetters geschlossen', note: 'Diese Öffnungszeiten werden automatisch aus den aktuellen Öffnungszeiten der Website übernommen.' }
+};
+function baanreglementVanTot(vanTot, terugval) {
+  if (!vanTot || !vanTot.van || !vanTot.tot) return terugval;
+  return vanTot.van + ' – ' + vanTot.tot;
+}
+function baanreglementIsDicht(status) { return status === 'gesloten' || status === 'onderhoud' || status === 'weer'; }
+function baanreglementIsAnimo(status) { return status === 'animo' || status === 'animo_leden'; }
+function baanreglementIsAfwijkend(status) { return status === 'leden' || baanreglementIsAnimo(status) || baanreglementIsDicht(status); }
+function baanreglementDagStatus(dag, terugval) {
+  terugval = terugval || 'open';
+  var status = (dag && dag.status) || '';
+  if (!baanreglementIsAfwijkend(status)) {
+    if (dag && dag.gesloten) status = 'onderhoud';
+    else return terugval;
+  }
+  if (baanreglementIsAnimo(status)) return status;
+  if (dag && dag.status_tot) {
+    var verval = new Date(dag.status_tot);
+    if (!isNaN(verval.getTime()) && Date.now() > verval.getTime()) return terugval;
+  }
+  return status;
+}
+function renderBaanreglementOpeningstijden() {
+  var tekst = baanreglementUrenTekst[currentLang] || baanreglementUrenTekst.nl;
+  var oh = (baanreglementContactData && baanreglementContactData.openingstijden) || {};
+  var dagen = [
+    { key: 'wed', data: oh.woensdag || {}, fallbackTijd: '19:00 – 22:00', fallbackStatus: 'animo', el: 'br-hours-wed' },
+    { key: 'sat', data: oh.zaterdag || {}, fallbackTijd: '10:00 – 15:00', fallbackStatus: 'open', el: 'br-hours-sat' },
+    { key: 'sun', data: oh.zondag || {}, fallbackTijd: '10:00 – 15:00', fallbackStatus: 'open', el: 'br-hours-sun' }
+  ];
+  dagen.forEach(function (dag) {
+    var tijd = baanreglementVanTot(dag.data, dag.fallbackTijd);
+    var status = baanreglementDagStatus(dag.data, dag.fallbackStatus);
+    var regel = tekst[dag.key] + ': ' + tijd;
+    if (status !== 'open' && tekst[status]) regel += ' — ' + tekst[status];
+    var el = document.getElementById(dag.el);
+    if (el) el.textContent = regel;
+  });
+  var note = document.getElementById('br-hours-note');
+  if (note) note.textContent = tekst.note;
+}
+fetch('data/contact.json', { cache: 'no-store' })
+  .then(function (r) { return r.ok ? r.json() : null; })
+  .then(function (d) { baanreglementContactData = d || null; renderBaanreglementOpeningstijden(); })
+  .catch(function () { renderBaanreglementOpeningstijden(); });
 
 // ===== TEKST BAANREGLEMENT (data/baanreglement.json, bijwerken via beheer.php) =====
 // De ondertitel, introtekst en de tien artikelen stonden hiervoor vast in dit
@@ -506,7 +561,7 @@ function setLang(lang) {
 // erin wordt hier weer als aparte alinea getoond (de losse bullets/
 // subartikelen van hiervoor zijn dus samengevoegd tot gewone alinea's).
 var baanreglementData = null;
-var baanreglementArtikelen = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+var baanreglementArtikelen = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 function renderBaanreglementTekst() {
   if (!baanreglementData) return;
   function tekstVoor(veld) {
@@ -524,6 +579,7 @@ function renderBaanreglementTekst() {
   zetTekst('br-hero-sub', 'hero_sub');
   zetTekst('br-intro-bold', 'intro_bold');
   zetTekst('br-intro-text', 'intro_text');
+  zetTekst('br-a1-title', 'a1_title');
   baanreglementArtikelen.forEach(function (n) {
     zetTekst('br-a' + n + '-title', 'a' + n + '_title');
     var tekst = tekstVoor('a' + n + '_body');
