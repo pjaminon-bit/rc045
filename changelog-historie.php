@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'beveiliging',
+    'titel' => 'Loginlimieten, datalock en deployketen verder aangescherpt',
+    'tekst' => 'Mislukte logins worden nu atomair bijgehouden onder een apart slot en begrensd per account én per gehasht bron-IP. De centrale lees-wijzig-schrijf-lock faalt voortaan gesloten met HTTP 503 in plaats van zonder lock door te gaan. De GitHub deploy-workflow heeft expliciet alleen contents: read en zowel checkout als de SFTP-action zijn op vaste commit-SHA’s gepind.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'beveiliging',
     'titel' => 'Audit-afwerking: masterhash en directe rechtencontrole',
     'tekst' => 'Het masterwachtwoord kan nu als password_hash worden opgeslagen; de bestaande plaintext-configuratie blijft tijdelijk als migratiepad werken zodat niemand door de wijziging wordt buitengesloten. Op de ledenpagina worden bestuursrol en accountkoppeling voortaan direct door PHP als bewerkbaar of alleen-lezen gerenderd, waardoor de JavaScript-omweg en het losse status-endpoint niet meer nodig zijn. De accountlijst wordt alleen ingelezen met het expliciete recht Gebruikers en CSV-formules worden direct bij het schrijven van de export geneutraliseerd. Ook de browser-tabtitel volgt nu een taalwissel zonder herladen.',
   ],
