@@ -1017,14 +1017,14 @@
             <span class="hours-day" id="hp-hours-sat" data-i18n="hours.sat">Zaterdag</span>
             <span class="hours-time-wrap">
               <span class="hours-time" id="hours-sat-time">11:00 – 15:00</span>
-              <span class="hours-closed-note" id="hours-sat-closed">⛔ Zaterdag gesloten</span>
+              <span class="hours-closed-note" id="hours-sat-closed">⛔ Deze zaterdag gesloten</span>
             </span>
           </div>
           <div class="hours-row" id="hours-sun-row">
             <span class="hours-day" id="hp-hours-sun" data-i18n="hours.sun">Zondag</span>
             <span class="hours-time-wrap">
               <span class="hours-time" id="hours-sun-time">10:00 – 17:00</span>
-              <span class="hours-closed-note" id="hours-sun-closed">⛔ Zondag gesloten</span>
+              <span class="hours-closed-note" id="hours-sun-closed">⛔ Deze zondag gesloten</span>
             </span>
           </div>
           <ul class="hours-note">
@@ -1240,6 +1240,7 @@
       'rule7.title': 'We rijden nooit op het asfalt', 'rule7.text': 'Het is verboden om te rijden op het asfalt. Van de kantine naar het rijderspodium rijd je stapvoets.', 'rules.link': 'Volledig (statutair) baanreglement lezen →',
       'loc.label': 'Bezoek ons', 'loc.title': 'Hoe vind je ons?',
       'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
+      'hours.this.wed': 'Deze woensdag', 'hours.this.sat': 'Deze zaterdag', 'hours.this.sun': 'Deze zondag',
       'hours.closed': 'gesloten', 'hours.closed.maintenance': 'gesloten i.v.m. onderhoud', 'hours.closed.weather': 'gesloten i.v.m. slecht weer', 'hours.members': 'alleen open voor leden', 'hours.animo': 'alleen bij voldoende animo', 'hours.animo.members': 'alleen bij voldoende animo, en alleen voor leden',
       'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.',
       'hours.weather': 'Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
@@ -1314,6 +1315,7 @@
       'rule7.title': 'We never ride on the asphalt', 'rule7.text': 'It is forbidden to ride on the asphalt. From the canteen to the driver\'s platform, you ride at walking pace.', 'rules.link': 'Read the full (statutory) track regulations →',
       'loc.label': 'Visit us', 'loc.title': 'How to find us?',
       'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
+      'hours.this.wed': 'This Wednesday', 'hours.this.sat': 'This Saturday', 'hours.this.sun': 'This Sunday',
       'hours.closed': 'closed', 'hours.closed.maintenance': 'closed for maintenance', 'hours.closed.weather': 'closed due to bad weather', 'hours.members': 'open to members only', 'hours.animo': 'only if enough people turn up', 'hours.animo.members': 'members only, and only if enough people turn up',
       'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance.',
       'hours.weather': 'In bad weather we may decide to close early or not open at all.',
@@ -1388,6 +1390,7 @@
       'rule7.title': 'Wir fahren nie auf dem Asphalt', 'rule7.text': 'Es ist verboten, auf dem Asphalt zu fahren. Von der Kantine zum Fahrerpodium fährst du Schrittgeschwindigkeit.', 'rules.link': 'Vollständiges (satzungsgemäßes) Streckenreglement lesen →',
       'loc.label': 'Besuche uns', 'loc.title': 'Wie findest du uns?',
       'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
+      'hours.this.wed': 'Diesen Mittwoch', 'hours.this.sat': 'Diesen Samstag', 'hours.this.sun': 'Diesen Sonntag',
       'hours.closed': 'geschlossen', 'hours.closed.maintenance': 'wegen Wartung geschlossen', 'hours.closed.weather': 'wegen schlechtem Wetter geschlossen', 'hours.members': 'nur für Mitglieder geöffnet', 'hours.animo': 'nur bei genügend Andrang', 'hours.animo.members': 'nur für Mitglieder und nur bei genügend Andrang',
       'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen.',
       'hours.weather': 'Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
@@ -2160,19 +2163,33 @@
     }
     return status;
   }
-  function statusTekst(status, dagTekst, t) {
+  // De animo-standen horen bij de vaste opzet van een dag, dus die blijven
+  // "Woensdag alleen bij voldoende animo". De overige standen zijn tijdelijk
+  // (zie contactVasteStanden() in beheer.php) en gelden alleen voor die ene
+  // dag: die worden "Deze zondag alleen open voor leden", zodat het niet lijkt
+  // of het elke zondag zo is. De dagnaam met "deze" staat als eigen sleutel in
+  // de vertalingen, omdat de hoofdletter per taal verschilt: 'deze zondag',
+  // maar 'This Sunday' en 'Diesen Sonntag'.
+  function dagTekstVoorStand(status, dagSleutel, t) {
+    if (!isAnimo(status)) {
+      var deze = t['hours.this.' + dagSleutel];
+      if (deze) return deze;
+    }
+    return t['hours.' + dagSleutel];
+  }
+  function statusTekst(status, dagSleutel, t) {
     var tekst = t[statusSleutels[status]] || t['hours.closed'];
-    return (statusIconen[status] ? statusIconen[status] + ' ' : '') + dagTekst + ' ' + tekst;
+    return (statusIconen[status] ? statusIconen[status] + ' ' : '') + dagTekstVoorStand(status, dagSleutel, t) + ' ' + tekst;
   }
   // Vult een regel in de info-balk: "Zaterdag 10:00 – 15:00". Is de dag dicht,
   // dan wordt de tijd doorgestreept en komt de melding eronder te staan. Bij
   // 'alleen leden' blijft de tijd normaal staan en komt alleen de melding erbij.
-  function zetInfoTijd(id, dagTekst, tijdTekst, status, t) {
+  function zetInfoTijd(id, dagSleutel, tijdTekst, status, t) {
     var el = document.getElementById(id);
     if (!el || !tijdTekst) return;
     var dicht = isDicht(status);
     el.textContent = '';
-    el.appendChild(document.createTextNode(dagTekst + ' '));
+    el.appendChild(document.createTextNode(t['hours.' + dagSleutel] + ' '));
     var tijd = document.createElement('span');
     tijd.textContent = tijdTekst;
     if (dicht) tijd.className = 'tijd-gesloten';
@@ -2180,12 +2197,12 @@
     if (status !== 'open') {
       var melding = document.createElement('span');
       melding.className = 'info-closed-note' + (status === 'leden' ? ' is-leden' : isAnimo(status) ? ' is-animo' : '');
-      melding.textContent = statusTekst(status, dagTekst, t);
+      melding.textContent = statusTekst(status, dagSleutel, t);
       el.appendChild(melding);
     }
   }
   // Zet de markering en de melding op een regel in de openingstijden-kaart.
-  function zetHoursRij(rijId, meldingId, dagTekst, status, t) {
+  function zetHoursRij(rijId, meldingId, dagSleutel, status, t) {
     var rij = document.getElementById(rijId);
     if (rij) {
       rij.classList.toggle('is-gesloten', isDicht(status));
@@ -2193,7 +2210,7 @@
       rij.classList.toggle('is-animo', isAnimo(status));
     }
     var melding = document.getElementById(meldingId);
-    if (melding && status !== 'open') melding.textContent = statusTekst(status, dagTekst, t);
+    if (melding && status !== 'open') melding.textContent = statusTekst(status, dagSleutel, t);
   }
   // Houdt de openingstijden in de structured data gelijk aan contact.json.
   // Alleen dagen met een echte begin- en eindtijd komen erin; woensdag is
@@ -2228,8 +2245,8 @@
     var zaterdagStatus = dagStatus(oh.zaterdag);
     var zondagStatus = dagStatus(oh.zondag);
 
-    zetInfoTijd('info-sat-value', t['hours.sat'], zaterdagTekst, zaterdagStatus, t);
-    zetInfoTijd('info-sun-value', t['hours.sun'], zondagTekst, zondagStatus, t);
+    zetInfoTijd('info-sat-value', 'sat', zaterdagTekst, zaterdagStatus, t);
+    zetInfoTijd('info-sun-value', 'sun', zondagTekst, zondagStatus, t);
 
     var elWed = document.getElementById('hours-wed-time');
     // Woensdag was eerder vrije tekst. Staat er in een oud contact.json nog een
@@ -2243,9 +2260,9 @@
     var elHoursSun = document.getElementById('hours-sun-time');
     if (elHoursSun && zondagTekst) elHoursSun.textContent = zondagTekst;
 
-    zetHoursRij('hours-wed-row', 'hours-wed-closed', t['hours.wed'], woensdagTekst ? woensdagStatus : 'open', t);
-    zetHoursRij('hours-sat-row', 'hours-sat-closed', t['hours.sat'], zaterdagStatus, t);
-    zetHoursRij('hours-sun-row', 'hours-sun-closed', t['hours.sun'], zondagStatus, t);
+    zetHoursRij('hours-wed-row', 'hours-wed-closed', 'wed', woensdagTekst ? woensdagStatus : 'open', t);
+    zetHoursRij('hours-sat-row', 'hours-sat-closed', 'sat', zaterdagStatus, t);
+    zetHoursRij('hours-sun-row', 'hours-sun-closed', 'sun', zondagStatus, t);
 
     if (contactData.adres_straat) {
       ['info-adres-straat', 'addr-straat'].forEach(function(id) {
