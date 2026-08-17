@@ -25,6 +25,13 @@ return [
 
   [
     'datum' => '2026-08-17',
+    'cat' => 'fix',
+    'titel' => 'Artikel 1 baanreglement weer volledig via Beheer aanpasbaar',
+    'tekst' => 'De tekst van artikel 1 wordt weer uit baanreglement.json geladen en volgt dus wijzigingen via Beheer. Alleen het aparte blok met actuele openingstijden komt uit contact.json, zodat tijden centraal beheerd blijven zonder de artikeltekst te overschrijven.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
     'cat' => 'verbetering',
     'titel' => 'Baanreglement gebruikt voortaan de beheerde openingstijden',
     'tekst' => 'Artikel 1 van het baanreglement haalt de openingstijden en tijdelijke dagstatussen nu uit dezelfde contact.json als de homepage. Daardoor worden wijzigingen vanuit Beheer automatisch op beide plekken doorgevoerd. Ook is de oude /Lidmaatschap/-route permanent doorgestuurd naar de lidmaatschapssectie op de homepage.',

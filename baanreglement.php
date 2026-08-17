@@ -118,12 +118,14 @@
       <div class="artikel-title" id="br-a1-title" data-i18n="a1.title">Openingstijden van de baan</div>
     </div>
     <div class="artikel-body" id="br-a1-body">
+      <div id="br-a1-text">
+        <p data-i18n="a1.p1">"Tot einde" wil zeggen dat bij onvoldoende animo het RC045-terrein zal worden gesloten door de sleutelhouder. Sluiting van het RC045-terrein zal ook via de WhatsApp groep van RC045 worden gecommuniceerd.</p>
+      </div>
       <ul id="br-opening-hours">
         <li id="br-hours-wed">Woensdag: 19:00 – 22:00 — alleen bij voldoende animo</li>
         <li id="br-hours-sat">Zaterdag: 10:00 – 15:00</li>
         <li id="br-hours-sun">Zondag: 10:00 – 15:00</li>
       </ul>
-      <p id="br-hours-note">Deze openingstijden worden automatisch bijgewerkt vanuit de actuele openingstijden op de website.</p>
     </div>
   </div>
 
@@ -544,8 +546,6 @@ function renderBaanreglementOpeningstijden() {
     var el = document.getElementById(dag.el);
     if (el) el.textContent = regel;
   });
-  var note = document.getElementById('br-hours-note');
-  if (note) note.textContent = tekst.note;
 }
 fetch('data/contact.json', { cache: 'no-store' })
   .then(function (r) { return r.ok ? r.json() : null; })
@@ -580,6 +580,25 @@ function renderBaanreglementTekst() {
   zetTekst('br-intro-bold', 'intro_bold');
   zetTekst('br-intro-text', 'intro_text');
   zetTekst('br-a1-title', 'a1_title');
+
+  // Artikel 1 blijft volledig tekstueel beheerbaar. Alleen het aparte
+  // openingstijdenblok eronder komt uit contact.json.
+  var artikel1Tekst = tekstVoor('a1_body');
+  if (artikel1Tekst) {
+    var artikel1Body = document.getElementById('br-a1-text');
+    if (artikel1Body) {
+      var artikel1Alineas = artikel1Tekst.split(/\n\s*\n/).map(function (a) { return a.trim(); }).filter(Boolean);
+      if (artikel1Alineas.length) {
+        artikel1Body.innerHTML = '';
+        artikel1Alineas.forEach(function (alinea) {
+          var p = document.createElement('p');
+          p.textContent = alinea;
+          artikel1Body.appendChild(p);
+        });
+      }
+    }
+  }
+
   baanreglementArtikelen.forEach(function (n) {
     zetTekst('br-a' + n + '-title', 'a' + n + '_title');
     var tekst = tekstVoor('a' + n + '_body');
