@@ -1630,9 +1630,8 @@
   // ===== FOOTER JAAR =====
   document.getElementById('footer-year').textContent = new Date().getFullYear();
 
-  // Pas opgeslagen/URL-taal direct toe en update links bij eerste load
-  if (currentLang !== 'nl') setLang(currentLang);
-  else updateInternalLinks('nl');
+  // De initiële taal wordt pas helemaal onderaan toegepast, nadat alle
+  // renderhelpers en hun gedeelde variabelen zijn geïnitialiseerd.
 
   // ===== AGENDA DRUPPEL =====
   const agendaObserver = new IntersectionObserver((entries) => {
@@ -2296,6 +2295,14 @@
       updateStatus();
     })
     .catch(function() {});
+
+  // Pas de opgeslagen/URL-taal pas toe nadat alle helpers en gedeelde
+  // variabelen hierboven hun initiële waarde hebben gekregen. Bij een directe
+  // refresh op ?lang=en of ?lang=de riep setLang() eerder renderHomepageTeksten()
+  // aan voordat o.a. CONTACT_WOORD was geïnitialiseerd; die JavaScript-fout
+  // voorkwam vervolgens dat de reveal/observer-code verderop werd uitgevoerd.
+  if (currentLang !== 'nl') setLang(currentLang);
+  else updateInternalLinks('nl');
 </script>
 
 </body>

@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'fix',
+    'titel' => 'Direct laden van Engelse en Duitse homepage hersteld',
+    'tekst' => 'De initiële taalwissel op de homepage wordt nu pas uitgevoerd nadat alle renderhelpers zijn geïnitialiseerd. Daardoor veroorzaakt een refresh op ?lang=en of ?lang=de geen JavaScript-fout meer en blijven alle secties en scroll-reveals zichtbaar.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'fix',
     'titel' => 'Artikel 1 baanreglement weer volledig vanuit Beheer',
     'tekst' => 'De nieuwe tekst over actuele openingstijden staat nu als NL/EN/DE-inhoud in het beheer van het baanreglement. Bestaande oude artikel-1 teksten met concrete tijden worden eenmalig gemigreerd, terwijl alle andere beheerteksten intact blijven. De publieke pagina leest artikel 1 weer rechtstreeks uit baanreglement.json.',
   ],
