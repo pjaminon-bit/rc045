@@ -362,6 +362,30 @@ function authGebruikerRecord() {
   return $record;
 }
 
+// Gevoelige beheerrechten moeten expliciet op het account staan. Voor oude
+// accounts zonder opgeslagen tabs geldt in authRechten() om compatibiliteits-
+// redenen nog een brede terugval, maar die mag nooit gebruikt worden voor
+// handelingen waarmee iemand zijn eigen autorisatie kan verhogen.
+function authHeeftExplicietRecht($recht) {
+  global $ingelogd, $isMaster;
+
+  if (!$ingelogd) return false;
+  if ($isMaster) return true;
+
+  $record = authGebruikerRecord();
+  if (!is_array($record) || !isset($record['tabs']) || !is_array($record['tabs'])) return false;
+  return in_array((string) $recht, $record['tabs'], true);
+}
+
+// Bestuursfunctie en de koppeling tussen een lid en een inlogaccount bepalen
+// rechtstreeks welke rolgebonden tabbladen iemand krijgt. Daarom mogen die
+// velden alleen worden gewijzigd door iemand die óók gebruikers en rechten
+// mag beheren. Het recht Gebruikers is al een hoog-vertrouwensrecht: wie dat
+// heeft kan accountrechten aanpassen, dus hiermee ontstaat geen nieuwe macht.
+function authMagLedenAutorisatieWijzigen() {
+  return authHeeftExplicietRecht('gebruikers');
+}
+
 // ===== Rechten =====
 // Bepaalt welke onderdelen de ingelogde persoon mag zien en opslaan.
 //
