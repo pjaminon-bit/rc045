@@ -781,9 +781,27 @@ $baanreglementStandaard = [
     'de' => "Öffnungszeiten der Strecke",
   ],
   'a1_body' => [
-    'nl' => "Woensdagavond 18:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)\n\nZaterdag 10:00 uur tot einde (bij voldoende belangstelling en afhankelijk van het weer)\n\nZondag 10:00 uur tot einde\n\nTot einde wil zeggen dat bij onvoldoende animo het RC045-terrein zal worden gesloten door de sleutelhouder. Sluiting van het RC045-terrein zal ook via de WhatsApp groep van RC045 worden gecommuniceerd.",
-    'en' => "Wednesday evening from 18:00 until close (subject to sufficient interest and weather conditions)\n\nSaturday from 10:00 until close (subject to sufficient interest and weather conditions)\n\nSunday from 10:00 until close\n\n\"Until close\" means the RC045 grounds will be closed by the key holder if there is insufficient interest. Closure will also be communicated via the RC045 WhatsApp group.",
-    'de' => "Mittwochabend ab 18:00 Uhr bis Ende (bei ausreichend Interesse und abhängig vom Wetter)\n\nSamstag ab 10:00 Uhr bis Ende (bei ausreichend Interesse und abhängig vom Wetter)\n\nSonntag ab 10:00 Uhr bis Ende\n\n\"Bis Ende\" bedeutet, dass das RC045-Gelände bei unzureichendem Interesse vom Schlüsselträger geschlossen wird. Die Schließung des RC045-Geländes wird auch über die WhatsApp-Gruppe von RC045 kommuniziert.",
+    'nl' => 'De actuele openingstijden van de baan worden op de website van RC045 gepubliceerd en kunnen indien nodig worden aangepast. De openingstijden voor het betreffende weekend worden uiterlijk vrijdag om 20.00 uur bekendgemaakt.
+
+De woensdagavond is uitsluitend toegankelijk voor leden van RC045.
+
+Wanneer bij een openingstijd ‘tot einde’ wordt vermeld, betekent dit dat het RC045-terrein bij onvoldoende animo eerder kan worden gesloten door de aanwezige sleutelhouder. Een dergelijke sluiting wordt ook via de WhatsApp-groep van RC045 gecommuniceerd.
+
+Bij slecht weer of andere onvoorziene omstandigheden kan het RC045-terrein geheel of gedeeltelijk gesloten blijven. De beslissing hierover wordt genomen door het bestuur van RC045. Controleer daarom voor vertrek altijd de actuele informatie op de website.',
+    'en' => 'The current opening hours of the track are published on the RC045 website and may be adjusted when necessary. The opening hours for the relevant weekend will be announced no later than Friday at 20:00.
+
+Wednesday evenings are exclusively for RC045 members.
+
+When an opening time states ‘until closing’, this means that the RC045 premises may close earlier if there is insufficient attendance. The decision to close will be made by the key holder present at the premises and will also be communicated via the RC045 WhatsApp group.
+
+In case of bad weather or other unforeseen circumstances, the RC045 premises may remain fully or partially closed. This decision is made by the RC045 board. Therefore, always check the latest information on the website before travelling to the track.',
+    'de' => 'Die aktuellen Öffnungszeiten der Strecke werden auf der RC045-Website veröffentlicht und können bei Bedarf angepasst werden. Die Öffnungszeiten für das jeweilige Wochenende werden spätestens freitags um 20:00 Uhr bekannt gegeben.
+
+Mittwochabends ist die Strecke ausschließlich für Mitglieder von RC045 geöffnet.
+
+Wenn bei einer Öffnungszeit „bis Ende“ angegeben ist, bedeutet dies, dass das RC045-Gelände bei zu geringer Beteiligung früher durch den anwesenden Schlüsselinhaber geschlossen werden kann. Eine solche Schließung wird ebenfalls über die WhatsApp-Gruppe von RC045 bekannt gegeben.
+
+Bei schlechtem Wetter oder anderen unvorhergesehenen Umständen kann das RC045-Gelände ganz oder teilweise geschlossen bleiben. Die Entscheidung darüber trifft der Vorstand von RC045. Bitte prüfe daher vor der Anfahrt immer die aktuellen Informationen auf der Website.',
   ],
   'a2_title' => [
     'nl' => "Veiligheid",
@@ -3350,6 +3368,26 @@ $baanreglementData = $baanreglementStandaard;
 if (file_exists($baanreglementBestand)) {
   $json = json_decode(file_get_contents($baanreglementBestand), true);
   if (is_array($json)) $baanreglementData = vulStandaardAan($baanreglementStandaard, $json);
+}
+
+// Eenmalige inhoudsmigratie van artikel 1: oudere versies bevatten hier nog
+// concrete woensdag/zaterdag/zondag-tijden. Alleen dat ene veld wordt naar de
+// nieuwe tekst omgezet; alle overige via Beheer opgeslagen teksten blijven
+// onaangeroerd. Na succesvolle opslag is deze controle voortaan een no-op.
+$baanreglementA1Huidig = $baanreglementData['a1_body'] ?? [];
+$baanreglementA1Oud = false;
+if (is_array($baanreglementA1Huidig)) {
+  foreach (['nl', 'en', 'de'] as $taal) {
+    $tekst = (string) ($baanreglementA1Huidig[$taal] ?? '');
+    if (preg_match('/(?:Woensdagavond|Wednesday evening|Mittwochabend|Zaterdag|Saturday|Samstag|Zondag|Sunday|Sonntag).*\d{1,2}[:.]\d{2}/iu', $tekst)) {
+      $baanreglementA1Oud = true;
+      break;
+    }
+  }
+}
+if ($baanreglementA1Oud) {
+  $baanreglementData['a1_body'] = $baanreglementStandaard['a1_body'];
+  schrijfJson($baanreglementBestand, $baanreglementData);
 }
 $bedanktData = $bedanktStandaard;
 if (file_exists($bedanktBestand)) {

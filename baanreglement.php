@@ -500,11 +500,6 @@ function setLang(lang) {
 // Nederlandse tekst. Elk artikel is in beheer één tekstvak: een lege regel
 // erin wordt hier weer als aparte alinea getoond (de losse bullets/
 // subartikelen van hiervoor zijn dus samengevoegd tot gewone alinea's).
-var baanreglementArtikel1Tekst = {
-  nl: 'De actuele openingstijden van de baan worden op de website van RC045 gepubliceerd en kunnen indien nodig worden aangepast. De openingstijden voor het betreffende weekend worden uiterlijk vrijdag om 20.00 uur bekendgemaakt.\n\nDe woensdagavond is uitsluitend toegankelijk voor leden van RC045.\n\nWanneer bij een openingstijd “tot einde” wordt vermeld, betekent dit dat het RC045-terrein bij onvoldoende animo eerder kan worden gesloten door de aanwezige sleutelhouder. Een dergelijke sluiting wordt ook via de WhatsApp-groep van RC045 gecommuniceerd.\n\nBij slecht weer of andere onvoorziene omstandigheden kan het RC045-terrein geheel of gedeeltelijk gesloten blijven. De beslissing hierover wordt genomen door het bestuur van RC045. Controleer daarom voor vertrek altijd de actuele informatie op de website.',
-  en: 'The current opening hours of the track are published on the RC045 website and may be adjusted when necessary. The opening hours for the relevant weekend will be announced no later than Friday at 20:00.\n\nWednesday evenings are exclusively for RC045 members.\n\nWhen an opening time states “until closing”, this means that the RC045 premises may close earlier if there is insufficient attendance. The decision to close will be made by the key holder present at the premises and will also be communicated via the RC045 WhatsApp group.\n\nIn case of bad weather or other unforeseen circumstances, the RC045 premises may remain fully or partially closed. This decision is made by the RC045 board. Therefore, always check the latest information on the website before travelling to the track.',
-  de: 'Die aktuellen Öffnungszeiten der Strecke werden auf der RC045-Website veröffentlicht und können bei Bedarf angepasst werden. Die Öffnungszeiten für das jeweilige Wochenende werden spätestens freitags um 20:00 Uhr bekannt gegeben.\n\nMittwochabends ist die Strecke ausschließlich für Mitglieder von RC045 geöffnet.\n\nWenn bei einer Öffnungszeit „bis Ende“ angegeben ist, bedeutet dies, dass das RC045-Gelände bei zu geringer Beteiligung früher durch den anwesenden Schlüsselinhaber geschlossen werden kann. Eine solche Schließung wird ebenfalls über die WhatsApp-Gruppe von RC045 bekannt gegeben.\n\nBei schlechtem Wetter oder anderen unvorhergesehenen Umständen kann das RC045-Gelände ganz oder teilweise geschlossen bleiben. Die Entscheidung darüber trifft der Vorstand von RC045. Bitte prüfe daher vor der Anfahrt immer die aktuellen Informationen auf der Website.'
-};
 var baanreglementData = null;
 var baanreglementArtikelen = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 function renderBaanreglementTekst() {
@@ -526,13 +521,12 @@ function renderBaanreglementTekst() {
   zetTekst('br-intro-text', 'intro_text');
   zetTekst('br-a1-title', 'a1_title');
 
-  // Artikel 1 verwijst bewust naar de actuele openingstijden op de homepage.
-  // Concrete tijden staan hier niet meer, zodat het reglement nooit veroudert.
+  // Artikel 1 wordt net als de overige artikelen volledig vanuit Beheer geladen.
   var artikel1Body = document.getElementById('br-a1-text');
-  if (artikel1Body) {
-    var artikel1Tekst = baanreglementArtikel1Tekst[currentLang] || baanreglementArtikel1Tekst.nl;
+  var artikel1Tekst = tekstVoor('a1_body');
+  if (artikel1Body && artikel1Tekst) {
     artikel1Body.innerHTML = '';
-    artikel1Tekst.split(/\n\s*\n/).forEach(function (alinea) {
+    artikel1Tekst.split(/\n\s*\n/).map(function (a) { return a.trim(); }).filter(Boolean).forEach(function (alinea) {
       var paragraaf = document.createElement('p');
       paragraaf.textContent = alinea;
       artikel1Body.appendChild(paragraaf);

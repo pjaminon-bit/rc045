@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'fix',
+    'titel' => 'Artikel 1 baanreglement weer volledig vanuit Beheer',
+    'tekst' => 'De nieuwe tekst over actuele openingstijden staat nu als NL/EN/DE-inhoud in het beheer van het baanreglement. Bestaande oude artikel-1 teksten met concrete tijden worden eenmalig gemigreerd, terwijl alle andere beheerteksten intact blijven. De publieke pagina leest artikel 1 weer rechtstreeks uit baanreglement.json.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'fix',
     'titel' => 'Baanreglement verwijst voortaan naar actuele openingstijden',
     'tekst' => 'Artikel 1 bevat geen concrete openingstijden meer. Het verwijst naar de actuele tijden op de website, vermeldt de vrijdagse publicatietermijn, de ledenavond op woensdag, de betekenis van tot einde en de mogelijkheid van sluiting bij slecht weer of onvoorziene omstandigheden. De tekst is opgenomen in NL, EN en DE.',
   ],
