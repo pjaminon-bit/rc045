@@ -31,3 +31,5 @@ jobs:
           git add beheer.php baanreglement.php changelog-historie.php
           git commit -m 'Restore managed article 1 regulations text'
           git push origin HEAD:main
+
+# trigger
