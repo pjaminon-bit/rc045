@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'fix',
+    'titel' => 'Dubbele openingstijden in baanreglement voorkomen',
+    'tekst' => 'Openingstijdenregels die nog in de via Beheer opgeslagen tekst van artikel 1 staan, worden op de publieke pagina automatisch weggelaten. De overige beheertekst blijft zichtbaar en de actuele tijden komen uitsluitend uit contact.json.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'fix',
     'titel' => 'Artikel 1 baanreglement weer volledig via Beheer aanpasbaar',
     'tekst' => 'De tekst van artikel 1 wordt weer uit baanreglement.json geladen en volgt dus wijzigingen via Beheer. Alleen het aparte blok met actuele openingstijden komt uit contact.json, zodat tijden centraal beheerd blijven zonder de artikeltekst te overschrijven.',
   ],
