@@ -449,7 +449,13 @@
     
     .info-closed-note.is-animo { background: var(--gold); color: var(--dark); }
     
-    .hours-note { font-size: 13px; color: var(--muted); margin-top: 14px; padding: 12px; background: var(--teal-light); border-radius: 8px; line-height: 1.5; }
+    /* Openingstijden-notities: zelfde opsommingsstijl als de notities onder de
+       prijskaarten (.price-notes), zodat beide blokken er gelijk uitzien. */
+    .hours-note { list-style: none; font-size: 13px; color: var(--muted); margin: 14px 0 0; padding: 12px; background: var(--teal-light); border-radius: 8px; line-height: 1.5; display: grid; gap: 8px; }
+
+    .hours-note li { position: relative; padding-left: 16px; }
+
+    .hours-note li::before { content: ''; position: absolute; left: 0; top: 7px; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); opacity: 0.5; }
     
     .address-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 20px 28px; display: flex; gap: 16px; align-items: flex-start; }
     
@@ -1021,10 +1027,10 @@
               <span class="hours-closed-note" id="hours-sun-closed">⛔ Zondag gesloten</span>
             </span>
           </div>
-<div class="hours-note">
-            ℹ️ <strong id="hp-hours-note-attention" data-i18n="hours.note.attention">Let op:</strong> <span id="hp-hours-note-text" data-i18n="hours.note.text">We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.</span>
-            <br><br><strong id="hp-hours-weather" data-i18n="hours.weather">❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.</strong>
-          </div>
+          <ul class="hours-note">
+            <li><strong id="hp-hours-note-attention" data-i18n="hours.note.attention">Let op:</strong> <span id="hp-hours-note-text" data-i18n="hours.note.text">We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.</span></li>
+            <li id="hp-hours-weather" data-i18n="hours.weather">Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.</li>
+          </ul>
         </div>
         <div class="address-card">
           <div class="address-card-icon">📍</div>
@@ -1236,7 +1242,7 @@
       'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
       'hours.closed': 'gesloten', 'hours.closed.maintenance': 'gesloten i.v.m. onderhoud', 'hours.closed.weather': 'gesloten i.v.m. slecht weer', 'hours.members': 'alleen open voor leden', 'hours.animo': 'alleen bij voldoende animo', 'hours.animo.members': 'alleen bij voldoende animo, en alleen voor leden',
       'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.',
-      'hours.weather': '❗ Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
+      'hours.weather': 'Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
       'addr.title': 'Adres', 'addr.text': 'Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.',
       'addr.route': 'Routebeschrijving openen →',
       'contact.label': 'Contact', 'contact.title': 'Heb je een vraag?',
@@ -1310,7 +1316,7 @@
       'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
       'hours.closed': 'closed', 'hours.closed.maintenance': 'closed for maintenance', 'hours.closed.weather': 'closed due to bad weather', 'hours.members': 'open to members only', 'hours.animo': 'only if enough people turn up', 'hours.animo.members': 'members only, and only if enough people turn up',
       'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance.',
-      'hours.weather': '❗ In bad weather we may decide to close early or not open at all.',
+      'hours.weather': 'In bad weather we may decide to close early or not open at all.',
       'addr.title': 'Address', 'addr.text': 'Our track is on the Kok Lexmond site, follow the RC045 arrows on arrival.',
       'addr.route': 'Open directions →',
       'contact.label': 'Contact', 'contact.title': 'Got a question?',
@@ -1384,7 +1390,7 @@
       'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
       'hours.closed': 'geschlossen', 'hours.closed.maintenance': 'wegen Wartung geschlossen', 'hours.closed.weather': 'wegen schlechtem Wetter geschlossen', 'hours.members': 'nur für Mitglieder geöffnet', 'hours.animo': 'nur bei genügend Andrang', 'hours.animo.members': 'nur für Mitglieder und nur bei genügend Andrang',
       'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen.',
-      'hours.weather': '❗ Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
+      'hours.weather': 'Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
       'addr.title': 'Adresse', 'addr.text': 'Unsere Strecke liegt auf dem Gelände von Kok Lexmond, folge beim Ankommen den RC045-Schildern.',
       'addr.route': 'Route öffnen →',
       'contact.label': 'Kontakt', 'contact.title': 'Hast du eine Frage?',
