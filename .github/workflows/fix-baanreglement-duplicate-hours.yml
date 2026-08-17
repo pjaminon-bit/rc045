@@ -1,0 +1,33 @@
+name: Eenmalige correctie dubbele openingstijden baanreglement
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-baanreglement-duplicate-hours.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Pas correctie toe
+        run: |
+          python3 .github/fix-baanreglement-duplicate-hours.py
+          php -l baanreglement.php
+          php -l changelog-historie.php
+          git diff --check
+          grep -q "function isOpeningstijdRegel" baanreglement.php
+          grep -q "artikel1TekstZonderUren" baanreglement.php
+
+      - name: Commit correctie
+        run: |
+          git config user.name 'pjaminon-bit'
+          git config user.email 'pjaminon@me.com'
+          git add baanreglement.php changelog-historie.php
+          git commit -m 'Prevent duplicate opening hours in track regulations'
+          git push origin HEAD:main
