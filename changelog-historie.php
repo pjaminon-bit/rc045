@@ -25,6 +25,13 @@ return [
 
   [
     'datum' => '2026-08-17',
+    'cat' => 'verbetering',
+    'titel' => 'Homepage-JavaScript opgesplitst en centraal geïnitialiseerd',
+    'tekst' => 'De omvangrijke inline JavaScript uit index.php staat nu in homepage.js en draait vanuit één expliciete initHomepage-lifecycle. De bestaande functionaliteit en datastromen zijn behouden, terwijl initialisatievolgorde, scope en onderhoudbaarheid duidelijker zijn geworden. De gedeelde sitefunctionaliteit blijft in site-i18n.js.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
     'cat' => 'fix',
     'titel' => 'Direct laden van Engelse en Duitse homepage hersteld',
     'tekst' => 'De initiële taalwissel op de homepage wordt nu pas uitgevoerd nadat alle renderhelpers zijn geïnitialiseerd. Daardoor veroorzaakt een refresh op ?lang=en of ?lang=de geen JavaScript-fout meer en blijven alle secties en scroll-reveals zichtbaar.',
