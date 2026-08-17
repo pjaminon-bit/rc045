@@ -196,6 +196,13 @@ function rc045SeoHead($pagina, $indexeerbaar = true) {
   $afbeelding = $RC045_SITE . '/rc045-logo.png';
 
   echo "  <title>$titel</title>\n";
+  // De browser kan zonder reload van taal wisselen. Geef het gedeelde
+  // taalscript daarom de drie server-side titels mee; dit verandert niets
+  // aan SEO, maar houdt de tabtitel wel synchroon met de gekozen taal.
+  foreach (array_keys($RC045_TALEN) as $t) {
+    $liveTitel = htmlspecialchars($RC045_PAGINAS[$pagina][$t]['titel'], ENT_QUOTES, 'UTF-8');
+    echo "  <meta name=\"rc045-title-$t\" content=\"$liveTitel\">\n";
+  }
   echo "  <meta name=\"description\" id=\"meta-description\" content=\"$omschrijving\">\n";
   echo "  <meta property=\"og:title\" content=\"$titel\">\n";
   echo "  <meta property=\"og:description\" content=\"$omschrijving\">\n";

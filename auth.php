@@ -27,7 +27,7 @@
 // hetzelfde formulier op elke afgeschermde pagina werkt.
 //
 // Bestanden (alle drie server-only: niet in GitHub, afgeschermd in .htaccess):
-//   beheer-config.php          - het beheerderswachtwoord, handmatig via FTP
+//   beheer-config.php          - hash van het beheerderswachtwoord, handmatig via FTP
 //   beheer-users.json          - gebruikers met wachtwoord-hash
 //   beheer-log.json            - activiteitenlogboek
 //   beheer-login-pogingen.json - teller voor de lockout
@@ -236,9 +236,44 @@ function loginPogingenWissen($pad, $sleutel) {
 }
 
 $configOk = file_exists($configPad);
+$beheerGebruiktLegacyWachtwoord = false;
 if ($configOk) {
-  require $configPad; // definieert $BEHEER_WACHTWOORD
-  $configOk = isset($BEHEER_WACHTWOORD) && $BEHEER_WACHTWOORD !== '' && $BEHEER_WACHTWOORD !== 'VeranderDitWachtwoord';
+  require $configPad;
+
+  // Voorkeur: alleen een password_hash() in beheer-config.php bewaren.
+  // De oude plaintext-variabele blijft tijdelijk ondersteund zodat een
+  // deploy niemand buitensluit voordat het server-only configbestand via
+  // FTP is omgezet. Zodra een geldige hash aanwezig is, wordt het oude
+  // wachtwoord volledig genegeerd, ook als die variabele nog bestaat.
+  $beheerHashOk = isset($BEHEER_WACHTWOORD_HASH)
+    && is_string($BEHEER_WACHTWOORD_HASH)
+    && $BEHEER_WACHTWOORD_HASH !== ''
+    && ((password_get_info($BEHEER_WACHTWOORD_HASH)['algoName'] ?? 'unknown') !== 'unknown');
+  $beheerLegacyOk = isset($BEHEER_WACHTWOORD)
+    && is_string($BEHEER_WACHTWOORD)
+    && $BEHEER_WACHTWOORD !== ''
+    && $BEHEER_WACHTWOORD !== 'VeranderDitWachtwoord';
+
+  $configOk = $beheerHashOk || $beheerLegacyOk;
+  $beheerGebruiktLegacyWachtwoord = !$beheerHashOk && $beheerLegacyOk;
+}
+
+function authMasterWachtwoordKlopt($invoer) {
+  global $BEHEER_WACHTWOORD_HASH, $BEHEER_WACHTWOORD;
+
+  if (isset($BEHEER_WACHTWOORD_HASH)
+      && is_string($BEHEER_WACHTWOORD_HASH)
+      && $BEHEER_WACHTWOORD_HASH !== ''
+      && ((password_get_info($BEHEER_WACHTWOORD_HASH)['algoName'] ?? 'unknown') !== 'unknown')) {
+    return password_verify((string) $invoer, $BEHEER_WACHTWOORD_HASH);
+  }
+
+  // Alleen migratiepad voor bestaande installaties. Verwijder deze
+  // variabele uit beheer-config.php zodra de hash is ingesteld.
+  return isset($BEHEER_WACHTWOORD)
+    && is_string($BEHEER_WACHTWOORD)
+    && $BEHEER_WACHTWOORD !== ''
+    && hash_equals($BEHEER_WACHTWOORD, (string) $invoer);
 }
 
 // ===== Uitloggen =====
@@ -301,7 +336,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['formulier'] ?? '') === 'in
     // geduld de sleep(2) hieronder gewoon kunnen uitzitten en toch door
     // blijven gokken.
     $inlogFout = 'Te veel mislukte pogingen voor "' . $lockoutNaam . '". Probeer het over ' . $minutenTeWachten . ' minuut' . ($minutenTeWachten === 1 ? '' : 'en') . ' opnieuw.';
-  } elseif ($gebruikersnaamInvoer === '' && hash_equals($BEHEER_WACHTWOORD, $wachtwoordInvoer)) {
+  } elseif ($gebruikersnaamInvoer === '' && authMasterWachtwoordKlopt($wachtwoordInvoer)) {
     // Nieuw sessie-ID na succesvol inloggen (session fixation): zonder dit zou
     // een sessie-ID dat van vóór het inloggen dateert (bijv. opgedrongen door
     // een aanvaller) na login gewoon geldig blijven. "true" verwijdert meteen
@@ -384,93 +419,6 @@ function authHeeftExplicietRecht($recht) {
 // heeft kan accountrechten aanpassen, dus hiermee ontstaat geen nieuwe macht.
 function authMagLedenAutorisatieWijzigen() {
   return authHeeftExplicietRecht('gebruikers');
-}
-
-// ===== Responsebeveiliging voor leden.php =====
-// Dit gebeurt server-side, dus vóórdat de browser de HTML/CSV ontvangt.
-// 1. Zonder expliciet Gebruikers-recht worden de twee autorisatie-dropdowns
-//    uit de uiteindelijke HTML vervangen door alleen-lezen tekst. Daardoor
-//    lekt de volledige accountlijst ook niet meer via 'bron weergeven'.
-// 2. CSV-export wordt opnieuw geparset en tekstcellen die Excel als formule
-//    kan interpreteren worden met een apostrof geneutraliseerd.
-function authLedenResponseIsCsv() {
-  foreach (headers_list() as $header) {
-    if (stripos($header, 'Content-Type:') === 0 && stripos($header, 'text/csv') !== false) return true;
-  }
-  return false;
-}
-
-function authCsvCelVeilig($waarde) {
-  $waarde = (string) $waarde;
-  // Ook voorloop-spaties/tabs meenemen: spreadsheetprogramma's kunnen die
-  // negeren voordat ze bepalen of een cel een formule is.
-  if ($waarde !== '' && preg_match('/^[\x00-\x20]*[=+\-@]/u', $waarde)) {
-    return "'" . $waarde;
-  }
-  return $waarde;
-}
-
-function authCsvOutputVeilig($output) {
-  $bom = "\xEF\xBB\xBF";
-  $heeftBom = strncmp($output, $bom, 3) === 0;
-  if ($heeftBom) $output = substr($output, 3);
-
-  $in = fopen('php://temp', 'r+');
-  $uit = fopen('php://temp', 'r+');
-  if ($in === false || $uit === false) return ($heeftBom ? $bom : '') . $output;
-
-  fwrite($in, $output);
-  rewind($in);
-  while (($rij = fgetcsv($in, 0, ';')) !== false) {
-    $rij = array_map('authCsvCelVeilig', $rij);
-    fputcsv($uit, $rij, ';');
-  }
-  rewind($uit);
-  $veilig = stream_get_contents($uit);
-  fclose($in);
-  fclose($uit);
-  if ($veilig === false) return ($heeftBom ? $bom : '') . $output;
-  return ($heeftBom ? $bom : '') . $veilig;
-}
-
-function authSelectNaarAlleenLezen($html, $id, $melding) {
-  $idQuoted = preg_quote($id, '#');
-  $patroon = '#<select\b[^>]*\bid=["\']' . $idQuoted . '["\'][^>]*>.*?</select>#is';
-  return preg_replace_callback($patroon, function ($match) use ($melding) {
-    $select = $match[0];
-    $gekozen = '';
-    if (preg_match('#<option\b[^>]*\bselected\b[^>]*>(.*?)</option>#is', $select, $m)) {
-      $gekozen = trim(html_entity_decode(strip_tags($m[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-    }
-    if ($gekozen === '') $gekozen = 'Niet ingevuld';
-    return '<p class="leden-autorisatie-readonly" style="margin:8px 0 0;"><strong>'
-      . htmlspecialchars($gekozen, ENT_QUOTES, 'UTF-8')
-      . '</strong></p><p class="hint">'
-      . htmlspecialchars($melding, ENT_QUOTES, 'UTF-8')
-      . '</p>';
-  }, $html, 1);
-}
-
-function authLedenResponseBeveiligen($output) {
-  if (authLedenResponseIsCsv()) return authCsvOutputVeilig($output);
-
-  if (!authMagLedenAutorisatieWijzigen()) {
-    $output = authSelectNaarAlleenLezen(
-      $output,
-      'lid-bestuursfunctie',
-      'Alleen de hoofdbeheerder of iemand met het recht Gebruikers kan de bestuursrol wijzigen.'
-    );
-    $output = authSelectNaarAlleenLezen(
-      $output,
-      'lid-beheer-account',
-      'Alleen de hoofdbeheerder of iemand met het recht Gebruikers kan een inlogaccount koppelen of ontkoppelen.'
-    );
-  }
-  return $output;
-}
-
-if (basename($_SERVER['SCRIPT_NAME'] ?? '') === 'leden.php') {
-  ob_start('authLedenResponseBeveiligen');
 }
 
 // ===== Rechten =====

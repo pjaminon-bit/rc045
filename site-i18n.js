@@ -8,6 +8,11 @@ function getInitialLang() {
     return 'nl';
   }
 
+function updateLiveDocumentTitle(lang) {
+  var meta = document.querySelector('meta[name="rc045-title-' + lang + '"]');
+  if (meta && meta.getAttribute('content')) document.title = meta.getAttribute('content');
+}
+
 function updateInternalLinks(lang) {
     document.querySelectorAll('a[href]').forEach(a => {
       const href = a.getAttribute('href');
@@ -64,6 +69,7 @@ function updateInternalLinks(lang) {
       btn.addEventListener('click', function () {
         zetOpen(false);
         toonKeuze();
+        updateLiveDocumentTitle(document.documentElement.lang || 'nl');
       });
     });
 

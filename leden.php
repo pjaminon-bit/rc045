@@ -66,6 +66,7 @@ $ledenTabsViaRol = ['bestuursvergadering', 'ledenvergadering', 'takenlijst'];
 $rechten = authRechten($ledenTabsAlle, $ledenTabsViaRol);
 $toegestaneTabs = $rechten['toegestaneTabs'];
 $isBestuurslid  = $rechten['isBestuurslid'];
+$magLedenAutorisatieWijzigen = authMagLedenAutorisatieWijzigen();
 
 // Mijn RC045 hoort bij iedereen die kan inloggen, ook bij een ledenaccount
 // dat verder nul tabbladen heeft. Daarom staat het niet aan de vinkjes.
@@ -92,6 +93,20 @@ $formulierTab = [
   'evenement_opslaan' => 'evenementen',
   'evenement_verwijderen' => 'evenementen',
 ];
+
+/* CSV-export veilig voor spreadsheetprogramma's. Waarden die na eventuele
+voorloop-witruimte met =, +, - of @ beginnen, kunnen door Excel/LibreOffice
+als formule worden uitgevoerd. Een apostrof dwingt zo'n cel tot tekst. */
+function ledenCsvVeiligeCel($waarde) {
+  $waarde = (string) $waarde;
+  return ($waarde !== '' && preg_match('/^[\x00-\x20]*[=+\-@]/u', $waarde))
+    ? "'" . $waarde
+    : $waarde;
+}
+
+function ledenCsvSchrijfRij($handle, array $rij) {
+  return fputcsv($handle, array_map('ledenCsvVeiligeCel', $rij), ';');
+}
 
 // ===== Zelf in- of uitschrijven voor een evenement =====
 // Staat bewust vóór het grote opslaan-blok hieronder: dit hoort bij het
@@ -176,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       $invoer = [];
       foreach (['voornaam','tussenvoegsel','achternaam','geboortedatum','straat','huisnummer',
                 'postcode','gemeente','land','telefoon','email','status','inschrijfdatum',
-                'opmerking','taken','transponder','auto','nummer','bestuursfunctie'] as $veld) {
+                'opmerking','taken','transponder','auto','nummer'] as $veld) {
         if (isset($_POST[$veld])) $invoer[$veld] = $_POST[$veld];
       }
       $invoer['whatsapp'] = isset($_POST['whatsapp']);
@@ -184,11 +199,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
       // niet mee. Altijd een array meegeven, anders zou het weghalen van
       // het laatste vinkje niets doen en zou de oude waarde blijven staan.
       $invoer['commissies'] = (isset($_POST['commissies']) && is_array($_POST['commissies'])) ? $_POST['commissies'] : [];
-      // De koppeling met een inlogaccount hoort bij het lid, dus wie dit
-      // tabblad mag bewerken mag hem ook zetten. Dat was eerst alleen de
-      // beheerder, wat betekende dat iemand met alle rechten toch geen
-      // account aan een lid kon hangen.
-      $invoer['beheer_account'] = trim((string) ($_POST['beheer_account'] ?? ''));
+      // Bestuursfunctie en accountkoppeling zijn autorisatiegegevens. Alleen
+      // accounts met het expliciete recht Gebruikers mogen ze überhaupt
+      // vanuit dit formulier aan de normalisatielaag aanbieden. Die laag
+      // controleert dit daarnaast nogmaals centraal.
+      if ($magLedenAutorisatieWijzigen) {
+        $invoer['bestuursfunctie'] = $_POST['bestuursfunctie'] ?? '';
+        $invoer['beheer_account'] = trim((string) ($_POST['beheer_account'] ?? ''));
+      }
 
       $bestaand = $index === null ? null : $ledenData['leden'][$index];
       $lid = ledenNormaliseer($invoer, $bestaand);
@@ -1004,7 +1022,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
     }
 
     $uit = fopen('php://temp', 'r+');
-    fputcsv($uit, $kop, ';');
+    ledenCsvSchrijfRij($uit, $kop);
     $gesorteerd = $ledenData['leden'];
     usort($gesorteerd, function ($a, $b) { return ledenSorteernaam($a) <=> ledenSorteernaam($b); });
     foreach ($gesorteerd as $l) {
@@ -1028,7 +1046,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
         $rij[] = ($c && $c['inschrijfgeld'] !== null) ? number_format((float) $c['inschrijfgeld'], 2, ',', '') : '';
         $rij[] = $c ? ($c['betaald_op'] ?? '') : '';
       }
-      fputcsv($uit, $rij, ';');
+      ledenCsvSchrijfRij($uit, $rij);
     }
     rewind($uit);
     $csv = stream_get_contents($uit);
@@ -1140,9 +1158,10 @@ $inschrijfkosten = (float) $rekentabelData['inschrijfkosten'];
 $tabelJeugd  = rekentabelProRata((float) $rekentabelData['jeugd_jaarbedrag']);
 $tabelSenior = rekentabelProRata((float) $rekentabelData['senior_jaarbedrag']);
 
-// De inlogaccounts, om een lid aan een account te kunnen koppelen. Zelfde
-// beperking als in beheer.php: alleen de beheerder ziet de lijst.
-$gebruikersLijst = in_array('leden', $toegestaneTabs, true) ? laadGebruikers($usersBestand) : [];
+// De volledige accountlijst is autorisatie-informatie en wordt alleen
+// ingelezen wanneer deze gebruiker de koppeling ook daadwerkelijk mag
+// wijzigen. Zo komen andere inlognamen niet onnodig in de HTML terecht.
+$gebruikersLijst = $magLedenAutorisatieWijzigen ? laadGebruikers($usersBestand) : [];
 
 // ===== Ledenadministratie =====
 // Het ledenbestand staat buiten data/ omdat het persoonsgegevens bevat;
@@ -1943,14 +1962,20 @@ $documentStatusLabels = vergaderingDocumentStatussen();
 
         <div class="rij-2">
           <div class="veld">
-            <label for="lid-bestuursfunctie">Rol in het bestuur</label>
-            <select id="lid-bestuursfunctie" name="bestuursfunctie">
-              <option value="">Geen bestuursfunctie</option>
-              <?php foreach ($ledenFunctieLabels as $sleutel => $label): ?>
-                <option value="<?php echo htmlspecialchars($sleutel); ?>"<?php echo ($ledenBewerkLid['bestuursfunctie'] ?? '') === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
-              <?php endforeach; ?>
-            </select>
-            <p class="hint">Voorzitter, penningmeester en secretaris zijn ook bestuurslid, dus die kies je hier gewoon los. Alles behalve "geen" telt mee als bestuurslid en geeft straks toegang tot het tabblad Bestuursvergadering.</p>
+            <label<?php echo $magLedenAutorisatieWijzigen ? ' for="lid-bestuursfunctie"' : ''; ?>>Rol in het bestuur</label>
+            <?php if ($magLedenAutorisatieWijzigen): ?>
+              <select id="lid-bestuursfunctie" name="bestuursfunctie">
+                <option value="">Geen bestuursfunctie</option>
+                <?php foreach ($ledenFunctieLabels as $sleutel => $label): ?>
+                  <option value="<?php echo htmlspecialchars($sleutel); ?>"<?php echo ($ledenBewerkLid['bestuursfunctie'] ?? '') === $sleutel ? ' selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+                <?php endforeach; ?>
+              </select>
+              <p class="hint">Voorzitter, penningmeester en secretaris zijn ook bestuurslid. Deze rol bepaalt mede de toegang tot de bestuursdelen.</p>
+            <?php else: ?>
+              <?php $functieNu = $ledenFunctieLabels[$ledenBewerkLid['bestuursfunctie'] ?? ''] ?? 'Geen bestuursfunctie'; ?>
+              <p style="margin:8px 0 0;"><strong><?php echo htmlspecialchars($functieNu); ?></strong></p>
+              <p class="hint">Alleen de hoofdbeheerder of iemand met het recht Gebruikers kan de bestuursrol wijzigen.</p>
+            <?php endif; ?>
           </div>
           <div class="veld">
             <label>Commissies</label>
@@ -1971,25 +1996,30 @@ $documentStatusLabels = vergaderingDocumentStatussen();
         </div>
 
         <div class="veld">
-            <label for="lid-beheer-account">Gekoppeld inlogaccount</label>
+            <label<?php echo $magLedenAutorisatieWijzigen ? ' for="lid-beheer-account"' : ''; ?>>Gekoppeld inlogaccount</label>
             <?php $lidAccount = trim((string) ($ledenBewerkLid['beheer_account'] ?? '')); ?>
-            <?php
-              $accountNamen = ['beheerder'];
-              foreach ($gebruikersLijst as $g) {
-                if (isset($g['gebruikersnaam']) && $g['gebruikersnaam'] !== '') $accountNamen[] = $g['gebruikersnaam'];
-              }
-              $accountBekend = $lidAccount === '' || in_array($lidAccount, $accountNamen, true);
-            ?>
-            <select id="lid-beheer-account" name="beheer_account">
-              <option value=""<?php echo $lidAccount === '' ? ' selected' : ''; ?>>Geen koppeling</option>
-              <?php if (!$accountBekend): ?>
-                <option value="<?php echo htmlspecialchars($lidAccount); ?>" selected><?php echo htmlspecialchars($lidAccount); ?> (account bestaat niet meer)</option>
-              <?php endif; ?>
-              <?php foreach ($accountNamen as $accountNaam): ?>
-                <option value="<?php echo htmlspecialchars($accountNaam); ?>"<?php echo $lidAccount === $accountNaam ? ' selected' : ''; ?>><?php echo htmlspecialchars($accountNaam); ?></option>
-              <?php endforeach; ?>
-            </select>
-            <p class="hint">Hiermee weet de ledenpagina welk lid er achter een inlognaam zit, zodat de bestuursfunctie hierboven de bijbehorende tabbladen kan geven. Maak het account eerst aan bij Gebruikers in het beheer.</p>
+            <?php if ($magLedenAutorisatieWijzigen): ?>
+              <?php
+                $accountNamen = ['beheerder'];
+                foreach ($gebruikersLijst as $g) {
+                  if (isset($g['gebruikersnaam']) && $g['gebruikersnaam'] !== '') $accountNamen[] = $g['gebruikersnaam'];
+                }
+                $accountBekend = $lidAccount === '' || in_array($lidAccount, $accountNamen, true);
+              ?>
+              <select id="lid-beheer-account" name="beheer_account">
+                <option value=""<?php echo $lidAccount === '' ? ' selected' : ''; ?>>Geen koppeling</option>
+                <?php if (!$accountBekend): ?>
+                  <option value="<?php echo htmlspecialchars($lidAccount); ?>" selected><?php echo htmlspecialchars($lidAccount); ?> (account bestaat niet meer)</option>
+                <?php endif; ?>
+                <?php foreach ($accountNamen as $accountNaam): ?>
+                  <option value="<?php echo htmlspecialchars($accountNaam); ?>"<?php echo $lidAccount === $accountNaam ? ' selected' : ''; ?>><?php echo htmlspecialchars($accountNaam); ?></option>
+                <?php endforeach; ?>
+              </select>
+              <p class="hint">Hiermee weet de ledenpagina welk lid er achter een inlognaam zit. Maak het account eerst aan bij Gebruikers in het beheer.</p>
+            <?php else: ?>
+              <p style="margin:8px 0 0;"><strong><?php echo htmlspecialchars($lidAccount !== '' ? $lidAccount : 'Geen koppeling'); ?></strong></p>
+              <p class="hint">Alleen de hoofdbeheerder of iemand met het recht Gebruikers kan een inlogaccount koppelen of ontkoppelen.</p>
+            <?php endif; ?>
           </div>
 
         <div class="veld">
@@ -2280,6 +2310,9 @@ $documentStatusLabels = vergaderingDocumentStatussen();
       <?php if ($ledenImport !== null): ?>
         <h2 class="leden-kop">Controleren voor het opslaan</h2>
         <p class="hint">Er is nog niets gewijzigd. Regels die overeenkomen met een bestaand lid (zelfde mailadres, of zelfde naam en geboortedatum) worden bijgewerkt in plaats van dubbel toegevoegd.</p>
+        <?php if (!$magLedenAutorisatieWijzigen): ?>
+          <p class="hint">Bestuursfuncties uit het CSV-bestand worden met dit account niet gewijzigd; daarvoor is het expliciete recht Gebruikers nodig.</p>
+        <?php endif; ?>
 
         <?php
           $importNieuw = 0; $importBij = 0;
