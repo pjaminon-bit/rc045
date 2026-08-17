@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'verbeterd',
+    'titel' => 'De mededelingsbalk bovenaan is rustiger van kleur',
+    'tekst' => 'De balk was een massief gouden vlak en las daardoor als een waarschuwing, ook bij een gewone mededeling. De balk heeft nu een zachte zandkleur met een groene onderlijn, dezelfde kleur als de knoppen. Het blokje Actueel in de openingstijdenkaart is meegelopen, zodat dezelfde melding op beide plekken hetzelfde oogt. In de donkere stand past de kleur zich net als de rest van de site aan.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'verbeterd',
     'titel' => 'Een tijdelijke stand bij de openingstijden begint nu met "Deze"',
     'tekst' => 'Er stond "Zondag alleen open voor leden", wat leest als een vaste afspraak voor elke zondag. Zet je een dag op alleen leden, gesloten, onderhoud of slecht weer, dan staat er nu "Deze zondag alleen open voor leden". De standen die wel bij de vaste opzet van een dag horen, alleen bij voldoende animo en de variant daarvan voor leden, blijven zonder "Deze", want die gelden elke week. Ook in het Engels ("This Sunday") en Duits ("Diesen Sonntag").',
   ],
