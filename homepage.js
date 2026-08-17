@@ -238,7 +238,7 @@
 
   
 
-    let currentLang = getInitialLang();
+    let currentLang = getInitialLang(i18n);
 
     function setLang(lang) {
       currentLang = lang;

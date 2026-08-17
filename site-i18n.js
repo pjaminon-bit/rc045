@@ -1,10 +1,14 @@
 // RC045 gedeelde taal helpers (gebruikt door elke pagina)
 
-function getInitialLang() {
+function getInitialLang(translations) {
+    // Pagina's mogen hun vertalingen lokaal houden en ze expliciet meegeven.
+    // Voor bestaande pagina's zonder argument blijft de oude globale i18n-opzet
+    // volledig ondersteund.
+    var bron = translations || (typeof i18n !== 'undefined' ? i18n : null) || {};
     const urlLang = new URLSearchParams(window.location.search).get('lang');
-    if (urlLang && i18n[urlLang]) return urlLang;
+    if (urlLang && bron[urlLang]) return urlLang;
     const storedLang = localStorage.getItem('rc045_lang');
-    if (storedLang && i18n[storedLang]) return storedLang;
+    if (storedLang && bron[storedLang]) return storedLang;
     return 'nl';
   }
 
