@@ -1,26 +1,10 @@
-<!DOCTYPE html>
-<html lang="nl">
+<?php require_once __DIR__ . '/seo-head.php'; ?><!DOCTYPE html>
+<html lang="<?php echo rc045Taal(); ?>">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, follow">
-  <title>Bedankt! – RC045 Bashers of the South</title>
-  <meta name="description" content="Je aanmelding bij RC045 Bashers of the South is verstuurd. Het bestuur neemt zo snel mogelijk contact met je op.">
-  <meta property="og:title" content="RC045 - Bashers of the South">
-  <meta property="og:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's. Voor beginners en ervaren hobbyisten, jong en oud.">
-  <meta property="og:image" content="https://rc045.nl/rc045-logo.png">
-  <meta property="og:url" content="https://rc045.nl/bedankt.html">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="nl_NL">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="RC045 - Bashers of the South">
-  <meta name="twitter:description" content="Een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto's.">
-  <meta name="twitter:image" content="https://rc045.nl/rc045-logo.png">
-  <link rel="canonical" href="https://rc045.nl/bedankt.html">
-  <link rel="alternate" hreflang="nl" href="https://rc045.nl/bedankt.html">
-  <link rel="alternate" hreflang="en" href="https://rc045.nl/bedankt.html?lang=en">
-  <link rel="alternate" hreflang="de" href="https://rc045.nl/bedankt.html?lang=de">
-  <link rel="alternate" hreflang="x-default" href="https://rc045.nl/bedankt.html">
+<?php rc045SeoHead('bedankt', false); ?>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">

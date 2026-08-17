@@ -145,6 +145,25 @@ $RC045_PAGINAS = [
     ],
   ],
 
+  // Staat op noindex (zie de robots-tag in bedankt.php) en hoort dus niet in
+  // Google. De titel en de omschrijving staan hier toch, zodat een Duitse of
+  // Engelse bezoeker na het aanmelden geen Nederlandse tabtitel krijgt.
+  'bedankt' => [
+    'pad' => '/bedankt.html',
+    'nl' => [
+      'titel' => 'Bedankt! – RC045 Bashers of the South',
+      'omschrijving' => 'Je aanmelding bij RC045 Bashers of the South is verstuurd. Het bestuur neemt zo snel mogelijk contact met je op.',
+    ],
+    'en' => [
+      'titel' => 'Thank you! – RC045 Bashers of the South',
+      'omschrijving' => 'Your application to RC045 Bashers of the South has been sent. The board will get in touch with you as soon as possible.',
+    ],
+    'de' => [
+      'titel' => 'Vielen Dank! – RC045 Bashers of the South',
+      'omschrijving' => 'Deine Anmeldung bei RC045 Bashers of the South ist verschickt. Der Vorstand meldet sich so schnell wie möglich bei dir.',
+    ],
+  ],
+
 ];
 
 // De volledige URL van een pagina in een taal. Nederlands is de kale URL
@@ -159,7 +178,13 @@ function rc045Url($pagina, $taal) {
 // hreflang-verwijzingen uit voor de gevraagde pagina in de huidige taal.
 // De id's op de description en de canonical blijven staan: setLang() in de
 // pagina's grijpt daarnaar bij een taalwissel zonder herladen.
-function rc045SeoHead($pagina) {
+// $indexeerbaar op false laat de canonical en de hreflang-verwijzingen weg.
+// Dat is voor pagina's met een noindex-tag: hreflang beschrijft een groep
+// pagina's die als taalvarianten geindexeerd moeten worden, en die groep valt
+// uit elkaar zodra de leden op noindex staan. Die tags suggereren dan iets wat
+// er niet is. De og-tags blijven wel staan: die gebruiken de social scrapers,
+// en die trekken zich niets van noindex aan.
+function rc045SeoHead($pagina, $indexeerbaar = true) {
   global $RC045_PAGINAS, $RC045_TALEN, $RC045_SITE;
 
   if (!isset($RC045_PAGINAS[$pagina])) return; // onbekende pagina: liever niets dan een waarschuwing in de head
@@ -185,6 +210,8 @@ function rc045SeoHead($pagina) {
   echo "  <meta name=\"twitter:title\" content=\"$titel\">\n";
   echo "  <meta name=\"twitter:description\" content=\"$omschrijving\">\n";
   echo "  <meta name=\"twitter:image\" content=\"$afbeelding\">\n";
+  if (!$indexeerbaar) return;
+
   echo "  <link rel=\"canonical\" href=\"$url\" id=\"canonical-link\">\n";
   foreach (array_keys($RC045_TALEN) as $t) {
     $h = htmlspecialchars(rc045Url($pagina, $t), ENT_QUOTES, 'UTF-8');
