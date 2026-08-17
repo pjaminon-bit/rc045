@@ -22,14 +22,12 @@ jobs:
           p = Path('changelog-historie.php')
           s = p.read_text(encoding='utf-8')
           fixes = {
-            "Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV's, en de evenementen waarvoor je je zelf kunt inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.":
-            "Leden loggen daar in met hun eigen account en zien wat er bij de leden open staat aan actiepunten, de ledenvergaderingen en ALV's, en de evenementen waarvoor ze zich kunnen inschrijven. Bestuursleden vinden er ook de ledenadministratie, commissies, vergaderingen, takenlijst, operationele taken en evenementen.",
-            "Naast de aanvangstijd staat nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals \"9\", \"9.30\" of \"930\". Staat de eindtijd voor de aanvang, dan volgt een foutmelding.":
-            "Naast de aanvangstijd staat er nu ook een veld voor de eindtijd. Beide velden begrijpen ook losse notaties zoals \"9\", \"9.30\" of \"930\". Staat de eindtijd voor de aanvang, dan volgt een foutmelding."
+            'waarvoor je je zelf kunt inschrijven': 'waarvoor ze zich kunnen inschrijven',
+            'Naast de aanvangstijd staat nu ook een veld voor de eindtijd.': 'Naast de aanvangstijd staat er nu ook een veld voor de eindtijd.'
           }
           for oud, nieuw in fixes.items():
               if s.count(oud) != 1:
-                  raise SystemExit('Verwachte changelogzin niet uniek gevonden')
+                  raise SystemExit(f'Verwacht 1 match voor {oud!r}, gevonden {s.count(oud)}')
               s = s.replace(oud, nieuw, 1)
           p.write_text(s, encoding='utf-8')
           Path('.github/workflows/changelog-cleanup.yml').unlink()
