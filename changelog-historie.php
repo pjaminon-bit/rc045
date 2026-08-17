@@ -25,6 +25,13 @@ return [
 
   [
     'datum' => '2026-08-17',
+    'cat' => 'beveiliging',
+    'titel' => 'Ledenbeheer kan geen bestuursrechten meer uitdelen',
+    'tekst' => 'De bestuursfunctie van een lid en de koppeling met een inlogaccount bepalen welke bestuursdelen iemand kan openen. Iemand met alleen toegang tot Leden kon die twee velden zelf aanpassen en zo bestuursrechten krijgen, ook door een ander ledenrecord aan zijn account te koppelen. Die autorisatievelden zijn nu centraal beschermd: alleen de hoofdbeheerder of iemand met het expliciete recht Gebruikers mag ze wijzigen. Dezelfde bescherming geldt ook bij CSV-import, zodat een omweg via een importbestand niet mogelijk is. Gewone ledengegevens blijven voor ledenbeheerders gewoon bewerkbaar.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
     'cat' => 'opgelost',
     'titel' => 'Sponsorlink op de homepage herkent index.php weer',
     'tekst' => 'Na de overgang van index.html naar index.php herkende het gedeelde taalscript een rechtstreeks bezoek aan /index.php niet meer als de homepage. Daardoor wees de sponsoroproep in de footer daar via index.html terug naar het contactformulier. De homepage-detectie accepteert nu /, index.html en index.php, zodat de link altijd rechtstreeks naar het contactformulier op dezelfde pagina gaat.',
@@ -218,7 +225,7 @@ return [
     'datum' => '2026-08-13',
     'cat' => 'nieuw',
     'titel' => 'Tabblad Evenementen',
-    'tekst' => 'Activiteiten waar leden zich voor kunnen aanmelden, zoals een clubdag of wedstrijd, met datum, locatie, een optioneel maximaal aantal deelnemers en een deelnemerslijst. Het bestuur beheert die lijst voorlopig zelf, net als de presentielijst bij een ledenvergadering; zodra er een ledenportaal is, kunnen leden zich daar straks ook zelf voor aan- of afmelden. Een evenement kan op "Bestuursleden" gezet worden: die ziet een lid zonder bestuursfunctie dan niet. Wie toegang tot dit tabblad krijgt, staat net als bij de andere tabbladen bij Gebruikers.',
+    'tekst' => 'Activiteiten waar leden zich kunnen aanmelden, zoals een clubdag of wedstrijd, met datum, locatie, een optioneel maximaal aantal deelnemers en een deelnemerslijst. Het bestuur beheert die lijst voorlopig zelf, net als de presentielijst bij een ledenvergadering; zodra er een ledenportaal is, kunnen leden zich daar straks ook zelf voor aan- of afmelden. Een evenement kan op "Bestuursleden" gezet worden: die ziet een lid zonder bestuursfunctie dan niet. Wie toegang tot dit tabblad krijgt, staat net als bij de andere tabbladen bij Gebruikers.',
   ],
   [
     'datum' => '2026-08-13',
