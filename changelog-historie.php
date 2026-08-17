@@ -26,6 +26,13 @@ return [
   [
     'datum' => '2026-08-17',
     'cat' => 'beveiliging',
+    'titel' => 'Accountnamen afgeschermd en ledenexport veilig voor Excel',
+    'tekst' => 'Wie de ledenadministratie mag gebruiken maar niet het recht Gebruikers heeft, krijgt de bestuursrol en accountkoppeling alleen nog als alleen-lezen tekst en ontvangt de overige inlognamen niet meer in de HTML-bron. Daarnaast neutraliseert de CSV-export waarden die een spreadsheet als formule zou kunnen uitvoeren, zoals tekst die met =, +, - of @ begint.',
+  ],
+
+  [
+    'datum' => '2026-08-17',
+    'cat' => 'beveiliging',
     'titel' => 'Ledenbeheer kan geen bestuursrechten meer uitdelen',
     'tekst' => 'De bestuursfunctie van een lid en de koppeling met een inlogaccount bepalen welke bestuursdelen iemand kan openen. Iemand met alleen toegang tot Leden kon die twee velden zelf aanpassen en zo bestuursrechten krijgen, ook door een ander ledenrecord aan zijn account te koppelen. Die autorisatievelden zijn nu centraal beschermd: alleen de hoofdbeheerder of iemand met het expliciete recht Gebruikers mag ze wijzigen. Dezelfde bescherming geldt ook bij CSV-import, zodat een omweg via een importbestand niet mogelijk is. Gewone ledengegevens blijven voor ledenbeheerders gewoon bewerkbaar.',
   ],
