@@ -1,0 +1,38 @@
+name: Promote tested site-i18n.js
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout production
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Fetch tested file
+        run: |
+          curl --fail --silent --show-error \
+            https://raw.githubusercontent.com/pjaminon-bit/RC045test/main/site-i18n.js \
+            -o site-i18n.js
+
+      - name: Validate
+        run: |
+          node --check site-i18n.js
+          git diff --check
+
+      - name: Commit tested version
+        run: |
+          rm -f .github/workflows/promote-site-i18n.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add site-i18n.js .github/workflows/promote-site-i18n.yml
+          git diff --cached --check
+          git commit -m 'Promote tested homepage link handling'
+          git push origin main
