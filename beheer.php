@@ -1110,6 +1110,7 @@ function contactStatusOpties() {
     'animo' => '🤝 Alleen bij voldoende animo',
     'animo_leden' => '🤝 Alleen bij voldoende animo, en alleen voor leden',
     'leden' => '👥 Alleen open voor leden',
+    'bekend_vrijdag' => '📣 Vrijdag voor 20.00 uur maken we de openingstijden bekend',
     'gesloten' => '⛔ Gesloten',
     'onderhoud' => '🔧 Gesloten i.v.m. onderhoud',
     'weer' => '🌧️ Gesloten i.v.m. slecht weer',
@@ -1129,18 +1130,24 @@ function contactVasteStanden() {
 // gezet, dan geldt hij de zaterdag erna. Er wordt een absolute tijd met
 // tijdzone weggeschreven, zodat de website hem los van de tijdzone van de
 // bezoeker goed vergelijkt.
-function contactVervalMoment($dag) {
+//
+// Uitzondering is de stand 'bekend_vrijdag': die belooft een bekendmaking op
+// vrijdag voor 20.00 uur en hoort dus op dat moment te vervallen, niet op de
+// dag zelf. Blijft hij anders staan, dan leest een bezoeker op zaterdagochtend
+// nog steeds dat het vrijdag bekend wordt.
+function contactVervalMoment($dag, $status = '') {
   $engelseDagen = ['woensdag' => 'wednesday', 'zaterdag' => 'saturday', 'zondag' => 'sunday'];
   // Het uur waarop de melding vervalt ligt per dag net na sluitingstijd.
   // Woensdag loopt tot 22:00 en krijgt daarom een later moment dan het weekend.
   $vervalUur = ['woensdag' => 23, 'zaterdag' => 20, 'zondag' => 20];
   if (!isset($engelseDagen[$dag])) return '';
-  $uur = $vervalUur[$dag];
+  $engelseDag = $status === 'bekend_vrijdag' ? 'friday' : $engelseDagen[$dag];
+  $uur = $status === 'bekend_vrijdag' ? 20 : $vervalUur[$dag];
   $tz = new DateTimeZone('Europe/Amsterdam');
   $nu = new DateTime('now', $tz);
-  $verval = (clone $nu)->modify('this ' . $engelseDagen[$dag])->setTime($uur, 0);
+  $verval = (clone $nu)->modify('this ' . $engelseDag)->setTime($uur, 0);
   if ($verval <= $nu) {
-    $verval = (clone $nu)->modify('next ' . $engelseDagen[$dag])->setTime($uur, 0);
+    $verval = (clone $nu)->modify('next ' . $engelseDag)->setTime($uur, 0);
   }
   return $verval->format('c');
 }
@@ -2154,7 +2161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ingelogd) {
           // Het vervalmoment wordt bij elke opslag opnieuw bepaald. Dat levert
           // steeds dezelfde datum op zolang die dag nog moet komen, en een
           // verlopen sluiting staat op dat moment toch al weer op open.
-          $statusTot = in_array($status, contactVasteStanden(), true) ? '' : contactVervalMoment($dag);
+          $statusTot = in_array($status, contactVasteStanden(), true) ? '' : contactVervalMoment($dag, $status);
           return ['van' => $van, 'tot' => $tot, 'status' => $status, 'status_tot' => $statusTot];
         };
         $contactData = [
@@ -4283,7 +4290,7 @@ if (in_array('log', $toegestaneTabs, true) && file_exists($logBestand)) {
                 <option value="<?php echo $waarde; ?>" <?php if (($contactData['openingstijden'][$dag]['status'] ?? 'open') === $waarde) echo 'selected'; ?>><?php echo htmlspecialchars($label); ?></option>
               <?php endforeach; ?>
             </select>
-            <p class="hint">Staat dit op een gesloten-stand, dan wordt de tijd op de website doorgestreept getoond met de reden eronder, automatisch in alle talen. Bij de leden- en animo-standen blijft de tijd gewoon leesbaar staan en komt er alleen een melding onder: de baan is die dag immers open, alleen niet voor iedereen of niet gegarandeerd. De tijden hierboven blijven in alle gevallen bewaard.<br>Een gesloten-stand en <strong>Alleen open voor leden</strong> vervallen vanzelf na afloop van de betreffende dag, dus vergeten terug te zetten kan geen kwaad. De twee animo-standen blijven wel staan: die horen bij de vaste opzet van woensdag en zijn geen tijdelijke afwijking. Ook de open/gesloten-melding bovenaan de homepage houdt hier rekening mee.<?php
+            <p class="hint">Staat dit op een gesloten-stand, dan wordt de tijd op de website doorgestreept getoond met de reden eronder, automatisch in alle talen. Bij de leden- en animo-standen blijft de tijd gewoon leesbaar staan en komt er alleen een melding onder: de baan is die dag immers open, alleen niet voor iedereen of niet gegarandeerd. Bij <strong>Vrijdag voor 20.00 uur maken we de openingstijden bekend</strong> blijft de tijd staan maar wordt hij gedempt getoond, want die tijd staat op dat moment nog niet vast. De tijden hierboven blijven in alle gevallen bewaard.<br>Een gesloten-stand en <strong>Alleen open voor leden</strong> vervallen vanzelf na afloop van de betreffende dag, dus vergeten terug te zetten kan geen kwaad. De bekendmakingsstand vervalt eerder, namelijk op de eerstvolgende vrijdag om 20:00, het moment waarop de openingstijden er hadden moeten staan. De twee animo-standen blijven wel staan: die horen bij de vaste opzet van woensdag en zijn geen tijdelijke afwijking. Ook de open/gesloten-melding bovenaan de homepage houdt hier rekening mee.<?php
               $vervalTekst = contactVervalTekst($contactData['openingstijden'][$dag]['status_tot'] ?? '');
               if ($vervalTekst) echo ' <strong>Deze melding verdwijnt ' . htmlspecialchars($vervalTekst) . '.</strong>';
             ?></p>
