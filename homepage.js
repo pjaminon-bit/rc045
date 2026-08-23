@@ -59,7 +59,7 @@
         'loc.label': 'Bezoek ons', 'loc.title': 'Hoe vind je ons?',
         'hours.title': '🕐 Openingstijden', 'hours.wed': 'Woensdag', 'hours.sat': 'Zaterdag', 'hours.sun': 'Zondag',
         'hours.this.wed': 'Deze woensdag', 'hours.this.sat': 'Deze zaterdag', 'hours.this.sun': 'Deze zondag',
-        'hours.closed': 'gesloten', 'hours.closed.maintenance': 'gesloten i.v.m. onderhoud', 'hours.closed.weather': 'gesloten i.v.m. slecht weer', 'hours.members': 'alleen open voor leden', 'hours.animo': 'alleen bij voldoende animo', 'hours.animo.members': 'alleen bij voldoende animo, en alleen voor leden',
+        'hours.closed': 'gesloten', 'hours.closed.maintenance': 'gesloten i.v.m. onderhoud', 'hours.closed.weather': 'gesloten i.v.m. slecht weer', 'hours.members': 'alleen open voor leden', 'hours.animo': 'alleen bij voldoende animo', 'hours.animo.members': 'alleen bij voldoende animo, en alleen voor leden', 'hours.unknown': 'Vrijdag voor 20.00 uur maken we de openingstijden bekend',
         'hours.note.attention': 'Let op:', 'hours.note.text': 'We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.',
         'hours.weather': 'Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.',
         'addr.title': 'Adres', 'addr.text': 'Onze baan ligt op het terrein van Kok Lexmond, bij aankomst volg je de pijlen RC045.',
@@ -81,7 +81,7 @@
         'footer.nav': 'Navigatie', 'footer.origin': 'Het ontstaan', 'footer.media': 'Media', 'footer.photobook': 'Fotoboek', 'footer.calendar': 'Activiteitenkalender', 'footer.join': 'Meedoen',
         'footer.become': 'Lid worden', 'footer.rules': 'Baanreglement', 'footer.sponsor': 'Sponsoring',
         'footer.credit': 'Website door', 'footer.sponsors.title': 'Met dank aan onze sponsoren',
-        'status.open': 'Nu open', 'status.closed': 'Nu gesloten', 'status.members': 'Nu open voor leden', 'status.animo': 'Open bij voldoende animo', 'status.animo.members': 'Open voor leden bij voldoende animo',
+        'status.open': 'Nu open', 'status.closed': 'Nu gesloten', 'status.members': 'Nu open voor leden', 'status.animo': 'Open bij voldoende animo', 'status.animo.members': 'Open voor leden bij voldoende animo', 'status.unknown': 'Openingstijden nog niet bekend',
         'meta.description': 'RC045 – Bashers of the South: een gezellige vereniging in Zuid-Limburg voor liefhebbers van elektrisch aangedreven, radiografisch bestuurbare auto\'s. Voor beginners en ervaren hobbyisten, jong en oud.'
       },
       en: {
@@ -134,7 +134,7 @@
         'loc.label': 'Visit us', 'loc.title': 'How to find us?',
         'hours.title': '🕐 Opening hours', 'hours.wed': 'Wednesday', 'hours.sat': 'Saturday', 'hours.sun': 'Sunday',
         'hours.this.wed': 'This Wednesday', 'hours.this.sat': 'This Saturday', 'hours.this.sun': 'This Sunday',
-        'hours.closed': 'closed', 'hours.closed.maintenance': 'closed for maintenance', 'hours.closed.weather': 'closed due to bad weather', 'hours.members': 'open to members only', 'hours.animo': 'only if enough people turn up', 'hours.animo.members': 'members only, and only if enough people turn up',
+        'hours.closed': 'closed', 'hours.closed.maintenance': 'closed for maintenance', 'hours.closed.weather': 'closed due to bad weather', 'hours.members': 'open to members only', 'hours.animo': 'only if enough people turn up', 'hours.animo.members': 'members only, and only if enough people turn up', 'hours.unknown': 'We announce the opening hours on Friday before 20:00',
         'hours.note.attention': 'Please note:', 'hours.note.text': 'We are closed the first Saturday or Sunday of the month for maintenance.',
         'hours.weather': 'In bad weather we may decide to close early or not open at all.',
         'addr.title': 'Address', 'addr.text': 'Our track is on the Kok Lexmond site, follow the RC045 arrows on arrival.',
@@ -156,7 +156,7 @@
         'footer.nav': 'Navigation', 'footer.origin': 'Our history', 'footer.media': 'Media', 'footer.photobook': 'Photo book', 'footer.calendar': 'Events calendar', 'footer.join': 'Get involved',
         'footer.become': 'Become a member', 'footer.rules': 'Track regulations', 'footer.sponsor': 'Sponsorship',
         'footer.credit': 'Website by', 'footer.sponsors.title': 'With thanks to our sponsors',
-        'status.open': 'Now open', 'status.closed': 'Now closed', 'status.members': 'Now open for members', 'status.animo': 'Open if enough people turn up', 'status.animo.members': 'Open for members if enough people turn up',
+        'status.open': 'Now open', 'status.closed': 'Now closed', 'status.members': 'Now open for members', 'status.animo': 'Open if enough people turn up', 'status.animo.members': 'Open for members if enough people turn up', 'status.unknown': 'Opening hours not yet announced',
         'meta.description': 'RC045 – Bashers of the South: a friendly club in South Limburg for fans of electric radio controlled cars. For beginners and experienced hobbyists, young and old.'
       },
       de: {
@@ -209,7 +209,7 @@
         'loc.label': 'Besuche uns', 'loc.title': 'Wie findest du uns?',
         'hours.title': '🕐 Öffnungszeiten', 'hours.wed': 'Mittwoch', 'hours.sat': 'Samstag', 'hours.sun': 'Sonntag',
         'hours.this.wed': 'Diesen Mittwoch', 'hours.this.sat': 'Diesen Samstag', 'hours.this.sun': 'Diesen Sonntag',
-        'hours.closed': 'geschlossen', 'hours.closed.maintenance': 'wegen Wartung geschlossen', 'hours.closed.weather': 'wegen schlechtem Wetter geschlossen', 'hours.members': 'nur für Mitglieder geöffnet', 'hours.animo': 'nur bei genügend Andrang', 'hours.animo.members': 'nur für Mitglieder und nur bei genügend Andrang',
+        'hours.closed': 'geschlossen', 'hours.closed.maintenance': 'wegen Wartung geschlossen', 'hours.closed.weather': 'wegen schlechtem Wetter geschlossen', 'hours.members': 'nur für Mitglieder geöffnet', 'hours.animo': 'nur bei genügend Andrang', 'hours.animo.members': 'nur für Mitglieder und nur bei genügend Andrang', 'hours.unknown': 'Freitags vor 20.00 Uhr geben wir die Öffnungszeiten bekannt',
         'hours.note.attention': 'Hinweis:', 'hours.note.text': 'Wir sind am ersten Samstag oder Sonntag des Monats wegen Wartungsarbeiten geschlossen.',
         'hours.weather': 'Bei schlechtem Wetter können wir früher schließen oder gar nicht öffnen.',
         'addr.title': 'Adresse', 'addr.text': 'Unsere Strecke liegt auf dem Gelände von Kok Lexmond, folge beim Ankommen den RC045-Schildern.',
@@ -231,7 +231,7 @@
         'footer.nav': 'Navigation', 'footer.origin': 'Unsere Geschichte', 'footer.media': 'Medien', 'footer.photobook': 'Fotobuch', 'footer.calendar': 'Veranstaltungskalender', 'footer.join': 'Mitmachen',
         'footer.become': 'Mitglied werden', 'footer.rules': 'Streckenreglement', 'footer.sponsor': 'Sponsoring',
         'footer.credit': 'Website von', 'footer.sponsors.title': 'Mit Dank an unsere Sponsoren',
-        'status.open': 'Jetzt geöffnet', 'status.closed': 'Jetzt geschlossen', 'status.members': 'Jetzt für Mitglieder geöffnet', 'status.animo': 'Geöffnet bei genügend Andrang', 'status.animo.members': 'Für Mitglieder geöffnet bei genügend Andrang',
+        'status.open': 'Jetzt geöffnet', 'status.closed': 'Jetzt geschlossen', 'status.members': 'Jetzt für Mitglieder geöffnet', 'status.animo': 'Geöffnet bei genügend Andrang', 'status.animo.members': 'Für Mitglieder geöffnet bei genügend Andrang', 'status.unknown': 'Öffnungszeiten noch nicht bekannt',
         'meta.description': 'RC045 – Bashers of the South: ein geselliger Verein in Süd-Limburg für Freunde elektrisch angetriebener, ferngesteuerter Autos. Für Anfänger und erfahrene Hobbyisten, jung und alt.'
       }
     };
@@ -439,11 +439,11 @@
       // 'leden' en 'animo' zijn geen sluiting, maar wel een voorbehoud. Dan is
       // "Nu open" te stellig, dus die dagen krijgen hun eigen tekst.
       const standVandaag = day === 3 ? woensdagStand : day === 6 ? zaterdagStand : day === 0 ? zondagStand : 'open';
-      const voorbehoud = isOpen && (standVandaag === 'leden' || isAnimo(standVandaag));
+      const voorbehoud = isOpen && (standVandaag === 'leden' || isAnimo(standVandaag) || isOnbekend(standVandaag));
       const el = document.getElementById('status-indicator');
       if (voorbehoud) {
-        el.className = isAnimo(standVandaag) ? 'status-animo' : 'status-members';
-        el.textContent = standVandaag === 'animo_leden' ? t['status.animo.members'] : standVandaag === 'animo' ? t['status.animo'] : t['status.members'];
+        el.className = isAnimo(standVandaag) || isOnbekend(standVandaag) ? 'status-animo' : 'status-members';
+        el.textContent = isOnbekend(standVandaag) ? t['status.unknown'] : standVandaag === 'animo_leden' ? t['status.animo.members'] : standVandaag === 'animo' ? t['status.animo'] : t['status.members'];
       } else if (isOpen) {
         el.className = 'status-open';
         el.textContent = t['status.open'];
@@ -940,10 +940,10 @@
     // De dagstand komt uit beheer.php: 'open', 'leden', 'gesloten', 'onderhoud'
     // of 'weer'. 'leden' betekent dat de baan die dag wel open is, maar alleen
     // voor leden; de andere afwijkende standen zijn echte sluitingen.
-    var statusSleutels = { animo: 'hours.animo', animo_leden: 'hours.animo.members', leden: 'hours.members', gesloten: 'hours.closed', onderhoud: 'hours.closed.maintenance', weer: 'hours.closed.weather' };
+    var statusSleutels = { animo: 'hours.animo', animo_leden: 'hours.animo.members', leden: 'hours.members', bekend_vrijdag: 'hours.unknown', gesloten: 'hours.closed', onderhoud: 'hours.closed.maintenance', weer: 'hours.closed.weather' };
     // Het icoon staat los van de vertalingen, zodat het maar op één plek hoeft
     // te staan en in alle drie de talen hetzelfde is.
-    var statusIconen = { animo: '🤝', animo_leden: '🤝', leden: '👥', gesloten: '⛔', onderhoud: '🔧', weer: '🌧️' };
+    var statusIconen = { animo: '🤝', animo_leden: '🤝', leden: '👥', bekend_vrijdag: '📣', gesloten: '⛔', onderhoud: '🔧', weer: '🌧️' };
     // Alleen deze standen betekenen dat de baan dicht is. 'leden' hoort daar
     // bewust niet bij: die dag telt gewoon als open, met een melding erbij.
     function isDicht(status) {
@@ -953,7 +953,12 @@
     // geen lookup in statusSleutels: updateStatus() draait al bij het laden van
     // de pagina, dus voordat de var hierboven een waarde heeft gekregen.
     function isAfwijkend(status) {
-      return status === 'leden' || isAnimo(status) || isDicht(status);
+      return status === 'leden' || status === 'bekend_vrijdag' || isAnimo(status) || isDicht(status);
+    }
+    // De baan gaat die dag waarschijnlijk gewoon open, maar de tijd staat nog
+    // niet vast: die wordt daarom gedempt getoond in plaats van doorgestreept.
+    function isOnbekend(status) {
+      return status === 'bekend_vrijdag';
     }
     // De animo-standen horen bij de vaste opzet van een dag en vervallen dus
     // niet vanzelf. Dit is dezelfde afspraak als contactVasteStanden() in
@@ -999,7 +1004,11 @@
     }
     function statusTekst(status, dagSleutel, t) {
       var tekst = t[statusSleutels[status]] || t['hours.closed'];
-      return (statusIconen[status] ? statusIconen[status] + ' ' : '') + dagTekstVoorStand(status, dagSleutel, t) + ' ' + tekst;
+      var icoon = statusIconen[status] ? statusIconen[status] + ' ' : '';
+      // De bekendmakingsstand is al een hele zin en krijgt de dagnaam er dus
+      // niet voor: "Deze zaterdag vrijdag voor 20.00 uur ..." leest niet.
+      if (isOnbekend(status)) return icoon + tekst;
+      return icoon + dagTekstVoorStand(status, dagSleutel, t) + ' ' + tekst;
     }
     // Vult een regel in de info-balk: "Zaterdag 10:00 – 15:00". Is de dag dicht,
     // dan wordt de tijd doorgestreept en komt de melding eronder te staan. Bij
@@ -1013,10 +1022,11 @@
       var tijd = document.createElement('span');
       tijd.textContent = tijdTekst;
       if (dicht) tijd.className = 'tijd-gesloten';
+      else if (isOnbekend(status)) tijd.className = 'tijd-onbekend';
       el.appendChild(tijd);
       if (status !== 'open') {
         var melding = document.createElement('span');
-        melding.className = 'info-closed-note' + (status === 'leden' ? ' is-leden' : isAnimo(status) ? ' is-animo' : '');
+        melding.className = 'info-closed-note' + (status === 'leden' ? ' is-leden' : isAnimo(status) || isOnbekend(status) ? ' is-animo' : '');
         melding.textContent = statusTekst(status, dagSleutel, t);
         el.appendChild(melding);
       }
@@ -1027,7 +1037,8 @@
       if (rij) {
         rij.classList.toggle('is-gesloten', isDicht(status));
         rij.classList.toggle('is-leden', status === 'leden');
-        rij.classList.toggle('is-animo', isAnimo(status));
+        rij.classList.toggle('is-animo', isAnimo(status) || isOnbekend(status));
+        rij.classList.toggle('is-onbekend', isOnbekend(status));
       }
       var melding = document.getElementById(meldingId);
       if (melding && status !== 'open') melding.textContent = statusTekst(status, dagSleutel, t);
