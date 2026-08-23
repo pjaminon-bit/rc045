@@ -24,6 +24,13 @@
 return [
 
   [
+    'datum' => '2026-08-23',
+    'cat' => 'nieuw',
+    'titel' => 'Nieuwe stand voor openingstijden die nog niet vaststaan',
+    'tekst' => 'Bij Openingstijden in het beheer staat er een stand bij: "Vrijdag voor 20.00 uur maken we de openingstijden bekend". De dag geldt dan niet als gesloten, dus de melding krijgt hetzelfde lichte goud randje als de animo-standen, maar de tijd wordt gedempt getoond omdat juist die tijd nog niet vaststaat. De melding staat op zichzelf en krijgt dus geen dagnaam ervoor, en verschijnt automatisch in het Nederlands, Engels en Duits. Anders dan de overige tijdelijke standen vervalt deze niet na afloop van de dag zelf maar op de eerstvolgende vrijdag om 20:00, het moment waarop de openingstijden er hadden moeten staan.',
+  ],
+
+  [
     'datum' => '2026-08-17',
     'cat' => 'verbetering',
     'titel' => 'Homepage-JavaScript opgesplitst en centraal geïnitialiseerd',
