@@ -429,6 +429,12 @@
     
     .hours-row.is-animo .hours-closed-note { display: block; background: transparent; color: var(--text); border: 1px solid var(--gold); font-weight: 600; }
     
+    /* Vrijdag voor 20.00 uur maken we de openingstijden bekend: dezelfde
+       lichte opmaak als bij voldoende animo (de baan is niet dicht), maar de
+       tijd wordt gedempt getoond omdat juist die tijd nog niet vaststaat.
+       Geen doorhaling, want er is niets afgelast. */
+    .hours-row.is-onbekend .hours-time { opacity: 0.55; }
+    
     /* Zelfde melding in de info-balk bovenaan. Daar is bewust geen achtergrond
        en randje gebruikt: dat blok is een smalle strook van drie kolommen en
        wordt daar te zwaar van. */
@@ -439,6 +445,8 @@
     .info-closed-note.is-leden { background: var(--teal); }
     
     .info-closed-note.is-animo { background: transparent; color: var(--text); border: 1px solid var(--gold); font-weight: 600; }
+    
+    .info-value .tijd-onbekend { opacity: 0.55; }
     
     /* Openingstijden-notities: zelfde opsommingsstijl als de notities onder de
        prijskaarten (.price-notes), zodat beide blokken er gelijk uitzien. */
