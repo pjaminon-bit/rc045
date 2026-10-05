@@ -154,9 +154,7 @@
     }
 
 
-    /* =========================================================
-       HEADER
-       ========================================================= */
+    /* HEADER */
 
     header {
       display: flex;
@@ -203,9 +201,7 @@
     }
 
 
-    /* =========================================================
-       MAIN
-       ========================================================= */
+    /* MAIN */
 
     main {
       flex: 1;
@@ -216,9 +212,7 @@
     }
 
 
-    /* =========================================================
-       PLAYER
-       ========================================================= */
+    /* PLAYER */
 
     .player {
       display: grid;
@@ -237,9 +231,7 @@
     }
 
 
-    /* =========================================================
-       ARTWORK
-       ========================================================= */
+    /* ARTWORK */
 
     .artwork {
       position: relative;
@@ -405,9 +397,7 @@
     }
 
 
-    /* =========================================================
-       INFO
-       ========================================================= */
+    /* INFO */
 
     .player-info {
       min-width: 0;
@@ -445,9 +435,7 @@
     }
 
 
-    /* =========================================================
-       TRACK + WIKIPEDIA
-       ========================================================= */
+    /* TRACK + WIKIPEDIA */
 
     .track {
       min-height: 58px;
@@ -564,9 +552,7 @@
     }
 
 
-    /* =========================================================
-       CONTROLS
-       ========================================================= */
+    /* CONTROLS */
 
     .controls {
       display: flex;
@@ -611,14 +597,12 @@
 
 
     .play-button:hover {
-      transform:
-        scale(1.055);
+      transform: scale(1.055);
     }
 
 
     .play-button:active {
-      transform:
-        scale(.96);
+      transform: scale(.96);
     }
 
 
@@ -904,9 +888,51 @@
     }
 
 
-    /* STATIONS */
+    /* LANDEN */
 
-    .stations {
+    .station-groups {
+      display: grid;
+
+      gap: 30px;
+    }
+
+
+    .country-group {
+      min-width: 0;
+    }
+
+
+    .country-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+
+      gap: 16px;
+
+      margin:
+        0 3px 12px;
+    }
+
+
+    .country-title {
+      margin: 0;
+
+      font-size: 14px;
+      font-weight: 760;
+
+      letter-spacing: -.02em;
+    }
+
+
+    .country-count {
+      color: var(--muted);
+
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+
+    .country-stations {
       display: grid;
 
       grid-template-columns:
@@ -918,6 +944,8 @@
       gap: 12px;
     }
 
+
+    /* STATION CARDS */
 
     .station {
       position: relative;
@@ -1008,9 +1036,28 @@
       width: 100%;
       height: 100%;
 
+      max-width: 100%;
+      max-height: 100%;
+
       display: block;
 
       object-fit: contain;
+    }
+
+
+    /*
+     * Alleen Qmusic:
+     * het hoge Q-logo krijgt extra ruimte
+     * binnen het bestaande witte vak.
+     */
+
+    .station[data-station-id="qmusic"]
+    .station-logo,
+
+    .station[data-station-id="qmusicbe"]
+    .station-logo {
+      width: 78%;
+      height: 78%;
     }
 
 
@@ -1113,6 +1160,7 @@
 
 
     @media (max-width: 760px) {
+
       .app {
         width:
           min(
@@ -1177,12 +1225,17 @@
       }
 
 
-      .stations {
+      .country-stations {
         grid-template-columns:
           repeat(
             2,
             minmax(0, 1fr)
           );
+      }
+
+
+      .station-groups {
+        gap: 26px;
       }
 
 
@@ -1193,6 +1246,7 @@
 
 
     @media (max-width: 420px) {
+
       .app {
         width:
           calc(100% - 20px);
@@ -1235,6 +1289,11 @@
       .station-logo-wrap {
         width: 38px;
         height: 38px;
+      }
+
+
+      .country-header {
+        margin-bottom: 10px;
       }
     }
 
@@ -1511,7 +1570,7 @@
 
     <section
       id="stations"
-      class="stations"
+      class="station-groups"
       aria-label="Radiostations"
     ></section>
 
@@ -1566,51 +1625,19 @@ const CORS_RELAYS = [
 ];
 
 
-/* =========================================================
-   SIMPLE VECTOR FALLBACK LOGOS
-   ========================================================= */
+const COUNTRIES = [
 
-function makeWordLogo(
-  text,
-  background,
-  foreground,
-  fontSize = 62
-) {
+  {
+    code: "NL",
+    name: "Nederland"
+  },
 
-  const svg =
-    `
-    <svg xmlns="http://www.w3.org/2000/svg"
-         viewBox="0 0 300 160">
-      <rect
-        width="300"
-        height="160"
-        rx="22"
-        fill="${background}"
-      />
+  {
+    code: "BE",
+    name: "België"
+  }
 
-      <text
-        x="150"
-        y="84"
-        text-anchor="middle"
-        dominant-baseline="middle"
-        font-family="Arial,Helvetica,sans-serif"
-        font-size="${fontSize}"
-        font-weight="900"
-        fill="${foreground}"
-        letter-spacing="-2"
-      >
-        ${text}
-      </text>
-    </svg>
-    `;
-
-
-  return (
-    "data:image/svg+xml;charset=UTF-8," +
-    encodeURIComponent(svg)
-  );
-
-}
+];
 
 
 /* =========================================================
@@ -1619,8 +1646,14 @@ function makeWordLogo(
 
 const stations = [
 
+  /* =======================================================
+     NEDERLAND
+     ======================================================= */
+
   {
     id: "npo1",
+    country: "NL",
+
     name: "NPO Radio 1",
     mark: "1",
 
@@ -1636,6 +1669,7 @@ const stations = [
     metadata: [
       {
         type: "npo",
+
         url:
           "https://www.nporadio1.nl/api/tracks"
       }
@@ -1645,6 +1679,8 @@ const stations = [
 
   {
     id: "npo2",
+    country: "NL",
+
     name: "NPO Radio 2",
     mark: "2",
 
@@ -1660,6 +1696,9 @@ const stations = [
     metadata: [
       {
         type: "npo",
+
+        currentWindow: true,
+
         url:
           "https://www.nporadio2.nl/api/tracks"
       }
@@ -1669,6 +1708,8 @@ const stations = [
 
   {
     id: "3fm",
+    country: "NL",
+
     name: "NPO 3FM",
     mark: "3",
 
@@ -1684,6 +1725,9 @@ const stations = [
     metadata: [
       {
         type: "npo",
+
+        currentWindow: true,
+
         url:
           "https://www.npo3fm.nl/api/tracks"
       }
@@ -1693,6 +1737,8 @@ const stations = [
 
   {
     id: "npo5",
+    country: "NL",
+
     name: "NPO Radio 5",
     mark: "5",
 
@@ -1708,6 +1754,7 @@ const stations = [
     metadata: [
       {
         type: "npo",
+
         url:
           "https://www.nporadio5.nl/api/tracks"
       }
@@ -1717,6 +1764,8 @@ const stations = [
 
   {
     id: "funx",
+    country: "NL",
+
     name: "NPO FunX",
     mark: "FX",
 
@@ -1738,12 +1787,14 @@ const stations = [
     metadata: [
       {
         type: "npo",
+
         url:
           "https://www.funx.nl/api/tracks"
       },
 
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/nl/npofunx/playlist/?lang=nl"
       }
@@ -1753,6 +1804,8 @@ const stations = [
 
   {
     id: "538",
+    country: "NL",
+
     name: "Radio 538",
     mark: "538",
 
@@ -1765,21 +1818,15 @@ const stations = [
     accent: "#8bc53f",
     rgb: "139,197,63",
 
-    noise: [
-      "radio 538",
-      "538"
-    ],
-
     metadata: [
       {
         type: "triton",
-        mount: "RADIO538"
-      },
 
-      {
-        type: "orb",
-        url:
-          "https://onlineradiobox.com/nl/538/playlist/?lang=nl"
+        mount:
+          "RADIO538",
+
+        authoritative:
+          true
       }
     ]
   },
@@ -1787,6 +1834,8 @@ const stations = [
 
   {
     id: "qmusic",
+    country: "NL",
+
     name: "Qmusic",
     mark: "Q",
 
@@ -1808,7 +1857,10 @@ const stations = [
     metadata: [
       {
         type: "orb",
-        order: "title-artist",
+
+        order:
+          "title-artist",
+
         url:
           "https://onlineradiobox.com/nl/qmusic/playlist/?lang=nl"
       }
@@ -1818,6 +1870,8 @@ const stations = [
 
   {
     id: "joenl",
+    country: "NL",
+
     name: "JOE Nederland",
     mark: "JOE",
 
@@ -1833,13 +1887,20 @@ const stations = [
     noise: [
       "joe",
       "joe nieuws",
-      "ad break"
+      "ad break",
+      "dynamic break 1"
     ],
 
     metadata: [
       {
         type: "orb",
-        order: "title-artist",
+
+        strictLive:
+          true,
+
+        order:
+          "title-artist",
+
         url:
           "https://onlineradiobox.com/nl/joenl/playlist/?lang=nl"
       }
@@ -1849,6 +1910,8 @@ const stations = [
 
   {
     id: "skyradio",
+    country: "NL",
+
     name: "Sky Radio",
     mark: "SKY",
 
@@ -1869,6 +1932,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/nl/skyradio/playlist/?lang=nl"
       }
@@ -1878,16 +1942,17 @@ const stations = [
 
   {
     id: "bnr",
+    country: "NL",
+
     name: "BNR Nieuwsradio",
     mark: "BNR",
 
+    /*
+     * Actuele asset van BNR zelf.
+     */
+
     logo:
-      makeWordLogo(
-        "BNR",
-        "#ffd200",
-        "#111111",
-        72
-      ),
+      "https://static.bnr.nl/assets/bnr-next/logo.png",
 
     stream:
       "https://stream.bnr.nl/bnr_mp3_128_20",
@@ -1898,6 +1963,7 @@ const stations = [
     metadata: [
       {
         type: "bnr",
+
         url:
           "https://www.bnr.nl/player/live"
       }
@@ -1907,6 +1973,8 @@ const stations = [
 
   {
     id: "veronica",
+    country: "NL",
+
     name: "Radio Veronica",
     mark: "V",
 
@@ -1927,6 +1995,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/nl/raveron/playlist/?lang=nl"
       }
@@ -1936,6 +2005,8 @@ const stations = [
 
   {
     id: "radio10",
+    country: "NL",
+
     name: "Radio 10",
     mark: "10",
 
@@ -1955,6 +2026,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/nl/radio10/playlist/?lang=nl"
       }
@@ -1964,11 +2036,13 @@ const stations = [
 
   {
     id: "100nl",
+    country: "NL",
+
     name: "100% NL",
     mark: "100",
 
     logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo%20100p%20NL%202019.png",
+      "https://commons.wikimedia.org/wiki/Special:Redirect/file/100p-nl-logo.svg",
 
     stream:
       "https://stream.100p.nl/100pctnl.mp3",
@@ -1984,6 +2058,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/nl/100pnl/playlist/?lang=nl"
       }
@@ -1993,16 +2068,17 @@ const stations = [
 
   {
     id: "kink",
+    country: "NL",
+
     name: "KINK",
     mark: "K",
 
+    /*
+     * Officiële actuele KINK-asset.
+     */
+
     logo:
-      makeWordLogo(
-        "KINK",
-        "#111111",
-        "#ffffff",
-        68
-      ),
+      "https://kink.nl/static/kink_x2.gif",
 
     stream:
       "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK.mp3",
@@ -2010,16 +2086,13 @@ const stations = [
     accent: "#f2f2f2",
     rgb: "210,210,210",
 
-    noise: [
-      "kink",
-      "kink no alternative"
-    ],
-
     metadata: [
       {
-        type: "orb",
+        type:
+          "kink",
+
         url:
-          "https://onlineradiobox.com/nl/kink/playlist/?lang=nl"
+          "https://kink.nl/"
       }
     ]
   },
@@ -2027,11 +2100,13 @@ const stations = [
 
   {
     id: "slam",
+    country: "NL",
+
     name: "SLAM!",
     mark: "S!",
 
     logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Slam%21%20logo.png",
+      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Slam%21-logo.png",
 
     stream:
       "https://stream.slam.nl/slam_mp3",
@@ -2048,6 +2123,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/nl/slamfm/playlist/?lang=nl"
       }
@@ -2057,6 +2133,8 @@ const stations = [
 
   {
     id: "arrow",
+    country: "NL",
+
     name: "Arrow Classic Rock",
     mark: "A",
 
@@ -2078,6 +2156,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/nl/arrowclassicrock/playlist/?lang=nl"
       }
@@ -2085,13 +2164,25 @@ const stations = [
   },
 
 
+  /* =======================================================
+     BELGIË
+     ======================================================= */
+
   {
     id: "stubru",
+    country: "BE",
+
     name: "Studio Brussel",
     mark: "Stu",
 
+    /*
+     * Teruggezet naar de VRT-asset
+     * die vóór de ongevraagde wijziging
+     * al in deze pagina stond.
+     */
+
     logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Studio%20Brussel%20logo%20%282023-%29.svg",
+      "https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-06.svg",
 
     stream:
       "https://icecast.vrtcdn.be/stubru-high.mp3",
@@ -2108,6 +2199,10 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
+        strictLive:
+          true,
+
         url:
           "https://onlineradiobox.com/be/studiobrussel/playlist/?lang=nl"
       }
@@ -2117,6 +2212,8 @@ const stations = [
 
   {
     id: "tijdloze",
+    country: "BE",
+
     name: "De Tijdloze",
     mark: "∞",
 
@@ -2137,6 +2234,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/be/studiobrusseldetijdloze/playlist/?lang=nl"
       }
@@ -2146,6 +2244,8 @@ const stations = [
 
   {
     id: "mnm",
+    country: "BE",
+
     name: "MNM",
     mark: "M",
 
@@ -2161,12 +2261,17 @@ const stations = [
     noise: [
       "mnm",
       "vrt mnm",
+      "mnm - make life sing",
       "make life sing"
     ],
 
     metadata: [
       {
         type: "orb",
+
+        strictLive:
+          true,
+
         url:
           "https://onlineradiobox.com/be/mnm/playlist/?lang=nl"
       }
@@ -2175,7 +2280,46 @@ const stations = [
 
 
   {
+    id: "qmusicbe",
+    country: "BE",
+
+    name: "Qmusic België",
+    mark: "Q",
+
+    logo:
+      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Qmusic%20logo.svg",
+
+    stream:
+      "https://streams.radio.dpgmedia.cloud/redirect/qmusic_be/mp3",
+
+    accent: "#e71d4f",
+    rgb: "231,29,79",
+
+    noise: [
+      "qmusic",
+      "q-music",
+      "qmusic nieuws",
+      "ad break"
+    ],
+
+    metadata: [
+      {
+        type: "orb",
+
+        strictLive:
+          true,
+
+        url:
+          "https://onlineradiobox.com/be/qmusic/playlist/?lang=nl"
+      }
+    ]
+  },
+
+
+  {
     id: "willy",
+    country: "BE",
+
     name: "Willy",
     mark: "W",
 
@@ -2196,6 +2340,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/be/willy/playlist/?lang=nl"
       }
@@ -2205,6 +2350,8 @@ const stations = [
 
   {
     id: "klara",
+    country: "BE",
+
     name: "Klara",
     mark: "K",
 
@@ -2226,7 +2373,10 @@ const stations = [
     metadata: [
       {
         type: "orb",
-        format: "classical",
+
+        format:
+          "classical",
+
         url:
           "https://onlineradiobox.com/be/klara/playlist/?lang=nl"
       }
@@ -2236,6 +2386,8 @@ const stations = [
 
   {
     id: "vrt1",
+    country: "BE",
+
     name: "VRT Radio 1",
     mark: "R1",
 
@@ -2257,6 +2409,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/be/r1/playlist/?lang=nl"
       }
@@ -2266,6 +2419,8 @@ const stations = [
 
   {
     id: "radio2limburg",
+    country: "BE",
+
     name: "Radio 2 Limburg",
     mark: "R2",
 
@@ -2283,12 +2438,18 @@ const stations = [
       "vrt radio 2",
       "radio 2 limburg",
       "vrt radio 2 limburg",
+      "radio 2 in limburg",
+      "radio 2 weekend",
       "elke dag telt voor 2"
     ],
 
     metadata: [
       {
         type: "orb",
+
+        strictLive:
+          true,
+
         url:
           "https://onlineradiobox.com/be/2limbourg/playlist/?lang=nl"
       }
@@ -2298,6 +2459,8 @@ const stations = [
 
   {
     id: "joebe",
+    country: "BE",
+
     name: "JOE België",
     mark: "JOE",
 
@@ -2319,6 +2482,7 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
         url:
           "https://onlineradiobox.com/be/joe/playlist/?lang=nl"
       }
@@ -2560,10 +2724,6 @@ function writeWikiCache(
     );
 
 
-  /*
-   * Cache begrenzen.
-   */
-
   if (
     entries.length > 200
   ) {
@@ -2737,10 +2897,12 @@ themeQuery.addEventListener?.(
 
 
 /* =========================================================
-   FAVORITES
+   FAVORITES + LANDEN
    ========================================================= */
 
-function getDisplayOrder() {
+function getCountryOrder(
+  countryCode
+) {
 
   return stations
     .map(
@@ -2748,6 +2910,11 @@ function getDisplayOrder() {
         station,
         index
       })
+    )
+    .filter(
+      item =>
+        item.station.country ===
+        countryCode
     )
     .sort(
       (a, b) => {
@@ -2772,6 +2939,19 @@ function getDisplayOrder() {
         return a.index - b.index;
 
       }
+    );
+
+}
+
+
+function getDisplayOrder() {
+
+  return COUNTRIES
+    .flatMap(
+      country =>
+        getCountryOrder(
+          country.code
+        )
     );
 
 }
@@ -2812,6 +2992,181 @@ function toggleFavorite(
    STATION UI
    ========================================================= */
 
+function createStationCard(
+  station,
+  index
+) {
+
+  const card =
+    document.createElement(
+      "div"
+    );
+
+
+  card.className =
+    "station";
+
+
+  card.dataset.stationId =
+    station.id;
+
+
+  card.classList.toggle(
+    "active",
+    index === currentIndex
+  );
+
+
+  const select =
+    document.createElement(
+      "button"
+    );
+
+
+  select.type =
+    "button";
+
+
+  select.className =
+    "station-select";
+
+
+  select.setAttribute(
+    "aria-label",
+    `Luister naar ${station.name}`
+  );
+
+
+  select.innerHTML = `
+
+    <span class="station-logo-wrap">
+
+      <img
+        class="station-logo"
+        src="${getStationLogo(station)}"
+        alt=""
+        loading="lazy"
+      >
+
+      <span
+        class="station-logo-fallback"
+      >
+        ${station.mark}
+      </span>
+
+    </span>
+
+
+    <span class="station-name">
+      ${station.name}
+    </span>
+
+  `;
+
+
+  const logo =
+    select.querySelector(
+      ".station-logo"
+    );
+
+
+  const fallback =
+    select.querySelector(
+      ".station-logo-fallback"
+    );
+
+
+  logo.addEventListener(
+    "error",
+    () => {
+
+      logo.style.display =
+        "none";
+
+
+      fallback.style.display =
+        "flex";
+
+    }
+  );
+
+
+  select.addEventListener(
+    "click",
+    () => {
+
+      selectStation(
+        index,
+        true
+      );
+
+    }
+  );
+
+
+  const favorite =
+    document.createElement(
+      "button"
+    );
+
+
+  const isFavorite =
+    favoriteIds.has(
+      station.id
+    );
+
+
+  favorite.type =
+    "button";
+
+
+  favorite.className =
+    "favorite-button";
+
+
+  favorite.classList.toggle(
+    "active",
+    isFavorite
+  );
+
+
+  favorite.textContent =
+    isFavorite
+      ? "★"
+      : "☆";
+
+
+  favorite.setAttribute(
+    "aria-label",
+
+    isFavorite
+      ? `${station.name} uit favorieten`
+      : `${station.name} toevoegen aan favorieten`
+  );
+
+
+  favorite.addEventListener(
+    "click",
+    event => {
+
+      event.stopPropagation();
+
+      toggleFavorite(index);
+
+    }
+  );
+
+
+  card.appendChild(select);
+
+  card.appendChild(favorite);
+
+
+  return card;
+
+}
+
+
 function renderStations() {
 
   stationsContainer.innerHTML =
@@ -2819,166 +3174,89 @@ function renderStations() {
 
 
   for (
-    const {
-      station,
-      index
-    }
-    of getDisplayOrder()
+    const country
+    of COUNTRIES
   ) {
 
-    const card =
+    const items =
+      getCountryOrder(
+        country.code
+      );
+
+
+    const group =
+      document.createElement(
+        "section"
+      );
+
+
+    group.className =
+      "country-group";
+
+
+    const heading =
       document.createElement(
         "div"
       );
 
 
-    card.className =
-      "station";
+    heading.className =
+      "country-header";
 
 
-    card.classList.toggle(
-      "active",
-      index === currentIndex
-    );
+    heading.innerHTML = `
 
+      <h2 class="country-title">
+        ${country.name}
+      </h2>
 
-    const select =
-      document.createElement(
-        "button"
-      );
-
-
-    select.type =
-      "button";
-
-
-    select.className =
-      "station-select";
-
-
-    select.setAttribute(
-      "aria-label",
-      `Luister naar ${station.name}`
-    );
-
-
-    select.innerHTML = `
-
-      <span class="station-logo-wrap">
-
-        <img
-          class="station-logo"
-          src="${getStationLogo(station)}"
-          alt=""
-          loading="lazy"
-        >
-
-        <span
-          class="station-logo-fallback"
-        >
-          ${station.mark}
-        </span>
-
-      </span>
-
-
-      <span class="station-name">
-        ${station.name}
+      <span class="country-count">
+        ${items.length} stations
       </span>
 
     `;
 
 
-    const logo =
-      select.querySelector(
-        ".station-logo"
-      );
-
-
-    const fallback =
-      select.querySelector(
-        ".station-logo-fallback"
-      );
-
-
-    logo.addEventListener(
-      "error",
-      () => {
-
-        logo.style.display =
-          "none";
-
-
-        fallback.style.display =
-          "flex";
-
-      }
-    );
-
-
-    select.addEventListener(
-      "click",
-      () => {
-
-        selectStation(
-          index,
-          true
-        );
-
-      }
-    );
-
-
-    const favorite =
+    const grid =
       document.createElement(
-        "button"
+        "div"
       );
 
 
-    const isFavorite =
-      favoriteIds.has(
-        station.id
-      );
+    grid.className =
+      "country-stations";
 
 
-    favorite.type =
-      "button";
-
-
-    favorite.className =
-      "favorite-button";
-
-
-    favorite.classList.toggle(
-      "active",
-      isFavorite
-    );
-
-
-    favorite.textContent =
-      isFavorite
-        ? "★"
-        : "☆";
-
-
-    favorite.addEventListener(
-      "click",
-      event => {
-
-        event.stopPropagation();
-
-        toggleFavorite(index);
-
+    for (
+      const {
+        station,
+        index
       }
+      of items
+    ) {
+
+      grid.appendChild(
+        createStationCard(
+          station,
+          index
+        )
+      );
+
+    }
+
+
+    group.appendChild(
+      heading
     );
 
 
-    card.appendChild(select);
-    card.appendChild(favorite);
+    group.appendChild(
+      grid
+    );
 
 
     stationsContainer.appendChild(
-      card
+      group
     );
 
   }
@@ -3371,23 +3649,44 @@ function setTrackLoading() {
 }
 
 
-function setTrackUnavailable() {
+function clearTrack() {
 
   wikipediaGeneration++;
 
   resetWikipediaLinks();
 
 
+  currentTrack = {
+    artist: "",
+    title: ""
+  };
+
+
   trackInfo.className =
-    "track single";
+    "track";
 
 
   trackArtist.textContent =
     "";
 
 
+  /*
+   * Bewust leeg.
+   * Geen "Geen trackinformatie".
+   */
+
   trackTitle.textContent =
-    "Geen trackinformatie";
+    "";
+
+
+  updateMediaSession();
+
+}
+
+
+function setTrackUnavailable() {
+
+  clearTrack();
 
 }
 
@@ -3587,10 +3886,6 @@ async function wikipediaSearch(
 }
 
 
-/* ---------------------------------------------------------
-   ARTIST MATCH
-   --------------------------------------------------------- */
-
 function scoreWikipediaArtist(
   result,
   artist
@@ -3624,8 +3919,7 @@ function scoreWikipediaArtist(
     );
 
 
-  let score =
-    0;
+  let score = 0;
 
 
   if (
@@ -3700,8 +3994,7 @@ async function findWikipediaArtist(
   }
 
 
-  let best =
-    null;
+  let best = null;
 
 
   for (
@@ -3787,10 +4080,6 @@ async function findWikipediaArtist(
 }
 
 
-/* ---------------------------------------------------------
-   TRACK MATCH
-   --------------------------------------------------------- */
-
 function scoreWikipediaTrack(
   result,
   artist,
@@ -3831,8 +4120,7 @@ function scoreWikipediaTrack(
     );
 
 
-  let score =
-    0;
+  let score = 0;
 
 
   if (
@@ -3932,8 +4220,7 @@ async function findWikipediaTrack(
   }
 
 
-  let best =
-    null;
+  let best = null;
 
 
   const searches = [
@@ -4013,11 +4300,6 @@ async function findWikipediaTrack(
   }
 
 
-  /*
-   * Bewust strenger dan artiest.
-   * Liever geen link dan een verkeerde.
-   */
-
   const match =
     best &&
     best.score >= 90
@@ -4044,10 +4326,6 @@ async function findWikipediaTrack(
 
 }
 
-
-/* ---------------------------------------------------------
-   APPLY LINKS
-   --------------------------------------------------------- */
 
 function applyWikipediaLink(
   element,
@@ -4466,7 +4744,8 @@ function isStationNoise(
   if (
     text === "ad break" ||
     /^dynamic break/i.test(text) ||
-    /^ad start/i.test(text)
+    /^ad start/i.test(text) ||
+    /^commercial break/i.test(text)
   ) {
     return true;
   }
@@ -4502,6 +4781,100 @@ function isStationNoise(
    ONLINE RADIO BOX
    ========================================================= */
 
+function extractOrbRows(
+  doc
+) {
+
+  const rows = [];
+
+
+  for (
+    const row
+    of doc.querySelectorAll(
+      "tr"
+    )
+  ) {
+
+    const cells =
+      [...row.querySelectorAll("td")]
+        .map(
+          cell =>
+            cleanText(
+              cell.textContent
+            )
+        )
+        .filter(Boolean);
+
+
+    let time =
+      cleanText(
+        row
+          .querySelector(
+            ".tablelist-schedule__time"
+          )
+          ?.textContent
+      );
+
+
+    let text =
+      cleanText(
+        row
+          .querySelector(
+            ".track_history_item"
+          )
+          ?.textContent
+      );
+
+
+    if (
+      !time &&
+      cells.length >= 1
+    ) {
+      time = cells[0];
+    }
+
+
+    if (
+      !text &&
+      cells.length >= 2
+    ) {
+      text =
+        cells[
+          cells.length - 1
+        ];
+    }
+
+
+    if (
+      !time ||
+      !text
+    ) {
+      continue;
+    }
+
+
+    rows.push({
+
+      time,
+
+      text,
+
+      active:
+        row.classList
+          .contains(
+            "active"
+          )
+
+    });
+
+  }
+
+
+  return rows;
+
+}
+
+
 async function getOrbMetadata(
   provider,
   station
@@ -4523,52 +4896,9 @@ async function getOrbMetadata(
 
 
   const rows =
-    [...doc.querySelectorAll("tr")]
-      .map(
-        row => {
-
-          const time =
-            cleanText(
-              row
-                .querySelector(
-                  ".tablelist-schedule__time"
-                )
-                ?.textContent
-            );
-
-
-          const text =
-            cleanText(
-              row
-                .querySelector(
-                  ".track_history_item"
-                )
-                ?.textContent
-            );
-
-
-          if (
-            !time ||
-            !text
-          ) {
-            return null;
-          }
-
-
-          return {
-            time,
-            text,
-
-            active:
-              row.classList
-                .contains(
-                  "active"
-                )
-          };
-
-        }
-      )
-      .filter(Boolean);
+    extractOrbRows(
+      doc
+    );
 
 
   if (!rows.length) {
@@ -4589,36 +4919,88 @@ async function getOrbMetadata(
   }
 
 
-  for (
-    const row
-    of rows.slice(
-      0,
-      20
-    )
+  const liveRow =
+    rows.find(
+      row =>
+        row.active ||
+        row.time
+          .toLowerCase() ===
+          "live"
+    );
+
+
+  /*
+   * Voor stations waarbij de Live-regel
+   * de enige waarheid mag zijn:
+   *
+   * geen Live-track = niets tonen.
+   *
+   * Dus nooit het vorige liedje als
+   * actueel nummer gebruiken.
+   */
+
+  if (
+    provider.strictLive
   ) {
 
-    if (
-      row.time.toLowerCase() !==
-        "live" &&
-      !row.active
-    ) {
-      continue;
+    if (!liveRow) {
+      return null;
     }
 
 
     if (
       isStationNoise(
-        row.text,
+        liveRow.text,
         station
       )
     ) {
-      continue;
+
+      return {
+        noTrack: true
+      };
+
     }
 
 
     const split =
       splitTrack(
-        row.text
+        liveRow.text
+      );
+
+
+    if (!split) {
+
+      return {
+        noTrack: true
+      };
+
+    }
+
+
+    return applyTrackOrder(
+      split,
+      provider
+    );
+
+  }
+
+
+  /*
+   * Bestaand gedrag voor de overige
+   * stations blijft ongewijzigd.
+   */
+
+  if (
+    liveRow &&
+    !isStationNoise(
+      liveRow.text,
+      station
+    )
+  ) {
+
+    const split =
+      splitTrack(
+        liveRow.text
       );
 
 
@@ -4698,6 +5080,143 @@ function applyTrackOrder(
 
 
   return split;
+
+}
+
+
+/* =========================================================
+   KINK — OFFICIËLE SITE
+   ========================================================= */
+
+async function getKinkMetadata(
+  provider
+) {
+
+  const html =
+    await fetchTextSmart(
+      provider.url,
+      true
+    );
+
+
+  const doc =
+    new DOMParser()
+      .parseFromString(
+        html,
+        "text/html"
+      );
+
+
+  doc
+    .querySelectorAll(
+      "script, style, noscript"
+    )
+    .forEach(
+      element =>
+        element.remove()
+    );
+
+
+  const lines =
+    (
+      doc.body?.innerText ||
+      doc.body?.textContent ||
+      ""
+    )
+    .split(/\r?\n/)
+    .map(cleanText)
+    .filter(Boolean);
+
+
+  const index =
+    lines.findIndex(
+      line =>
+        line
+          .toLowerCase() ===
+        "nu op kink"
+    );
+
+
+  if (
+    index < 0
+  ) {
+    return null;
+  }
+
+
+  const ignore = [
+
+    /^now on air/i,
+    /^now playing$/i,
+    /^gedraaid op kink/i,
+    /^open$/i,
+    /^via dab/i,
+    /^app de studio$/i,
+    /^kink$/i
+
+  ];
+
+
+  const values = [];
+
+
+  for (
+    let i =
+      index + 1;
+
+    i <
+      Math.min(
+        lines.length,
+        index + 10
+      );
+
+    i++
+  ) {
+
+    const line =
+      lines[i];
+
+
+    if (
+      ignore.some(
+        regex =>
+          regex.test(line)
+      )
+    ) {
+      continue;
+    }
+
+
+    if (
+      line.length > 120
+    ) {
+      continue;
+    }
+
+
+    values.push(line);
+
+
+    if (
+      values.length === 2
+    ) {
+
+      return {
+        artist:
+          values[0],
+
+        title:
+          values[1]
+      };
+
+    }
+
+  }
+
+
+  return {
+    noTrack: true
+  };
 
 }
 
@@ -4908,8 +5427,11 @@ function classifyClassical(
 
 
   return {
-    artist: composer,
-    title: work
+    artist:
+      composer,
+
+    title:
+      work
   };
 
 }
@@ -4929,8 +5451,115 @@ async function getNpoMetadata(
     );
 
 
-  const candidates =
-    [];
+  /*
+   * NPO Radio 2 en 3FM:
+   *
+   * alleen een nummer tonen als het
+   * volgens startdatetime/enddatetime
+   * NU daadwerkelijk loopt.
+   *
+   * Een gat tussen twee tracks is dus
+   * reclame/praat/etc. en blijft leeg.
+   */
+
+  if (
+    provider.currentWindow
+  ) {
+
+    const items =
+      Array.isArray(
+        data?.data
+      )
+        ? data.data
+        : [];
+
+
+    const now =
+      Date.now();
+
+
+    const current =
+      items.find(
+        item => {
+
+          const start =
+            Date.parse(
+              item.startdatetime
+            );
+
+
+          const end =
+            Date.parse(
+              item.enddatetime
+            );
+
+
+          if (
+            !Number.isFinite(start) ||
+            !Number.isFinite(end)
+          ) {
+            return false;
+          }
+
+
+          return (
+            now >=
+              start - 3000 &&
+            now <=
+              end + 3000
+          );
+
+        }
+      );
+
+
+    if (!current) {
+
+      return {
+        noTrack: true
+      };
+
+    }
+
+
+    const artist =
+      cleanText(
+        current.artist
+      );
+
+
+    const title =
+      cleanText(
+        current.title
+      );
+
+
+    if (
+      !artist ||
+      !title
+    ) {
+
+      return {
+        noTrack: true
+      };
+
+    }
+
+
+    return {
+      artist,
+      title
+    };
+
+  }
+
+
+  /*
+   * Bestaande verwerking voor de
+   * overige NPO-zenders.
+   */
+
+  const candidates = [];
 
 
   findTrackObjects(
@@ -5042,8 +5671,7 @@ function findTrackObjects(
       title.toLowerCase()
   ) {
 
-    let score =
-      1;
+    let score = 1;
 
 
     const state =
@@ -5240,8 +5868,46 @@ function getTimestamp(
 
 
 /* =========================================================
-   TRITON
+   538 — TRITON
    ========================================================= */
+
+function getTritonValues(
+  block
+) {
+
+  const values = {};
+
+
+  block
+    .querySelectorAll(
+      "property, attribute"
+    )
+    .forEach(
+      item => {
+
+        const name =
+          (
+            item.getAttribute(
+              "name"
+            ) ||
+            ""
+          )
+          .toLowerCase();
+
+
+        values[name] =
+          cleanText(
+            item.textContent
+          );
+
+      }
+    );
+
+
+  return values;
+
+}
+
 
 async function getTritonMetadata(
   provider
@@ -5283,88 +5949,96 @@ async function getTritonMetadata(
   }
 
 
-  const blocks =
-    [...doc.querySelectorAll(
-      "nowplaying-info, cuepoint, track"
-    )];
+  let blocks =
+    [
+      ...doc.querySelectorAll(
+        "nowplaying-info"
+      )
+    ];
 
 
-  for (
-    const block
-    of blocks
+  if (
+    !blocks.length
   ) {
 
-    const values = {};
+    blocks =
+      [
+        ...doc.querySelectorAll(
+          "cuepoint, track"
+        )
+      ];
+
+  }
 
 
-    block
-      .querySelectorAll(
-        "property, attribute"
-      )
-      .forEach(
-        item => {
-
-          const name =
-            (
-              item.getAttribute(
-                "name"
-              ) ||
-              ""
-            )
-            .toLowerCase();
+  if (!blocks.length) {
+    return null;
+  }
 
 
-          values[name] =
-            cleanText(
-              item.textContent
-            );
+  /*
+   * Triton zet de actuele event eerst.
+   * Alleen die event wordt gebruikt.
+   */
 
-        }
-      );
-
-
-    const artist =
-      cleanText(
-        values.track_artist_name ||
-        values.cue_artist ||
-        values.artist ||
-        ""
-      );
+  const current =
+    getTritonValues(
+      blocks[0]
+    );
 
 
-    const title =
-      cleanText(
-        values.cue_title ||
-        values.track_title ||
-        values.song_title ||
-        ""
-      );
+  const artist =
+    cleanText(
+
+      current.track_artist_name ||
+      current.cue_artist ||
+      current.artist ||
+      ""
+
+    );
 
 
-    if (
-      artist &&
+  const title =
+    cleanText(
+
+      current.cue_title ||
+      current.track_title ||
+      current.song_title ||
+      ""
+
+    );
+
+
+  if (
+    artist &&
+    title
+  ) {
+
+    return {
+      artist,
       title
-    ) {
+    };
 
-      return {
-        artist,
-        title
-      };
-
-    }
+  }
 
 
-    const split =
-      splitTrack(
-        values.streamtitle ||
-        values.songtitle ||
-        ""
-      );
+  /*
+   * Er IS een actuele event, maar geen
+   * artiest. Bij 538 is dat bijvoorbeeld
+   * een commercial.
+   *
+   * Niet terugvallen op het vorige liedje.
+   */
 
+  if (
+    title ||
+    current.cue_time_start ||
+    current.ad_type
+  ) {
 
-    if (split) {
-      return split;
-    }
+    return {
+      noTrack: true
+    };
 
   }
 
@@ -5477,31 +6151,43 @@ async function resolveProvider(
   ) {
 
     case "npo":
+
       return await getNpoMetadata(
         provider
       );
 
 
     case "triton":
+
       return await getTritonMetadata(
         provider
       );
 
 
     case "orb":
+
       return await getOrbMetadata(
         provider,
         station
       );
 
 
+    case "kink":
+
+      return await getKinkMetadata(
+        provider
+      );
+
+
     case "bnr":
+
       return await getBnrMetadata(
         provider
       );
 
 
     default:
+
       return null;
 
   }
@@ -5581,6 +6267,22 @@ async function refreshMetadata(
       }
 
 
+      /*
+       * Betrouwbare bron meldt:
+       * er draait nu geen nummer.
+       */
+
+      if (
+        result?.noTrack
+      ) {
+
+        clearTrack();
+
+        return;
+
+      }
+
+
       if (
         result?.title
       ) {
@@ -5598,7 +6300,15 @@ async function refreshMetadata(
 
     }
 
-    catch {}
+    catch {
+
+      /*
+       * Alleen bij technische fout
+       * mag een volgende bron worden
+       * geprobeerd.
+       */
+
+    }
 
   }
 
@@ -5606,7 +6316,9 @@ async function refreshMetadata(
   if (
     !currentTrack.title
   ) {
+
     setTrackUnavailable();
+
   }
 
 }
