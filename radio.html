@@ -923,6 +923,7 @@
     /* TABLET */
 
     @media (max-width: 760px) {
+
       .app {
         width: min(100% - 24px, 620px);
       }
@@ -978,6 +979,7 @@
     /* MOBILE */
 
     @media (max-width: 420px) {
+
       .app {
         width: calc(100% - 20px);
       }
@@ -1313,12 +1315,8 @@ const REQUEST_TIMEOUT = 6500;
 
 
 /*
- * Geen eigen backend.
- *
- * Directe fetch wordt ALTIJD eerst geprobeerd.
- *
- * Alleen wanneer een omroep CORS blokkeert
- * proberen we een publieke browser-relay.
+ * Direct proberen.
+ * Alleen bij CORS-problemen fallback.
  */
 
 const CORS_RELAYS = [
@@ -1347,8 +1345,12 @@ const stations = [
 
     mark: "1",
 
-    logoDomain:
-      "nporadio1.nl",
+    /*
+     * SVG in plaats van favicon.
+     */
+
+    logo:
+      "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%201%20logo%202014.svg",
 
     stream:
       "https://icecast.omroep.nl/radio1-bb-mp3",
@@ -1380,8 +1382,12 @@ const stations = [
 
     mark: "2",
 
-    logoDomain:
-      "nporadio2.nl",
+    /*
+     * SVG in plaats van favicon.
+     */
+
+    logo:
+      "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%202%20logo.svg",
 
     stream:
       "https://icecast.omroep.nl/radio2-bb-mp3",
@@ -1413,8 +1419,12 @@ const stations = [
 
     mark: "3",
 
-    logoDomain:
-      "npo3fm.nl",
+    /*
+     * Echt vectorlogo.
+     */
+
+    logo:
+      "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%203FM%20logo%202020.svg",
 
     stream:
       "https://icecast.omroep.nl/3fm-bb-mp3",
@@ -1446,8 +1456,12 @@ const stations = [
 
     mark: "5",
 
-    logoDomain:
-      "nporadio5.nl",
+    /*
+     * SVG in plaats van favicon.
+     */
+
+    logo:
+      "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%205%20logo%202016.svg",
 
     stream:
       "https://icecast.omroep.nl/radio5-bb-mp3",
@@ -1478,10 +1492,6 @@ const stations = [
     name: "Radio 538",
 
     mark: "538",
-
-    /*
-     * SVG: geen wazige favicon meer.
-     */
 
     logo:
       "https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo%20Radio538.svg",
@@ -1560,10 +1570,6 @@ const stations = [
     name: "JOE",
 
     mark: "JOE",
-
-    /*
-     * Groot logo i.p.v. favicon.
-     */
 
     logo:
       "https://commons.wikimedia.org/wiki/Special:Redirect/file/JOE%20Logo%202023.png",
@@ -1702,10 +1708,6 @@ const stations = [
     name: "Willy",
 
     mark: "W",
-
-    /*
-     * Groot logo i.p.v. favicon.
-     */
 
     logo:
       "https://images.seeklogo.com/logo-png/39/1/willy-music-matters-logo-png_seeklogo-392837.png",
@@ -1986,20 +1988,37 @@ function getStationLogo(
   size = 256
 ) {
 
+  /*
+   * Echte vector- of hoge-resolutie-assets
+   * hebben altijd voorrang.
+   */
+
   if (station.logo) {
     return station.logo;
   }
 
 
-  return (
-    "https://www.google.com/s2/favicons" +
-    "?domain=" +
-    encodeURIComponent(
-      station.logoDomain
-    ) +
-    "&sz=" +
-    size
-  );
+  /*
+   * Alleen nog als fallback voor stations
+   * waarvoor nog geen vaste asset is ingesteld.
+   */
+
+  if (station.logoDomain) {
+
+    return (
+      "https://www.google.com/s2/favicons" +
+      "?domain=" +
+      encodeURIComponent(
+        station.logoDomain
+      ) +
+      "&sz=" +
+      size
+    );
+
+  }
+
+
+  return "";
 
 }
 
@@ -2378,6 +2397,7 @@ function renderStations() {
 
 
     card.appendChild(select);
+
     card.appendChild(favorite);
 
 
@@ -3048,14 +3068,6 @@ async function fetchWithTimeout(url) {
 }
 
 
-/*
- * Probeer:
- *
- * 1. rechtstreeks
- * 2. AllOrigins
- * 3. corsproxy.io
- */
-
 async function fetchTextSmart(url) {
 
   const attempts = [
@@ -3624,14 +3636,6 @@ async function getPlaylistMetadata(
     .filter(Boolean);
 
 
-  /*
-   * Veel playlistpagina's:
-   *
-   * 16:03
-   * Song title
-   * Artist
-   */
-
   for (
     let i = 0;
     i < lines.length;
@@ -3713,12 +3717,6 @@ async function getPlaylistMetadata(
   }
 
 
-  /*
-   * Sommige pagina's geven direct:
-   *
-   * Artist - Title
-   */
-
   for (
     const line
     of lines.slice(
@@ -3785,16 +3783,6 @@ async function getVrtMetadata(
     .filter(Boolean);
 
 
-  /*
-   * VRT MAX kanaalpagina:
-   *
-   * Zender
-   * LIVE
-   * volgers
-   * Artist - Title
-   * Luister live
-   */
-
   const liveIndex =
     lines.findIndex(
       line =>
@@ -3842,12 +3830,6 @@ async function getVrtMetadata(
   }
 
 
-  /*
-   * Tweede poging:
-   * de eerste plausibele
-   * Artist - Title-regel.
-   */
-
   for (
     const line
     of lines.slice(
@@ -3886,7 +3868,7 @@ async function getVrtMetadata(
 
 
 /* =========================================================
-   GENERIC METADATA API
+   GENERIC METADATA
    ========================================================= */
 
 async function getGenericMetadata(
@@ -3970,11 +3952,6 @@ async function getGenericMetadata(
 async function getPageMetadata(
   provider
 ) {
-
-  /*
-   * Zelfde parsing als playlist,
-   * maar zonder tijd als vereiste.
-   */
 
   const html =
     await fetchTextSmart(
@@ -4288,18 +4265,13 @@ async function refreshMetadata(
     catch {
 
       /*
-       * Gewoon volgende bron proberen.
+       * Volgende bron proberen.
        */
 
     }
 
   }
 
-
-  /*
-   * Een tijdelijke fout wist
-   * bestaande metadata niet.
-   */
 
   if (
     !currentTrack.title
