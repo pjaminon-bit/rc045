@@ -1,0 +1,2609 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#080a0f">
+
+  <title>Radio</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+
+      --bg: #080a0f;
+      --panel: rgba(255,255,255,.055);
+      --panel-hover: rgba(255,255,255,.09);
+      --border: rgba(255,255,255,.09);
+
+      --text: #f7f7f8;
+      --muted: #8e929d;
+
+      --accent: #e63946;
+      --accent-rgb: 230,57,70;
+
+      --radius-xl: 32px;
+      --radius-lg: 22px;
+
+      --shadow: 0 30px 80px rgba(0,0,0,.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+
+      min-height: 100vh;
+      min-height: 100svh;
+
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      color: var(--text);
+
+      background:
+        radial-gradient(
+          circle at 50% 10%,
+          rgba(var(--accent-rgb), .17),
+          transparent 40%
+        ),
+        var(--bg);
+
+      transition: background .5s ease;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    .app {
+      width: min(1120px, calc(100% - 32px));
+      min-height: 100svh;
+
+      margin: 0 auto;
+
+      display: flex;
+      flex-direction: column;
+
+      padding:
+        max(24px, env(safe-area-inset-top))
+        0
+        max(24px, env(safe-area-inset-bottom));
+    }
+
+
+    /* HEADER */
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      margin-bottom: clamp(30px, 6vh, 70px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+
+      font-size: 20px;
+      font-weight: 760;
+      letter-spacing: -.04em;
+    }
+
+    .brand-dot {
+      width: 11px;
+      height: 11px;
+
+      border-radius: 50%;
+
+      background: var(--accent);
+
+      box-shadow:
+        0 0 0 5px rgba(var(--accent-rgb), .12),
+        0 0 28px rgba(var(--accent-rgb), .65);
+
+      transition:
+        background .4s ease,
+        box-shadow .4s ease;
+    }
+
+    .station-count {
+      color: var(--muted);
+
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+
+    /* MAIN */
+
+    main {
+      flex: 1;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+
+    /* PLAYER */
+
+    .player {
+      display: grid;
+
+      grid-template-columns:
+        minmax(220px, 330px)
+        minmax(0, 1fr);
+
+      gap: clamp(32px, 7vw, 85px);
+
+      align-items: center;
+
+      margin-bottom: clamp(42px, 8vh, 80px);
+    }
+
+
+    /* ARTWORK */
+
+    .artwork {
+      position: relative;
+
+      aspect-ratio: 1;
+
+      display: grid;
+      place-items: center;
+
+      overflow: hidden;
+
+      border-radius: var(--radius-xl);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(var(--accent-rgb), .98),
+          rgba(var(--accent-rgb), .42)
+        );
+
+      box-shadow:
+        0 34px 80px rgba(var(--accent-rgb), .16),
+        inset 0 1px 0 rgba(255,255,255,.2);
+
+      transition:
+        background .5s ease,
+        box-shadow .5s ease;
+    }
+
+    .artwork::before,
+    .artwork::after {
+      content: "";
+
+      position: absolute;
+
+      border-radius: 50%;
+
+      border: 1px solid rgba(255,255,255,.14);
+    }
+
+    .artwork::before {
+      width: 76%;
+      height: 76%;
+    }
+
+    .artwork::after {
+      width: 48%;
+      height: 48%;
+    }
+
+    .station-mark {
+      position: relative;
+      z-index: 2;
+
+      padding-right: .08em;
+
+      font-size: clamp(48px, 7vw, 84px);
+      font-weight: 850;
+
+      line-height: 1;
+      letter-spacing: -.075em;
+
+      text-align: center;
+    }
+
+    .playing-indicator {
+      position: absolute;
+
+      right: 20px;
+      bottom: 20px;
+
+      z-index: 3;
+
+      height: 35px;
+
+      padding: 0 14px;
+
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      border-radius: 999px;
+
+      background: rgba(0,0,0,.34);
+
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .08em;
+
+      opacity: .7;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+
+      background: #fff;
+    }
+
+    body.is-playing .live-dot {
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      50% {
+        opacity: .25;
+        transform: scale(.8);
+      }
+    }
+
+
+    /* PLAYER INFO */
+
+    .player-info {
+      min-width: 0;
+    }
+
+    .eyebrow {
+      margin-bottom: 9px;
+
+      color: var(--muted);
+
+      font-size: 12px;
+      font-weight: 700;
+
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+
+      max-width: 720px;
+
+      font-size: clamp(40px, 6vw, 72px);
+      font-weight: 790;
+
+      line-height: .98;
+      letter-spacing: -.065em;
+
+      text-wrap: balance;
+    }
+
+
+    /* NOW PLAYING */
+
+    .track {
+      min-height: 58px;
+
+      margin-top: 20px;
+
+      opacity: 1;
+
+      transition: opacity .25s ease;
+    }
+
+    .track.loading {
+      opacity: .45;
+    }
+
+    .track-artist {
+      min-height: 22px;
+
+      color: var(--text);
+
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 650;
+
+      letter-spacing: -.025em;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .track-title {
+      min-height: 21px;
+
+      margin-top: 4px;
+
+      color: var(--muted);
+
+      font-size: clamp(14px, 1.7vw, 17px);
+      font-weight: 500;
+
+      letter-spacing: -.015em;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .track-unavailable .track-artist {
+      display: none;
+    }
+
+
+    /* CONTROLS */
+
+    .controls {
+      display: flex;
+      align-items: center;
+
+      gap: 21px;
+
+      margin-top: 27px;
+    }
+
+    .play-button {
+      appearance: none;
+
+      width: 72px;
+      height: 72px;
+
+      flex: 0 0 72px;
+
+      display: grid;
+      place-items: center;
+
+      padding: 0;
+
+      border: 0;
+      border-radius: 50%;
+
+      background: var(--text);
+      color: #080a0f;
+
+      cursor: pointer;
+
+      box-shadow: var(--shadow);
+
+      transition:
+        transform .16s ease,
+        opacity .16s ease;
+    }
+
+    .play-button:hover {
+      transform: scale(1.055);
+    }
+
+    .play-button:active {
+      transform: scale(.96);
+    }
+
+    .play-button svg {
+      width: 27px;
+      height: 27px;
+    }
+
+    .play-icon {
+      margin-left: 4px;
+    }
+
+    body.is-playing .play-icon {
+      display: none;
+    }
+
+    .pause-icon {
+      display: none;
+    }
+
+    body.is-playing .pause-icon {
+      display: block;
+    }
+
+    .volume-area {
+      width: min(270px, 100%);
+    }
+
+    .status {
+      min-height: 20px;
+
+      margin-bottom: 13px;
+
+      color: var(--muted);
+
+      font-size: 13px;
+      font-weight: 550;
+    }
+
+    .volume-row {
+      display: flex;
+      align-items: center;
+
+      gap: 13px;
+    }
+
+    .mute-button {
+      appearance: none;
+
+      width: 30px;
+      height: 30px;
+
+      display: grid;
+      place-items: center;
+
+      padding: 0;
+
+      border: 0;
+
+      background: none;
+      color: var(--muted);
+
+      cursor: pointer;
+    }
+
+    .mute-button:hover {
+      color: var(--text);
+    }
+
+    .mute-button svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+
+      appearance: none;
+      -webkit-appearance: none;
+
+      height: 4px;
+
+      border-radius: 999px;
+
+      background:
+        linear-gradient(
+          to right,
+          var(--text) 0,
+          var(--text) var(--volume),
+          rgba(255,255,255,.14) var(--volume),
+          rgba(255,255,255,.14) 100%
+        );
+
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+
+      width: 15px;
+      height: 15px;
+
+      border: 0;
+      border-radius: 50%;
+
+      background: var(--text);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+
+      border: 0;
+      border-radius: 50%;
+
+      background: var(--text);
+    }
+
+
+    /* STATIONS */
+
+    .stations {
+      display: grid;
+
+      grid-template-columns:
+        repeat(auto-fit, minmax(145px, 1fr));
+
+      gap: 12px;
+    }
+
+    .station {
+      appearance: none;
+
+      position: relative;
+
+      min-width: 0;
+      min-height: 108px;
+
+      padding: 17px;
+
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-between;
+
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+
+      background: var(--panel);
+
+      text-align: left;
+
+      cursor: pointer;
+
+      transition:
+        background .18s ease,
+        border-color .18s ease,
+        transform .18s ease;
+    }
+
+    .station:hover {
+      background: var(--panel-hover);
+
+      transform: translateY(-2px);
+    }
+
+    .station.active {
+      border-color:
+        rgba(var(--accent-rgb), .5);
+
+      background:
+        rgba(var(--accent-rgb), .12);
+    }
+
+    .station-symbol {
+      min-width: 35px;
+      height: 35px;
+
+      padding: 0 9px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 10px;
+
+      background: rgba(255,255,255,.085);
+
+      font-size: 12px;
+      font-weight: 800;
+
+      letter-spacing: -.03em;
+    }
+
+    .station.active .station-symbol {
+      background: var(--accent);
+    }
+
+    .station-name {
+      width: 100%;
+
+      margin-top: 20px;
+
+      overflow: hidden;
+
+      font-size: 14px;
+      font-weight: 680;
+
+      letter-spacing: -.025em;
+
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+
+    /* FOOTER */
+
+    footer {
+      display: flex;
+      justify-content: center;
+
+      margin-top: 28px;
+
+      color: #5d616c;
+
+      font-size: 11px;
+    }
+
+
+    /* ACCESSIBILITY */
+
+    :focus-visible {
+      outline: 2px solid var(--text);
+      outline-offset: 4px;
+    }
+
+
+    /* TABLET */
+
+    @media (max-width: 760px) {
+
+      .app {
+        width: min(100% - 24px, 620px);
+      }
+
+      header {
+        margin-bottom: 32px;
+      }
+
+      .player {
+        grid-template-columns: 1fr;
+
+        gap: 26px;
+
+        margin-bottom: 38px;
+      }
+
+      .artwork {
+        width: min(58vw, 255px);
+
+        justify-self: center;
+      }
+
+      .player-info {
+        text-align: center;
+      }
+
+      h1 {
+        margin-inline: auto;
+
+        font-size: clamp(40px, 12vw, 60px);
+      }
+
+      .track {
+        margin-top: 16px;
+      }
+
+      .controls {
+        justify-content: center;
+
+        margin-top: 24px;
+      }
+
+      .volume-area {
+        width: min(230px, 100%);
+
+        text-align: left;
+      }
+
+      .stations {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+      }
+
+      footer {
+        display: none;
+      }
+
+    }
+
+
+    /* MOBILE */
+
+    @media (max-width: 420px) {
+
+      .app {
+        width: calc(100% - 20px);
+
+        padding-top:
+          max(18px, env(safe-area-inset-top));
+      }
+
+      header {
+        margin-bottom: 25px;
+      }
+
+      .station-count {
+        display: none;
+      }
+
+      .artwork {
+        width: min(54vw, 205px);
+
+        border-radius: 26px;
+      }
+
+      .playing-indicator {
+        right: 14px;
+        bottom: 14px;
+      }
+
+      .controls {
+        flex-direction: column;
+
+        gap: 18px;
+      }
+
+      .volume-area {
+        width: min(270px, 90%);
+      }
+
+      .station {
+        min-height: 92px;
+
+        padding: 14px;
+
+        border-radius: 18px;
+      }
+
+      .station-name {
+        margin-top: 14px;
+
+        font-size: 13px;
+      }
+
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+  <header>
+
+    <div class="brand">
+      <span class="brand-dot"></span>
+      radio.
+    </div>
+
+    <div
+      class="station-count"
+      id="stationCount"
+    ></div>
+
+  </header>
+
+
+  <main>
+
+    <section
+      class="player"
+      aria-label="Radioplayer"
+    >
+
+      <div
+        class="artwork"
+        aria-hidden="true"
+      >
+
+        <div
+          class="station-mark"
+          id="stationMark"
+        >
+          1
+        </div>
+
+
+        <div class="playing-indicator">
+          <span class="live-dot"></span>
+          LIVE
+        </div>
+
+      </div>
+
+
+      <div class="player-info">
+
+        <div class="eyebrow">
+          Nu geselecteerd
+        </div>
+
+
+        <h1 id="stationTitle">
+          NPO Radio 1
+        </h1>
+
+
+        <!-- ACTUELE TRACK -->
+
+        <div
+          class="track"
+          id="trackInfo"
+          aria-live="polite"
+        >
+
+          <div
+            class="track-artist"
+            id="trackArtist"
+          ></div>
+
+          <div
+            class="track-title"
+            id="trackTitle"
+          >
+            Trackinformatie ophalen…
+          </div>
+
+        </div>
+
+
+        <div class="controls">
+
+          <button
+            class="play-button"
+            id="playButton"
+            type="button"
+            aria-label="Afspelen"
+          >
+
+            <svg
+              class="play-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+
+
+            <svg
+              class="pause-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M7 5h4v14H7zm6 0h4v14h-4z"/>
+            </svg>
+
+          </button>
+
+
+          <div class="volume-area">
+
+            <div
+              class="status"
+              id="status"
+              aria-live="polite"
+            >
+              Klaar om te luisteren
+            </div>
+
+
+            <div class="volume-row">
+
+              <button
+                class="mute-button"
+                id="muteButton"
+                type="button"
+                aria-label="Geluid dempen"
+              >
+
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M11 5 6 9H2v6h4l5 4z"/>
+                  <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+                  <path d="M18 6a8 8 0 0 1 0 12"/>
+                </svg>
+
+              </button>
+
+
+              <input
+                id="volume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value="0.75"
+                aria-label="Volume"
+                style="--volume:75%"
+              >
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <section
+      class="stations"
+      id="stations"
+      aria-label="Radiostations"
+    ></section>
+
+  </main>
+
+
+  <footer>
+    Spatie: play/pauze · ← →: zender wisselen
+  </footer>
+
+</div>
+
+
+<audio
+  id="audio"
+  preload="none"
+></audio>
+
+
+<script>
+
+  /*
+   * =========================================================
+   * CONFIG
+   * =========================================================
+   */
+
+  const METADATA_API =
+    "https://api.twj.es/";
+
+  const METADATA_REFRESH =
+    15000;
+
+
+  /*
+   * =========================================================
+   * RADIOSTATIONS
+   * =========================================================
+   */
+
+  const stations = [
+
+    {
+      name: "NPO Radio 1",
+      mark: "1",
+      stream:
+        "https://icecast.omroep.nl/radio1-bb-mp3",
+      accent: "#e63946",
+      rgb: "230,57,70"
+    },
+
+    {
+      name: "NPO Radio 2",
+      mark: "2",
+      stream:
+        "https://icecast.omroep.nl/radio2-bb-mp3",
+      accent: "#d49319",
+      rgb: "212,147,25"
+    },
+
+    {
+      name: "NPO 3FM",
+      mark: "3",
+      stream:
+        "https://icecast.omroep.nl/3fm-bb-mp3",
+      accent: "#e73377",
+      rgb: "231,51,119"
+    },
+
+    {
+      name: "NPO Radio 5",
+      mark: "5",
+      stream:
+        "https://icecast.omroep.nl/radio5-bb-mp3",
+      accent: "#7854d8",
+      rgb: "120,84,216"
+    },
+
+    {
+      name: "Radio 538",
+      mark: "538",
+      stream:
+        "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO538.mp3",
+      accent: "#ec4526",
+      rgb: "236,69,38"
+    },
+
+    {
+      name: "Qmusic",
+      mark: "Q",
+      stream:
+        "https://stream.qmusic.nl/qmusic/mp3",
+      accent: "#e71d4f",
+      rgb: "231,29,79"
+    },
+
+    {
+      name: "JOE",
+      mark: "JOE",
+      stream:
+        "https://stream.joe.nl/joe/mp3",
+      accent: "#ef972d",
+      rgb: "239,151,45"
+    },
+
+    {
+      name: "Studio Brussel",
+      mark: "Stu",
+      stream:
+        "https://icecast.vrtcdn.be/stubru-high.mp3",
+      accent: "#4078ff",
+      rgb: "64,120,255"
+    },
+
+    {
+      name: "De Tijdloze",
+      mark: "∞",
+      stream:
+        "https://icecast.vrtcdn.be/stubru_tijdloze-high.mp3",
+      accent: "#6c63dc",
+      rgb: "108,99,220"
+    },
+
+    {
+      name: "MNM",
+      mark: "M",
+      stream:
+        "https://icecast.vrtcdn.be/mnm-high.mp3",
+      accent: "#db42af",
+      rgb: "219,66,175"
+    },
+
+    {
+      name: "Willy",
+      mark: "W",
+      stream:
+        "https://streams.radio.dpgmedia.cloud/redirect/willy_be/mp3",
+      accent: "#f05a28",
+      rgb: "240,90,40"
+    },
+
+    {
+      name: "Klara",
+      mark: "K",
+      stream:
+        "https://icecast.vrtcdn.be/klara-high.mp3",
+      accent: "#b5915c",
+      rgb: "181,145,92"
+    },
+
+    {
+      name: "VRT Radio 1",
+      mark: "R1",
+      stream:
+        "https://icecast.vrtcdn.be/radio1-high.mp3",
+      accent: "#3877c9",
+      rgb: "56,119,201"
+    },
+
+    {
+      name: "Radio 2 Limburg",
+      mark: "R2",
+      stream:
+        "https://icecast.vrtcdn.be/ra2lim-high.mp3",
+      accent: "#53aa57",
+      rgb: "83,170,87"
+    }
+
+  ];
+
+
+  /*
+   * =========================================================
+   * ELEMENTS
+   * =========================================================
+   */
+
+  const audio =
+    document.getElementById("audio");
+
+  const playButton =
+    document.getElementById("playButton");
+
+  const muteButton =
+    document.getElementById("muteButton");
+
+  const volume =
+    document.getElementById("volume");
+
+  const stationTitle =
+    document.getElementById("stationTitle");
+
+  const stationMark =
+    document.getElementById("stationMark");
+
+  const stationCount =
+    document.getElementById("stationCount");
+
+  const stationsContainer =
+    document.getElementById("stations");
+
+  const status =
+    document.getElementById("status");
+
+  const trackInfo =
+    document.getElementById("trackInfo");
+
+  const trackArtist =
+    document.getElementById("trackArtist");
+
+  const trackTitle =
+    document.getElementById("trackTitle");
+
+
+  /*
+   * =========================================================
+   * STATE
+   * =========================================================
+   */
+
+  const storedStation =
+    Number(
+      localStorage.getItem(
+        "radio-station"
+      )
+    );
+
+
+  let currentIndex =
+    Number.isInteger(storedStation) &&
+    stations[storedStation]
+      ? storedStation
+      : 0;
+
+
+  const storedVolume =
+    Number(
+      localStorage.getItem(
+        "radio-volume"
+      )
+    );
+
+
+  audio.volume =
+    Number.isFinite(storedVolume) &&
+    storedVolume >= 0 &&
+    storedVolume <= 1
+      ? storedVolume
+      : 0.75;
+
+
+  volume.value =
+    audio.volume;
+
+
+  let metadataController = null;
+
+  let currentTrack = {
+    artist: "",
+    title: ""
+  };
+
+
+  updateVolumeBar();
+
+
+  /*
+   * =========================================================
+   * STATION CARDS
+   * =========================================================
+   */
+
+  stationCount.textContent =
+    `${stations.length} stations`;
+
+
+  stations.forEach(
+    (station, index) => {
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+
+      button.type =
+        "button";
+
+      button.className =
+        "station";
+
+
+      button.innerHTML = `
+
+        <span class="station-symbol">
+          ${station.mark}
+        </span>
+
+        <span class="station-name">
+          ${station.name}
+        </span>
+
+      `;
+
+
+      button.setAttribute(
+        "aria-label",
+        `Luister naar ${station.name}`
+      );
+
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          selectStation(
+            index,
+            true
+          );
+
+        }
+      );
+
+
+      stationsContainer
+        .appendChild(
+          button
+        );
+
+    }
+  );
+
+
+  /*
+   * =========================================================
+   * SELECT STATION
+   * =========================================================
+   */
+
+  function selectStation(
+    index,
+    autoPlay = false
+  ) {
+
+    /*
+     * Zelfde zender:
+     * alleen starten indien nodig.
+     */
+
+    if (
+      index === currentIndex &&
+      audio.src
+    ) {
+
+      if (
+        autoPlay &&
+        audio.paused
+      ) {
+
+        play();
+
+      }
+
+      return;
+
+    }
+
+
+    const wasPlaying =
+      !audio.paused;
+
+
+    currentIndex =
+      index;
+
+
+    const station =
+      stations[currentIndex];
+
+
+    localStorage.setItem(
+      "radio-station",
+      currentIndex
+    );
+
+
+    /*
+     * UI
+     */
+
+    stationTitle.textContent =
+      station.name;
+
+
+    stationMark.textContent =
+      station.mark;
+
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--accent",
+        station.accent
+      );
+
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--accent-rgb",
+        station.rgb
+      );
+
+
+    document
+      .querySelectorAll(".station")
+      .forEach(
+        (button, buttonIndex) => {
+
+          const active =
+            buttonIndex ===
+            currentIndex;
+
+
+          button.classList.toggle(
+            "active",
+            active
+          );
+
+
+          button.setAttribute(
+            "aria-pressed",
+            active
+              ? "true"
+              : "false"
+          );
+
+        }
+      );
+
+
+    /*
+     * Oude metadata verwijderen.
+     */
+
+    currentTrack = {
+      artist: "",
+      title: ""
+    };
+
+
+    setTrackLoading();
+
+
+    /*
+     * Stream wijzigen.
+     */
+
+    audio.pause();
+
+    audio.src =
+      station.stream;
+
+    audio.load();
+
+
+    status.textContent =
+      "Zender geselecteerd";
+
+
+    /*
+     * Meteen nieuwe metadata ophalen.
+     */
+
+    refreshMetadata();
+
+
+    updateMediaSession();
+
+
+    /*
+     * Doorgaan met spelen wanneer:
+     *
+     * - radio al speelde
+     * - gebruiker zender aanklikt
+     */
+
+    if (
+      wasPlaying ||
+      autoPlay
+    ) {
+
+      play();
+
+    }
+
+  }
+
+
+  /*
+   * =========================================================
+   * PLAY
+   * =========================================================
+   */
+
+  async function play() {
+
+    if (!audio.src) {
+
+      const station =
+        stations[currentIndex];
+
+      audio.src =
+        station.stream;
+
+      audio.load();
+
+    }
+
+
+    status.textContent =
+      "Verbinden…";
+
+
+    try {
+
+      await audio.play();
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Stream kon niet worden gestart:",
+        error
+      );
+
+
+      document.body
+        .classList
+        .remove(
+          "is-playing"
+        );
+
+
+      status.textContent =
+        "Kan de stream niet starten";
+
+    }
+
+  }
+
+
+  /*
+   * =========================================================
+   * PAUSE
+   * =========================================================
+   */
+
+  function pause() {
+
+    audio.pause();
+
+
+    document.body
+      .classList
+      .remove(
+        "is-playing"
+      );
+
+
+    status.textContent =
+      "Gepauzeerd";
+
+  }
+
+
+  function togglePlay() {
+
+    if (audio.paused) {
+
+      play();
+
+    }
+
+    else {
+
+      pause();
+
+    }
+
+  }
+
+
+  playButton.addEventListener(
+    "click",
+    togglePlay
+  );
+
+
+  /*
+   * =========================================================
+   * AUDIO EVENTS
+   * =========================================================
+   */
+
+  audio.addEventListener(
+    "playing",
+    () => {
+
+      document.body
+        .classList
+        .add(
+          "is-playing"
+        );
+
+
+      status.textContent =
+        "Live";
+
+
+      playButton.setAttribute(
+        "aria-label",
+        "Pauzeren"
+      );
+
+
+      if (
+        "mediaSession"
+        in navigator
+      ) {
+
+        navigator.mediaSession
+          .playbackState =
+          "playing";
+
+      }
+
+    }
+  );
+
+
+  audio.addEventListener(
+    "pause",
+    () => {
+
+      document.body
+        .classList
+        .remove(
+          "is-playing"
+        );
+
+
+      playButton.setAttribute(
+        "aria-label",
+        "Afspelen"
+      );
+
+
+      if (
+        "mediaSession"
+        in navigator
+      ) {
+
+        navigator.mediaSession
+          .playbackState =
+          "paused";
+
+      }
+
+    }
+  );
+
+
+  audio.addEventListener(
+    "waiting",
+    () => {
+
+      if (!audio.paused) {
+
+        status.textContent =
+          "Bufferen…";
+
+      }
+
+    }
+  );
+
+
+  audio.addEventListener(
+    "stalled",
+    () => {
+
+      if (!audio.paused) {
+
+        status.textContent =
+          "Stream hapert…";
+
+      }
+
+    }
+  );
+
+
+  audio.addEventListener(
+    "error",
+    () => {
+
+      document.body
+        .classList
+        .remove(
+          "is-playing"
+        );
+
+
+      status.textContent =
+        "Stream tijdelijk niet beschikbaar";
+
+    }
+  );
+
+
+  /*
+   * =========================================================
+   * METADATA
+   * =========================================================
+   */
+
+  function setTrackLoading() {
+
+    trackInfo.classList.add(
+      "loading"
+    );
+
+    trackInfo.classList.remove(
+      "track-unavailable"
+    );
+
+
+    trackArtist.textContent =
+      "";
+
+
+    trackTitle.textContent =
+      "Trackinformatie ophalen…";
+
+  }
+
+
+  function setTrackUnavailable() {
+
+    trackInfo.classList.remove(
+      "loading"
+    );
+
+    trackInfo.classList.add(
+      "track-unavailable"
+    );
+
+
+    trackArtist.textContent =
+      "";
+
+
+    trackTitle.textContent =
+      "Geen trackinformatie";
+
+  }
+
+
+  function setTrack(
+    artist,
+    title
+  ) {
+
+    trackInfo.classList.remove(
+      "loading",
+      "track-unavailable"
+    );
+
+
+    trackArtist.textContent =
+      artist || "";
+
+
+    trackTitle.textContent =
+      title || "";
+
+
+    currentTrack = {
+      artist,
+      title
+    };
+
+
+    updateMediaSession();
+
+  }
+
+
+  /*
+   * Metadatastructuren verschillen
+   * per station/provider.
+   *
+   * Daarom accepteren we meerdere
+   * bekende veldnamen.
+   */
+
+  function parseMetadata(data) {
+
+    if (!data) {
+
+      return null;
+
+    }
+
+
+    let artist =
+      cleanText(
+        data.artist ||
+        data.now_playing
+          ?.song
+          ?.artist ||
+        ""
+      );
+
+
+    let title =
+      cleanText(
+        data.song ||
+        data.title ||
+        data.now_playing
+          ?.song
+          ?.title ||
+        ""
+      );
+
+
+    let combined =
+      cleanText(
+        data.songtitle ||
+        data.now_playing
+          ?.song
+          ?.text ||
+        ""
+      );
+
+
+    /*
+     * Sommige diensten geven:
+     *
+     * artist = "Coldplay"
+     * song   = "Coldplay - Yellow"
+     *
+     * Dan halen we artiest uit
+     * de titel.
+     */
+
+    if (
+      artist &&
+      title
+    ) {
+
+      const prefix =
+        `${artist} - `;
+
+
+      if (
+        title
+          .toLowerCase()
+          .startsWith(
+            prefix.toLowerCase()
+          )
+      ) {
+
+        title =
+          title.slice(
+            prefix.length
+          );
+
+      }
+
+    }
+
+
+    /*
+     * Alleen één gecombineerd veld?
+     *
+     * "Artist - Title"
+     */
+
+    if (
+      (!artist || !title) &&
+      combined
+    ) {
+
+      const split =
+        splitArtistTitle(
+          combined
+        );
+
+
+      if (!artist) {
+
+        artist =
+          split.artist;
+
+      }
+
+
+      if (!title) {
+
+        title =
+          split.title;
+
+      }
+
+    }
+
+
+    /*
+     * Mocht "song" zelf gecombineerd
+     * zijn en artist ontbreken.
+     */
+
+    if (
+      !artist &&
+      title
+    ) {
+
+      const split =
+        splitArtistTitle(
+          title
+        );
+
+
+      if (
+        split.artist &&
+        split.title
+      ) {
+
+        artist =
+          split.artist;
+
+        title =
+          split.title;
+
+      }
+
+    }
+
+
+    if (
+      !artist &&
+      !title
+    ) {
+
+      return null;
+
+    }
+
+
+    return {
+      artist,
+      title
+    };
+
+  }
+
+
+  function splitArtistTitle(text) {
+
+    const separators = [
+      " - ",
+      " – ",
+      " — "
+    ];
+
+
+    for (
+      const separator
+      of separators
+    ) {
+
+      const index =
+        text.indexOf(
+          separator
+        );
+
+
+      if (index > 0) {
+
+        return {
+
+          artist:
+            text
+              .slice(
+                0,
+                index
+              )
+              .trim(),
+
+          title:
+            text
+              .slice(
+                index +
+                separator.length
+              )
+              .trim()
+
+        };
+
+      }
+
+    }
+
+
+    return {
+      artist: "",
+      title: text
+    };
+
+  }
+
+
+  function cleanText(value) {
+
+    if (
+      typeof value
+      !== "string"
+    ) {
+
+      return "";
+
+    }
+
+
+    return value
+      .replace(/\s+/g, " ")
+      .trim();
+
+  }
+
+
+  /*
+   * Metadata ophalen
+   */
+
+  async function refreshMetadata() {
+
+    const station =
+      stations[currentIndex];
+
+
+    /*
+     * Lopende aanvraag afbreken
+     * wanneer gebruiker snel
+     * van zender wisselt.
+     */
+
+    if (metadataController) {
+
+      metadataController.abort();
+
+    }
+
+
+    metadataController =
+      new AbortController();
+
+
+    const requestedIndex =
+      currentIndex;
+
+
+    const timeout =
+      setTimeout(
+        () => {
+
+          metadataController
+            ?.abort();
+
+        },
+        7000
+      );
+
+
+    try {
+
+      const url =
+        METADATA_API +
+        "?url=" +
+        encodeURIComponent(
+          station.stream
+        );
+
+
+      const response =
+        await fetch(
+          url,
+          {
+            signal:
+              metadataController.signal,
+
+            cache:
+              "no-store"
+          }
+        );
+
+
+      clearTimeout(
+        timeout
+      );
+
+
+      /*
+       * Intussen andere
+       * zender geselecteerd?
+       */
+
+      if (
+        requestedIndex !==
+        currentIndex
+      ) {
+
+        return;
+
+      }
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          `Metadata HTTP ${response.status}`
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      const metadata =
+        parseMetadata(
+          data
+        );
+
+
+      if (!metadata) {
+
+        setTrackUnavailable();
+
+        return;
+
+      }
+
+
+      setTrack(
+        metadata.artist,
+        metadata.title
+      );
+
+    }
+
+    catch (error) {
+
+      clearTimeout(
+        timeout
+      );
+
+
+      if (
+        error.name ===
+        "AbortError"
+      ) {
+
+        return;
+
+      }
+
+
+      /*
+       * Metadata mag nooit
+       * de radioplayer zelf breken.
+       */
+
+      console.debug(
+        "Geen metadata beschikbaar:",
+        error
+      );
+
+
+      if (
+        requestedIndex ===
+        currentIndex
+      ) {
+
+        setTrackUnavailable();
+
+      }
+
+    }
+
+  }
+
+
+  /*
+   * Iedere 15 seconden verversen.
+   */
+
+  setInterval(
+    refreshMetadata,
+    METADATA_REFRESH
+  );
+
+
+  /*
+   * Wanneer gebruiker terugkeert
+   * naar tabblad meteen verversen.
+   */
+
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+
+        refreshMetadata();
+
+      }
+
+    }
+  );
+
+
+  /*
+   * =========================================================
+   * ONLINE / OFFLINE
+   * =========================================================
+   */
+
+  window.addEventListener(
+    "offline",
+    () => {
+
+      status.textContent =
+        "Geen internetverbinding";
+
+    }
+  );
+
+
+  window.addEventListener(
+    "online",
+    () => {
+
+      if (audio.paused) {
+
+        status.textContent =
+          "Internetverbinding hersteld";
+
+      }
+
+
+      refreshMetadata();
+
+    }
+  );
+
+
+  /*
+   * =========================================================
+   * VOLUME
+   * =========================================================
+   */
+
+  volume.addEventListener(
+    "input",
+    () => {
+
+      audio.volume =
+        Number(
+          volume.value
+        );
+
+
+      audio.muted =
+        false;
+
+
+      localStorage.setItem(
+        "radio-volume",
+        audio.volume
+      );
+
+
+      muteButton.style.opacity =
+        "1";
+
+
+      updateVolumeBar();
+
+    }
+  );
+
+
+  muteButton.addEventListener(
+    "click",
+    () => {
+
+      audio.muted =
+        !audio.muted;
+
+
+      muteButton.style.opacity =
+        audio.muted
+          ? ".4"
+          : "1";
+
+
+      muteButton.setAttribute(
+        "aria-label",
+        audio.muted
+          ? "Geluid inschakelen"
+          : "Geluid dempen"
+      );
+
+    }
+  );
+
+
+  function updateVolumeBar() {
+
+    volume.style.setProperty(
+      "--volume",
+      `${audio.volume * 100}%`
+    );
+
+  }
+
+
+  /*
+   * =========================================================
+   * NEXT / PREVIOUS
+   * =========================================================
+   */
+
+  function nextStation() {
+
+    const next =
+      (
+        currentIndex + 1
+      ) %
+      stations.length;
+
+
+    selectStation(
+      next,
+      !audio.paused
+    );
+
+  }
+
+
+  function previousStation() {
+
+    const previous =
+      (
+        currentIndex -
+        1 +
+        stations.length
+      ) %
+      stations.length;
+
+
+    selectStation(
+      previous,
+      !audio.paused
+    );
+
+  }
+
+
+  /*
+   * =========================================================
+   * KEYBOARD
+   * =========================================================
+   */
+
+  document.addEventListener(
+    "keydown",
+    event => {
+
+      const tag =
+        document
+          .activeElement
+          .tagName;
+
+
+      if (
+        tag === "INPUT"
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        event.code ===
+        "Space"
+      ) {
+
+        event.preventDefault();
+
+        togglePlay();
+
+      }
+
+
+      if (
+        event.key ===
+        "ArrowRight"
+      ) {
+
+        event.preventDefault();
+
+        nextStation();
+
+      }
+
+
+      if (
+        event.key ===
+        "ArrowLeft"
+      ) {
+
+        event.preventDefault();
+
+        previousStation();
+
+      }
+
+    }
+  );
+
+
+  /*
+   * =========================================================
+   * MEDIA SESSION
+   *
+   * Hierdoor verschijnt artiest +
+   * titel ook op bijvoorbeeld:
+   *
+   * - lockscreen
+   * - browser media control
+   * - bluetooth bediening
+   * - Android notificatie
+   * =========================================================
+   */
+
+  function updateMediaSession() {
+
+    if (
+      !(
+        "mediaSession"
+        in navigator
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    const station =
+      stations[currentIndex];
+
+
+    if (
+      currentTrack.title ||
+      currentTrack.artist
+    ) {
+
+      navigator.mediaSession.metadata =
+        new MediaMetadata({
+
+          title:
+            currentTrack.title ||
+            station.name,
+
+          artist:
+            currentTrack.artist ||
+            station.name,
+
+          album:
+            station.name
+
+        });
+
+    }
+
+    else {
+
+      navigator.mediaSession.metadata =
+        new MediaMetadata({
+
+          title:
+            station.name,
+
+          artist:
+            "Live radio",
+
+          album:
+            "radio."
+
+        });
+
+    }
+
+  }
+
+
+  if (
+    "mediaSession"
+    in navigator
+  ) {
+
+    navigator.mediaSession
+      .setActionHandler(
+        "play",
+        play
+      );
+
+
+    navigator.mediaSession
+      .setActionHandler(
+        "pause",
+        pause
+      );
+
+
+    navigator.mediaSession
+      .setActionHandler(
+        "nexttrack",
+        nextStation
+      );
+
+
+    navigator.mediaSession
+      .setActionHandler(
+        "previoustrack",
+        previousStation
+      );
+
+  }
+
+
+  /*
+   * =========================================================
+   * INITIALISE
+   * =========================================================
+   */
+
+  function initialise() {
+
+    const station =
+      stations[currentIndex];
+
+
+    stationTitle.textContent =
+      station.name;
+
+
+    stationMark.textContent =
+      station.mark;
+
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--accent",
+        station.accent
+      );
+
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--accent-rgb",
+        station.rgb
+      );
+
+
+    audio.src =
+      station.stream;
+
+
+    document
+      .querySelectorAll(
+        ".station"
+      )
+      .forEach(
+        (button, index) => {
+
+          const active =
+            index ===
+            currentIndex;
+
+
+          button.classList.toggle(
+            "active",
+            active
+          );
+
+
+          button.setAttribute(
+            "aria-pressed",
+            active
+              ? "true"
+              : "false"
+          );
+
+        }
+      );
+
+
+    updateMediaSession();
+
+    refreshMetadata();
+
+  }
+
+
+  initialise();
+
+</script>
+
+</body>
+</html>
