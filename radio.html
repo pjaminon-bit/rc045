@@ -27,7 +27,6 @@
       color-scheme: dark;
 
       --bg: #080a0f;
-
       --panel: rgba(255,255,255,.055);
       --panel-hover: rgba(255,255,255,.09);
       --border: rgba(255,255,255,.09);
@@ -54,7 +53,7 @@
 
 
     /* =========================================================
-       LIGHT MODE — volgt OS
+       LIGHT MODE — automatisch volgens OS
        ========================================================= */
 
     @media (prefers-color-scheme: light) {
@@ -178,6 +177,7 @@
     .brand {
       display: flex;
       align-items: center;
+
       gap: 11px;
 
       font-size: 20px;
@@ -196,8 +196,11 @@
       background: var(--accent);
 
       box-shadow:
-        0 0 0 5px rgba(var(--accent-rgb), .12),
-        0 0 28px rgba(var(--accent-rgb), .65);
+        0 0 0 5px
+        rgba(var(--accent-rgb), .12),
+
+        0 0 28px
+        rgba(var(--accent-rgb), .65);
 
       transition:
         background .4s ease,
@@ -272,8 +275,11 @@
         );
 
       box-shadow:
-        0 34px 80px rgba(var(--accent-rgb), .16),
-        inset 0 1px 0 rgba(255,255,255,.2);
+        0 34px 80px
+        rgba(var(--accent-rgb), .16),
+
+        inset 0 1px 0
+        rgba(255,255,255,.2);
 
       transition:
         background .5s ease,
@@ -290,7 +296,8 @@
       border-radius: 50%;
 
       border:
-        1px solid rgba(255,255,255,.14);
+        1px solid
+        rgba(255,255,255,.14);
 
       pointer-events: none;
     }
@@ -310,15 +317,16 @@
 
     .main-logo-surface {
       position: relative;
+
       z-index: 2;
 
-      width: 56%;
+      width: 58%;
       aspect-ratio: 1;
 
       display: grid;
       place-items: center;
 
-      padding: 13%;
+      padding: 12%;
 
       border-radius: 26%;
 
@@ -326,8 +334,11 @@
         var(--logo-surface);
 
       box-shadow:
-        0 18px 45px rgba(0,0,0,.17),
-        inset 0 0 0 1px rgba(0,0,0,.04);
+        0 18px 45px
+        rgba(0,0,0,.17),
+
+        inset 0 0 0 1px
+        rgba(0,0,0,.04);
     }
 
 
@@ -338,6 +349,8 @@
       display: block;
 
       object-fit: contain;
+
+      image-rendering: auto;
 
       transition:
         opacity .2s ease,
@@ -406,7 +419,8 @@
     }
 
 
-    body.is-playing .live-dot {
+    body.is-playing
+    .live-dot {
       animation:
         pulse 1.5s infinite;
     }
@@ -516,7 +530,8 @@
     }
 
 
-    .track-unavailable .track-artist {
+    .track-unavailable
+    .track-artist {
       display: none;
     }
 
@@ -591,7 +606,8 @@
     }
 
 
-    body.is-playing .play-icon {
+    body.is-playing
+    .play-icon {
       display: none;
     }
 
@@ -601,7 +617,8 @@
     }
 
 
-    body.is-playing .pause-icon {
+    body.is-playing
+    .pause-icon {
       display: block;
     }
 
@@ -633,7 +650,7 @@
 
 
     /* =========================================================
-       ICON BUTTON
+       BUTTONS
        ========================================================= */
 
     .icon-button {
@@ -704,7 +721,10 @@
 
       box-shadow:
         0 0 0 4px
-        rgba(var(--accent-rgb), .19);
+        rgba(var(--accent-rgb), .20),
+
+        0 8px 22px
+        rgba(var(--accent-rgb), .20);
     }
 
 
@@ -718,12 +738,14 @@
     }
 
 
-    .mute-button.muted .volume-on-icon {
+    .mute-button.muted
+    .volume-on-icon {
       display: none;
     }
 
 
-    .mute-button.muted .volume-off-icon {
+    .mute-button.muted
+    .volume-off-icon {
       display: block;
     }
 
@@ -756,13 +778,23 @@
           to right,
 
           var(--text) 0,
-          var(--text) var(--volume),
+          var(--text)
+          var(--volume),
 
-          rgba(128,128,128,.23) var(--volume),
-          rgba(128,128,128,.23) 100%
+          rgba(128,128,128,.23)
+          var(--volume),
+
+          rgba(128,128,128,.23)
+          100%
         );
 
       cursor: pointer;
+    }
+
+
+    input[type="range"]
+    ::-webkit-slider-thumb {
+      appearance: none;
     }
 
 
@@ -818,7 +850,8 @@
 
 
     .sleep-button.active {
-      color: var(--accent);
+      color:
+        var(--accent);
 
       border-color:
         rgba(var(--accent-rgb), .28);
@@ -838,7 +871,8 @@
     }
 
 
-    .sleep-button.active .sleep-text {
+    .sleep-button.active
+    .sleep-text {
       display: block;
     }
 
@@ -847,7 +881,8 @@
       position: absolute;
 
       right: 0;
-      bottom: calc(100% + 10px);
+      bottom:
+        calc(100% + 10px);
 
       z-index: 20;
 
@@ -856,7 +891,8 @@
       padding: 6px;
 
       border:
-        1px solid var(--border);
+        1px solid
+        var(--border);
 
       border-radius: 15px;
 
@@ -864,7 +900,8 @@
         var(--menu-bg);
 
       box-shadow:
-        0 20px 55px rgba(0,0,0,.20);
+        0 20px 55px
+        rgba(0,0,0,.20);
     }
 
 
@@ -897,7 +934,7 @@
 
 
     /* =========================================================
-       STATION GRID
+       STATIONS
        ========================================================= */
 
     .stations {
@@ -921,7 +958,8 @@
       overflow: hidden;
 
       border:
-        1px solid var(--border);
+        1px solid
+        var(--border);
 
       border-radius:
         var(--radius-lg);
@@ -986,7 +1024,7 @@
 
 
     /* =========================================================
-       LOGOS
+       STATION LOGOS
        ========================================================= */
 
     .station-logo-wrap {
@@ -998,7 +1036,7 @@
 
       flex: 0 0 auto;
 
-      padding: 6px;
+      padding: 5px;
 
       overflow: hidden;
 
@@ -1017,13 +1055,15 @@
     }
 
 
-    .station:hover .station-logo-wrap {
+    .station:hover
+    .station-logo-wrap {
       transform:
         scale(1.03);
     }
 
 
-    .station.active .station-logo-wrap {
+    .station.active
+    .station-logo-wrap {
       box-shadow:
         0 0 0 2px
         rgba(var(--accent-rgb), .45),
@@ -1040,6 +1080,8 @@
       display: block;
 
       object-fit: contain;
+
+      image-rendering: auto;
     }
 
 
@@ -1121,7 +1163,8 @@
     }
 
 
-    .station:hover .favorite-button {
+    .station:hover
+    .favorite-button {
       opacity: .8;
     }
 
@@ -1171,7 +1214,8 @@
 
     :focus-visible {
       outline:
-        2px solid var(--text);
+        2px solid
+        var(--text);
 
       outline-offset: 4px;
     }
@@ -1300,8 +1344,7 @@
 
 
       .main-logo-surface {
-        width: 57%;
-
+        width: 59%;
         border-radius: 25%;
       }
 
@@ -1336,7 +1379,7 @@
         width: 38px;
         height: 38px;
 
-        padding: 5px;
+        padding: 4px;
 
         border-radius: 10px;
       }
@@ -1509,7 +1552,9 @@
               fill="currentColor"
               aria-hidden="true"
             >
-              <path d="M7 5h4v14H7zm6 0h4v14h-4z"/>
+              <path
+                d="M7 5h4v14H7zm6 0h4v14h-4z"
+              />
             </svg>
 
           </button>
@@ -1642,7 +1687,6 @@
                     15 minuten
                   </button>
 
-
                   <button
                     class="sleep-option"
                     type="button"
@@ -1651,7 +1695,6 @@
                     30 minuten
                   </button>
 
-
                   <button
                     class="sleep-option"
                     type="button"
@@ -1659,7 +1702,6 @@
                   >
                     60 minuten
                   </button>
-
 
                   <button
                     class="sleep-option"
@@ -1715,12 +1757,28 @@
      CONFIG
      ========================================================= */
 
-  const METADATA_API =
+  const METADATA_REFRESH =
+    15000;
+
+
+  const REQUEST_TIMEOUT =
+    6500;
+
+
+  const TWJ_API =
     "https://api.twj.es/";
 
 
-  const METADATA_REFRESH =
-    15000;
+  /*
+   * Alleen gebruikt als een officiële
+   * metadata-endpoint CORS niet toestaat.
+   *
+   * Audio loopt hier NOOIT doorheen.
+   * Alleen kleine JSON/XML metadata.
+   */
+
+  const CORS_FALLBACK =
+    "https://api.allorigins.win/raw?url=";
 
 
   /* =========================================================
@@ -1733,13 +1791,36 @@
       id: "npo1",
       name: "NPO Radio 1",
       mark: "1",
-      logoDomain: "nporadio1.nl",
+
+      logoDomain:
+        "nporadio1.nl",
 
       stream:
         "https://icecast.omroep.nl/radio1-bb-mp3",
 
-      accent: "#003576",
-      rgb: "0,53,118"
+      accent:
+        "#003576",
+
+      rgb:
+        "0,53,118",
+
+      metadata: [
+        {
+          type: "npo",
+          url:
+            "https://www.nporadio1.nl/api/tracks"
+        },
+        {
+          type: "icecast",
+          root:
+            "https://icecast.omroep.nl",
+          mount:
+            "radio1-bb-mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1747,13 +1828,36 @@
       id: "npo2",
       name: "NPO Radio 2",
       mark: "2",
-      logoDomain: "nporadio2.nl",
+
+      logoDomain:
+        "nporadio2.nl",
 
       stream:
         "https://icecast.omroep.nl/radio2-bb-mp3",
 
-      accent: "#d49319",
-      rgb: "212,147,25"
+      accent:
+        "#d49319",
+
+      rgb:
+        "212,147,25",
+
+      metadata: [
+        {
+          type: "npo",
+          url:
+            "https://www.nporadio2.nl/api/tracks"
+        },
+        {
+          type: "icecast",
+          root:
+            "https://icecast.omroep.nl",
+          mount:
+            "radio2-bb-mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1761,13 +1865,36 @@
       id: "3fm",
       name: "NPO 3FM",
       mark: "3",
-      logoDomain: "npo3fm.nl",
+
+      logoDomain:
+        "npo3fm.nl",
 
       stream:
         "https://icecast.omroep.nl/3fm-bb-mp3",
 
-      accent: "#52d626",
-      rgb: "82,214,38"
+      accent:
+        "#52d626",
+
+      rgb:
+        "82,214,38",
+
+      metadata: [
+        {
+          type: "npo",
+          url:
+            "https://www.npo3fm.nl/api/tracks"
+        },
+        {
+          type: "icecast",
+          root:
+            "https://icecast.omroep.nl",
+          mount:
+            "3fm-bb-mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1775,13 +1902,36 @@
       id: "npo5",
       name: "NPO Radio 5",
       mark: "5",
-      logoDomain: "nporadio5.nl",
+
+      logoDomain:
+        "nporadio5.nl",
 
       stream:
         "https://icecast.omroep.nl/radio5-bb-mp3",
 
-      accent: "#7854d8",
-      rgb: "120,84,216"
+      accent:
+        "#7854d8",
+
+      rgb:
+        "120,84,216",
+
+      metadata: [
+        {
+          type: "npo",
+          url:
+            "https://www.nporadio5.nl/api/tracks"
+        },
+        {
+          type: "icecast",
+          root:
+            "https://icecast.omroep.nl",
+          mount:
+            "radio5-bb-mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1789,13 +1939,34 @@
       id: "538",
       name: "Radio 538",
       mark: "538",
-      logoDomain: "radio538.nl",
+
+      /*
+       * Vector i.p.v. favicon:
+       * blijft scherp op retina / 4K.
+       */
+
+      logo:
+        "https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo%20Radio538.svg",
 
       stream:
         "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO538.mp3",
 
-      accent: "#8bc53f",
-      rgb: "139,197,63"
+      accent:
+        "#8bc53f",
+
+      rgb:
+        "139,197,63",
+
+      metadata: [
+        {
+          type: "triton",
+          mount:
+            "RADIO538"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1803,13 +1974,36 @@
       id: "qmusic",
       name: "Qmusic",
       mark: "Q",
-      logoDomain: "qmusic.nl",
+
+      logoDomain:
+        "qmusic.nl",
 
       stream:
         "https://stream.qmusic.nl/qmusic/mp3",
 
-      accent: "#e71d4f",
-      rgb: "231,29,79"
+      accent:
+        "#e71d4f",
+
+      rgb:
+        "231,29,79",
+
+      metadata: [
+        {
+          type: "icecast",
+          root:
+            "https://stream.qmusic.nl",
+          mount:
+            "qmusic"
+        },
+        {
+          type: "twj"
+        },
+        {
+          type: "playlist",
+          url:
+            "https://qmusic.nl/playlist"
+        }
+      ]
     },
 
 
@@ -1817,13 +2011,41 @@
       id: "joe",
       name: "JOE",
       mark: "JOE",
-      logoDomain: "joe.nl",
+
+      /*
+       * Huidige JOE-logo,
+       * veel hogere resolutie dan favicon.
+       */
+
+      logo:
+        "https://commons.wikimedia.org/wiki/Special:Redirect/file/JOE%20Logo%202023.png",
 
       stream:
         "https://stream.joe.nl/joe/mp3",
 
-      accent: "#ef972d",
-      rgb: "239,151,45"
+      accent:
+        "#2968d5",
+
+      rgb:
+        "41,104,213",
+
+      metadata: [
+        {
+          type: "icecast",
+          root:
+            "https://stream.joe.nl",
+          mount:
+            "joe"
+        },
+        {
+          type: "twj"
+        },
+        {
+          type: "playlist",
+          url:
+            "https://joe.nl/playlist"
+        }
+      ]
     },
 
 
@@ -1838,8 +2060,24 @@
       stream:
         "https://icecast.vrtcdn.be/stubru-high.mp3",
 
-      accent: "#ff4438",
-      rgb: "255,68,56"
+      accent:
+        "#ff4438",
+
+      rgb:
+        "255,68,56",
+
+      metadata: [
+        {
+          type: "icecast",
+          root:
+            "https://icecast.vrtcdn.be",
+          mount:
+            "stubru-high.mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1854,8 +2092,24 @@
       stream:
         "https://icecast.vrtcdn.be/stubru_tijdloze-high.mp3",
 
-      accent: "#7471d8",
-      rgb: "116,113,216"
+      accent:
+        "#7471d8",
+
+      rgb:
+        "116,113,216",
+
+      metadata: [
+        {
+          type: "icecast",
+          root:
+            "https://icecast.vrtcdn.be",
+          mount:
+            "stubru_tijdloze-high.mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1870,8 +2124,24 @@
       stream:
         "https://icecast.vrtcdn.be/mnm-high.mp3",
 
-      accent: "#235bc1",
-      rgb: "35,91,193"
+      accent:
+        "#235bc1",
+
+      rgb:
+        "35,91,193",
+
+      metadata: [
+        {
+          type: "icecast",
+          root:
+            "https://icecast.vrtcdn.be",
+          mount:
+            "mnm-high.mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1879,13 +2149,41 @@
       id: "willy",
       name: "Willy",
       mark: "W",
-      logoDomain: "willy.radio",
+
+      /*
+       * 2000px bron.
+       * Geen klein favicon meer.
+       */
+
+      logo:
+        "https://images.seeklogo.com/logo-png/39/1/willy-music-matters-logo-png_seeklogo-392837.png",
 
       stream:
         "https://streams.radio.dpgmedia.cloud/redirect/willy_be/mp3",
 
-      accent: "#f05a28",
-      rgb: "240,90,40"
+      accent:
+        "#f05a28",
+
+      rgb:
+        "240,90,40",
+
+      metadata: [
+        {
+          type: "icecast",
+          root:
+            "https://streams.radio.dpgmedia.cloud",
+          mount:
+            "willy_be"
+        },
+        {
+          type: "twj"
+        },
+        {
+          type: "playlist",
+          url:
+            "https://www.willy.radio/playlist.html"
+        }
+      ]
     },
 
 
@@ -1900,8 +2198,24 @@
       stream:
         "https://icecast.vrtcdn.be/klara-high.mp3",
 
-      accent: "#b5915c",
-      rgb: "181,145,92"
+      accent:
+        "#b5915c",
+
+      rgb:
+        "181,145,92",
+
+      metadata: [
+        {
+          type: "icecast",
+          root:
+            "https://icecast.vrtcdn.be",
+          mount:
+            "klara-high.mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1916,8 +2230,24 @@
       stream:
         "https://icecast.vrtcdn.be/radio1-high.mp3",
 
-      accent: "#4960dd",
-      rgb: "73,96,221"
+      accent:
+        "#4960dd",
+
+      rgb:
+        "73,96,221",
+
+      metadata: [
+        {
+          type: "icecast",
+          root:
+            "https://icecast.vrtcdn.be",
+          mount:
+            "radio1-high.mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     },
 
 
@@ -1932,8 +2262,24 @@
       stream:
         "https://icecast.vrtcdn.be/ra2lim-high.mp3",
 
-      accent: "#ed1945",
-      rgb: "237,25,69"
+      accent:
+        "#ed1945",
+
+      rgb:
+        "237,25,69",
+
+      metadata: [
+        {
+          type: "icecast",
+          root:
+            "https://icecast.vrtcdn.be",
+          mount:
+            "ra2lim-high.mp3"
+        },
+        {
+          type: "twj"
+        }
+      ]
     }
 
   ];
@@ -1946,70 +2292,53 @@
   const audio =
     document.getElementById("audio");
 
-
   const playButton =
     document.getElementById("playButton");
-
 
   const muteButton =
     document.getElementById("muteButton");
 
-
   const volume =
     document.getElementById("volume");
-
 
   const stationTitle =
     document.getElementById("stationTitle");
 
-
   const stationMark =
     document.getElementById("stationMark");
-
 
   const stationCount =
     document.getElementById("stationCount");
 
-
   const stationsContainer =
     document.getElementById("stations");
-
 
   const status =
     document.getElementById("status");
 
-
   const trackInfo =
     document.getElementById("trackInfo");
-
 
   const trackArtist =
     document.getElementById("trackArtist");
 
-
   const trackTitle =
     document.getElementById("trackTitle");
-
 
   const mainStationLogo =
     document.getElementById("mainStationLogo");
 
-
   const dynamicFavicon =
     document.getElementById("dynamicFavicon");
-
 
   const themeColor =
     document.getElementById("themeColor");
 
-
   const sleepButton =
     document.getElementById("sleepButton");
 
-
   const sleepMenu =
     document.getElementById("sleepMenu");
-
 
   const sleepText =
     document.getElementById("sleepText");
@@ -2028,7 +2357,6 @@
   let currentIndex =
     Math.max(
       0,
-
       stations.findIndex(
         station =>
           station.id ===
@@ -2059,14 +2387,19 @@
     audio.volume;
 
 
-  let metadataController =
-    null;
-
-
   let currentTrack = {
     artist: "",
     title: ""
   };
+
+
+  /*
+   * Nummer waarmee oude metadatarequests
+   * ongeldig worden zodra je van zender wisselt.
+   */
+
+  let metadataGeneration =
+    0;
 
 
   let favoriteIds =
@@ -2169,7 +2502,7 @@
     mainStationLogo.src =
       getStationLogo(
         station,
-        256
+        512
       );
 
 
@@ -2206,7 +2539,7 @@
 
 
   /* =========================================================
-     BROWSER TAB
+     TABBLAD / FAVICON
      ========================================================= */
 
   function updateBrowserIdentity() {
@@ -2423,7 +2756,7 @@
         const logo =
           getStationLogo(
             station,
-            128
+            256
           );
 
 
@@ -2620,6 +2953,14 @@
       index;
 
 
+    /*
+     * Alle nog lopende metadata
+     * van de vorige zender negeren.
+     */
+
+    metadataGeneration++;
+
+
     const station =
       stations[
         currentIndex
@@ -2690,7 +3031,9 @@
     updateBrowserIdentity();
 
 
-    refreshMetadata();
+    refreshMetadata(
+      true
+    );
 
 
     updateMediaSession();
@@ -2709,7 +3052,7 @@
 
 
   /* =========================================================
-     PLAY
+     PLAY / PAUSE
      ========================================================= */
 
   async function play() {
@@ -2717,7 +3060,9 @@
     if (!audio.src) {
 
       const station =
-        stations[currentIndex];
+        stations[
+          currentIndex
+        ];
 
 
       audio.src =
@@ -2766,12 +3111,9 @@
   }
 
 
-  /* =========================================================
-     PAUSE
-     ========================================================= */
-
   function pause(
-    customStatus = "Gepauzeerd"
+    customStatus =
+      "Gepauzeerd"
   ) {
 
     audio.pause();
@@ -3069,7 +3411,9 @@
       event.stopPropagation();
 
 
-      if (sleepMenu.hidden) {
+      if (
+        sleepMenu.hidden
+      ) {
 
         openSleepMenu();
 
@@ -3227,9 +3571,11 @@
 
     if (!sleepUntil) {
 
-      sleepButton.classList.remove(
-        "active"
-      );
+      sleepButton
+        .classList
+        .remove(
+          "active"
+        );
 
 
       sleepText.textContent =
@@ -3258,16 +3604,20 @@
       );
 
 
-      sleepButton.classList.remove(
-        "active"
-      );
+      sleepButton
+        .classList
+        .remove(
+          "active"
+        );
 
 
       sleepText.textContent =
         "";
 
 
-      if (!audio.paused) {
+      if (
+        !audio.paused
+      ) {
 
         pause(
           "Slaaptimer afgelopen"
@@ -3281,9 +3631,11 @@
     }
 
 
-    sleepButton.classList.add(
-      "active"
-    );
+    sleepButton
+      .classList
+      .add(
+        "active"
+      );
 
 
     sleepText.textContent =
@@ -3306,14 +3658,18 @@
 
   function setTrackLoading() {
 
-    trackInfo.classList.add(
-      "loading"
-    );
+    trackInfo
+      .classList
+      .add(
+        "loading"
+      );
 
 
-    trackInfo.classList.remove(
-      "track-unavailable"
-    );
+    trackInfo
+      .classList
+      .remove(
+        "track-unavailable"
+      );
 
 
     trackArtist.textContent =
@@ -3328,14 +3684,18 @@
 
   function setTrackUnavailable() {
 
-    trackInfo.classList.remove(
-      "loading"
-    );
+    trackInfo
+      .classList
+      .remove(
+        "loading"
+      );
 
 
-    trackInfo.classList.add(
-      "track-unavailable"
-    );
+    trackInfo
+      .classList
+      .add(
+        "track-unavailable"
+      );
 
 
     trackArtist.textContent =
@@ -3362,10 +3722,36 @@
     title
   ) {
 
-    trackInfo.classList.remove(
-      "loading",
-      "track-unavailable"
-    );
+    if (
+      artist ===
+      currentTrack.artist &&
+      title ===
+      currentTrack.title
+    ) {
+
+      /*
+       * Wel loading verwijderen.
+       */
+
+      trackInfo
+        .classList
+        .remove(
+          "loading",
+          "track-unavailable"
+        );
+
+
+      return;
+
+    }
+
+
+    trackInfo
+      .classList
+      .remove(
+        "loading",
+        "track-unavailable"
+      );
 
 
     trackArtist.textContent =
@@ -3388,55 +3774,34 @@
 
 
   /* =========================================================
-     VEILIGE METADATA
+     METADATA CLEANING
      ========================================================= */
-
-  /*
-   * We tonen voortaan GEEN willekeurige
-   * tekstvelden van de metadata-service.
-   *
-   * Dat was de oorzaak van o.a. Spaanse
-   * fout- en statusmeldingen.
-   */
-
 
   const SYSTEM_TEXT_PATTERNS = [
 
     /^sin\s+(informaci[oó]n|datos|t[ií]tulo|artista)/i,
-
     /^informaci[oó]n\s+no\s+disponible/i,
-
     /^no\s+hay\s+/i,
-
     /^no\s+se\s+(encontr[oó]|pudo|puede)/i,
 
-    /^error\b/i,
-
-
     /^sem\s+(informa[cç][aã]o|dados)/i,
-
     /^n[aã]o\s+(dispon[ií]vel|encontrado)/i,
 
-
     /^no\s+(information|metadata|data|song|title|artist)/i,
-
     /^metadata\s+(unavailable|not available)/i,
 
     /^unknown(\s+(artist|title|song))?$/i,
-
     /^not\s+available$/i,
-
     /^unavailable$/i,
 
+    /^failed\s+to/i,
+    /^error\b/i,
+
     /^offline$/i,
-
     /^undefined$/i,
-
     /^null$/i,
 
-
     /^http[s]?:\/\//i,
-
     /^<[^>]+>/i
 
   ];
@@ -3447,11 +3812,22 @@
   ) {
 
     if (
+      value === undefined ||
+      value === null
+    ) {
+
+      return "";
+
+    }
+
+
+    if (
       typeof value !==
       "string"
     ) {
 
-      return "";
+      value =
+        String(value);
 
     }
 
@@ -3469,14 +3845,8 @@
         .trim();
 
 
-    if (!cleaned) {
-
-      return "";
-
-    }
-
-
     if (
+      !cleaned ||
       cleaned.length > 220
     ) {
 
@@ -3504,31 +3874,48 @@
   }
 
 
-  function firstValid(
-    ...values
+  function validTrack(
+    track
   ) {
 
-    for (
-      const value
-      of values
+    if (!track) {
+      return false;
+    }
+
+
+    const artist =
+      cleanMetadataText(
+        track.artist
+      );
+
+
+    const title =
+      cleanMetadataText(
+        track.title
+      );
+
+
+    if (
+      !artist ||
+      !title
     ) {
 
-      const cleaned =
-        cleanMetadataText(
-          value
-        );
-
-
-      if (cleaned) {
-
-        return cleaned;
-
-      }
+      return false;
 
     }
 
 
-    return "";
+    if (
+      artist.toLowerCase() ===
+      title.toLowerCase()
+    ) {
+
+      return false;
+
+    }
+
+
+    return true;
 
   }
 
@@ -3544,9 +3931,7 @@
 
 
     if (!text) {
-
       return null;
-
     }
 
 
@@ -3596,11 +3981,6 @@
         );
 
 
-      /*
-       * Een gecombineerd veld accepteren
-       * we ALLEEN als beide kanten bestaan.
-       */
-
       if (
         artist &&
         title
@@ -3621,14 +4001,492 @@
   }
 
 
-  function parseMetadata(
+  function valueToArtist(
+    value
+  ) {
+
+    if (!value) {
+      return "";
+    }
+
+
+    if (
+      typeof value ===
+      "string"
+    ) {
+
+      return cleanMetadataText(
+        value
+      );
+
+    }
+
+
+    if (
+      Array.isArray(value)
+    ) {
+
+      return value
+        .map(
+          valueToArtist
+        )
+        .filter(Boolean)
+        .join(" & ");
+
+    }
+
+
+    if (
+      typeof value ===
+      "object"
+    ) {
+
+      return cleanMetadataText(
+
+        value.name ||
+        value.artist ||
+        value.title ||
+        value.value ||
+        ""
+
+      );
+
+    }
+
+
+    return "";
+
+  }
+
+
+  /* =========================================================
+     FETCH HELPERS
+     ========================================================= */
+
+  async function fetchTextDirect(
+    url
+  ) {
+
+    const controller =
+      new AbortController();
+
+
+    const timer =
+      window.setTimeout(
+        () =>
+          controller.abort(),
+        REQUEST_TIMEOUT
+      );
+
+
+    try {
+
+      const response =
+        await fetch(
+          url,
+          {
+            signal:
+              controller.signal,
+
+            cache:
+              "no-store"
+          }
+        );
+
+
+      if (
+        !response.ok
+      ) {
+
+        throw new Error(
+          `HTTP ${response.status}`
+        );
+
+      }
+
+
+      return await response.text();
+
+    }
+
+    finally {
+
+      clearTimeout(
+        timer
+      );
+
+    }
+
+  }
+
+
+  /*
+   * Probeer eerst rechtstreeks.
+   * Alleen wanneer CORS/server dat blokkeert
+   * gebruiken we de raw metadata-proxy.
+   */
+
+  async function fetchTextSmart(
+    url,
+    allowProxy = true
+  ) {
+
+    try {
+
+      return await fetchTextDirect(
+        url
+      );
+
+    }
+
+    catch (directError) {
+
+      if (!allowProxy) {
+
+        throw directError;
+
+      }
+
+
+      const proxyUrl =
+        CORS_FALLBACK +
+        encodeURIComponent(
+          url
+        );
+
+
+      return await fetchTextDirect(
+        proxyUrl
+      );
+
+    }
+
+  }
+
+
+  async function fetchJsonSmart(
+    url,
+    allowProxy = true
+  ) {
+
+    const text =
+      await fetchTextSmart(
+        url,
+        allowProxy
+      );
+
+
+    return JSON.parse(
+      text
+    );
+
+  }
+
+
+  /* =========================================================
+     NPO METADATA
+     ========================================================= */
+
+  function getPossibleTime(
+    object
+  ) {
+
+    const values = [
+
+      object.start,
+      object.startTime,
+      object.start_time,
+      object.startDate,
+      object.startDateTime,
+      object.playedAt,
+      object.played_at,
+      object.date,
+      object.datetime,
+      object.timestamp
+
+    ];
+
+
+    for (
+      const value
+      of values
+    ) {
+
+      if (
+        value === undefined ||
+        value === null
+      ) {
+
+        continue;
+
+      }
+
+
+      if (
+        typeof value ===
+        "number"
+      ) {
+
+        /*
+         * seconden of milliseconden.
+         */
+
+        return value > 100000000000
+          ? value
+          : value * 1000;
+
+      }
+
+
+      const parsed =
+        Date.parse(
+          value
+        );
+
+
+      if (
+        Number.isFinite(
+          parsed
+        )
+      ) {
+
+        return parsed;
+
+      }
+
+    }
+
+
+    return 0;
+
+  }
+
+
+  function extractNpoTrack(
     data
   ) {
 
+    const candidates =
+      [];
+
+
+    let order =
+      0;
+
+
+    function walk(
+      node,
+      depth = 0
+    ) {
+
+      if (
+        node === null ||
+        node === undefined ||
+        depth > 9
+      ) {
+
+        return;
+
+      }
+
+
+      if (
+        Array.isArray(
+          node
+        )
+      ) {
+
+        node.forEach(
+          child =>
+            walk(
+              child,
+              depth + 1
+            )
+        );
+
+
+        return;
+
+      }
+
+
+      if (
+        typeof node !==
+        "object"
+      ) {
+
+        return;
+
+      }
+
+
+      const artist =
+        valueToArtist(
+
+          node.artist ||
+          node.artists ||
+          node.performer ||
+          node.performers ||
+          node.creator
+
+        );
+
+
+      let title =
+        cleanMetadataText(
+
+          node.title ||
+          node.trackTitle ||
+          node.track_title ||
+          node.songTitle ||
+          node.song_title ||
+          ""
+
+        );
+
+
+      /*
+       * Sommige NPO-objecten gebruiken
+       * name voor de tracknaam.
+       * Alleen accepteren als er ook
+       * daadwerkelijk een artiest bestaat.
+       */
+
+      if (
+        artist &&
+        !title
+      ) {
+
+        title =
+          cleanMetadataText(
+            node.name
+          );
+
+      }
+
+
+      if (
+        artist &&
+        title
+      ) {
+
+        let score =
+          0;
+
+
+        const serial =
+          JSON.stringify({
+
+            status:
+              node.status,
+
+            state:
+              node.state,
+
+            playing:
+              node.playing,
+
+            current:
+              node.current
+
+          })
+          .toLowerCase();
+
+
+        if (
+          serial.includes(
+            "current"
+          ) ||
+          serial.includes(
+            "playing"
+          ) ||
+          serial.includes(
+            "now"
+          )
+        ) {
+
+          score +=
+            100;
+
+        }
+
+
+        const time =
+          getPossibleTime(
+            node
+          );
+
+
+        if (time) {
+
+          const age =
+            Math.abs(
+              Date.now() -
+              time
+            );
+
+
+          /*
+           * Recentste tracks krijgen
+           * voorrang.
+           */
+
+          score +=
+            Math.max(
+              0,
+              60 -
+              age /
+              60000
+            );
+
+        }
+
+
+        candidates.push({
+
+          artist,
+          title,
+          time,
+          score,
+          order:
+            order++
+
+        });
+
+      }
+
+
+      Object
+        .values(node)
+        .forEach(
+          child => {
+
+            if (
+              typeof child ===
+              "object" &&
+              child !== null
+            ) {
+
+              walk(
+                child,
+                depth + 1
+              );
+
+            }
+
+          }
+        );
+
+    }
+
+
+    walk(
+      data
+    );
+
+
     if (
-      !data ||
-      typeof data !==
-      "object"
+      !candidates.length
     ) {
 
       return null;
@@ -3636,122 +4494,846 @@
     }
 
 
-    /*
-     * 1.
-     * Eerst zoeken we naar expliciete
-     * ARTIEST-velden.
-     */
+    candidates.sort(
+      (a, b) => {
 
-    const artist =
-      firstValid(
-
-        data.artist,
-
-        data.track?.artist,
-
-        data.song?.artist,
-
-        data.current?.artist,
-
-        data.current_track?.artist,
-
-        data.now_playing
-          ?.song
-          ?.artist
-
-      );
-
-
-    /*
-     * 2.
-     * Een los 'title'-veld vertrouwen we
-     * ALLEEN wanneer we reeds een echte
-     * artiest hebben gevonden.
-     *
-     * Daardoor kan een API-statusmelding
-     * nooit meer als songtitel verschijnen.
-     */
-
-    if (artist) {
-
-      let title =
-        firstValid(
-
-          data.track?.title,
-
-          data.song?.title,
-
-          data.current?.title,
-
-          data.current_track?.title,
-
-          data.now_playing
-            ?.song
-            ?.title,
-
-          /*
-           * Pas helemaal als laatste:
-           */
-
-          typeof data.song === "string"
-            ? data.song
-            : "",
-
-          data.title
-
-        );
-
-
-      if (title) {
-
-        /*
-         * Sommige APIs geven:
-         *
-         * artist: "Coldplay"
-         * title:  "Coldplay - Yellow"
-         */
-
-        const prefixVariations = [
-
-          `${artist} - `,
-
-          `${artist} – `,
-
-          `${artist} — `
-
-        ];
-
-
-        for (
-          const prefix
-          of prefixVariations
+        if (
+          b.score !==
+          a.score
         ) {
 
-          if (
-            title
-              .toLowerCase()
-              .startsWith(
-                prefix.toLowerCase()
-              )
-          ) {
-
-            title =
-              title.slice(
-                prefix.length
-              )
-              .trim();
-
-
-            break;
-
-          }
+          return (
+            b.score -
+            a.score
+          );
 
         }
 
 
-        title =
+        if (
+          a.time &&
+          b.time
+        ) {
+
+          return (
+            b.time -
+            a.time
+          );
+
+        }
+
+
+        return (
+          a.order -
+          b.order
+        );
+
+      }
+    );
+
+
+    return {
+      artist:
+        candidates[0].artist,
+
+      title:
+        candidates[0].title
+    };
+
+  }
+
+
+  async function resolveNpo(
+    provider
+  ) {
+
+    const data =
+      await fetchJsonSmart(
+        provider.url
+      );
+
+
+    return extractNpoTrack(
+      data
+    );
+
+  }
+
+
+  /* =========================================================
+     ICECAST METADATA
+     ========================================================= */
+
+  async function resolveIcecast(
+    provider
+  ) {
+
+    const url =
+      provider.root
+        .replace(/\/+$/, "") +
+      "/status-json.xsl";
+
+
+    const data =
+      await fetchJsonSmart(
+        url
+      );
+
+
+    let sources =
+      data
+        ?.icestats
+        ?.source;
+
+
+    if (!sources) {
+
+      return null;
+
+    }
+
+
+    if (
+      !Array.isArray(
+        sources
+      )
+    ) {
+
+      sources = [
+        sources
+      ];
+
+    }
+
+
+    const wanted =
+      String(
+        provider.mount ||
+        ""
+      )
+      .toLowerCase();
+
+
+    let source =
+      null;
+
+
+    if (wanted) {
+
+      source =
+        sources.find(
+          item => {
+
+            const haystack =
+              [
+
+                item.listenurl,
+                item.server_url,
+                item.server_name,
+                item.mount
+
+              ]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase();
+
+
+            return haystack.includes(
+              wanted
+            );
+
+          }
+        );
+
+    }
+
+
+    /*
+     * Bij een server met maar één mount
+     * is selectie niet nodig.
+     */
+
+    if (
+      !source &&
+      sources.length === 1
+    ) {
+
+      source =
+        sources[0];
+
+    }
+
+
+    /*
+     * Relaxtere match voor bijvoorbeeld
+     * DPG redirectnamen.
+     */
+
+    if (
+      !source &&
+      wanted
+    ) {
+
+      const pieces =
+        wanted
+          .replace(
+            /\.mp3$/i,
+            ""
+          )
+          .split(
+            /[-_/]+/
+          )
+          .filter(
+            piece =>
+              piece.length >= 3
+          );
+
+
+      source =
+        sources.find(
+          item => {
+
+            const haystack =
+              JSON.stringify(
+                item
+              )
+              .toLowerCase();
+
+
+            return pieces.some(
+              piece =>
+                haystack.includes(
+                  piece
+                )
+            );
+
+          }
+        );
+
+    }
+
+
+    if (!source) {
+
+      return null;
+
+    }
+
+
+    const explicitArtist =
+      valueToArtist(
+
+        source.artist ||
+        source.track_artist_name ||
+        source.performer
+
+      );
+
+
+    const explicitTitle =
+      cleanMetadataText(
+
+        source.song ||
+        source.track ||
+        source.track_title ||
+        source.cue_title
+
+      );
+
+
+    if (
+      explicitArtist &&
+      explicitTitle
+    ) {
+
+      return {
+        artist:
+          explicitArtist,
+
+        title:
+          explicitTitle
+      };
+
+    }
+
+
+    const combined =
+      source.title ||
+      source.songtitle ||
+      source.streamtitle ||
+      "";
+
+
+    return splitArtistTitle(
+      combined
+    );
+
+  }
+
+
+  /* =========================================================
+     TRITON / STREAMTHEWORLD — RADIO 538
+     ========================================================= */
+
+  function readTritonAttributes(
+    element
+  ) {
+
+    const values =
+      {};
+
+
+    element
+      .querySelectorAll(
+        "property, attribute"
+      )
+      .forEach(
+        property => {
+
+          const name =
+            (
+              property.getAttribute(
+                "name"
+              ) ||
+              ""
+            )
+            .toLowerCase();
+
+
+          if (!name) {
+            return;
+          }
+
+
+          values[name] =
+            cleanMetadataText(
+              property.textContent
+            );
+
+        }
+      );
+
+
+    return values;
+
+  }
+
+
+  async function resolveTriton(
+    provider
+  ) {
+
+    const url =
+
+      "https://np.tritondigital.com/public/nowplaying" +
+
+      "?mountName=" +
+      encodeURIComponent(
+        provider.mount
+      ) +
+
+      "&numberToFetch=5" +
+
+      "&eventType=track";
+
+
+    const xml =
+      await fetchTextSmart(
+        url
+      );
+
+
+    const documentXml =
+      new DOMParser()
+        .parseFromString(
+          xml,
+          "application/xml"
+        );
+
+
+    if (
+      documentXml
+        .querySelector(
+          "parsererror"
+        )
+    ) {
+
+      return null;
+
+    }
+
+
+    const blocks =
+      [
+
+        ...documentXml
+          .querySelectorAll(
+            "nowplaying-info, cuepoint, track"
+          )
+
+      ];
+
+
+    for (
+      const block
+      of blocks
+    ) {
+
+      const data =
+        readTritonAttributes(
+          block
+        );
+
+
+      const artist =
+        cleanMetadataText(
+
+          data.track_artist_name ||
+          data.cue_artist ||
+          data.artist ||
+          data.artist_name
+
+        );
+
+
+      const title =
+        cleanMetadataText(
+
+          data.cue_title ||
+          data.track_title ||
+          data.title ||
+          data.song_title
+
+        );
+
+
+      if (
+        artist &&
+        title
+      ) {
+
+        return {
+          artist,
+          title
+        };
+
+      }
+
+
+      const combined =
+
+        data.streamtitle ||
+        data.songtitle ||
+        data.title;
+
+
+      const split =
+        splitArtistTitle(
+          combined
+        );
+
+
+      if (split) {
+
+        return split;
+
+      }
+
+    }
+
+
+    /*
+     * Sommige responses hebben de
+     * properties direct onder root.
+     */
+
+    const rootData =
+      readTritonAttributes(
+        documentXml
+      );
+
+
+    const artist =
+      cleanMetadataText(
+
+        rootData.track_artist_name ||
+        rootData.cue_artist ||
+        rootData.artist
+
+      );
+
+
+    const title =
+      cleanMetadataText(
+
+        rootData.cue_title ||
+        rootData.track_title ||
+        rootData.title
+
+      );
+
+
+    if (
+      artist &&
+      title
+    ) {
+
+      return {
+        artist,
+        title
+      };
+
+    }
+
+
+    return null;
+
+  }
+
+
+  /* =========================================================
+     TWJ GENERIC STREAM METADATA
+     ========================================================= */
+
+  async function resolveTwj(
+    station
+  ) {
+
+    const url =
+      TWJ_API +
+      "?url=" +
+      encodeURIComponent(
+        station.stream
+      );
+
+
+    /*
+     * Deze API is juist voor
+     * browsergebruik bedoeld,
+     * dus geen extra proxy nodig.
+     */
+
+    const data =
+      await fetchJsonSmart(
+        url,
+        false
+      );
+
+
+    const artist =
+      cleanMetadataText(
+        data.artist
+      );
+
+
+    const song =
+      cleanMetadataText(
+        data.song
+      );
+
+
+    if (
+      artist &&
+      song
+    ) {
+
+      return {
+        artist,
+        title:
+          song
+      };
+
+    }
+
+
+    const split =
+      splitArtistTitle(
+
+        data.songtitle ||
+        data.streamtitle ||
+        data.currentSong ||
+        ""
+
+      );
+
+
+    if (split) {
+
+      return split;
+
+    }
+
+
+    /*
+     * AzuraCast-achtige response
+     */
+
+    const azArtist =
+      cleanMetadataText(
+        data
+          ?.now_playing
+          ?.song
+          ?.artist
+      );
+
+
+    const azTitle =
+      cleanMetadataText(
+        data
+          ?.now_playing
+          ?.song
+          ?.title
+      );
+
+
+    if (
+      azArtist &&
+      azTitle
+    ) {
+
+      return {
+        artist:
+          azArtist,
+
+        title:
+          azTitle
+      };
+
+    }
+
+
+    return null;
+
+  }
+
+
+  /* =========================================================
+     OFFICIËLE PLAYLISTPAGINA FALLBACK
+     ========================================================= */
+
+  const PLAYLIST_NOISE = [
+
+    "open of sluit track acties",
+    "voeg toe aan spotify",
+    "open in apple music",
+    "speel fragment",
+    "toon meer",
+    "meer laden",
+    "playlist",
+    "vandaag",
+    "gisteren",
+    "select"
+
+  ];
+
+
+  function isPlaylistNoise(
+    text
+  ) {
+
+    const lower =
+      text
+        .toLowerCase()
+        .trim();
+
+
+    if (!lower) {
+      return true;
+    }
+
+
+    return PLAYLIST_NOISE.some(
+      noise =>
+        lower === noise
+    );
+
+  }
+
+
+  function normalizePlaylistLines(
+    html
+  ) {
+
+    const documentHtml =
+      new DOMParser()
+        .parseFromString(
+          html,
+          "text/html"
+        );
+
+
+    /*
+     * Scripts/style verwijderen,
+     * zodat hun code niet tussen
+     * de playlistregels komt.
+     */
+
+    documentHtml
+      .querySelectorAll(
+        "script, style, noscript"
+      )
+      .forEach(
+        element =>
+          element.remove()
+      );
+
+
+    return (
+      documentHtml
+        .body
+        ?.innerText ||
+      ""
+    )
+    .split(
+      /\r?\n/
+    )
+    .map(
+      line =>
+        cleanMetadataText(
+          line
+        )
+    )
+    .filter(Boolean);
+
+  }
+
+
+  function playlistTime(
+    text
+  ) {
+
+    return (
+      /^\d{1,2}:\d{2}$/
+        .test(text)
+      ||
+      /^\d{1,2}u\d{2}$/i
+        .test(text)
+    );
+
+  }
+
+
+  function extractTrackFromPlaylistHtml(
+    html
+  ) {
+
+    const lines =
+      normalizePlaylistLines(
+        html
+      );
+
+
+    for (
+      let i = 0;
+      i < lines.length;
+      i++
+    ) {
+
+      if (
+        !playlistTime(
+          lines[i]
+        )
+      ) {
+
+        continue;
+
+      }
+
+
+      const values =
+        [];
+
+
+      for (
+        let j =
+          i + 1;
+
+        j < lines.length &&
+        j <
+          i + 12;
+
+        j++
+      ) {
+
+        const value =
+          lines[j];
+
+
+        if (
+          playlistTime(
+            value
+          )
+        ) {
+
+          break;
+
+        }
+
+
+        if (
+          isPlaylistNoise(
+            value
+          )
+        ) {
+
+          continue;
+
+        }
+
+
+        /*
+         * Image-alt uit sommige pagina's
+         * overslaan.
+         */
+
+        if (
+          /^image:?$/i
+            .test(
+              value
+            )
+        ) {
+
+          continue;
+
+        }
+
+
+        values.push(
+          value
+        );
+
+
+        if (
+          values.length === 2
+        ) {
+
+          break;
+
+        }
+
+      }
+
+
+      /*
+       * DPG-pagina's gebruiken na tijd:
+       *
+       * titel
+       * artiest
+       */
+
+      if (
+        values.length >= 2
+      ) {
+
+        const title =
           cleanMetadataText(
-            title
+            values[0]
+          );
+
+
+        const artist =
+          cleanMetadataText(
+            values[1]
           );
 
 
@@ -3772,236 +5354,140 @@
     }
 
 
-    /*
-     * 3.
-     * Geen losse artiest/titel gevonden.
-     *
-     * Dan accepteren we alleen velden die
-     * daadwerkelijk de vorm hebben:
-     *
-     *     Artist - Title
-     *
-     * Geen streepje = niet tonen.
-     */
-
-    const combinedCandidates = [
-
-      data.songtitle,
-
-      data.song_title,
-
-      data.streamtitle,
-
-      data.streamTitle,
-
-      data.currentSong,
-
-      data.current_song,
-
-      data.track?.text,
-
-      data.current?.text,
-
-      data.now_playing
-        ?.song
-        ?.text,
-
-      /*
-       * Sommige servers gebruiken
-       * 'song' als gecombineerd veld.
-       */
-
-      typeof data.song === "string"
-        ? data.song
-        : ""
-
-    ];
-
-
-    for (
-      const candidate
-      of combinedCandidates
-    ) {
-
-      const split =
-        splitArtistTitle(
-          candidate
-        );
-
-
-      if (split) {
-
-        return split;
-
-      }
-
-    }
-
-
-    /*
-     * Geen overtuigende trackmetadata.
-     *
-     * Dus NIETS van de API tonen.
-     */
-
     return null;
 
   }
 
 
+  async function resolvePlaylist(
+    provider
+  ) {
+
+    const html =
+      await fetchTextSmart(
+        provider.url
+      );
+
+
+    return (
+      extractTrackFromPlaylistHtml(
+        html
+      )
+    );
+
+  }
+
+
   /* =========================================================
-     METADATA FETCH
+     PROVIDER ROUTER
      ========================================================= */
 
-  async function refreshMetadata() {
+  async function resolveMetadataProvider(
+    provider,
+    station
+  ) {
 
-    const station =
-      stations[
-        currentIndex
-      ];
-
-
-    if (
-      metadataController
+    switch (
+      provider.type
     ) {
 
-      metadataController.abort();
+      case "npo":
+
+        return await resolveNpo(
+          provider
+        );
+
+
+      case "icecast":
+
+        return await resolveIcecast(
+          provider
+        );
+
+
+      case "triton":
+
+        return await resolveTriton(
+          provider
+        );
+
+
+      case "playlist":
+
+        return await resolvePlaylist(
+          provider
+        );
+
+
+      case "twj":
+
+        return await resolveTwj(
+          station
+        );
+
+
+      default:
+
+        return null;
 
     }
 
-
-    metadataController =
-      new AbortController();
+  }
 
 
-    const requestedIndex =
+  /* =========================================================
+     METADATA ENGINE
+     ========================================================= */
+
+  async function refreshMetadata(
+    showLoading = false
+  ) {
+
+    const generation =
+      metadataGeneration;
+
+
+    const stationIndex =
       currentIndex;
 
 
-    const controller =
-      metadataController;
+    const station =
+      stations[
+        stationIndex
+      ];
 
 
-    const timeout =
-      window.setTimeout(
-        () => {
+    /*
+     * Bij normale 15 sec-refresh houden
+     * we de huidige titel gewoon in beeld.
+     *
+     * Geen flikkeren dus.
+     */
 
-          controller.abort();
+    if (
+      showLoading &&
+      !currentTrack.title
+    ) {
 
-        },
-        7000
-      );
-
-
-    try {
-
-      const url =
-        METADATA_API +
-        "?url=" +
-        encodeURIComponent(
-          station.stream
-        );
-
-
-      const response =
-        await fetch(
-          url,
-          {
-            signal:
-              controller.signal,
-
-            cache:
-              "no-store"
-          }
-        );
-
-
-      clearTimeout(
-        timeout
-      );
-
-
-      if (
-        requestedIndex !==
-        currentIndex
-      ) {
-
-        return;
-
-      }
-
-
-      if (!response.ok) {
-
-        setTrackUnavailable();
-
-        return;
-
-      }
-
-
-      /*
-       * Eerst JSON proberen.
-       *
-       * HTML / tekst / foutpagina's
-       * worden nooit in de UI gezet.
-       */
-
-      const contentType =
-        response.headers.get(
-          "content-type"
-        ) || "";
-
-
-      if (
-        !contentType.includes(
-          "application/json"
-        )
-      ) {
-
-        setTrackUnavailable();
-
-        return;
-
-      }
-
-
-      const data =
-        await response.json();
-
-
-      const metadata =
-        parseMetadata(
-          data
-        );
-
-
-      if (!metadata) {
-
-        setTrackUnavailable();
-
-        return;
-
-      }
-
-
-      setTrack(
-        metadata.artist,
-        metadata.title
-      );
+      setTrackLoading();
 
     }
 
-    catch (error) {
 
-      clearTimeout(
-        timeout
-      );
+    for (
+      const provider
+      of station.metadata || []
+    ) {
 
+      /*
+       * Intussen zender gewisseld.
+       */
 
       if (
-        error.name ===
-        "AbortError"
+        generation !==
+          metadataGeneration ||
+        stationIndex !==
+          currentIndex
       ) {
 
         return;
@@ -4009,14 +5495,88 @@
       }
 
 
-      if (
-        requestedIndex ===
-        currentIndex
-      ) {
+      try {
 
-        setTrackUnavailable();
+        const result =
+          await resolveMetadataProvider(
+            provider,
+            station
+          );
+
+
+        if (
+          generation !==
+            metadataGeneration ||
+          stationIndex !==
+            currentIndex
+        ) {
+
+          return;
+
+        }
+
+
+        if (
+          validTrack(
+            result
+          )
+        ) {
+
+          setTrack(
+            cleanMetadataText(
+              result.artist
+            ),
+
+            cleanMetadataText(
+              result.title
+            )
+          );
+
+
+          /*
+           * Voor debuggen zichtbaar
+           * in developer console,
+           * niet in interface.
+           */
+
+          console.debug(
+            `[radio] ${station.name}: metadata via ${provider.type}`
+          );
+
+
+          return;
+
+        }
 
       }
+
+      catch (error) {
+
+        /*
+         * Eén bron mag de volgende
+         * bron niet tegenhouden.
+         */
+
+        console.debug(
+          `[radio] ${station.name}: ${provider.type} metadata niet beschikbaar`
+        );
+
+      }
+
+    }
+
+
+    /*
+     * Een tijdelijke mislukte refresh
+     * wist een nog geldige bestaande
+     * titel niet.
+     */
+
+    if (
+      !currentTrack.title
+    ) {
+
+      setTrackUnavailable();
 
     }
 
@@ -4024,7 +5584,10 @@
 
 
   window.setInterval(
-    refreshMetadata,
+    () =>
+      refreshMetadata(
+        false
+      ),
     METADATA_REFRESH
   );
 
@@ -4038,7 +5601,9 @@
         "visible"
       ) {
 
-        refreshMetadata();
+        refreshMetadata(
+          false
+        );
 
 
         updateSleepTimer();
@@ -4050,7 +5615,7 @@
 
 
   /* =========================================================
-     ONLINE / OFFLINE
+     NETWORK
      ========================================================= */
 
   window.addEventListener(
@@ -4074,7 +5639,9 @@
           : "Live";
 
 
-      refreshMetadata();
+      refreshMetadata(
+        false
+      );
 
     }
   );
@@ -4182,7 +5749,6 @@
 
         event.preventDefault();
 
-
         togglePlay();
 
       }
@@ -4195,7 +5761,6 @@
 
         event.preventDefault();
 
-
         nextStation();
 
       }
@@ -4207,7 +5772,6 @@
       ) {
 
         event.preventDefault();
-
 
         previousStation();
 
@@ -4254,7 +5818,7 @@
     const logo =
       getStationLogo(
         station,
-        256
+        512
       );
 
 
@@ -4279,19 +5843,45 @@
       metadata.artwork = [
         {
           src: logo,
-          sizes: "256x256"
+          sizes: "512x512"
         }
       ];
 
     }
 
 
-    navigator
-      .mediaSession
-      .metadata =
-      new MediaMetadata(
-        metadata
-      );
+    try {
+
+      navigator
+        .mediaSession
+        .metadata =
+        new MediaMetadata(
+          metadata
+        );
+
+    }
+
+    catch {
+
+      /*
+       * Sommige browsers accepteren
+       * bepaalde externe artwork-url's
+       * niet voor MediaSession.
+       *
+       * Dan zonder artwork.
+       */
+
+      delete metadata.artwork;
+
+
+      navigator
+        .mediaSession
+        .metadata =
+        new MediaMetadata(
+          metadata
+        );
+
+    }
 
   }
 
@@ -4395,7 +5985,9 @@
     updateSleepTimer();
 
 
-    refreshMetadata();
+    refreshMetadata(
+      true
+    );
 
   }
 
