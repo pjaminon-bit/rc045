@@ -94,7 +94,9 @@
     }
 
 
-    /* HEADER */
+    /* =========================================================
+       HEADER
+       ========================================================= */
 
     header {
       display: flex;
@@ -139,7 +141,9 @@
     }
 
 
-    /* MAIN */
+    /* =========================================================
+       MAIN
+       ========================================================= */
 
     main {
       flex: 1;
@@ -150,7 +154,9 @@
     }
 
 
-    /* PLAYER */
+    /* =========================================================
+       PLAYER
+       ========================================================= */
 
     .player {
       display: grid;
@@ -167,7 +173,9 @@
     }
 
 
-    /* ARTWORK */
+    /* =========================================================
+       LARGE ARTWORK / STATION LOGO
+       ========================================================= */
 
     .artwork {
       position: relative;
@@ -206,6 +214,8 @@
       border-radius: 50%;
 
       border: 1px solid rgba(255,255,255,.14);
+
+      pointer-events: none;
     }
 
     .artwork::before {
@@ -218,13 +228,64 @@
       height: 48%;
     }
 
-    .station-mark {
+
+    /*
+     * Witte glasplaat voor het logo.
+     */
+
+    .main-logo-surface {
       position: relative;
       z-index: 2;
 
-      padding-right: .08em;
+      width: 54%;
+      aspect-ratio: 1;
 
-      font-size: clamp(48px, 7vw, 84px);
+      display: grid;
+      place-items: center;
+
+      padding: 14%;
+
+      border-radius: 26%;
+
+      background: rgba(255,255,255,.96);
+
+      box-shadow:
+        0 18px 45px rgba(0,0,0,.18),
+        inset 0 0 0 1px rgba(0,0,0,.04);
+
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+
+    .main-station-logo {
+      width: 100%;
+      height: 100%;
+
+      display: block;
+
+      object-fit: contain;
+
+      filter:
+        drop-shadow(
+          0 3px 6px rgba(0,0,0,.06)
+        );
+    }
+
+
+    /*
+     * Fallback als een logo niet kan laden.
+     */
+
+    .station-mark {
+      display: none;
+
+      position: relative;
+      z-index: 2;
+
+      color: #101116;
+
+      font-size: clamp(42px, 6vw, 74px);
       font-weight: 850;
 
       line-height: 1;
@@ -232,6 +293,7 @@
 
       text-align: center;
     }
+
 
     .playing-indicator {
       position: absolute;
@@ -284,7 +346,9 @@
     }
 
 
-    /* PLAYER INFO */
+    /* =========================================================
+       PLAYER INFO
+       ========================================================= */
 
     .player-info {
       min-width: 0;
@@ -317,7 +381,9 @@
     }
 
 
-    /* NOW PLAYING */
+    /* =========================================================
+       NOW PLAYING
+       ========================================================= */
 
     .track {
       min-height: 58px;
@@ -370,7 +436,9 @@
     }
 
 
-    /* CONTROLS */
+    /* =========================================================
+       CONTROLS
+       ========================================================= */
 
     .controls {
       display: flex;
@@ -534,7 +602,9 @@
     }
 
 
-    /* STATIONS */
+    /* =========================================================
+       STATION GRID
+       ========================================================= */
 
     .stations {
       display: grid;
@@ -551,7 +621,7 @@
       position: relative;
 
       min-width: 0;
-      min-height: 108px;
+      min-height: 112px;
 
       padding: 17px;
 
@@ -589,33 +659,76 @@
         rgba(var(--accent-rgb), .12);
     }
 
-    .station-symbol {
-      min-width: 35px;
-      height: 35px;
 
-      padding: 0 9px;
+    /* =========================================================
+       SMALL STATION LOGOS
+       ========================================================= */
+
+    .station-logo-wrap {
+      width: 42px;
+      height: 42px;
 
       display: grid;
       place-items: center;
 
-      border-radius: 10px;
+      flex: 0 0 auto;
 
-      background: rgba(255,255,255,.085);
+      padding: 7px;
 
-      font-size: 12px;
-      font-weight: 800;
+      overflow: hidden;
 
-      letter-spacing: -.03em;
+      border-radius: 12px;
+
+      background: rgba(255,255,255,.96);
+
+      box-shadow:
+        inset 0 0 0 1px rgba(0,0,0,.05);
+
+      transition:
+        box-shadow .18s ease,
+        transform .18s ease;
     }
 
-    .station.active .station-symbol {
-      background: var(--accent);
+    .station:hover .station-logo-wrap {
+      transform: scale(1.03);
+    }
+
+    .station.active .station-logo-wrap {
+      box-shadow:
+        0 0 0 2px rgba(var(--accent-rgb), .5),
+        0 7px 22px rgba(var(--accent-rgb), .16);
+    }
+
+    .station-logo {
+      width: 100%;
+      height: 100%;
+
+      display: block;
+
+      object-fit: contain;
+    }
+
+    .station-logo-fallback {
+      display: none;
+
+      width: 100%;
+      height: 100%;
+
+      align-items: center;
+      justify-content: center;
+
+      color: #111318;
+
+      font-size: 10px;
+      font-weight: 850;
+
+      letter-spacing: -.03em;
     }
 
     .station-name {
       width: 100%;
 
-      margin-top: 20px;
+      margin-top: 18px;
 
       overflow: hidden;
 
@@ -629,7 +742,9 @@
     }
 
 
-    /* FOOTER */
+    /* =========================================================
+       FOOTER
+       ========================================================= */
 
     footer {
       display: flex;
@@ -643,7 +758,9 @@
     }
 
 
-    /* ACCESSIBILITY */
+    /* =========================================================
+       ACCESSIBILITY
+       ========================================================= */
 
     :focus-visible {
       outline: 2px solid var(--text);
@@ -651,7 +768,9 @@
     }
 
 
-    /* TABLET */
+    /* =========================================================
+       TABLET
+       ========================================================= */
 
     @media (max-width: 760px) {
 
@@ -715,7 +834,9 @@
     }
 
 
-    /* MOBILE */
+    /* =========================================================
+       MOBILE
+       ========================================================= */
 
     @media (max-width: 420px) {
 
@@ -740,6 +861,12 @@
         border-radius: 26px;
       }
 
+      .main-logo-surface {
+        width: 56%;
+
+        border-radius: 25%;
+      }
+
       .playing-indicator {
         right: 14px;
         bottom: 14px;
@@ -756,15 +883,24 @@
       }
 
       .station {
-        min-height: 92px;
+        min-height: 96px;
 
         padding: 14px;
 
         border-radius: 18px;
       }
 
+      .station-logo-wrap {
+        width: 38px;
+        height: 38px;
+
+        padding: 6px;
+
+        border-radius: 10px;
+      }
+
       .station-name {
-        margin-top: 14px;
+        margin-top: 13px;
 
         font-size: 13px;
       }
@@ -814,22 +950,36 @@
       aria-label="Radioplayer"
     >
 
-      <div
-        class="artwork"
-        aria-hidden="true"
-      >
+      <div class="artwork">
 
         <div
-          class="station-mark"
-          id="stationMark"
+          class="main-logo-surface"
+          aria-hidden="true"
         >
-          1
+
+          <img
+            class="main-station-logo"
+            id="mainStationLogo"
+            src=""
+            alt=""
+          >
+
+          <div
+            class="station-mark"
+            id="stationMark"
+          >
+            1
+          </div>
+
         </div>
 
 
         <div class="playing-indicator">
+
           <span class="live-dot"></span>
+
           LIVE
+
         </div>
 
       </div>
@@ -846,8 +996,6 @@
           NPO Radio 1
         </h1>
 
-
-        <!-- ACTUELE TRACK -->
 
         <div
           class="track"
@@ -984,11 +1132,9 @@
 
 <script>
 
-  /*
-   * =========================================================
-   * CONFIG
-   * =========================================================
-   */
+  /* =========================================================
+     CONFIG
+     ========================================================= */
 
   const METADATA_API =
     "https://api.twj.es/";
@@ -997,46 +1143,56 @@
     15000;
 
 
-  /*
-   * =========================================================
-   * RADIOSTATIONS
-   * =========================================================
-   */
+  /* =========================================================
+     STATIONS
+     ========================================================= */
 
   const stations = [
 
     {
       name: "NPO Radio 1",
       mark: "1",
+      logoDomain: "nporadio1.nl",
+
       stream:
         "https://icecast.omroep.nl/radio1-bb-mp3",
-      accent: "#e63946",
-      rgb: "230,57,70"
+
+      accent: "#003576",
+      rgb: "0,53,118"
     },
 
     {
       name: "NPO Radio 2",
       mark: "2",
+      logoDomain: "nporadio2.nl",
+
       stream:
         "https://icecast.omroep.nl/radio2-bb-mp3",
-      accent: "#d49319",
-      rgb: "212,147,25"
+
+      accent: "#e52b30",
+      rgb: "229,43,48"
     },
 
     {
       name: "NPO 3FM",
       mark: "3",
+      logoDomain: "npo3fm.nl",
+
       stream:
         "https://icecast.omroep.nl/3fm-bb-mp3",
-      accent: "#e73377",
-      rgb: "231,51,119"
+
+      accent: "#52d626",
+      rgb: "82,214,38"
     },
 
     {
       name: "NPO Radio 5",
       mark: "5",
+      logoDomain: "nporadio5.nl",
+
       stream:
         "https://icecast.omroep.nl/radio5-bb-mp3",
+
       accent: "#7854d8",
       rgb: "120,84,216"
     },
@@ -1044,17 +1200,23 @@
     {
       name: "Radio 538",
       mark: "538",
+      logoDomain: "radio538.nl",
+
       stream:
         "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO538.mp3",
-      accent: "#ec4526",
-      rgb: "236,69,38"
+
+      accent: "#8bc53f",
+      rgb: "139,197,63"
     },
 
     {
       name: "Qmusic",
       mark: "Q",
+      logoDomain: "qmusic.nl",
+
       stream:
         "https://stream.qmusic.nl/qmusic/mp3",
+
       accent: "#e71d4f",
       rgb: "231,29,79"
     },
@@ -1062,8 +1224,11 @@
     {
       name: "JOE",
       mark: "JOE",
+      logoDomain: "joe.nl",
+
       stream:
         "https://stream.joe.nl/joe/mp3",
+
       accent: "#ef972d",
       rgb: "239,151,45"
     },
@@ -1071,8 +1236,11 @@
     {
       name: "Studio Brussel",
       mark: "Stu",
+      logoDomain: "stubru.be",
+
       stream:
         "https://icecast.vrtcdn.be/stubru-high.mp3",
+
       accent: "#4078ff",
       rgb: "64,120,255"
     },
@@ -1080,8 +1248,11 @@
     {
       name: "De Tijdloze",
       mark: "∞",
+      logoDomain: "stubru.be",
+
       stream:
         "https://icecast.vrtcdn.be/stubru_tijdloze-high.mp3",
+
       accent: "#6c63dc",
       rgb: "108,99,220"
     },
@@ -1089,8 +1260,11 @@
     {
       name: "MNM",
       mark: "M",
+      logoDomain: "mnm.be",
+
       stream:
         "https://icecast.vrtcdn.be/mnm-high.mp3",
+
       accent: "#db42af",
       rgb: "219,66,175"
     },
@@ -1098,8 +1272,11 @@
     {
       name: "Willy",
       mark: "W",
+      logoDomain: "willy.radio",
+
       stream:
         "https://streams.radio.dpgmedia.cloud/redirect/willy_be/mp3",
+
       accent: "#f05a28",
       rgb: "240,90,40"
     },
@@ -1107,8 +1284,11 @@
     {
       name: "Klara",
       mark: "K",
+      logoDomain: "klara.be",
+
       stream:
         "https://icecast.vrtcdn.be/klara-high.mp3",
+
       accent: "#b5915c",
       rgb: "181,145,92"
     },
@@ -1116,8 +1296,11 @@
     {
       name: "VRT Radio 1",
       mark: "R1",
+      logoDomain: "radio1.be",
+
       stream:
         "https://icecast.vrtcdn.be/radio1-high.mp3",
+
       accent: "#3877c9",
       rgb: "56,119,201"
     },
@@ -1125,8 +1308,11 @@
     {
       name: "Radio 2 Limburg",
       mark: "R2",
+      logoDomain: "radio2.be",
+
       stream:
         "https://icecast.vrtcdn.be/ra2lim-high.mp3",
+
       accent: "#53aa57",
       rgb: "83,170,87"
     }
@@ -1134,11 +1320,9 @@
   ];
 
 
-  /*
-   * =========================================================
-   * ELEMENTS
-   * =========================================================
-   */
+  /* =========================================================
+     ELEMENTS
+     ========================================================= */
 
   const audio =
     document.getElementById("audio");
@@ -1176,12 +1360,13 @@
   const trackTitle =
     document.getElementById("trackTitle");
 
+  const mainStationLogo =
+    document.getElementById("mainStationLogo");
 
-  /*
-   * =========================================================
-   * STATE
-   * =========================================================
-   */
+
+  /* =========================================================
+     STATE
+     ========================================================= */
 
   const storedStation =
     Number(
@@ -1220,6 +1405,7 @@
 
   let metadataController = null;
 
+
   let currentTrack = {
     artist: "",
     title: ""
@@ -1229,11 +1415,78 @@
   updateVolumeBar();
 
 
-  /*
-   * =========================================================
-   * STATION CARDS
-   * =========================================================
-   */
+  /* =========================================================
+     LOGOS
+     ========================================================= */
+
+  function getStationLogo(
+    station,
+    size = 128
+  ) {
+
+    if (!station.logoDomain) {
+      return "";
+    }
+
+
+    return (
+      "https://www.google.com/s2/favicons" +
+      "?domain=" +
+      encodeURIComponent(
+        station.logoDomain
+      ) +
+      "&sz=" +
+      size
+    );
+
+  }
+
+
+  function updateMainLogo() {
+
+    const station =
+      stations[currentIndex];
+
+
+    mainStationLogo.style.display =
+      "block";
+
+
+    stationMark.style.display =
+      "none";
+
+
+    stationMark.textContent =
+      station.mark;
+
+
+    mainStationLogo.src =
+      getStationLogo(
+        station,
+        256
+      );
+
+  }
+
+
+  mainStationLogo.addEventListener(
+    "error",
+    () => {
+
+      mainStationLogo.style.display =
+        "none";
+
+
+      stationMark.style.display =
+        "block";
+
+    }
+  );
+
+
+  /* =========================================================
+     STATION CARDS
+     ========================================================= */
 
   stationCount.textContent =
     `${stations.length} stations`;
@@ -1251,21 +1504,63 @@
       button.type =
         "button";
 
+
       button.className =
         "station";
 
 
       button.innerHTML = `
 
-        <span class="station-symbol">
-          ${station.mark}
+        <span class="station-logo-wrap">
+
+          <img
+            class="station-logo"
+            src="${getStationLogo(station,128)}"
+            alt=""
+            loading="lazy"
+          >
+
+          <span
+            class="station-logo-fallback"
+          >
+            ${station.mark}
+          </span>
+
         </span>
+
 
         <span class="station-name">
           ${station.name}
         </span>
 
       `;
+
+
+      const logo =
+        button.querySelector(
+          ".station-logo"
+        );
+
+
+      const fallback =
+        button.querySelector(
+          ".station-logo-fallback"
+        );
+
+
+      logo.addEventListener(
+        "error",
+        () => {
+
+          logo.style.display =
+            "none";
+
+
+          fallback.style.display =
+            "flex";
+
+        }
+      );
 
 
       button.setAttribute(
@@ -1287,30 +1582,22 @@
       );
 
 
-      stationsContainer
-        .appendChild(
-          button
-        );
+      stationsContainer.appendChild(
+        button
+      );
 
     }
   );
 
 
-  /*
-   * =========================================================
-   * SELECT STATION
-   * =========================================================
-   */
+  /* =========================================================
+     SELECT STATION
+     ========================================================= */
 
   function selectStation(
     index,
     autoPlay = false
   ) {
-
-    /*
-     * Zelfde zender:
-     * alleen starten indien nodig.
-     */
 
     if (
       index === currentIndex &&
@@ -1349,10 +1636,6 @@
     );
 
 
-    /*
-     * UI
-     */
-
     stationTitle.textContent =
       station.name;
 
@@ -1375,6 +1658,9 @@
         "--accent-rgb",
         station.rgb
       );
+
+
+    updateMainLogo();
 
 
     document
@@ -1404,10 +1690,6 @@
       );
 
 
-    /*
-     * Oude metadata verwijderen.
-     */
-
     currentTrack = {
       artist: "",
       title: ""
@@ -1416,10 +1698,6 @@
 
     setTrackLoading();
 
-
-    /*
-     * Stream wijzigen.
-     */
 
     audio.pause();
 
@@ -1433,22 +1711,10 @@
       "Zender geselecteerd";
 
 
-    /*
-     * Meteen nieuwe metadata ophalen.
-     */
-
     refreshMetadata();
-
 
     updateMediaSession();
 
-
-    /*
-     * Doorgaan met spelen wanneer:
-     *
-     * - radio al speelde
-     * - gebruiker zender aanklikt
-     */
 
     if (
       wasPlaying ||
@@ -1462,11 +1728,9 @@
   }
 
 
-  /*
-   * =========================================================
-   * PLAY
-   * =========================================================
-   */
+  /* =========================================================
+     PLAY / PAUSE
+     ========================================================= */
 
   async function play() {
 
@@ -1475,8 +1739,10 @@
       const station =
         stations[currentIndex];
 
+
       audio.src =
         station.stream;
+
 
       audio.load();
 
@@ -1515,12 +1781,6 @@
 
   }
 
-
-  /*
-   * =========================================================
-   * PAUSE
-   * =========================================================
-   */
 
   function pause() {
 
@@ -1563,11 +1823,9 @@
   );
 
 
-  /*
-   * =========================================================
-   * AUDIO EVENTS
-   * =========================================================
-   */
+  /* =========================================================
+     AUDIO EVENTS
+     ========================================================= */
 
   audio.addEventListener(
     "playing",
@@ -1685,17 +1943,16 @@
   );
 
 
-  /*
-   * =========================================================
-   * METADATA
-   * =========================================================
-   */
+  /* =========================================================
+     TRACK UI
+     ========================================================= */
 
   function setTrackLoading() {
 
     trackInfo.classList.add(
       "loading"
     );
+
 
     trackInfo.classList.remove(
       "track-unavailable"
@@ -1717,6 +1974,7 @@
     trackInfo.classList.remove(
       "loading"
     );
+
 
     trackInfo.classList.add(
       "track-unavailable"
@@ -1763,13 +2021,168 @@
   }
 
 
+  /* =========================================================
+     METADATA FILTER
+     ========================================================= */
+
   /*
-   * Metadatastructuren verschillen
-   * per station/provider.
+   * Teksten die absoluut niet aan
+   * de gebruiker getoond mogen worden.
    *
-   * Daarom accepteren we meerdere
-   * bekende veldnamen.
+   * Dit voorkomt o.a. Spaanse,
+   * Portugese en Engelse foutteksten
+   * van de externe metadata-service.
    */
+
+  const INVALID_METADATA = [
+
+    "sin información",
+    "sin informacion",
+    "sin datos",
+
+    "sem informação",
+    "sem informacao",
+    "sem dados",
+
+    "no information",
+    "no metadata",
+    "metadata unavailable",
+    "no song information",
+    "no title",
+
+    "unknown",
+    "unknown artist",
+    "unknown title",
+
+    "undefined",
+    "null",
+
+    "offline",
+    "not available",
+    "unavailable"
+
+  ];
+
+
+  function cleanText(value) {
+
+    if (
+      typeof value !==
+      "string"
+    ) {
+
+      return "";
+
+    }
+
+
+    const cleaned =
+      value
+        .replace(/\s+/g, " ")
+        .trim();
+
+
+    if (!cleaned) {
+
+      return "";
+
+    }
+
+
+    const lowercase =
+      cleaned.toLowerCase();
+
+
+    if (
+      INVALID_METADATA.some(
+        invalid =>
+          lowercase === invalid ||
+          lowercase.includes(
+            invalid
+          )
+      )
+    ) {
+
+      return "";
+
+    }
+
+
+    return cleaned;
+
+  }
+
+
+  function splitArtistTitle(text) {
+
+    const cleaned =
+      cleanText(text);
+
+
+    if (!cleaned) {
+
+      return {
+        artist: "",
+        title: ""
+      };
+
+    }
+
+
+    const separators = [
+      " - ",
+      " – ",
+      " — "
+    ];
+
+
+    for (
+      const separator
+      of separators
+    ) {
+
+      const index =
+        cleaned.indexOf(
+          separator
+        );
+
+
+      if (index > 0) {
+
+        return {
+
+          artist:
+            cleanText(
+              cleaned
+                .slice(
+                  0,
+                  index
+                )
+            ),
+
+          title:
+            cleanText(
+              cleaned
+                .slice(
+                  index +
+                  separator.length
+                )
+            )
+
+        };
+
+      }
+
+    }
+
+
+    return {
+      artist: "",
+      title: cleaned
+    };
+
+  }
+
 
   function parseMetadata(data) {
 
@@ -1801,7 +2214,7 @@
       );
 
 
-    let combined =
+    const combined =
       cleanText(
         data.songtitle ||
         data.now_playing
@@ -1812,13 +2225,10 @@
 
 
     /*
-     * Sommige diensten geven:
+     * API geeft soms:
      *
-     * artist = "Coldplay"
-     * song   = "Coldplay - Yellow"
-     *
-     * Dan halen we artiest uit
-     * de titel.
+     * artist = Coldplay
+     * song = Coldplay - Yellow
      */
 
     if (
@@ -1849,9 +2259,9 @@
 
 
     /*
-     * Alleen één gecombineerd veld?
+     * Alleen gecombineerd veld:
      *
-     * "Artist - Title"
+     * Artist - Title
      */
 
     if (
@@ -1884,8 +2294,8 @@
 
 
     /*
-     * Mocht "song" zelf gecombineerd
-     * zijn en artist ontbreken.
+     * Songveld kan zelf ook
+     * "Artist - Title" bevatten.
      */
 
     if (
@@ -1907,12 +2317,21 @@
         artist =
           split.artist;
 
+
         title =
           split.title;
 
       }
 
     }
+
+
+    artist =
+      cleanText(artist);
+
+
+    title =
+      cleanText(title);
 
 
     if (
@@ -1933,95 +2352,15 @@
   }
 
 
-  function splitArtistTitle(text) {
-
-    const separators = [
-      " - ",
-      " – ",
-      " — "
-    ];
-
-
-    for (
-      const separator
-      of separators
-    ) {
-
-      const index =
-        text.indexOf(
-          separator
-        );
-
-
-      if (index > 0) {
-
-        return {
-
-          artist:
-            text
-              .slice(
-                0,
-                index
-              )
-              .trim(),
-
-          title:
-            text
-              .slice(
-                index +
-                separator.length
-              )
-              .trim()
-
-        };
-
-      }
-
-    }
-
-
-    return {
-      artist: "",
-      title: text
-    };
-
-  }
-
-
-  function cleanText(value) {
-
-    if (
-      typeof value
-      !== "string"
-    ) {
-
-      return "";
-
-    }
-
-
-    return value
-      .replace(/\s+/g, " ")
-      .trim();
-
-  }
-
-
-  /*
-   * Metadata ophalen
-   */
+  /* =========================================================
+     METADATA FETCH
+     ========================================================= */
 
   async function refreshMetadata() {
 
     const station =
       stations[currentIndex];
 
-
-    /*
-     * Lopende aanvraag afbreken
-     * wanneer gebruiker snel
-     * van zender wisselt.
-     */
 
     if (metadataController) {
 
@@ -2038,12 +2377,15 @@
       currentIndex;
 
 
+    const controller =
+      metadataController;
+
+
     const timeout =
       setTimeout(
         () => {
 
-          metadataController
-            ?.abort();
+          controller.abort();
 
         },
         7000
@@ -2065,7 +2407,7 @@
           url,
           {
             signal:
-              metadataController.signal,
+              controller.signal,
 
             cache:
               "no-store"
@@ -2077,11 +2419,6 @@
         timeout
       );
 
-
-      /*
-       * Intussen andere
-       * zender geselecteerd?
-       */
 
       if (
         requestedIndex !==
@@ -2096,7 +2433,7 @@
       if (!response.ok) {
 
         throw new Error(
-          `Metadata HTTP ${response.status}`
+          "Metadata niet beschikbaar"
         );
 
       }
@@ -2145,14 +2482,8 @@
       }
 
 
-      /*
-       * Metadata mag nooit
-       * de radioplayer zelf breken.
-       */
-
       console.debug(
-        "Geen metadata beschikbaar:",
-        error
+        "Metadata niet beschikbaar"
       );
 
 
@@ -2170,20 +2501,11 @@
   }
 
 
-  /*
-   * Iedere 15 seconden verversen.
-   */
-
   setInterval(
     refreshMetadata,
     METADATA_REFRESH
   );
 
-
-  /*
-   * Wanneer gebruiker terugkeert
-   * naar tabblad meteen verversen.
-   */
 
   document.addEventListener(
     "visibilitychange",
@@ -2202,11 +2524,9 @@
   );
 
 
-  /*
-   * =========================================================
-   * ONLINE / OFFLINE
-   * =========================================================
-   */
+  /* =========================================================
+     NETWORK
+     ========================================================= */
 
   window.addEventListener(
     "offline",
@@ -2237,11 +2557,9 @@
   );
 
 
-  /*
-   * =========================================================
-   * VOLUME
-   * =========================================================
-   */
+  /* =========================================================
+     VOLUME
+     ========================================================= */
 
   volume.addEventListener(
     "input",
@@ -2308,11 +2626,9 @@
   }
 
 
-  /*
-   * =========================================================
-   * NEXT / PREVIOUS
-   * =========================================================
-   */
+  /* =========================================================
+     PREVIOUS / NEXT
+     ========================================================= */
 
   function nextStation() {
 
@@ -2350,11 +2666,9 @@
   }
 
 
-  /*
-   * =========================================================
-   * KEYBOARD
-   * =========================================================
-   */
+  /* =========================================================
+     KEYBOARD
+     ========================================================= */
 
   document.addEventListener(
     "keydown",
@@ -2414,19 +2728,9 @@
   );
 
 
-  /*
-   * =========================================================
-   * MEDIA SESSION
-   *
-   * Hierdoor verschijnt artiest +
-   * titel ook op bijvoorbeeld:
-   *
-   * - lockscreen
-   * - browser media control
-   * - bluetooth bediening
-   * - Android notificatie
-   * =========================================================
-   */
+  /* =========================================================
+     MEDIA SESSION
+     ========================================================= */
 
   function updateMediaSession() {
 
@@ -2446,6 +2750,20 @@
       stations[currentIndex];
 
 
+    const artwork = [
+      {
+        src:
+          getStationLogo(
+            station,
+            256
+          ),
+
+        sizes:
+          "256x256"
+      }
+    ];
+
+
     if (
       currentTrack.title ||
       currentTrack.artist
@@ -2463,7 +2781,9 @@
             station.name,
 
           album:
-            station.name
+            station.name,
+
+          artwork
 
         });
 
@@ -2481,7 +2801,9 @@
             "Live radio",
 
           album:
-            "radio."
+            "radio.",
+
+          artwork
 
         });
 
@@ -2525,11 +2847,9 @@
   }
 
 
-  /*
-   * =========================================================
-   * INITIALISE
-   * =========================================================
-   */
+  /* =========================================================
+     INITIALISE
+     ========================================================= */
 
   function initialise() {
 
@@ -2559,6 +2879,9 @@
         "--accent-rgb",
         station.rgb
       );
+
+
+    updateMainLogo();
 
 
     audio.src =
