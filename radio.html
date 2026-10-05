@@ -432,7 +432,7 @@
 
 
     /* =========================================================
-       CURRENT PROGRAM
+       PROGRAM
        ========================================================= */
 
     .program-title {
@@ -459,21 +459,11 @@
 
 
     /* =========================================================
-       TRACK + WIKIPEDIA
+       TRACK
        ========================================================= */
 
     .track {
-      min-height: 58px;
-
       margin-top: 14px;
-
-      transition:
-        opacity .25s ease;
-    }
-
-
-    .track.loading {
-      opacity: .45;
     }
 
 
@@ -495,8 +485,6 @@
 
 
     .track-artist {
-      min-height: 22px;
-
       color: var(--text);
 
       font-size:
@@ -513,8 +501,6 @@
 
 
     .track-title {
-      min-height: 21px;
-
       margin-top: 4px;
 
       color: var(--muted);
@@ -542,7 +528,6 @@
 
       text-decoration-line: underline;
       text-decoration-style: dotted;
-
       text-decoration-thickness: 1px;
 
       text-underline-offset: 4px;
@@ -939,7 +924,9 @@
 
       margin-bottom: 12px;
 
-      padding: 5px 8px 5px 13px;
+      padding:
+        5px 8px
+        5px 13px;
 
       border:
         1px solid var(--border);
@@ -1534,6 +1521,7 @@
           id="trackInfo"
           class="track"
           aria-live="polite"
+          hidden
         >
 
           <a
@@ -1751,21 +1739,18 @@
    CONFIG
    ========================================================= */
 
-const METADATA_REFRESH =
-  15000;
+const METADATA_REFRESH = 15000;
 
+const PROGRAM_REFRESH = 60000;
 
-const PROGRAM_REFRESH =
-  60000;
+const REQUEST_TIMEOUT = 6500;
 
+const TRACK_STALE_MS = 90000;
 
-const REQUEST_TIMEOUT =
-  6500;
-
+const PROGRAM_STALE_MS = 10 * 60 * 1000;
 
 const WIKI_CACHE_KEY =
   "radio-wikipedia-cache-v1";
-
 
 const WIKI_CACHE_TTL =
   30 * 24 * 60 * 60 * 1000;
@@ -1830,7 +1815,6 @@ const stations = [
     metadata: [
       {
         type: "npo",
-
         currentWindow: true,
 
         url:
@@ -1866,7 +1850,6 @@ const stations = [
     metadata: [
       {
         type: "npo",
-
         currentWindow: true,
 
         url:
@@ -1902,7 +1885,6 @@ const stations = [
     metadata: [
       {
         type: "npo",
-
         currentWindow: true,
 
         url:
@@ -1938,6 +1920,7 @@ const stations = [
     metadata: [
       {
         type: "npo",
+        currentWindow: true,
 
         url:
           "https://www.nporadio5.nl/api/tracks"
@@ -1945,7 +1928,7 @@ const stations = [
     ],
 
     program: {
-      type: "mediahuis",
+      type: "npo5-home",
 
       url:
         "https://www.nporadio5.nl/"
@@ -1972,7 +1955,6 @@ const stations = [
     metadata: [
       {
         type: "npo",
-
         currentWindow: true,
 
         url:
@@ -2015,7 +1997,7 @@ const stations = [
     ],
 
     program: {
-      type: "talpa",
+      type: "talpa-home",
 
       url:
         "https://www.538.nl/"
@@ -2041,8 +2023,8 @@ const stations = [
 
     noise: [
       "qmusic",
-      "qmusic nieuws",
-      "ad break"
+      "q-music",
+      "qmusic nieuws"
     ],
 
     metadata: [
@@ -2051,6 +2033,9 @@ const stations = [
 
         order:
           "title-artist",
+
+        maxAgeMinutes:
+          6,
 
         url:
           "https://onlineradiobox.com/nl/qmusic/playlist/?lang=nl"
@@ -2077,19 +2062,18 @@ const stations = [
 
     noise: [
       "joe",
-      "joe nieuws",
-      "ad break",
-      "dynamic break 1"
+      "joe nieuws"
     ],
 
     metadata: [
       {
         type: "orb",
 
-        strictLive: true,
-
         order:
           "title-artist",
+
+        maxAgeMinutes:
+          6,
 
         url:
           "https://onlineradiobox.com/nl/joenl/playlist/?lang=nl"
@@ -2123,13 +2107,16 @@ const stations = [
       {
         type: "orb",
 
+        maxAgeMinutes:
+          6,
+
         url:
           "https://onlineradiobox.com/nl/skyradio/playlist/?lang=nl"
       }
     ],
 
     program: {
-      type: "talpa",
+      type: "talpa-home",
 
       url:
         "https://www.skyradio.nl/"
@@ -2189,13 +2176,16 @@ const stations = [
       {
         type: "orb",
 
+        maxAgeMinutes:
+          6,
+
         url:
           "https://onlineradiobox.com/nl/raveron/playlist/?lang=nl"
       }
     ],
 
     program: {
-      type: "mediahuis",
+      type: "mediahuis-home",
 
       url:
         "https://www.radioveronica.nl/"
@@ -2223,12 +2213,16 @@ const stations = [
       35,
 
     noise: [
-      "radio 10"
+      "radio 10",
+      "radio 10 nieuws"
     ],
 
     metadata: [
       {
         type: "orb",
+
+        maxAgeMinutes:
+          6,
 
         url:
           "https://onlineradiobox.com/nl/radio10/playlist/?lang=nl"
@@ -2236,7 +2230,7 @@ const stations = [
     ],
 
     program: {
-      type: "talpa",
+      type: "talpa-home",
 
       url:
         "https://www.radio10.nl/"
@@ -2269,13 +2263,16 @@ const stations = [
       {
         type: "orb",
 
+        maxAgeMinutes:
+          6,
+
         url:
           "https://onlineradiobox.com/nl/100pnl/playlist/?lang=nl"
       }
     ],
 
     program: {
-      type: "mediahuis",
+      type: "mediahuis-home",
 
       url:
         "https://www.100p.nl/"
@@ -2343,7 +2340,8 @@ const stations = [
       {
         type: "orb",
 
-        strictLive: true,
+        maxAgeMinutes:
+          6,
 
         url:
           "https://onlineradiobox.com/nl/slamfm/playlist/?lang=nl"
@@ -2351,7 +2349,7 @@ const stations = [
     ],
 
     program: {
-      type: "mediahuis",
+      type: "mediahuis-home",
 
       url:
         "https://www.slam.nl/"
@@ -2384,6 +2382,9 @@ const stations = [
     metadata: [
       {
         type: "orb",
+
+        maxAgeMinutes:
+          10,
 
         url:
           "https://onlineradiobox.com/nl/arrowclassicrock/playlist/?lang=nl"
@@ -2422,19 +2423,13 @@ const stations = [
       {
         type: "orb",
 
-        strictLive: true,
+        maxAgeMinutes:
+          6,
 
         url:
           "https://onlineradiobox.com/be/studiobrussel/playlist/?lang=nl"
       }
-    ],
-
-    program: {
-      type: "vrt",
-
-      url:
-        "https://www.vrt.be/vrtmax/livestream/audio/studio-brussel/"
-    }
+    ]
   },
 
 
@@ -2463,17 +2458,13 @@ const stations = [
       {
         type: "orb",
 
+        maxAgeMinutes:
+          8,
+
         url:
           "https://onlineradiobox.com/be/studiobrusseldetijdloze/playlist/?lang=nl"
       }
-    ],
-
-    program: {
-      type: "vrt",
-
-      url:
-        "https://www.vrt.be/vrtmax/livestream/audio/de-tijdloze/"
-    }
+    ]
   },
 
 
@@ -2504,19 +2495,13 @@ const stations = [
       {
         type: "orb",
 
-        strictLive: true,
+        maxAgeMinutes:
+          6,
 
         url:
           "https://onlineradiobox.com/be/mnm/playlist/?lang=nl"
       }
-    ],
-
-    program: {
-      type: "vrt",
-
-      url:
-        "https://www.vrt.be/vrtmax/livestream/audio/mnm/"
-    }
+    ]
   },
 
 
@@ -2539,15 +2524,15 @@ const stations = [
     noise: [
       "qmusic",
       "q-music",
-      "qmusic nieuws",
-      "ad break"
+      "qmusic nieuws"
     ],
 
     metadata: [
       {
         type: "orb",
 
-        strictLive: true,
+        maxAgeMinutes:
+          6,
 
         url:
           "https://onlineradiobox.com/be/qmusic/playlist/?lang=nl"
@@ -2581,17 +2566,13 @@ const stations = [
       {
         type: "orb",
 
+        maxAgeMinutes:
+          8,
+
         url:
           "https://onlineradiobox.com/be/willy/playlist/?lang=nl"
       }
-    ],
-
-    program: {
-      type: "willy",
-
-      url:
-        "https://www.willy.radio/"
-    }
+    ]
   },
 
 
@@ -2624,17 +2605,13 @@ const stations = [
         format:
           "classical",
 
+        maxAgeMinutes:
+          15,
+
         url:
           "https://onlineradiobox.com/be/klara/playlist/?lang=nl"
       }
-    ],
-
-    program: {
-      type: "vrt",
-
-      url:
-        "https://www.vrt.be/vrtmax/livestream/audio/klara/"
-    }
+    ]
   },
 
 
@@ -2664,17 +2641,13 @@ const stations = [
       {
         type: "orb",
 
+        maxAgeMinutes:
+          8,
+
         url:
           "https://onlineradiobox.com/be/r1/playlist/?lang=nl"
       }
-    ],
-
-    program: {
-      type: "vrt",
-
-      url:
-        "https://www.vrt.be/vrtmax/livestream/audio/radio1/"
-    }
+    ]
   },
 
 
@@ -2708,19 +2681,13 @@ const stations = [
       {
         type: "orb",
 
-        strictLive: true,
+        maxAgeMinutes:
+          8,
 
         url:
           "https://onlineradiobox.com/be/2limbourg/playlist/?lang=nl"
       }
-    ],
-
-    program: {
-      type: "vrt",
-
-      url:
-        "https://www.vrt.be/vrtmax/livestream/audio/radio2-limburg/"
-    }
+    ]
   },
 
 
@@ -2742,13 +2709,15 @@ const stations = [
 
     noise: [
       "joe",
-      "joe nieuws",
-      "ad break"
+      "joe nieuws"
     ],
 
     metadata: [
       {
         type: "orb",
+
+        maxAgeMinutes:
+          6,
 
         url:
           "https://onlineradiobox.com/be/joe/playlist/?lang=nl"
@@ -2766,74 +2735,56 @@ const stations = [
 const audio =
   document.getElementById("audio");
 
-
 const playButton =
   document.getElementById("playButton");
-
 
 const muteButton =
   document.getElementById("muteButton");
 
-
 const volume =
   document.getElementById("volume");
-
 
 const stationTitle =
   document.getElementById("stationTitle");
 
-
 const stationMark =
   document.getElementById("stationMark");
-
 
 const stationCount =
   document.getElementById("stationCount");
 
-
 const stationsContainer =
   document.getElementById("stations");
-
 
 const status =
   document.getElementById("status");
 
-
 const programTitle =
   document.getElementById("programTitle");
-
 
 const trackInfo =
   document.getElementById("trackInfo");
 
-
 const trackArtist =
   document.getElementById("trackArtist");
-
 
 const trackTitle =
   document.getElementById("trackTitle");
 
-
 const mainStationLogo =
   document.getElementById("mainStationLogo");
-
 
 const dynamicFavicon =
   document.getElementById("dynamicFavicon");
 
-
 const themeColor =
   document.getElementById("themeColor");
-
 
 const sleepButton =
   document.getElementById("sleepButton");
 
-
 const sleepMenu =
   document.getElementById("sleepMenu");
-
 
 const sleepText =
   document.getElementById("sleepText");
@@ -2857,7 +2808,9 @@ let currentIndex =
   );
 
 
-if (currentIndex < 0) {
+if (
+  currentIndex < 0
+) {
   currentIndex = 0;
 }
 
@@ -2871,7 +2824,9 @@ const storedVolume =
 
 
 audio.volume =
-  Number.isFinite(storedVolume)
+  Number.isFinite(
+    storedVolume
+  )
     ? Math.max(
         0,
         Math.min(
@@ -2886,16 +2841,11 @@ volume.value =
   audio.volume;
 
 
-let metadataGeneration =
-  0;
+let metadataGeneration = 0;
 
+let programGeneration = 0;
 
-let programGeneration =
-  0;
-
-
-let wikipediaGeneration =
-  0;
+let wikipediaGeneration = 0;
 
 
 let currentTrack = {
@@ -2904,20 +2854,19 @@ let currentTrack = {
 };
 
 
-let currentProgram =
-  "";
+let currentTrackUpdatedAt = 0;
 
 
-let preRollGuardPending =
-  false;
+let currentProgram = "";
+
+let currentProgramUpdatedAt = 0;
 
 
-let preRollTrackGuardUntil =
-  0;
+let preRollGuardPending = false;
 
+let preRollTrackGuardUntil = 0;
 
-let preRollGuardTimer =
-  null;
+let preRollGuardTimer = null;
 
 
 let favoriteIds =
@@ -3103,6 +3052,276 @@ function writeWikiCache(
 
 
 /* =========================================================
+   TEXT HELPERS
+   ========================================================= */
+
+function cleanText(
+  value
+) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return "";
+  }
+
+
+  const text =
+    String(value)
+      .replace(
+        /[\u0000-\u001f\u007f]/g,
+        " "
+      )
+      .replace(
+        /\s+/g,
+        " "
+      )
+      .trim();
+
+
+  if (
+    !text ||
+    text.length > 250
+  ) {
+    return "";
+  }
+
+
+  const invalid = [
+
+    /^unknown$/i,
+    /^undefined$/i,
+    /^null$/i,
+
+    /^no metadata/i,
+    /^no information/i,
+
+    /^metadata unavailable$/i,
+
+    /^not available$/i,
+    /^unavailable$/i,
+
+    /^sin información$/i,
+    /^sin informacion$/i,
+    /^sin datos$/i,
+
+    /^sem informação$/i,
+    /^sem informacao$/i,
+
+    /^offline$/i
+
+  ];
+
+
+  if (
+    invalid.some(
+      regex =>
+        regex.test(text)
+    )
+  ) {
+    return "";
+  }
+
+
+  return text;
+
+}
+
+
+function documentLines(
+  doc
+) {
+
+  const raw =
+    doc.body?.innerText ||
+    doc.body?.textContent ||
+    "";
+
+
+  return raw
+    .split(/\r?\n/)
+    .map(cleanText)
+    .filter(Boolean);
+
+}
+
+
+function documentHeadings(
+  doc,
+  selector =
+    "h1,h2,h3,h4,h5,h6"
+) {
+
+  return [
+    ...doc.querySelectorAll(
+      selector
+    )
+  ]
+  .map(
+    element =>
+      cleanText(
+        element.textContent
+      )
+  )
+  .filter(Boolean);
+
+}
+
+
+/* =========================================================
+   FETCH
+   ========================================================= */
+
+async function fetchTextWithTimeout(
+  url,
+  timeout =
+    REQUEST_TIMEOUT
+) {
+
+  const controller =
+    new AbortController();
+
+
+  const timer =
+    window.setTimeout(
+      () =>
+        controller.abort(),
+      timeout
+    );
+
+
+  try {
+
+    const response =
+      await fetch(
+        url,
+        {
+          signal:
+            controller.signal,
+
+          cache:
+            "no-store"
+        }
+      );
+
+
+    if (
+      !response.ok
+    ) {
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
+    }
+
+
+    return await response.text();
+
+  }
+
+  finally {
+
+    clearTimeout(
+      timer
+    );
+
+  }
+
+}
+
+
+async function fetchTextSmart(
+  url,
+  cacheBust = false
+) {
+
+  let target =
+    url;
+
+
+  if (
+    cacheBust
+  ) {
+
+    target +=
+      (
+        target.includes("?")
+          ? "&"
+          : "?"
+      ) +
+      "_radio=" +
+      Math.floor(
+        Date.now() /
+        15000
+      );
+
+  }
+
+
+  try {
+
+    return await fetchTextWithTimeout(
+      target,
+      2200
+    );
+
+  }
+
+  catch {}
+
+
+  return await Promise.any(
+
+    CORS_RELAYS.map(
+      relay =>
+        fetchTextWithTimeout(
+          relay(target),
+          REQUEST_TIMEOUT
+        )
+    )
+
+  );
+
+}
+
+
+async function fetchJsonSmart(
+  url
+) {
+
+  return JSON.parse(
+    await fetchTextSmart(
+      url,
+      true
+    )
+  );
+
+}
+
+
+async function fetchDocument(
+  url
+) {
+
+  const html =
+    await fetchTextSmart(
+      url,
+      true
+    );
+
+
+  return new DOMParser()
+    .parseFromString(
+      html,
+      "text/html"
+    );
+
+}
+
+
+/* =========================================================
    LOGOS
    ========================================================= */
 
@@ -3147,7 +3366,7 @@ function updateMainLogo() {
     );
 
 
-  setTimeout(
+  window.setTimeout(
     () => {
 
       mainStationLogo.style.opacity =
@@ -3244,7 +3463,7 @@ themeQuery.addEventListener?.(
 
 
 /* =========================================================
-   COUNTRY ORDER
+   FAVORITES / COUNTRIES
    ========================================================= */
 
 function getCountryDisplayOrder() {
@@ -3286,88 +3505,6 @@ function getCountryDisplayOrder() {
 
 }
 
-
-function toggleCountryFavorite(
-  code
-) {
-
-  if (
-    favoriteCountries.has(
-      code
-    )
-  ) {
-
-    favoriteCountries.delete(
-      code
-    );
-
-  }
-
-  else {
-
-    favoriteCountries.add(
-      code
-    );
-
-  }
-
-
-  localStorage.setItem(
-    "radio-country-favorites",
-
-    JSON.stringify(
-      [...favoriteCountries]
-    )
-  );
-
-
-  renderStations();
-
-}
-
-
-function toggleCountryCollapsed(
-  code
-) {
-
-  if (
-    collapsedCountries.has(
-      code
-    )
-  ) {
-
-    collapsedCountries.delete(
-      code
-    );
-
-  }
-
-  else {
-
-    collapsedCountries.add(
-      code
-    );
-
-  }
-
-
-  localStorage.setItem(
-    "radio-country-collapsed",
-
-    JSON.stringify(
-      [...collapsedCountries]
-    )
-  );
-
-
-  renderStations();
-
-}
-
-
-/* =========================================================
-   STATION FAVORITES
-   ========================================================= */
 
 function getCountryOrder(
   countryCode
@@ -3432,6 +3569,25 @@ function getDisplayOrder() {
 }
 
 
+function getVisibleDisplayOrder() {
+
+  return getCountryDisplayOrder()
+    .filter(
+      country =>
+        !collapsedCountries.has(
+          country.code
+        )
+    )
+    .flatMap(
+      country =>
+        getCountryOrder(
+          country.code
+        )
+    );
+
+}
+
+
 function toggleFavorite(
   index
 ) {
@@ -3457,7 +3613,6 @@ function toggleFavorite(
 
   localStorage.setItem(
     "radio-favorites",
-
     JSON.stringify(
       [...favoriteIds]
     )
@@ -3469,8 +3624,84 @@ function toggleFavorite(
 }
 
 
+function toggleCountryFavorite(
+  code
+) {
+
+  if (
+    favoriteCountries.has(
+      code
+    )
+  ) {
+
+    favoriteCountries.delete(
+      code
+    );
+
+  }
+
+  else {
+
+    favoriteCountries.add(
+      code
+    );
+
+  }
+
+
+  localStorage.setItem(
+    "radio-country-favorites",
+    JSON.stringify(
+      [...favoriteCountries]
+    )
+  );
+
+
+  renderStations();
+
+}
+
+
+function toggleCountryCollapsed(
+  code
+) {
+
+  if (
+    collapsedCountries.has(
+      code
+    )
+  ) {
+
+    collapsedCountries.delete(
+      code
+    );
+
+  }
+
+  else {
+
+    collapsedCountries.add(
+      code
+    );
+
+  }
+
+
+  localStorage.setItem(
+    "radio-country-collapsed",
+    JSON.stringify(
+      [...collapsedCountries]
+    )
+  );
+
+
+  renderStations();
+
+}
+
+
 /* =========================================================
-   STATION CARD
+   RENDER STATIONS
    ========================================================= */
 
 function createStationCard(
@@ -3632,25 +3863,28 @@ function createStationCard(
 
       event.stopPropagation();
 
-      toggleFavorite(index);
+      toggleFavorite(
+        index
+      );
 
     }
   );
 
 
-  card.appendChild(select);
+  card.appendChild(
+    select
+  );
 
-  card.appendChild(favorite);
+
+  card.appendChild(
+    favorite
+  );
 
 
   return card;
 
 }
 
-
-/* =========================================================
-   RENDER COUNTRIES
-   ========================================================= */
 
 function renderStations() {
 
@@ -3872,10 +4106,326 @@ function renderStations() {
     favoriteIds.size;
 
 
+  const favoriteText =
+    favs === 1
+      ? "1 favoriet"
+      : `${favs} favorieten`;
+
+
   stationCount.textContent =
     favs
-      ? `${stations.length} stations · ${favs} favoriet`
+      ? `${stations.length} stations · ${favoriteText}`
       : `${stations.length} stations`;
+
+}
+
+
+/* =========================================================
+   TRACK UI
+   ========================================================= */
+
+function resetWikipediaLinks() {
+
+  for (
+    const element
+    of [
+      trackArtist,
+      trackTitle
+    ]
+  ) {
+
+    element.removeAttribute(
+      "href"
+    );
+
+    element.removeAttribute(
+      "target"
+    );
+
+    element.removeAttribute(
+      "rel"
+    );
+
+    element.removeAttribute(
+      "title"
+    );
+
+    element.classList.remove(
+      "has-wiki"
+    );
+
+  }
+
+}
+
+
+function setTrackLoading() {
+
+  wikipediaGeneration++;
+
+  resetWikipediaLinks();
+
+
+  trackInfo.hidden =
+    true;
+
+
+  trackArtist.textContent =
+    "";
+
+
+  trackTitle.textContent =
+    "";
+
+}
+
+
+function clearTrack() {
+
+  wikipediaGeneration++;
+
+  resetWikipediaLinks();
+
+
+  currentTrack = {
+    artist: "",
+    title: ""
+  };
+
+
+  currentTrackUpdatedAt =
+    0;
+
+
+  trackArtist.textContent =
+    "";
+
+
+  trackTitle.textContent =
+    "";
+
+
+  trackInfo.hidden =
+    true;
+
+
+  updateMediaSession();
+
+}
+
+
+function setTrack(
+  artist,
+  title
+) {
+
+  if (
+    isContentSuppressed()
+  ) {
+
+    clearTrack();
+
+    return true;
+
+  }
+
+
+  artist =
+    cleanText(
+      artist
+    );
+
+
+  title =
+    cleanText(
+      title
+    );
+
+
+  if (!title) {
+
+    return false;
+
+  }
+
+
+  currentTrackUpdatedAt =
+    Date.now();
+
+
+  if (
+    currentTrack.artist === artist &&
+    currentTrack.title === title
+  ) {
+
+    trackInfo.hidden =
+      false;
+
+
+    return true;
+
+  }
+
+
+  currentTrack = {
+    artist,
+    title
+  };
+
+
+  trackInfo.className =
+    artist
+      ? "track"
+      : "track single";
+
+
+  trackArtist.textContent =
+    artist;
+
+
+  trackTitle.textContent =
+    title;
+
+
+  trackInfo.hidden =
+    false;
+
+
+  resetWikipediaLinks();
+
+
+  updateWikipediaLinks(
+    artist,
+    title
+  );
+
+
+  updateMediaSession();
+
+
+  return true;
+
+}
+
+
+/* =========================================================
+   PROGRAM UI
+   ========================================================= */
+
+function clearProgram() {
+
+  currentProgram =
+    "";
+
+
+  currentProgramUpdatedAt =
+    0;
+
+
+  programTitle.textContent =
+    "";
+
+
+  programTitle.hidden =
+    true;
+
+
+  updateMediaSession();
+
+}
+
+
+function isInvalidProgram(
+  value
+) {
+
+  const text =
+    cleanText(
+      value
+    );
+
+
+  if (!text) {
+    return true;
+  }
+
+
+  return [
+
+    /^pagina onbeschikbaar$/i,
+    /^deze pagina kon niet geladen worden$/i,
+
+    /^live$/i,
+    /^nu live$/i,
+    /^kijk live$/i,
+    /^luister live$/i,
+
+    /^playlist$/i,
+    /^programmering$/i,
+    /^programma's$/i,
+    /^programma’s$/i,
+
+    /^nieuws$/i,
+    /^contact$/i,
+
+    /^volume$/i,
+
+    /^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}/i
+
+  ]
+  .some(
+    regex =>
+      regex.test(
+        text
+      )
+  );
+
+}
+
+
+function setProgram(
+  value
+) {
+
+  const text =
+    cleanText(
+      value
+    );
+
+
+  if (
+    !text ||
+    isInvalidProgram(text) ||
+    isContentSuppressed()
+  ) {
+
+    clearProgram();
+
+    return false;
+
+  }
+
+
+  currentProgram =
+    text;
+
+
+  currentProgramUpdatedAt =
+    Date.now();
+
+
+  programTitle.textContent =
+    text;
+
+
+  programTitle.hidden =
+    false;
+
+
+  updateMediaSession();
+
+
+  return true;
 
 }
 
@@ -3976,19 +4526,9 @@ function selectStation(
   updateMainLogo();
 
 
-  currentTrack = {
-    artist: "",
-    title: ""
-  };
-
-
-  currentProgram =
-    "";
-
+  clearTrack();
 
   clearProgram();
-
-  setTrackLoading();
 
 
   audio.pause();
@@ -4011,7 +4551,7 @@ function selectStation(
 
   updateMediaSession();
 
-  refreshMetadata(true);
+  refreshMetadata();
 
   refreshProgram();
 
@@ -4029,7 +4569,7 @@ function selectStation(
 
 
 /* =========================================================
-   PRE-ROLL GUARD
+   PRE-ROLL
    ========================================================= */
 
 function beginPreRollGuard() {
@@ -4053,6 +4593,8 @@ function beginPreRollGuard() {
 
 
   clearTrack();
+
+  clearProgram();
 
 }
 
@@ -4090,16 +4632,16 @@ function activatePreRollTimer() {
 
 
   preRollGuardTimer =
-    setTimeout(
+    window.setTimeout(
       () => {
 
         preRollTrackGuardUntil =
           0;
 
 
-        refreshMetadata(
-          true
-        );
+        refreshMetadata();
+
+        refreshProgram();
 
       },
       station.preRollTrackGuardSeconds *
@@ -4109,7 +4651,7 @@ function activatePreRollTimer() {
 }
 
 
-function isTrackSuppressed() {
+function isContentSuppressed() {
 
   if (
     preRollTrackGuardUntil ===
@@ -4130,7 +4672,7 @@ function isTrackSuppressed() {
 
 
 /* =========================================================
-   PLAYBACK
+   AUDIO
    ========================================================= */
 
 async function play() {
@@ -4159,13 +4701,17 @@ async function play() {
 
 
 function pause(
-  message = "Gepauzeerd"
+  message =
+    "Gepauzeerd"
 ) {
 
   audio.pause();
 
+
   status.textContent =
-    message;
+    typeof message === "string"
+      ? message
+      : "Gepauzeerd";
 
 }
 
@@ -4352,503 +4898,6 @@ volume.addEventListener(
 
 
 /* =========================================================
-   PROGRAM UI
-   ========================================================= */
-
-function clearProgram() {
-
-  currentProgram =
-    "";
-
-
-  programTitle.textContent =
-    "";
-
-
-  programTitle.hidden =
-    true;
-
-}
-
-
-function setProgram(
-  value
-) {
-
-  const text =
-    cleanText(
-      value
-    );
-
-
-  if (!text) {
-
-    clearProgram();
-
-    return false;
-
-  }
-
-
-  currentProgram =
-    text;
-
-
-  programTitle.textContent =
-    text;
-
-
-  programTitle.hidden =
-    false;
-
-
-  return true;
-
-}
-
-
-/* =========================================================
-   TRACK UI
-   ========================================================= */
-
-function resetWikipediaLinks() {
-
-  for (
-    const element
-    of [
-      trackArtist,
-      trackTitle
-    ]
-  ) {
-
-    element.removeAttribute(
-      "href"
-    );
-
-    element.removeAttribute(
-      "target"
-    );
-
-    element.removeAttribute(
-      "rel"
-    );
-
-    element.removeAttribute(
-      "title"
-    );
-
-    element.classList.remove(
-      "has-wiki"
-    );
-
-  }
-
-}
-
-
-function setTrackLoading() {
-
-  wikipediaGeneration++;
-
-  resetWikipediaLinks();
-
-
-  trackInfo.className =
-    "track loading";
-
-
-  trackArtist.textContent =
-    "";
-
-
-  trackTitle.textContent =
-    "";
-
-}
-
-
-function clearTrack() {
-
-  wikipediaGeneration++;
-
-  resetWikipediaLinks();
-
-
-  currentTrack = {
-    artist: "",
-    title: ""
-  };
-
-
-  trackInfo.className =
-    "track";
-
-
-  trackArtist.textContent =
-    "";
-
-
-  trackTitle.textContent =
-    "";
-
-
-  updateMediaSession();
-
-}
-
-
-function setTrackUnavailable() {
-
-  clearTrack();
-
-}
-
-
-function setTrack(
-  artist,
-  title
-) {
-
-  if (
-    isTrackSuppressed()
-  ) {
-
-    clearTrack();
-
-    return true;
-
-  }
-
-
-  artist =
-    cleanText(
-      artist
-    );
-
-
-  title =
-    cleanText(
-      title
-    );
-
-
-  if (!title) {
-    return false;
-  }
-
-
-  if (
-    currentTrack.artist === artist &&
-    currentTrack.title === title
-  ) {
-
-    trackInfo.className =
-      artist
-        ? "track"
-        : "track single";
-
-
-    return true;
-
-  }
-
-
-  currentTrack = {
-    artist,
-    title
-  };
-
-
-  trackInfo.className =
-    artist
-      ? "track"
-      : "track single";
-
-
-  trackArtist.textContent =
-    artist;
-
-
-  trackTitle.textContent =
-    title;
-
-
-  resetWikipediaLinks();
-
-
-  updateWikipediaLinks(
-    artist,
-    title
-  );
-
-
-  updateMediaSession();
-
-
-  return true;
-
-}
-
-
-/* =========================================================
-   CLEAN TEXT
-   ========================================================= */
-
-function cleanText(
-  value
-) {
-
-  if (
-    value === null ||
-    value === undefined
-  ) {
-
-    return "";
-
-  }
-
-
-  const text =
-    String(value)
-      .replace(
-        /[\u0000-\u001f\u007f]/g,
-        " "
-      )
-      .replace(
-        /\s+/g,
-        " "
-      )
-      .trim();
-
-
-  if (
-    !text ||
-    text.length > 250
-  ) {
-
-    return "";
-
-  }
-
-
-  const invalid = [
-
-    /^unknown$/i,
-    /^undefined$/i,
-    /^null$/i,
-
-    /^no metadata/i,
-    /^no information/i,
-
-    /^metadata unavailable$/i,
-
-    /^not available$/i,
-    /^unavailable$/i,
-
-    /^sin información$/i,
-    /^sin informacion$/i,
-    /^sin datos$/i,
-
-    /^sem informação$/i,
-    /^sem informacao$/i,
-
-    /^offline$/i
-
-  ];
-
-
-  if (
-    invalid.some(
-      regex =>
-        regex.test(
-          text
-        )
-    )
-  ) {
-
-    return "";
-
-  }
-
-
-  return text;
-
-}
-
-
-/* =========================================================
-   FETCH
-   ========================================================= */
-
-async function fetchTextWithTimeout(
-  url,
-  timeout =
-    REQUEST_TIMEOUT
-) {
-
-  const controller =
-    new AbortController();
-
-
-  const timer =
-    setTimeout(
-      () =>
-        controller.abort(),
-      timeout
-    );
-
-
-  try {
-
-    const response =
-      await fetch(
-        url,
-        {
-          signal:
-            controller.signal,
-
-          cache:
-            "no-store"
-        }
-      );
-
-
-    if (
-      !response.ok
-    ) {
-
-      throw new Error(
-        `HTTP ${response.status}`
-      );
-
-    }
-
-
-    return await response.text();
-
-  }
-
-  finally {
-
-    clearTimeout(timer);
-
-  }
-
-}
-
-
-async function fetchTextSmart(
-  url,
-  cacheBust = false
-) {
-
-  let target =
-    url;
-
-
-  if (
-    cacheBust
-  ) {
-
-    target +=
-      (
-        target.includes("?")
-          ? "&"
-          : "?"
-      ) +
-      "_radio=" +
-      Math.floor(
-        Date.now() /
-        15000
-      );
-
-  }
-
-
-  try {
-
-    return await fetchTextWithTimeout(
-      target,
-      2200
-    );
-
-  }
-
-  catch {}
-
-
-  return await Promise.any(
-
-    CORS_RELAYS.map(
-      relay =>
-        fetchTextWithTimeout(
-          relay(target),
-          REQUEST_TIMEOUT
-        )
-    )
-
-  );
-
-}
-
-
-async function fetchJsonSmart(
-  url
-) {
-
-  return JSON.parse(
-    await fetchTextSmart(
-      url,
-      true
-    )
-  );
-
-}
-
-
-/* =========================================================
-   DOCUMENT TEXT HELPERS
-   ========================================================= */
-
-function documentLines(
-  doc
-) {
-
-  const raw =
-    doc.body?.innerText ||
-    doc.body?.textContent ||
-    "";
-
-
-  return raw
-    .split(/\r?\n/)
-    .map(cleanText)
-    .filter(Boolean);
-
-}
-
-
-function documentHeadings(
-  doc
-) {
-
-  return [
-    ...doc.querySelectorAll(
-      "h1,h2,h3,h4,h5,h6"
-    )
-  ]
-  .map(
-    element =>
-      cleanText(
-        element.textContent
-      )
-  )
-  .filter(Boolean);
-
-}
-
-
-/* =========================================================
    TRACK SPLIT
    ========================================================= */
 
@@ -4863,7 +4912,9 @@ function splitTrack(
 
 
   if (!text) {
+
     return null;
+
   }
 
 
@@ -4950,16 +5001,6 @@ function isStationNoise(
 
 
   if (!text) {
-    return true;
-  }
-
-
-  if (
-    text === "ad break" ||
-    /^dynamic break/i.test(text) ||
-    /^ad start/i.test(text) ||
-    /^commercial break/i.test(text)
-  ) {
 
     return true;
 
@@ -4978,7 +5019,8 @@ function isStationNoise(
     if (
       text === lowered ||
       text.startsWith(
-        lowered + " - "
+        lowered +
+        " - "
       )
     ) {
 
@@ -4994,8 +5036,39 @@ function isStationNoise(
 }
 
 
+function isHardNoTrack(
+  value
+) {
+
+  const text =
+    cleanText(
+      value
+    );
+
+
+  if (!text) {
+
+    return true;
+
+  }
+
+
+  return (
+    /^(ad break|ad start|commercial break|dynamic break)/i
+      .test(text) ||
+
+    /\breclame\b/i
+      .test(text) ||
+
+    /\bnieuws\b/i
+      .test(text)
+  );
+
+}
+
+
 /* =========================================================
-   NPO TRACK METADATA
+   NPO TRACKS
    ========================================================= */
 
 async function getNpoMetadata(
@@ -5008,17 +5081,17 @@ async function getNpoMetadata(
     );
 
 
+  const items =
+    Array.isArray(
+      data?.data
+    )
+      ? data.data
+      : [];
+
+
   if (
     provider.currentWindow
   ) {
-
-    const items =
-      Array.isArray(
-        data?.data
-      )
-        ? data.data
-        : [];
-
 
     const now =
       Date.now();
@@ -5102,18 +5175,109 @@ async function getNpoMetadata(
   }
 
 
-  const candidates = [];
+  return {
+    noTrack: true
+  };
+
+}
 
 
-  findTrackObjects(
-    data,
-    candidates,
-    0
-  );
+/* =========================================================
+   538 TRITON
+   ========================================================= */
+
+function parseEpochMilliseconds(
+  value
+) {
+
+  const number =
+    Number(
+      String(value || "")
+        .trim()
+    );
 
 
   if (
-    !candidates.length
+    !Number.isFinite(number)
+  ) {
+
+    return 0;
+
+  }
+
+
+  return (
+    number >
+    100000000000
+  )
+    ? number
+    : number * 1000;
+
+}
+
+
+function parseDurationMilliseconds(
+  value
+) {
+
+  const number =
+    Number(
+      String(value || "")
+        .trim()
+    );
+
+
+  if (
+    !Number.isFinite(number) ||
+    number <= 0
+  ) {
+
+    return 0;
+
+  }
+
+
+  return (
+    number < 1000
+  )
+    ? number * 1000
+    : number;
+
+}
+
+
+async function getTritonMetadata(
+  provider
+) {
+
+  const url =
+    "https://np.tritondigital.com/public/nowplaying" +
+    "?mountName=" +
+    encodeURIComponent(
+      provider.mount
+    ) +
+    "&numberToFetch=8";
+
+
+  const xml =
+    await fetchTextSmart(
+      url,
+      true
+    );
+
+
+  const doc =
+    new DOMParser()
+      .parseFromString(
+        xml,
+        "application/xml"
+      );
+
+
+  if (
+    doc.querySelector(
+      "parsererror"
+    )
   ) {
 
     return null;
@@ -5121,304 +5285,258 @@ async function getNpoMetadata(
   }
 
 
-  candidates.sort(
-    (a, b) =>
-      b.score -
-      a.score
-  );
+  const block =
+    doc.querySelector(
+      "nowplaying-info"
+    );
+
+
+  if (!block) {
+
+    return null;
+
+  }
+
+
+  /*
+   * Triton 538:
+   *
+   * 0 = eventtype
+   * 1 = duur
+   * 2 = starttijd epoch
+   * 3 = titel / event
+   * 4 = artiest / adverteerder
+   */
+
+  const props =
+    [
+      ...block.querySelectorAll(
+        "property"
+      )
+    ]
+    .map(
+      property =>
+        cleanText(
+          property.textContent
+        )
+    );
+
+
+  if (
+    !props.length
+  ) {
+
+    return null;
+
+  }
+
+
+  const type =
+    (
+      props[0] ||
+      ""
+    )
+    .toLowerCase();
+
+
+  const duration =
+    parseDurationMilliseconds(
+      props[1]
+    );
+
+
+  const start =
+    parseEpochMilliseconds(
+      props[2]
+    );
+
+
+  const title =
+    cleanText(
+      props[3]
+    );
+
+
+  const artist =
+    cleanText(
+      props[4]
+    );
+
+
+  if (
+    /break|advert|commercial|spot|promo/
+      .test(type)
+  ) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  if (
+    start &&
+    duration
+  ) {
+
+    const now =
+      Date.now();
+
+
+    const end =
+      start +
+      duration;
+
+
+    if (
+      now <
+        start - 5000 ||
+      now >
+        end + 5000
+    ) {
+
+      return {
+        noTrack: true
+      };
+
+    }
+
+  }
+
+
+  if (
+    !artist ||
+    !title ||
+    artist.toLowerCase() ===
+      "null" ||
+    title.toLowerCase() ===
+      "null"
+  ) {
+
+    return {
+      noTrack: true
+    };
+
+  }
 
 
   return {
-
-    artist:
-      candidates[0]
-        .artist,
-
-    title:
-      candidates[0]
-        .title
-
+    artist,
+    title
   };
 
 }
 
 
-function findTrackObjects(
-  value,
-  results,
-  depth
+/* =========================================================
+   KINK TRACK
+   ========================================================= */
+
+async function getKinkMetadata(
+  provider
 ) {
 
-  if (
-    !value ||
-    depth > 10
-  ) {
-
-    return;
-
-  }
+  const doc =
+    await fetchDocument(
+      provider.url
+    );
 
 
-  if (
-    Array.isArray(value)
-  ) {
+  const lines =
+    documentLines(
+      doc
+    );
 
-    value.forEach(
-      child =>
-        findTrackObjects(
-          child,
-          results,
-          depth + 1
+
+  const index =
+    lines.findIndex(
+      line =>
+        /^nu op kink$/i.test(
+          line
         )
     );
 
 
-    return;
-
-  }
-
-
   if (
-    typeof value !==
-    "object"
+    index < 0
   ) {
 
-    return;
+    return null;
 
   }
 
 
-  const artist =
-    extractArtist(
-
-      value.artist ||
-      value.artists ||
-      value.performer ||
-      value.performers
-
-    );
-
-
-  let title =
-    cleanText(
-
-      value.trackTitle ||
-      value.track_title ||
-      value.songTitle ||
-      value.song_title ||
-      value.title ||
-      ""
-
-    );
-
-
-  if (
-    artist &&
-    !title
-  ) {
-
-    title =
-      cleanText(
-        value.name
-      );
-
-  }
-
-
-  if (
-    artist &&
-    title &&
-    artist.toLowerCase() !==
-      title.toLowerCase()
-  ) {
-
-    let score =
-      1;
-
-
-    const timestamp =
-      getTimestamp(
-        value
-      );
-
-
-    if (
-      timestamp
-    ) {
-
-      const ageMinutes =
-        Math.abs(
-          Date.now() -
-          timestamp
-        ) /
-        60000;
-
-
-      score +=
-        Math.max(
-          0,
-          60 -
-          ageMinutes
-        );
-
-    }
-
-
-    results.push({
-      artist,
-      title,
-      score
-    });
-
-  }
+  const values = [];
 
 
   for (
-    const child
-    of Object.values(
-      value
-    )
-  ) {
+    let i =
+      index + 1;
 
-    if (
-      child &&
-      typeof child ===
-      "object"
-    ) {
-
-      findTrackObjects(
-        child,
-        results,
-        depth + 1
+    i <
+      Math.min(
+        lines.length,
+        index + 8
       );
 
-    }
-
-  }
-
-}
-
-
-function extractArtist(
-  value
-) {
-
-  if (!value) {
-    return "";
-  }
-
-
-  if (
-    typeof value ===
-    "string"
+    i++
   ) {
 
-    return cleanText(
-      value
-    );
-
-  }
+    const line =
+      lines[i];
 
 
-  if (
-    Array.isArray(value)
-  ) {
-
-    return value
-      .map(
-        extractArtist
+    if (
+      /^now on air\b/i.test(
+        line
+      ) ||
+      /^deze week op kink/i.test(
+        line
       )
-      .filter(Boolean)
-      .join(" & ");
+    ) {
 
-  }
+      break;
 
-
-  if (
-    typeof value ===
-    "object"
-  ) {
-
-    return cleanText(
-
-      value.name ||
-      value.artist ||
-      value.title ||
-      ""
-
-    );
-
-  }
+    }
 
 
-  return "";
+    if (
+      /^app de studio/i.test(
+        line
+      )
+    ) {
 
-}
-
-
-function getTimestamp(
-  value
-) {
-
-  const possible = [
-
-    value.start,
-    value.startTime,
-    value.start_time,
-
-    value.playedAt,
-    value.played_at,
-
-    value.timestamp
-
-  ];
-
-
-  for (
-    const item
-    of possible
-  ) {
-
-    if (!item) {
       continue;
-    }
-
-
-    if (
-      typeof item ===
-      "number"
-    ) {
-
-      return (
-        item >
-        100000000000
-      )
-        ? item
-        : item * 1000;
 
     }
 
 
-    const time =
-      Date.parse(
-        item
-      );
+    values.push(
+      line
+    );
 
 
     if (
-      Number.isFinite(
-        time
-      )
+      values.length === 2
     ) {
 
-      return time;
+      return {
+        artist:
+          values[0],
+
+        title:
+          values[1]
+      };
 
     }
 
   }
 
 
-  return 0;
+  return {
+    noTrack: true
+  };
 
 }
 
@@ -5520,7 +5638,12 @@ function extractOrbRows(
         row.classList
           .contains(
             "active"
+          ) ||
+        Boolean(
+          row.querySelector(
+            ".active"
           )
+        )
 
     });
 
@@ -5532,24 +5655,360 @@ function extractOrbRows(
 }
 
 
+function clockToMinutes(
+  value
+) {
+
+  const match =
+    /^(\d{1,2}):(\d{2})$/
+      .exec(
+        cleanText(value)
+      );
+
+
+  if (!match) {
+
+    return null;
+
+  }
+
+
+  return (
+    Number(match[1]) *
+    60 +
+    Number(match[2])
+  );
+
+}
+
+
+function getOrbPageClock(
+  doc
+) {
+
+  const text =
+    doc.body?.innerText ||
+    doc.body?.textContent ||
+    "";
+
+
+  const match =
+    text.match(
+      /\b(?:nu|now)\s+in\s+[^)\n]{0,60}?(\d{1,2}:\d{2})\b/i
+    );
+
+
+  if (match) {
+
+    return clockToMinutes(
+      match[1]
+    );
+
+  }
+
+
+  const now =
+    new Date();
+
+
+  return (
+    now.getHours() *
+    60 +
+    now.getMinutes()
+  );
+
+}
+
+
+function getClockAgeMinutes(
+  time,
+  nowMinutes
+) {
+
+  const value =
+    clockToMinutes(
+      time
+    );
+
+
+  if (
+    value === null
+  ) {
+
+    return Infinity;
+
+  }
+
+
+  return (
+    nowMinutes -
+    value +
+    1440
+  ) % 1440;
+
+}
+
+
+function applyTrackOrder(
+  split,
+  provider
+) {
+
+  if (
+    provider.order ===
+    "title-artist"
+  ) {
+
+    return {
+      artist:
+        split.title,
+
+      title:
+        split.artist
+    };
+
+  }
+
+
+  return split;
+
+}
+
+
+function classifyOrbText(
+  value,
+  station,
+  provider
+) {
+
+  const text =
+    cleanText(
+      value
+    );
+
+
+  if (!text) {
+
+    return {
+      type:
+        "block"
+    };
+
+  }
+
+
+  const stationNoise =
+    isStationNoise(
+      text,
+      station
+    );
+
+
+  /*
+   * Branding zoals
+   * "Studio Brussel" of
+   * "Life is Music" mag worden
+   * overgeslagen.
+   */
+
+  if (
+    stationNoise
+  ) {
+
+    if (
+      isHardNoTrack(
+        text
+      )
+    ) {
+
+      return {
+        type:
+          "block"
+      };
+
+    }
+
+
+    return {
+      type:
+        "noise"
+    };
+
+  }
+
+
+  const split =
+    splitTrack(
+      text
+    );
+
+
+  if (split) {
+
+    return {
+      type:
+        "track",
+
+      result:
+        applyTrackOrder(
+          split,
+          provider
+        )
+    };
+
+  }
+
+
+  if (
+    isHardNoTrack(
+      text
+    )
+  ) {
+
+    return {
+      type:
+        "block"
+    };
+
+  }
+
+
+  /*
+   * Onbekende niet-track-regel:
+   * waarschijnlijk presentator,
+   * praatblok of programma.
+   *
+   * Daarom niet terugvallen op
+   * een oudere track.
+   */
+
+  return {
+    type:
+      "block"
+  };
+
+}
+
+
+function evaluateOrbTimedRows(
+  rows,
+  startIndex,
+  station,
+  provider,
+  pageClock
+) {
+
+  const maxAge =
+    provider.maxAgeMinutes ??
+    6;
+
+
+  for (
+    let i =
+      startIndex;
+
+    i < rows.length;
+
+    i++
+  ) {
+
+    const row =
+      rows[i];
+
+
+    if (
+      row.time
+        .toLowerCase() ===
+      "live"
+    ) {
+
+      continue;
+
+    }
+
+
+    if (
+      !/^\d{1,2}:\d{2}$/
+        .test(
+          row.time
+        )
+    ) {
+
+      continue;
+
+    }
+
+
+    const age =
+      getClockAgeMinutes(
+        row.time,
+        pageClock
+      );
+
+
+    if (
+      age >
+      maxAge
+    ) {
+
+      return {
+        noTrack: true
+      };
+
+    }
+
+
+    const classification =
+      classifyOrbText(
+        row.text,
+        station,
+        provider
+      );
+
+
+    if (
+      classification.type ===
+      "noise"
+    ) {
+
+      continue;
+
+    }
+
+
+    if (
+      classification.type ===
+      "track"
+    ) {
+
+      return classification.result;
+
+    }
+
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  return {
+    noTrack: true
+  };
+
+}
+
+
 async function getOrbMetadata(
   provider,
   station
 ) {
 
-  const html =
-    await fetchTextSmart(
-      provider.url,
-      true
-    );
-
-
   const doc =
-    new DOMParser()
-      .parseFromString(
-        html,
-        "text/html"
-      );
+    await fetchDocument(
+      provider.url
+    );
 
 
   const rows =
@@ -5572,16 +6031,24 @@ async function getOrbMetadata(
     "classical"
   ) {
 
-    return parseClassicalRows(
+    return getClassicalOrbMetadata(
       rows,
-      station
+      station,
+      provider,
+      doc
     );
 
   }
 
 
-  const liveRow =
-    rows.find(
+  const pageClock =
+    getOrbPageClock(
+      doc
+    );
+
+
+  const liveIndex =
+    rows.findIndex(
       row =>
         row.active ||
         row.time
@@ -5591,23 +6058,30 @@ async function getOrbMetadata(
 
 
   if (
-    provider.strictLive
+    liveIndex >= 0
   ) {
 
-    if (!liveRow) {
+    const live =
+      classifyOrbText(
+        rows[liveIndex].text,
+        station,
+        provider
+      );
 
-      return {
-        noTrack: true
-      };
+
+    if (
+      live.type ===
+      "track"
+    ) {
+
+      return live.result;
 
     }
 
 
     if (
-      isStationNoise(
-        liveRow.text,
-        station
-      )
+      live.type ===
+      "block"
     ) {
 
       return {
@@ -5617,13 +6091,105 @@ async function getOrbMetadata(
     }
 
 
-    const split =
-      splitTrack(
-        liveRow.text
-      );
+    /*
+     * Live-regel is alleen branding.
+     * Kijk dan alleen naar de direct
+     * daaropvolgende recente regels.
+     */
+
+    return evaluateOrbTimedRows(
+      rows,
+      liveIndex + 1,
+      station,
+      provider,
+      pageClock
+    );
+
+  }
 
 
-    if (!split) {
+  /*
+   * Geen Live-regel.
+   * Alleen de allereerste actuele /
+   * voldoende recente tijdregel mag
+   * iets opleveren.
+   */
+
+  return evaluateOrbTimedRows(
+    rows,
+    0,
+    station,
+    provider,
+    pageClock
+  );
+
+}
+
+
+/* =========================================================
+   KLARA
+   ========================================================= */
+
+function getClassicalOrbMetadata(
+  rows,
+  station,
+  provider,
+  doc
+) {
+
+  const pageClock =
+    getOrbPageClock(
+      doc
+    );
+
+
+  const maxAge =
+    provider.maxAgeMinutes ??
+    15;
+
+
+  const useful = [];
+
+
+  for (
+    const row
+    of rows
+  ) {
+
+    if (
+      row.time
+        .toLowerCase() !==
+        "live" &&
+      /^\d{1,2}:\d{2}$/
+        .test(
+          row.time
+        )
+    ) {
+
+      const age =
+        getClockAgeMinutes(
+          row.time,
+          pageClock
+        );
+
+
+      if (
+        age >
+        maxAge
+      ) {
+
+        break;
+
+      }
+
+    }
+
+
+    if (
+      isHardNoTrack(
+        row.text
+      )
+    ) {
 
       return {
         noTrack: true
@@ -5631,48 +6197,6 @@ async function getOrbMetadata(
 
     }
 
-
-    return applyTrackOrder(
-      split,
-      provider
-    );
-
-  }
-
-
-  if (
-    liveRow &&
-    !isStationNoise(
-      liveRow.text,
-      station
-    )
-  ) {
-
-    const split =
-      splitTrack(
-        liveRow.text
-      );
-
-
-    if (split) {
-
-      return applyTrackOrder(
-        split,
-        provider
-      );
-
-    }
-
-  }
-
-
-  for (
-    const row
-    of rows.slice(
-      0,
-      45
-    )
-  ) {
 
     if (
       isStationNoise(
@@ -5686,123 +6210,24 @@ async function getOrbMetadata(
     }
 
 
-    const split =
-      splitTrack(
-        row.text
-      );
+    useful.push(
+      row
+    );
 
 
-    if (!split) {
+    if (
+      useful.length >= 4
+    ) {
 
-      continue;
+      break;
 
     }
 
-
-    return applyTrackOrder(
-      split,
-      provider
-    );
-
   }
 
 
-  return null;
-
-}
-
-
-function applyTrackOrder(
-  split,
-  provider
-) {
-
   if (
-    provider.order ===
-    "title-artist"
-  ) {
-
-    return {
-
-      artist:
-        split.title,
-
-      title:
-        split.artist
-
-    };
-
-  }
-
-
-  return split;
-
-}
-
-
-/* =========================================================
-   KINK TRACK
-   ========================================================= */
-
-async function getKinkMetadata(
-  provider
-) {
-
-  const html =
-    await fetchTextSmart(
-      provider.url,
-      true
-    );
-
-
-  const doc =
-    new DOMParser()
-      .parseFromString(
-        html,
-        "text/html"
-      );
-
-
-  const headings =
-    documentHeadings(
-      doc
-    );
-
-
-  const index =
-    headings.findIndex(
-      line =>
-        /^nu op kink$/i.test(
-          line
-        )
-    );
-
-
-  if (
-    index < 0
-  ) {
-
-    return null;
-
-  }
-
-
-  const values =
-    headings
-      .slice(
-        index + 1,
-        index + 8
-      )
-      .filter(
-        line =>
-          !/^now on air/i.test(line) &&
-          !/^kink non-stop$/i.test(line) &&
-          !/^stuur ons/i.test(line)
-      );
-
-
-  if (
-    values.length < 2
+    !useful.length
   ) {
 
     return {
@@ -5812,58 +6237,9 @@ async function getKinkMetadata(
   }
 
 
-  return {
-
-    artist:
-      values[0],
-
-    title:
-      values[1]
-
-  };
-
-}
-
-
-/* =========================================================
-   KLARA
-   ========================================================= */
-
-function parseClassicalRows(
-  rows,
-  station
-) {
-
-  const useful =
-    rows
-      .slice(
-        0,
-        40
-      )
-      .filter(
-        row =>
-          !isStationNoise(
-            row.text,
-            station
-          )
-      );
-
-
-  if (
-    !useful.length
-  ) {
-
-    return null;
-
-  }
-
-
   for (
     const row
-    of useful.slice(
-      0,
-      10
-    )
+    of useful
   ) {
 
     const split =
@@ -5881,85 +6257,29 @@ function parseClassicalRows(
   }
 
 
-  const groups =
-    new Map();
-
-
-  for (
-    const row
-    of useful
-  ) {
-
-    if (
-      !/^\d{1,2}:\d{2}$/
-        .test(
-          row.time
-        )
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      !groups.has(
-        row.time
-      )
-    ) {
-
-      groups.set(
-        row.time,
-        []
-      );
-
-    }
-
-
-    const values =
-      groups.get(
-        row.time
-      );
-
-
-    if (
-      !values.includes(
-        row.text
-      )
-    ) {
-
-      values.push(
-        row.text
-      );
-
-    }
-
-
-    if (
-      values.length >= 3
-    ) {
-
-      const result =
-        classifyClassical(
-          values.slice(
-            0,
-            3
+  const values =
+    useful
+      .map(
+        row =>
+          cleanText(
+            row.text
           )
-        );
+      )
+      .filter(Boolean);
 
 
-      if (result) {
+  const result =
+    classifyClassical(
+      values
+    );
 
-        return result;
 
-      }
-
+  return (
+    result ||
+    {
+      noTrack: true
     }
-
-  }
-
-
-  return null;
+  );
 
 }
 
@@ -6002,27 +6322,7 @@ function classifyClassical(
     workIndex < 0
   ) {
 
-    workIndex =
-      values
-        .map(
-          (
-            value,
-            index
-          ) => ({
-            index,
-            length:
-              value.length
-          })
-        )
-        .sort(
-          (
-            a,
-            b
-          ) =>
-            b.length -
-            a.length
-        )[0]
-        ?.index ?? 1;
+    return null;
 
   }
 
@@ -6045,14 +6345,6 @@ function classifyClassical(
           .test(
             value
           )
-    ) ||
-    values.find(
-      (
-        value,
-        index
-      ) =>
-        index !==
-        workIndex
     );
 
 
@@ -6067,310 +6359,21 @@ function classifyClassical(
 
 
   return {
-
     artist:
       composer,
 
     title:
       work
-
   };
 
 }
 
 
 /* =========================================================
-   TRITON — 538
+   TRACK ROUTER
    ========================================================= */
 
-function getTritonValues(
-  block
-) {
-
-  const values = {};
-
-
-  block
-    .querySelectorAll(
-      "property, attribute"
-    )
-    .forEach(
-      item => {
-
-        const name =
-          (
-            item.getAttribute(
-              "name"
-            ) ||
-            ""
-          )
-          .toLowerCase();
-
-
-        if (!name) {
-          return;
-        }
-
-
-        values[name] =
-          cleanText(
-            item.textContent
-          );
-
-      }
-    );
-
-
-  return values;
-
-}
-
-
-function parseEpochMilliseconds(
-  value
-) {
-
-  const number =
-    Number(value);
-
-
-  if (
-    !Number.isFinite(
-      number
-    )
-  ) {
-
-    return 0;
-
-  }
-
-
-  return (
-    number >
-    100000000000
-  )
-    ? number
-    : number * 1000;
-
-}
-
-
-function parseDurationMilliseconds(
-  value
-) {
-
-  const number =
-    Number(value);
-
-
-  if (
-    !Number.isFinite(number) ||
-    number <= 0
-  ) {
-
-    return 0;
-
-  }
-
-
-  /*
-   * Triton gebruikt hier normaal
-   * milliseconden.
-   */
-
-  return (
-    number < 1000
-  )
-    ? number * 1000
-    : number;
-
-}
-
-
-async function getTritonMetadata(
-  provider
-) {
-
-  const url =
-
-    "https://np.tritondigital.com/public/nowplaying" +
-
-    "?mountName=" +
-    encodeURIComponent(
-      provider.mount
-    ) +
-
-    "&numberToFetch=8";
-
-
-  const xml =
-    await fetchTextSmart(
-      url,
-      true
-    );
-
-
-  const doc =
-    new DOMParser()
-      .parseFromString(
-        xml,
-        "application/xml"
-      );
-
-
-  if (
-    doc.querySelector(
-      "parsererror"
-    )
-  ) {
-
-    return null;
-
-  }
-
-
-  const blocks =
-    [
-      ...doc.querySelectorAll(
-        "nowplaying-info"
-      )
-    ];
-
-
-  if (
-    !blocks.length
-  ) {
-
-    return null;
-
-  }
-
-
-  /*
-   * De eerste Triton-event is de
-   * nieuwste event.
-   */
-
-  const current =
-    getTritonValues(
-      blocks[0]
-    );
-
-
-  const artist =
-    cleanText(
-
-      current.track_artist_name ||
-      current.cue_artist ||
-      current.artist ||
-      ""
-
-    );
-
-
-  const title =
-    cleanText(
-
-      current.cue_title ||
-      current.track_title ||
-      current.song_title ||
-      ""
-
-    );
-
-
-  const start =
-    parseEpochMilliseconds(
-      current.cue_time_start
-    );
-
-
-  const duration =
-    parseDurationMilliseconds(
-      current.cue_time_duration
-    );
-
-
-  /*
-   * Track kan als laatste event blijven
-   * staan terwijl er inmiddels gepraat
-   * wordt.
-   *
-   * Daarom alleen tonen binnen de echte
-   * eventduur.
-   */
-
-  if (
-    artist &&
-    title
-  ) {
-
-    if (
-      start &&
-      duration
-    ) {
-
-      const now =
-        Date.now();
-
-
-      const end =
-        start +
-        duration;
-
-
-      if (
-        now <
-          start - 5000 ||
-        now >
-          end + 5000
-      ) {
-
-        return {
-          noTrack: true
-        };
-
-      }
-
-    }
-
-
-    return {
-      artist,
-      title
-    };
-
-  }
-
-
-  /*
-   * Reclame/insert/praat-event:
-   * vorige song nooit terughalen.
-   */
-
-  if (
-    title ||
-    current.cue_time_start ||
-    current.ad_type
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  return null;
-
-}
-
-
-/* =========================================================
-   METADATA ROUTER
-   ========================================================= */
-
-async function resolveProvider(
+async function resolveMetadataProvider(
   provider,
   station
 ) {
@@ -6418,12 +6421,10 @@ async function resolveProvider(
 
 
 /* =========================================================
-   REFRESH TRACK METADATA
+   REFRESH TRACK
    ========================================================= */
 
-async function refreshMetadata(
-  showLoading = false
-) {
+async function refreshMetadata() {
 
   if (
     document.visibilityState ===
@@ -6436,7 +6437,7 @@ async function refreshMetadata(
 
 
   if (
-    isTrackSuppressed()
+    isContentSuppressed()
   ) {
 
     clearTrack();
@@ -6461,16 +6462,6 @@ async function refreshMetadata(
 
 
   if (
-    showLoading &&
-    !currentTrack.title
-  ) {
-
-    setTrackLoading();
-
-  }
-
-
-  if (
     !station.metadata?.length
   ) {
 
@@ -6479,6 +6470,10 @@ async function refreshMetadata(
     return;
 
   }
+
+
+  let resolved =
+    false;
 
 
   for (
@@ -6501,7 +6496,7 @@ async function refreshMetadata(
     try {
 
       const result =
-        await resolveProvider(
+        await resolveMetadataProvider(
           provider,
           station
         );
@@ -6534,16 +6529,21 @@ async function refreshMetadata(
         result?.title
       ) {
 
-        if (
-          setTrack(
-            result.artist || "",
-            result.title
-          )
-        ) {
+        setTrack(
+          result.artist || "",
+          result.title
+        );
 
-          return;
 
-        }
+        return;
+
+      }
+
+
+      if (result) {
+
+        resolved =
+          true;
 
       }
 
@@ -6555,10 +6555,23 @@ async function refreshMetadata(
 
 
   if (
+    !resolved &&
+    currentTrack.title &&
+    Date.now() -
+      currentTrackUpdatedAt >
+      TRACK_STALE_MS
+  ) {
+
+    clearTrack();
+
+  }
+
+
+  if (
     !currentTrack.title
   ) {
 
-    setTrackUnavailable();
+    clearTrack();
 
   }
 
@@ -6566,39 +6579,86 @@ async function refreshMetadata(
 
 
 /* =========================================================
-   PROGRAM PROVIDERS
+   PROGRAM PARSERS
    ========================================================= */
 
-async function fetchProgramDocument(
-  url
+function cleanProgramValue(
+  value,
+  station
 ) {
 
-  const html =
-    await fetchTextSmart(
-      url,
-      true
+  let text =
+    cleanText(
+      value
     );
 
 
-  return new DOMParser()
-    .parseFromString(
-      html,
-      "text/html"
+  if (!text) {
+
+    return "";
+
+  }
+
+
+  text =
+    text.replace(
+      /^nu live:\s*/i,
+      ""
     );
+
+
+  text =
+    text.replace(
+      /^nu live\s*/i,
+      ""
+    );
+
+
+  text =
+    text.replace(
+      /^now on air[:\s]*/i,
+      ""
+    );
+
+
+  if (
+    isInvalidProgram(
+      text
+    )
+  ) {
+
+    return "";
+
+  }
+
+
+  if (
+    station &&
+    text.toLowerCase() ===
+      station.name.toLowerCase()
+  ) {
+
+    return "";
+
+  }
+
+
+  return text;
 
 }
 
 
 /* ---------------------------------------------------------
-   NPO
+   NPO LIVE
    --------------------------------------------------------- */
 
 async function getNpoLiveProgram(
-  provider
+  provider,
+  station
 ) {
 
   const doc =
-    await fetchProgramDocument(
+    await fetchDocument(
       provider.url
     );
 
@@ -6610,57 +6670,143 @@ async function getNpoLiveProgram(
 
 
   for (
-    const line
-    of lines
+    let i = 0;
+    i < lines.length;
+    i++
   ) {
 
-    const match =
+    const line =
+      lines[i];
+
+
+    const inline =
       line.match(
-        /Nu Live:\s*(.+)$/i
-      );
-
-
-    if (!match) {
-      continue;
-    }
-
-
-    let value =
-      cleanText(
-        match[1]
-      );
-
-
-    /*
-     * "Programma - presentator"
-     */
-
-    const separator =
-      value.indexOf(
-        " - "
+        /^nu live:\s*(.+)$/i
       );
 
 
     if (
-      separator > 0
+      inline?.[1]
     ) {
 
-      value =
-        cleanText(
-          value.slice(
-            0,
-            separator
-          )
+      const result =
+        cleanProgramValue(
+          inline[1],
+          station
         );
 
+
+      if (result) {
+
+        return result;
+
+      }
+
     }
 
 
-    if (value) {
+    if (
+      /^nu live:?$/i.test(
+        line
+      )
+    ) {
 
-      return value;
+      for (
+        let j =
+          i + 1;
+
+        j <
+          Math.min(
+            lines.length,
+            i + 8
+          );
+
+        j++
+      ) {
+
+        const candidate =
+          cleanProgramValue(
+            lines[j],
+            station
+          );
+
+
+        if (
+          candidate &&
+          !/^(luister|kijk|playlist|volume)/i
+            .test(candidate)
+        ) {
+
+          return candidate;
+
+        }
+
+      }
 
     }
+
+  }
+
+
+  return "";
+
+}
+
+
+/* ---------------------------------------------------------
+   NPO RADIO 5
+   --------------------------------------------------------- */
+
+async function getNpo5Program(
+  provider,
+  station
+) {
+
+  const doc =
+    await fetchDocument(
+      provider.url
+    );
+
+
+  const headings =
+    documentHeadings(
+      doc,
+      "h2"
+    );
+
+
+  for (
+    const heading
+    of headings
+  ) {
+
+    const candidate =
+      cleanProgramValue(
+        heading,
+        station
+      );
+
+
+    if (
+      !candidate
+    ) {
+
+      continue;
+
+    }
+
+
+    if (
+      /^(nieuws|artikelen|podcasts|muziek|playlist|gemist|meer van)/i
+        .test(candidate)
+    ) {
+
+      continue;
+
+    }
+
+
+    return candidate;
 
   }
 
@@ -6680,48 +6826,61 @@ async function getTalpaProgram(
 ) {
 
   const doc =
-    await fetchProgramDocument(
+    await fetchDocument(
       provider.url
     );
 
 
-  const headings =
-    documentHeadings(
+  const lines =
+    documentLines(
       doc
     );
 
 
-  const skip = [
-    station.name,
-    "Radio 538",
-    "Radio 10",
-    "Sky Radio",
-    "Playlist",
-    "Programmering",
-    "Overzicht"
-  ]
-  .map(
-    value =>
-      value.toLowerCase()
-  );
+  const start =
+    lines.findIndex(
+      line =>
+        /^nu live$/i.test(
+          line
+        )
+    );
+
+
+  if (
+    start < 0
+  ) {
+
+    return "";
+
+  }
+
+
+  const skip =
+    /^(kijk live|luister live|stuur bericht|volume|playlist|programmering|radio|home)$/i;
 
 
   for (
-    const heading
-    of headings.slice(
-      0,
-      12
-    )
+    let i =
+      start + 1;
+
+    i <
+      Math.min(
+        lines.length,
+        start + 20
+      );
+
+    i++
   ) {
 
-    const lower =
-      heading.toLowerCase();
+    const line =
+      lines[i];
 
 
     if (
-      skip.includes(
-        lower
-      )
+      skip.test(line) ||
+      /^\d{1,2}:\d{2}/
+        .test(line) ||
+      /^elke\s/i.test(line)
     ) {
 
       continue;
@@ -6729,19 +6888,18 @@ async function getTalpaProgram(
     }
 
 
-    if (
-      /laatste|snel naar|contact|nieuws|acties|luister ook|concert/i
-        .test(
-          heading
-        )
-    ) {
+    const candidate =
+      cleanProgramValue(
+        line,
+        station
+      );
 
-      continue;
+
+    if (candidate) {
+
+      return candidate;
 
     }
-
-
-    return heading;
 
   }
 
@@ -6761,118 +6919,32 @@ async function getMediahuisProgram(
 ) {
 
   const doc =
-    await fetchProgramDocument(
+    await fetchDocument(
       provider.url
     );
 
 
   const headings =
     documentHeadings(
-      doc
+      doc,
+      "h2"
     );
-
-
-  const stopWords =
-    [
-      station.name.toLowerCase(),
-      "eerder op",
-      "radiozenders",
-      "thema stations",
-      "acties",
-      "highlights",
-      "shows",
-      "ontdek",
-      "playlist"
-    ];
 
 
   for (
     const heading
-    of headings.slice(
-      0,
-      10
-    )
+    of headings
   ) {
 
-    const lower =
-      heading.toLowerCase();
+    const candidate =
+      cleanProgramValue(
+        heading,
+        station
+      );
 
 
     if (
-      stopWords.some(
-        word =>
-          lower === word ||
-          lower.startsWith(
-            word + " "
-          )
-      )
-    ) {
-
-      continue;
-
-    }
-
-
-    return heading;
-
-  }
-
-
-  return "";
-
-}
-
-
-/* ---------------------------------------------------------
-   KINK PROGRAM
-   --------------------------------------------------------- */
-
-async function getKinkProgram(
-  provider
-) {
-
-  const doc =
-    await fetchProgramDocument(
-      provider.url
-    );
-
-
-  const headings =
-    documentHeadings(
-      doc
-    );
-
-
-  const index =
-    headings.findIndex(
-      heading =>
-        /^now on air/i.test(
-          heading
-        )
-    );
-
-
-  if (
-    index < 0
-  ) {
-
-    return "";
-
-  }
-
-
-  for (
-    const heading
-    of headings.slice(
-      index + 1,
-      index + 5
-    )
-  ) {
-
-    if (
-      /^stuur ons/i.test(
-        heading
-      )
+      !candidate
     ) {
 
       continue;
@@ -6881,9 +6953,8 @@ async function getKinkProgram(
 
 
     if (
-      /^nu op kink$/i.test(
-        heading
-      )
+      /^(eerder op|meer van|nieuws|acties|win|ontdek|playlist|programma's|programma’s)/i
+        .test(candidate)
     ) {
 
       continue;
@@ -6891,7 +6962,7 @@ async function getKinkProgram(
     }
 
 
-    return heading;
+    return candidate;
 
   }
 
@@ -6906,11 +6977,75 @@ async function getKinkProgram(
    --------------------------------------------------------- */
 
 async function getBnrProgram(
-  provider
+  provider,
+  station
 ) {
 
   const doc =
-    await fetchProgramDocument(
+    await fetchDocument(
+      provider.url
+    );
+
+
+  const headings =
+    documentHeadings(
+      doc,
+      "h3"
+    );
+
+
+  for (
+    const heading
+    of headings
+  ) {
+
+    const candidate =
+      cleanProgramValue(
+        heading,
+        station
+      );
+
+
+    if (
+      !candidate
+    ) {
+
+      continue;
+
+    }
+
+
+    if (
+      /^(luister live|kijk live|nieuws)/i
+        .test(candidate)
+    ) {
+
+      continue;
+
+    }
+
+
+    return candidate;
+
+  }
+
+
+  return "";
+
+}
+
+
+/* ---------------------------------------------------------
+   KINK
+   --------------------------------------------------------- */
+
+async function getKinkProgram(
+  provider,
+  station
+) {
+
+  const doc =
+    await fetchDocument(
       provider.url
     );
 
@@ -6921,204 +7056,54 @@ async function getBnrProgram(
     );
 
 
-  const marker =
+  const start =
     lines.findIndex(
       line =>
-        /^nu op de radio$/i.test(
+        /^now on air\b/i.test(
           line
         )
     );
 
 
-  const area =
-    lines.slice(
-      Math.max(
-        0,
-        marker
-      ),
-      Math.max(
-        0,
-        marker
-      ) + 35
-    );
-
-
-  for (
-    const line
-    of area
+  if (
+    start < 0
   ) {
 
-    const match =
-      line.match(
-        /^(.+?)\s*\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\s*(?:uur)?$/i
-      );
-
-
-    if (
-      match
-    ) {
-
-      return cleanText(
-        match[1]
-      );
-
-    }
+    return "";
 
   }
 
 
-  return "";
-
-}
-
-
-/* ---------------------------------------------------------
-   VRT
-   --------------------------------------------------------- */
-
-async function getVrtProgram(
-  provider,
-  station
-) {
-
-  const doc =
-    await fetchProgramDocument(
-      provider.url
-    );
-
-
-  const headings =
-    documentHeadings(
-      doc
-    );
-
-
-  const stationNames = [
-
-    station.name,
-
-    "Radio 1",
-    "Radio 2",
-    "Studio Brussel",
-    "MNM",
-    "Klara",
-    "De Tijdloze"
-
-  ]
-  .map(
-    value =>
-      value.toLowerCase()
-  );
-
-
   for (
-    const heading
-    of headings.slice(
-      0,
-      10
-    )
+    let i =
+      start + 1;
+
+    i <
+      Math.min(
+        lines.length,
+        start + 5
+      );
+
+    i++
   ) {
 
-    const lower =
-      heading.toLowerCase();
+    const candidate =
+      cleanProgramValue(
+        lines[i],
+        station
+      );
 
 
     if (
-      stationNames.includes(
-        lower
+      candidate &&
+      !/^nu op kink$/i.test(
+        candidate
       )
     ) {
 
-      continue;
+      return candidate;
 
     }
-
-
-    if (
-      /^live op /i.test(
-        heading
-      )
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      /mobiele app|nieuwsbrief/i
-        .test(
-          heading
-        )
-    ) {
-
-      continue;
-
-    }
-
-
-    return heading;
-
-  }
-
-
-  return "";
-
-}
-
-
-/* ---------------------------------------------------------
-   WILLY
-   --------------------------------------------------------- */
-
-async function getWillyProgram(
-  provider
-) {
-
-  const doc =
-    await fetchProgramDocument(
-      provider.url
-    );
-
-
-  const headings =
-    documentHeadings(
-      doc
-    );
-
-
-  for (
-    const heading
-    of headings.slice(
-      0,
-      8
-    )
-  ) {
-
-    if (
-      /^willy$/i.test(
-        heading
-      )
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      /luister|nieuws|best of/i
-        .test(
-          heading
-        )
-    ) {
-
-      continue;
-
-    }
-
-
-    return heading;
 
   }
 
@@ -7144,11 +7129,20 @@ async function resolveProgram(
     case "npo-live":
 
       return await getNpoLiveProgram(
-        provider
+        provider,
+        station
       );
 
 
-    case "talpa":
+    case "npo5-home":
+
+      return await getNpo5Program(
+        provider,
+        station
+      );
+
+
+    case "talpa-home":
 
       return await getTalpaProgram(
         provider,
@@ -7156,9 +7150,17 @@ async function resolveProgram(
       );
 
 
-    case "mediahuis":
+    case "mediahuis-home":
 
       return await getMediahuisProgram(
+        provider,
+        station
+      );
+
+
+    case "bnr":
+
+      return await getBnrProgram(
         provider,
         station
       );
@@ -7167,29 +7169,8 @@ async function resolveProgram(
     case "kink":
 
       return await getKinkProgram(
-        provider
-      );
-
-
-    case "bnr":
-
-      return await getBnrProgram(
-        provider
-      );
-
-
-    case "vrt":
-
-      return await getVrtProgram(
         provider,
         station
-      );
-
-
-    case "willy":
-
-      return await getWillyProgram(
-        provider
       );
 
 
@@ -7212,6 +7193,17 @@ async function refreshProgram() {
     document.visibilityState ===
     "hidden"
   ) {
+
+    return;
+
+  }
+
+
+  if (
+    isContentSuppressed()
+  ) {
+
+    clearProgram();
 
     return;
 
@@ -7264,17 +7256,30 @@ async function refreshProgram() {
     }
 
 
-    if (
-      value
-    ) {
+    if (value) {
 
       setProgram(
         value
       );
 
+      return;
+
     }
 
-    else {
+
+    if (
+      currentProgram &&
+      Date.now() -
+        currentProgramUpdatedAt >
+        PROGRAM_STALE_MS
+    ) {
+
+      clearProgram();
+
+    }
+
+
+    if (!currentProgram) {
 
       clearProgram();
 
@@ -7288,7 +7293,11 @@ async function refreshProgram() {
       generation ===
         programGeneration &&
       stationIndex ===
-        currentIndex
+        currentIndex &&
+      currentProgram &&
+      Date.now() -
+        currentProgramUpdatedAt >
+        PROGRAM_STALE_MS
     ) {
 
       clearProgram();
@@ -7459,8 +7468,7 @@ function scoreWikipediaArtist(
     );
 
 
-  let score =
-    0;
+  let score = 0;
 
 
   if (
@@ -7478,18 +7486,14 @@ function scoreWikipediaArtist(
 
 
   if (
-    title.includes(
-      wanted
-    )
+    title.includes(wanted)
   ) {
     score += 55;
   }
 
 
   if (
-    snippet.includes(
-      wanted
-    )
+    snippet.includes(wanted)
   ) {
     score += 20;
   }
@@ -7539,8 +7543,7 @@ async function findWikipediaArtist(
   }
 
 
-  let best =
-    null;
+  let best = null;
 
 
   for (
@@ -7669,13 +7672,11 @@ function scoreWikipediaTrack(
     );
 
 
-  let score =
-    0;
+  let score = 0;
 
 
   if (
-    titleBase ===
-    wantedTrack
+    titleBase === wantedTrack
   ) {
     score += 70;
   }
@@ -7775,20 +7776,21 @@ async function findWikipediaTrack(
   }
 
 
-  let best =
-    null;
+  let best = null;
 
 
   const searches = [
 
     {
       language: "nl",
+
       query:
         `"${title}" "${artist}" nummer`
     },
 
     {
       language: "en",
+
       query:
         `"${title}" "${artist}" song`
     }
@@ -7893,7 +7895,9 @@ function applyWikipediaLink(
 ) {
 
   if (!result) {
+
     return;
+
   }
 
 
@@ -7999,19 +8003,17 @@ async function updateWikipediaLinks(
 
 
 /* =========================================================
-   TIMERS
+   PERIODIC REFRESH
    ========================================================= */
 
-setInterval(
+window.setInterval(
   () =>
-    refreshMetadata(
-      false
-    ),
+    refreshMetadata(),
   METADATA_REFRESH
 );
 
 
-setInterval(
+window.setInterval(
   () =>
     refreshProgram(),
   PROGRAM_REFRESH
@@ -8027,13 +8029,9 @@ document.addEventListener(
       "visible"
     ) {
 
-      refreshMetadata(
-        false
-      );
-
+      refreshMetadata();
 
       refreshProgram();
-
 
       updateSleepTimer();
 
@@ -8044,7 +8042,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   SLEEP
+   SLEEP TIMER
    ========================================================= */
 
 function openSleepMenu() {
@@ -8292,7 +8290,7 @@ function updateSleepTimer() {
 }
 
 
-setInterval(
+window.setInterval(
   updateSleepTimer,
   1000
 );
@@ -8302,14 +8300,31 @@ setInterval(
    NEXT / PREVIOUS
    ========================================================= */
 
-function nextStation() {
+function moveStation(
+  direction
+) {
 
   const order =
-    getDisplayOrder()
+    getVisibleDisplayOrder()
       .map(
         item =>
           item.index
       );
+
+
+  /*
+   * Beide landen ingeklapt:
+   * niet naar een verborgen station
+   * navigeren.
+   */
+
+  if (
+    !order.length
+  ) {
+
+    return;
+
+  }
 
 
   const position =
@@ -8318,14 +8333,54 @@ function nextStation() {
     );
 
 
+  let target;
+
+
+  /*
+   * Huidige station zit in een
+   * ingeklapt land.
+   */
+
+  if (
+    position < 0
+  ) {
+
+    target =
+      direction > 0
+        ? order[0]
+        : order[
+            order.length - 1
+          ];
+
+  }
+
+  else {
+
+    target =
+      order[
+        (
+          position +
+          direction +
+          order.length
+        ) %
+        order.length
+      ];
+
+  }
+
+
   selectStation(
-    order[
-      (
-        position + 1
-      ) %
-      order.length
-    ],
+    target,
     !audio.paused
+  );
+
+}
+
+
+function nextStation() {
+
+  moveStation(
+    1
   );
 
 }
@@ -8333,30 +8388,8 @@ function nextStation() {
 
 function previousStation() {
 
-  const order =
-    getDisplayOrder()
-      .map(
-        item =>
-          item.index
-      );
-
-
-  const position =
-    order.indexOf(
-      currentIndex
-    );
-
-
-  selectStation(
-    order[
-      (
-        position -
-        1 +
-        order.length
-      ) %
-      order.length
-    ],
-    !audio.paused
+  moveStation(
+    -1
   );
 
 }
@@ -8526,7 +8559,8 @@ if (
     .mediaSession
     .setActionHandler(
       "play",
-      play
+      () =>
+        play()
     );
 
 
@@ -8534,7 +8568,8 @@ if (
     .mediaSession
     .setActionHandler(
       "pause",
-      pause
+      () =>
+        pause()
     );
 
 
@@ -8542,7 +8577,8 @@ if (
     .mediaSession
     .setActionHandler(
       "nexttrack",
-      nextStation
+      () =>
+        nextStation()
     );
 
 
@@ -8550,7 +8586,8 @@ if (
     .mediaSession
     .setActionHandler(
       "previoustrack",
-      previousStation
+      () =>
+        previousStation()
     );
 
 }
@@ -8581,10 +8618,7 @@ window.addEventListener(
         : "Live";
 
 
-    refreshMetadata(
-      false
-    );
-
+    refreshMetadata();
 
     refreshProgram();
 
@@ -8652,9 +8686,7 @@ function initialise() {
 
   updateSleepTimer();
 
-  refreshMetadata(
-    true
-  );
+  refreshMetadata();
 
   refreshProgram();
 
