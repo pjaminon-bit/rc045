@@ -154,10 +154,6 @@
     }
 
 
-    /* =========================================================
-       HEADER
-       ========================================================= */
-
     header {
       display: flex;
       align-items: center;
@@ -203,10 +199,6 @@
     }
 
 
-    /* =========================================================
-       MAIN
-       ========================================================= */
-
     main {
       flex: 1;
 
@@ -215,10 +207,6 @@
       justify-content: center;
     }
 
-
-    /* =========================================================
-       PLAYER
-       ========================================================= */
 
     .player {
       display: grid;
@@ -236,10 +224,6 @@
         clamp(42px, 8vh, 78px);
     }
 
-
-    /* =========================================================
-       ARTWORK
-       ========================================================= */
 
     .artwork {
       position: relative;
@@ -405,10 +389,6 @@
     }
 
 
-    /* =========================================================
-       INFO
-       ========================================================= */
-
     .player-info {
       min-width: 0;
     }
@@ -430,10 +410,6 @@
       text-wrap: balance;
     }
 
-
-    /* =========================================================
-       PROGRAM
-       ========================================================= */
 
     .program-title {
       width: fit-content;
@@ -457,10 +433,6 @@
       white-space: nowrap;
     }
 
-
-    /* =========================================================
-       TRACK
-       ========================================================= */
 
     .track {
       margin-top: 14px;
@@ -561,10 +533,6 @@
       opacity: .9;
     }
 
-
-    /* =========================================================
-       CONTROLS
-       ========================================================= */
 
     .controls {
       display: flex;
@@ -710,8 +678,6 @@
     }
 
 
-    /* MUTE */
-
     .mute-button.muted {
       color: #fff;
 
@@ -744,8 +710,6 @@
       display: block;
     }
 
-
-    /* VOLUME */
 
     .volume-slider {
       flex: 1;
@@ -803,8 +767,6 @@
         var(--text);
     }
 
-
-    /* SLEEP TIMER */
 
     .sleep-wrap {
       position: relative;
@@ -899,10 +861,6 @@
         var(--panel-hover);
     }
 
-
-    /* =========================================================
-       COUNTRIES
-       ========================================================= */
 
     .station-groups {
       display: grid;
@@ -1073,10 +1031,6 @@
       gap: 12px;
     }
 
-
-    /* =========================================================
-       STATIONS
-       ========================================================= */
 
     .station {
       position: relative;
@@ -1284,10 +1238,6 @@
     }
 
 
-    /* =========================================================
-       TABLET
-       ========================================================= */
-
     @media (max-width: 760px) {
 
       .app {
@@ -1369,10 +1319,6 @@
       }
     }
 
-
-    /* =========================================================
-       MOBILE
-       ========================================================= */
 
     @media (max-width: 420px) {
 
@@ -1747,7 +1693,8 @@ const REQUEST_TIMEOUT = 6500;
 
 const TRACK_STALE_MS = 90000;
 
-const PROGRAM_STALE_MS = 10 * 60 * 1000;
+const PROGRAM_STALE_MS =
+  10 * 60 * 1000;
 
 const WIKI_CACHE_KEY =
   "radio-wikipedia-cache-v1";
@@ -1791,10 +1738,6 @@ const COUNTRIES = [
    ========================================================= */
 
 const stations = [
-
-  /* =======================================================
-     NEDERLAND
-     ======================================================= */
 
   {
     id: "npo1",
@@ -2098,20 +2041,13 @@ const stations = [
     accent: "#ef3123",
     rgb: "239,49,35",
 
-    noise: [
-      "sky radio",
-      "sky radio 101 fm"
-    ],
-
     metadata: [
       {
-        type: "orb",
+        type:
+          "triton-track",
 
-        maxAgeMinutes:
-          6,
-
-        url:
-          "https://onlineradiobox.com/nl/skyradio/playlist/?lang=nl"
+        mount:
+          "SKYRADIO"
       }
     ],
 
@@ -2392,10 +2328,6 @@ const stations = [
     ]
   },
 
-
-  /* =======================================================
-     BELGIË
-     ======================================================= */
 
   {
     id: "stubru",
@@ -2869,6 +2801,13 @@ let preRollTrackGuardUntil = 0;
 let preRollGuardTimer = null;
 
 
+let playbackRequested = false;
+
+let reconnectTimer = null;
+
+let skyReconnectAttempts = 0;
+
+
 let favoriteIds =
   new Set();
 
@@ -3228,6 +3167,26 @@ async function fetchTextWithTimeout(
     );
 
   }
+
+}
+
+
+/*
+ * Direct fetch zonder AllOrigins /
+ * andere relay.
+ *
+ * Sky gebruikt dit expliciet voor
+ * de publieke Triton metadata.
+ */
+
+async function fetchTextDirect(
+  url
+) {
+
+  return await fetchTextWithTimeout(
+    url,
+    REQUEST_TIMEOUT
+  );
 
 }
 
@@ -4463,6 +4422,19 @@ function selectStation(
     !audio.paused;
 
 
+  clearTimeout(
+    reconnectTimer
+  );
+
+
+  reconnectTimer =
+    null;
+
+
+  skyReconnectAttempts =
+    0;
+
+
   currentIndex =
     index;
 
@@ -4562,6 +4534,13 @@ function selectStation(
   ) {
 
     play();
+
+  }
+
+  else {
+
+    playbackRequested =
+      false;
 
   }
 
@@ -4672,10 +4651,153 @@ function isContentSuppressed() {
 
 
 /* =========================================================
+   SKY STREAM RECOVERY
+   ========================================================= */
+
+function isSkySelected() {
+
+  return (
+    stations[currentIndex]
+      ?.id ===
+    "skyradio"
+  );
+
+}
+
+
+function cancelSkyReconnect() {
+
+  clearTimeout(
+    reconnectTimer
+  );
+
+
+  reconnectTimer =
+    null;
+
+}
+
+
+function scheduleSkyReconnect(
+  reason,
+  delay = 900
+) {
+
+  if (
+    !isSkySelected() ||
+    !playbackRequested
+  ) {
+
+    return;
+
+  }
+
+
+  cancelSkyReconnect();
+
+
+  reconnectTimer =
+    window.setTimeout(
+      async () => {
+
+        if (
+          !isSkySelected() ||
+          !playbackRequested
+        ) {
+
+          return;
+
+        }
+
+
+        /*
+         * Bij een kort stalled-event kan
+         * de browser zelf alweer hersteld
+         * zijn. Dan niets doen.
+         */
+
+        if (
+          reason === "stalled" &&
+          !audio.paused &&
+          audio.readyState >=
+            HTMLMediaElement.HAVE_FUTURE_DATA
+        ) {
+
+          return;
+
+        }
+
+
+        skyReconnectAttempts++;
+
+
+        if (
+          skyReconnectAttempts > 4
+        ) {
+
+          status.textContent =
+            "Sky Radio-verbinding verbroken";
+
+
+          return;
+
+        }
+
+
+        status.textContent =
+          "Sky Radio opnieuw verbinden…";
+
+
+        const stream =
+          stations[currentIndex]
+            .stream;
+
+
+        try {
+
+          audio.pause();
+
+
+          audio.src =
+            stream;
+
+
+          audio.load();
+
+
+          await audio.play();
+
+        }
+
+        catch {
+
+          scheduleSkyReconnect(
+            "error",
+            Math.min(
+              5000,
+              900 *
+              skyReconnectAttempts
+            )
+          );
+
+        }
+
+      },
+      delay
+    );
+
+}
+
+
+/* =========================================================
    AUDIO
    ========================================================= */
 
 async function play() {
+
+  playbackRequested =
+    true;
+
 
   status.textContent =
     "Verbinden…";
@@ -4692,8 +4814,23 @@ async function play() {
 
   catch {
 
-    status.textContent =
-      "Kan de stream niet starten";
+    if (
+      isSkySelected()
+    ) {
+
+      scheduleSkyReconnect(
+        "error",
+        1000
+      );
+
+    }
+
+    else {
+
+      status.textContent =
+        "Kan de stream niet starten";
+
+    }
 
   }
 
@@ -4704,6 +4841,13 @@ function pause(
   message =
     "Gepauzeerd"
 ) {
+
+  playbackRequested =
+    false;
+
+
+  cancelSkyReconnect();
+
 
   audio.pause();
 
@@ -4744,6 +4888,19 @@ playButton.addEventListener(
 audio.addEventListener(
   "playing",
   () => {
+
+    cancelSkyReconnect();
+
+
+    if (
+      isSkySelected()
+    ) {
+
+      skyReconnectAttempts =
+        0;
+
+    }
+
 
     document.body
       .classList
@@ -4812,8 +4969,68 @@ audio.addEventListener(
 
 
 audio.addEventListener(
+  "stalled",
+  () => {
+
+    if (
+      isSkySelected() &&
+      playbackRequested
+    ) {
+
+      status.textContent =
+        "Sky Radio buffert…";
+
+
+      scheduleSkyReconnect(
+        "stalled",
+        3000
+      );
+
+    }
+
+  }
+);
+
+
+audio.addEventListener(
+  "ended",
+  () => {
+
+    if (
+      isSkySelected() &&
+      playbackRequested
+    ) {
+
+      scheduleSkyReconnect(
+        "ended",
+        600
+      );
+
+    }
+
+  }
+);
+
+
+audio.addEventListener(
   "error",
   () => {
+
+    if (
+      isSkySelected() &&
+      playbackRequested
+    ) {
+
+      scheduleSkyReconnect(
+        "error",
+        800
+      );
+
+
+      return;
+
+    }
+
 
     status.textContent =
       "Stream tijdelijk niet beschikbaar";
@@ -5183,7 +5400,7 @@ async function getNpoMetadata(
 
 
 /* =========================================================
-   538 TRITON
+   TRITON HELPERS
    ========================================================= */
 
 function parseEpochMilliseconds(
@@ -5246,6 +5463,10 @@ function parseDurationMilliseconds(
 }
 
 
+/* =========================================================
+   538 TRITON
+   ========================================================= */
+
 async function getTritonMetadata(
   provider
 ) {
@@ -5297,16 +5518,6 @@ async function getTritonMetadata(
 
   }
 
-
-  /*
-   * Triton 538:
-   *
-   * 0 = eventtype
-   * 1 = duur
-   * 2 = starttijd epoch
-   * 3 = titel / event
-   * 4 = artiest / adverteerder
-   */
 
   const props =
     [
@@ -5417,6 +5628,189 @@ async function getTritonMetadata(
     return {
       noTrack: true
     };
+
+  }
+
+
+  return {
+    artist,
+    title
+  };
+
+}
+
+
+/* =========================================================
+   SKY RADIO DIRECT TRITON
+   ========================================================= */
+
+async function getTritonTrackMetadata(
+  provider
+) {
+
+  /*
+   * Geen AllOrigins / proxy.
+   * Rechtstreeks naar de publieke
+   * Triton endpoint.
+   */
+
+  const url =
+    "https://np.tritondigital.com/public/nowplaying" +
+    "?mountName=" +
+    encodeURIComponent(
+      provider.mount
+    ) +
+    "&numberToFetch=2" +
+    "&eventType=track" +
+    "&rnd=" +
+    Date.now();
+
+
+  const xml =
+    await fetchTextDirect(
+      url
+    );
+
+
+  const doc =
+    new DOMParser()
+      .parseFromString(
+        xml,
+        "application/xml"
+      );
+
+
+  if (
+    doc.querySelector(
+      "parsererror"
+    )
+  ) {
+
+    return null;
+
+  }
+
+
+  const block =
+    doc.querySelector(
+      "nowplaying-info"
+    );
+
+
+  if (!block) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  /*
+   * SKYRADIO eventType=track:
+   *
+   * 0 = duur (ms)
+   * 1 = starttijd epoch (ms)
+   * 2 = titel
+   * 3 = artiest
+   * 4 = ISRC
+   */
+
+  const props =
+    [
+      ...block.querySelectorAll(
+        "property"
+      )
+    ]
+    .map(
+      property =>
+        cleanText(
+          property.textContent
+        )
+    );
+
+
+  if (
+    props.length < 4
+  ) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  const duration =
+    parseDurationMilliseconds(
+      props[0]
+    );
+
+
+  const start =
+    parseEpochMilliseconds(
+      props[1]
+    );
+
+
+  const title =
+    cleanText(
+      props[2]
+    );
+
+
+  const artist =
+    cleanText(
+      props[3]
+    );
+
+
+  if (
+    !title ||
+    !artist
+  ) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  /*
+   * eventType=track geeft de laatste
+   * song terug, óók als er daarna
+   * inmiddels reclame is gestart.
+   *
+   * Daarom is het tijdvenster leidend.
+   */
+
+  if (
+    start &&
+    duration
+  ) {
+
+    const now =
+      Date.now();
+
+
+    const end =
+      start +
+      duration;
+
+
+    if (
+      now <
+        start - 4000 ||
+      now >
+        end + 7000
+    ) {
+
+      return {
+        noTrack: true
+      };
+
+    }
 
   }
 
@@ -5804,13 +6198,6 @@ function classifyOrbText(
     );
 
 
-  /*
-   * Branding zoals
-   * "Studio Brussel" of
-   * "Life is Music" mag worden
-   * overgeslagen.
-   */
-
   if (
     stationNoise
   ) {
@@ -5872,15 +6259,6 @@ function classifyOrbText(
 
   }
 
-
-  /*
-   * Onbekende niet-track-regel:
-   * waarschijnlijk presentator,
-   * praatblok of programma.
-   *
-   * Daarom niet terugvallen op
-   * een oudere track.
-   */
 
   return {
     type:
@@ -6091,12 +6469,6 @@ async function getOrbMetadata(
     }
 
 
-    /*
-     * Live-regel is alleen branding.
-     * Kijk dan alleen naar de direct
-     * daaropvolgende recente regels.
-     */
-
     return evaluateOrbTimedRows(
       rows,
       liveIndex + 1,
@@ -6107,13 +6479,6 @@ async function getOrbMetadata(
 
   }
 
-
-  /*
-   * Geen Live-regel.
-   * Alleen de allereerste actuele /
-   * voldoende recente tijdregel mag
-   * iets opleveren.
-   */
 
   return evaluateOrbTimedRows(
     rows,
@@ -6396,6 +6761,13 @@ async function resolveMetadataProvider(
       );
 
 
+    case "triton-track":
+
+      return await getTritonTrackMetadata(
+        provider
+      );
+
+
     case "orb":
 
       return await getOrbMetadata(
@@ -6551,6 +6923,7 @@ async function refreshMetadata() {
 
     catch {}
 
+
   }
 
 
@@ -6647,10 +7020,6 @@ function cleanProgramValue(
 
 }
 
-
-/* ---------------------------------------------------------
-   NPO LIVE
-   --------------------------------------------------------- */
 
 async function getNpoLiveProgram(
   provider,
@@ -6753,10 +7122,6 @@ async function getNpoLiveProgram(
 }
 
 
-/* ---------------------------------------------------------
-   NPO RADIO 5
-   --------------------------------------------------------- */
-
 async function getNpo5Program(
   provider,
   station
@@ -6815,10 +7180,6 @@ async function getNpo5Program(
 
 }
 
-
-/* ---------------------------------------------------------
-   TALPA
-   --------------------------------------------------------- */
 
 async function getTalpaProgram(
   provider,
@@ -6909,10 +7270,6 @@ async function getTalpaProgram(
 }
 
 
-/* ---------------------------------------------------------
-   MEDIAHUIS
-   --------------------------------------------------------- */
-
 async function getMediahuisProgram(
   provider,
   station
@@ -6972,10 +7329,6 @@ async function getMediahuisProgram(
 }
 
 
-/* ---------------------------------------------------------
-   BNR
-   --------------------------------------------------------- */
-
 async function getBnrProgram(
   provider,
   station
@@ -7034,10 +7387,6 @@ async function getBnrProgram(
 
 }
 
-
-/* ---------------------------------------------------------
-   KINK
-   --------------------------------------------------------- */
 
 async function getKinkProgram(
   provider,
@@ -8312,12 +8661,6 @@ function moveStation(
       );
 
 
-  /*
-   * Beide landen ingeklapt:
-   * niet naar een verborgen station
-   * navigeren.
-   */
-
   if (
     !order.length
   ) {
@@ -8335,11 +8678,6 @@ function moveStation(
 
   let target;
 
-
-  /*
-   * Huidige station zit in een
-   * ingeklapt land.
-   */
 
   if (
     position < 0
@@ -8621,6 +8959,20 @@ window.addEventListener(
     refreshMetadata();
 
     refreshProgram();
+
+
+    if (
+      isSkySelected() &&
+      playbackRequested &&
+      audio.paused
+    ) {
+
+      scheduleSkyReconnect(
+        "online",
+        500
+      );
+
+    }
 
   }
 );
