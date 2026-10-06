@@ -22,6 +22,26 @@
 
   <title>radio.</title>
 
+  <script>
+    (() => {
+      try {
+        const stored =
+          localStorage.getItem(
+            "radio-theme"
+          );
+
+        document.documentElement.dataset.theme =
+          ["light", "dark"].includes(stored)
+            ? stored
+            : "system";
+      }
+      catch {
+        document.documentElement.dataset.theme =
+          "system";
+      }
+    })();
+  </script>
+
   <style>
     :root {
       color-scheme: dark;
@@ -52,8 +72,35 @@
     }
 
 
+    :root[data-theme="light"] {
+      color-scheme: light;
+
+      --bg: #f3f5f8;
+
+      --panel: rgba(255,255,255,.72);
+      --panel-hover: rgba(255,255,255,.98);
+      --border: rgba(15,18,24,.09);
+
+      --text: #111318;
+      --muted: #6f7581;
+
+      --play-bg: #111318;
+      --play-fg: #fff;
+
+      --menu-bg: #fff;
+
+      --shadow:
+        0 26px 65px rgba(26,32,44,.13);
+    }
+
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+    }
+
+
     @media (prefers-color-scheme: light) {
-      :root {
+      :root[data-theme="system"] {
         color-scheme: light;
 
         --bg: #f3f5f8;
@@ -196,6 +243,66 @@
 
       font-size: 13px;
       font-weight: 600;
+    }
+
+
+    .header-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+
+      gap: 14px;
+    }
+
+
+    .theme-switcher {
+      display: flex;
+      align-items: center;
+
+      gap: 2px;
+
+      padding: 3px;
+
+      border:
+        1px solid var(--border);
+      border-radius: 13px;
+
+      background: var(--panel);
+    }
+
+
+    .theme-option {
+      appearance: none;
+
+      min-height: 29px;
+
+      padding: 0 9px;
+
+      border: 0;
+      border-radius: 9px;
+
+      color: var(--muted);
+      background: transparent;
+
+      font-size: 11px;
+      font-weight: 700;
+
+      cursor: pointer;
+
+      transition:
+        color .16s ease,
+        background .16s ease;
+    }
+
+
+    .theme-option:hover {
+      color: var(--text);
+    }
+
+
+    .theme-option.active {
+      color: var(--text);
+      background: var(--panel-hover);
     }
 
 
@@ -1410,10 +1517,46 @@
       radio.
     </div>
 
-    <div
-      id="stationCount"
-      class="station-count"
-    ></div>
+    <div class="header-tools">
+
+      <div
+        id="stationCount"
+        class="station-count"
+      ></div>
+
+      <div
+        class="theme-switcher"
+        role="group"
+        aria-label="Thema"
+      >
+
+        <button
+          class="theme-option"
+          type="button"
+          data-theme-choice="system"
+        >
+          Systeem
+        </button>
+
+        <button
+          class="theme-option"
+          type="button"
+          data-theme-choice="light"
+        >
+          Licht
+        </button>
+
+        <button
+          class="theme-option"
+          type="button"
+          data-theme-choice="dark"
+        >
+          Donker
+        </button>
+
+      </div>
+
+    </div>
 
   </header>
 
@@ -1703,18 +1846,6 @@ const WIKI_CACHE_TTL =
   30 * 24 * 60 * 60 * 1000;
 
 
-const CORS_RELAYS = [
-
-  url =>
-    "https://api.allorigins.win/raw?url=" +
-    encodeURIComponent(url),
-
-  url =>
-    "https://corsproxy.io/?url=" +
-    encodeURIComponent(url)
-
-];
-
 
 const COUNTRIES = [
 
@@ -1757,19 +1888,18 @@ const stations = [
 
     metadata: [
       {
-        type: "npo",
-        currentWindow: true,
+        type: "npo-mini",
 
-        url:
-          "https://www.nporadio1.nl/api/tracks"
+        channel:
+          "npo-radio-1"
       }
     ],
 
     program: {
-      type: "npo-live",
+      type: "npo-mini",
 
-      url:
-        "https://www.nporadio1.nl/live"
+      channel:
+        "npo-radio-1"
     }
   },
 
@@ -1792,19 +1922,18 @@ const stations = [
 
     metadata: [
       {
-        type: "npo",
-        currentWindow: true,
+        type: "npo-mini",
 
-        url:
-          "https://www.nporadio2.nl/api/tracks"
+        channel:
+          "npo-radio-2"
       }
     ],
 
     program: {
-      type: "npo-live",
+      type: "npo-mini",
 
-      url:
-        "https://www.nporadio2.nl/live"
+      channel:
+        "npo-radio-2"
     }
   },
 
@@ -1827,19 +1956,18 @@ const stations = [
 
     metadata: [
       {
-        type: "npo",
-        currentWindow: true,
+        type: "npo-mini",
 
-        url:
-          "https://www.npo3fm.nl/api/tracks"
+        channel:
+          "npo-3fm"
       }
     ],
 
     program: {
-      type: "npo-live",
+      type: "npo-mini",
 
-      url:
-        "https://www.npo3fm.nl/live"
+      channel:
+        "npo-3fm"
     }
   },
 
@@ -1862,19 +1990,18 @@ const stations = [
 
     metadata: [
       {
-        type: "npo",
-        currentWindow: true,
+        type: "npo-mini",
 
-        url:
-          "https://www.nporadio5.nl/api/tracks"
+        channel:
+          "npo-radio-5"
       }
     ],
 
     program: {
-      type: "npo5-home",
+      type: "npo-mini",
 
-      url:
-        "https://www.nporadio5.nl/"
+      channel:
+        "npo-radio-5"
     }
   },
 
@@ -1897,19 +2024,18 @@ const stations = [
 
     metadata: [
       {
-        type: "npo",
-        currentWindow: true,
+        type: "npo-mini",
 
-        url:
-          "https://www.funx.nl/api/tracks"
+        channel:
+          "npo-funx"
       }
     ],
 
     program: {
-      type: "npo-live",
+      type: "npo-mini",
 
-      url:
-        "https://www.funx.nl/live"
+      channel:
+        "npo-funx"
     }
   },
 
@@ -1932,7 +2058,7 @@ const stations = [
 
     metadata: [
       {
-        type: "triton",
+        type: "triton-track",
 
         mount:
           "RADIO538"
@@ -1972,16 +2098,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
-
-        order:
-          "title-artist",
-
-        maxAgeMinutes:
-          6,
+        type: "dpg",
 
         url:
-          "https://onlineradiobox.com/nl/qmusic/playlist/?lang=nl"
+          "https://api.qmusic.nl/2.4/tracks/plays?limit=1&next=true"
       }
     ]
   },
@@ -2010,16 +2130,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
-
-        order:
-          "title-artist",
-
-        maxAgeMinutes:
-          6,
+        type: "dpg",
 
         url:
-          "https://onlineradiobox.com/nl/joenl/playlist/?lang=nl"
+          "https://api.joe.nl/2.4/tracks/plays?limit=1&next=true"
       }
     ]
   },
@@ -2043,8 +2157,7 @@ const stations = [
 
     metadata: [
       {
-        type:
-          "triton-track",
+        type: "triton-track",
 
         mount:
           "SKYRADIO"
@@ -2110,13 +2223,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "triton-track",
 
-        maxAgeMinutes:
-          6,
-
-        url:
-          "https://onlineradiobox.com/nl/raveron/playlist/?lang=nl"
+        mount:
+          "VERONICA"
       }
     ],
 
@@ -2155,13 +2265,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "triton-track",
 
-        maxAgeMinutes:
-          6,
-
-        url:
-          "https://onlineradiobox.com/nl/radio10/playlist/?lang=nl"
+        mount:
+          "RADIO10"
       }
     ],
 
@@ -2197,13 +2304,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "triton-track",
 
-        maxAgeMinutes:
-          6,
-
-        url:
-          "https://onlineradiobox.com/nl/100pnl/playlist/?lang=nl"
+        mount:
+          "100PNL_MP3"
       }
     ],
 
@@ -2234,19 +2338,12 @@ const stations = [
 
     metadata: [
       {
-        type: "kink",
+        type: "triton-track",
 
-        url:
-          "https://kink.nl/player?stream=stream.kink"
+        mount:
+          "KINK"
       }
-    ],
-
-    program: {
-      type: "kink",
-
-      url:
-        "https://kink.nl/player?stream=stream.kink"
-    }
+    ]
   },
 
 
@@ -2274,13 +2371,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "triton-track",
 
-        maxAgeMinutes:
-          6,
-
-        url:
-          "https://onlineradiobox.com/nl/slamfm/playlist/?lang=nl"
+        mount:
+          "SLAM_MP3"
       }
     ],
 
@@ -2317,13 +2411,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
-
-        maxAgeMinutes:
-          10,
+        type: "arrow",
 
         url:
-          "https://onlineradiobox.com/nl/arrowclassicrock/playlist/?lang=nl"
+          "https://player.arrow.nl/index.php?c=Arrow%20Classic%20Rock"
       }
     ]
   },
@@ -2353,13 +2444,13 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "vrt",
+
+        pageId:
+          "/vrtmax/livestream/audio/studio-brussel/",
 
         maxAgeMinutes:
-          6,
-
-        url:
-          "https://onlineradiobox.com/be/studiobrussel/playlist/?lang=nl"
+          20
       }
     ]
   },
@@ -2388,13 +2479,13 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "vrt",
+
+        pageId:
+          "/vrtmax/livestream/audio/de-tijdloze/",
 
         maxAgeMinutes:
-          8,
-
-        url:
-          "https://onlineradiobox.com/be/studiobrusseldetijdloze/playlist/?lang=nl"
+          25
       }
     ]
   },
@@ -2425,13 +2516,13 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "vrt",
+
+        pageId:
+          "/vrtmax/livestream/audio/mnm/",
 
         maxAgeMinutes:
-          6,
-
-        url:
-          "https://onlineradiobox.com/be/mnm/playlist/?lang=nl"
+          20
       }
     ]
   },
@@ -2461,13 +2552,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
-
-        maxAgeMinutes:
-          6,
+        type: "dpg",
 
         url:
-          "https://onlineradiobox.com/be/qmusic/playlist/?lang=nl"
+          "https://api.qmusic.be/2.4/tracks/plays?limit=1&next=true"
       }
     ]
   },
@@ -2496,13 +2584,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
-
-        maxAgeMinutes:
-          8,
+        type: "dpg",
 
         url:
-          "https://onlineradiobox.com/be/willy/playlist/?lang=nl"
+          "https://api.willy.radio/2.4/tracks/plays?limit=1&next=true"
       }
     ]
   },
@@ -2532,16 +2617,13 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "vrt",
 
-        format:
-          "classical",
+        pageId:
+          "/vrtmax/livestream/audio/klara/",
 
         maxAgeMinutes:
-          15,
-
-        url:
-          "https://onlineradiobox.com/be/klara/playlist/?lang=nl"
+          90
       }
     ]
   },
@@ -2571,13 +2653,13 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "vrt",
+
+        pageId:
+          "/vrtmax/livestream/audio/radio1/",
 
         maxAgeMinutes:
-          8,
-
-        url:
-          "https://onlineradiobox.com/be/r1/playlist/?lang=nl"
+          25
       }
     ]
   },
@@ -2611,13 +2693,13 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
+        type: "vrt",
+
+        pageId:
+          "/vrtmax/livestream/audio/radio2-limburg/",
 
         maxAgeMinutes:
-          8,
-
-        url:
-          "https://onlineradiobox.com/be/2limbourg/playlist/?lang=nl"
+          25
       }
     ]
   },
@@ -2646,13 +2728,10 @@ const stations = [
 
     metadata: [
       {
-        type: "orb",
-
-        maxAgeMinutes:
-          6,
+        type: "dpg",
 
         url:
-          "https://onlineradiobox.com/be/joe/playlist/?lang=nl"
+          "https://api.joe.be/2.4/tracks/plays?limit=1&next=true"
       }
     ]
   }
@@ -2711,6 +2790,13 @@ const dynamicFavicon =
 
 const themeColor =
   document.getElementById("themeColor");
+
+const themeButtons =
+  [
+    ...document.querySelectorAll(
+      "[data-theme-choice]"
+    )
+  ];
 
 const sleepButton =
   document.getElementById("sleepButton");
@@ -2805,7 +2891,7 @@ let playbackRequested = false;
 
 let reconnectTimer = null;
 
-let skyReconnectAttempts = 0;
+let reconnectAttempts = 0;
 
 
 let favoriteIds =
@@ -3029,7 +3115,7 @@ function cleanText(
 
   const invalid = [
 
-    /^unknown$/i,
+    /^\[?unknown\]?$/i,
     /^undefined$/i,
     /^null$/i,
 
@@ -3172,11 +3258,8 @@ async function fetchTextWithTimeout(
 
 
 /*
- * Direct fetch zonder AllOrigins /
- * andere relay.
- *
- * Sky gebruikt dit expliciet voor
- * de publieke Triton metadata.
+ * Alle metadata-aanvragen gaan rechtstreeks
+ * naar de bron. Geen publieke CORS-relays.
  */
 
 async function fetchTextDirect(
@@ -3219,28 +3302,9 @@ async function fetchTextSmart(
   }
 
 
-  try {
-
-    return await fetchTextWithTimeout(
-      target,
-      2200
-    );
-
-  }
-
-  catch {}
-
-
-  return await Promise.any(
-
-    CORS_RELAYS.map(
-      relay =>
-        fetchTextWithTimeout(
-          relay(target),
-          REQUEST_TIMEOUT
-        )
-    )
-
+  return await fetchTextWithTimeout(
+    target,
+    REQUEST_TIMEOUT
   );
 
 }
@@ -3256,6 +3320,83 @@ async function fetchJsonSmart(
       true
     )
   );
+
+}
+
+
+async function fetchJsonPost(
+  url,
+  payload,
+  headers = {}
+) {
+
+  const controller =
+    new AbortController();
+
+
+  const timer =
+    window.setTimeout(
+      () =>
+        controller.abort(),
+      REQUEST_TIMEOUT
+    );
+
+
+  try {
+
+    const response =
+      await fetch(
+        url,
+        {
+          method:
+            "POST",
+
+          signal:
+            controller.signal,
+
+          cache:
+            "no-store",
+
+          headers: {
+            "Accept":
+              "application/json",
+
+            "Content-Type":
+              "application/json",
+
+            ...headers
+          },
+
+          body:
+            JSON.stringify(
+              payload
+            )
+        }
+      );
+
+
+    if (
+      !response.ok
+    ) {
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
+    }
+
+
+    return await response.json();
+
+  }
+
+  finally {
+
+    clearTimeout(
+      timer
+    );
+
+  }
 
 }
 
@@ -3396,28 +3537,169 @@ function updateBrowserIdentity() {
    THEME
    ========================================================= */
 
+const THEME_KEY =
+  "radio-theme";
+
+
 const themeQuery =
   window.matchMedia(
     "(prefers-color-scheme: light)"
   );
 
 
+let themePreference =
+  document.documentElement
+    .dataset
+    .theme ||
+  "system";
+
+
+function getResolvedTheme() {
+
+  if (
+    themePreference ===
+    "system"
+  ) {
+
+    return themeQuery.matches
+      ? "light"
+      : "dark";
+
+  }
+
+
+  return themePreference;
+
+}
+
+
 function updateThemeColor() {
 
   themeColor.content =
-    themeQuery.matches
+    getResolvedTheme() ===
+    "light"
       ? "#f3f5f8"
       : "#080a0f";
 
 }
 
 
-updateThemeColor();
+function applyTheme(
+  choice,
+  persist = true
+) {
+
+  if (
+    ![
+      "system",
+      "light",
+      "dark"
+    ].includes(choice)
+  ) {
+
+    choice =
+      "system";
+
+  }
+
+
+  themePreference =
+    choice;
+
+
+  document.documentElement
+    .dataset
+    .theme =
+    choice;
+
+
+  for (
+    const button
+    of themeButtons
+  ) {
+
+    const active =
+      button.dataset
+        .themeChoice ===
+      choice;
+
+
+    button.classList.toggle(
+      "active",
+      active
+    );
+
+
+    button.setAttribute(
+      "aria-pressed",
+      active
+        ? "true"
+        : "false"
+    );
+
+  }
+
+
+  if (persist) {
+
+    try {
+
+      localStorage.setItem(
+        THEME_KEY,
+        choice
+      );
+
+    }
+    catch {}
+
+  }
+
+
+  updateThemeColor();
+
+}
+
+
+for (
+  const button
+  of themeButtons
+) {
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      applyTheme(
+        button.dataset
+          .themeChoice
+      );
+
+    }
+  );
+
+}
+
+
+applyTheme(
+  themePreference,
+  false
+);
 
 
 themeQuery.addEventListener?.(
   "change",
-  updateThemeColor
+  () => {
+
+    if (
+      themePreference ===
+      "system"
+    ) {
+
+      updateThemeColor();
+
+    }
+
+  }
 );
 
 
@@ -4422,16 +4704,10 @@ function selectStation(
     !audio.paused;
 
 
-  clearTimeout(
-    reconnectTimer
-  );
+  cancelReconnect();
 
 
-  reconnectTimer =
-    null;
-
-
-  skyReconnectAttempts =
+  reconnectAttempts =
     0;
 
 
@@ -4651,21 +4927,14 @@ function isContentSuppressed() {
 
 
 /* =========================================================
-   SKY STREAM RECOVERY
+   STREAM RECOVERY
    ========================================================= */
 
-function isSkySelected() {
-
-  return (
-    stations[currentIndex]
-      ?.id ===
-    "skyradio"
-  );
-
-}
+const MAX_RECONNECT_ATTEMPTS =
+  5;
 
 
-function cancelSkyReconnect() {
+function cancelReconnect() {
 
   clearTimeout(
     reconnectTimer
@@ -4678,14 +4947,14 @@ function cancelSkyReconnect() {
 }
 
 
-function scheduleSkyReconnect(
+function scheduleReconnect(
   reason,
   delay = 900
 ) {
 
   if (
-    !isSkySelected() ||
-    !playbackRequested
+    !playbackRequested ||
+    navigator.onLine === false
   ) {
 
     return;
@@ -4693,7 +4962,11 @@ function scheduleSkyReconnect(
   }
 
 
-  cancelSkyReconnect();
+  const stationIndex =
+    currentIndex;
+
+
+  cancelReconnect();
 
 
   reconnectTimer =
@@ -4701,20 +4974,17 @@ function scheduleSkyReconnect(
       async () => {
 
         if (
-          !isSkySelected() ||
-          !playbackRequested
+          stationIndex !==
+            currentIndex ||
+          !playbackRequested ||
+          navigator.onLine ===
+            false
         ) {
 
           return;
 
         }
 
-
-        /*
-         * Bij een kort stalled-event kan
-         * de browser zelf alweer hersteld
-         * zijn. Dan niets doen.
-         */
 
         if (
           reason === "stalled" &&
@@ -4723,20 +4993,24 @@ function scheduleSkyReconnect(
             HTMLMediaElement.HAVE_FUTURE_DATA
         ) {
 
+          reconnectAttempts =
+            0;
+
           return;
 
         }
 
 
-        skyReconnectAttempts++;
+        reconnectAttempts++;
 
 
         if (
-          skyReconnectAttempts > 4
+          reconnectAttempts >
+            MAX_RECONNECT_ATTEMPTS
         ) {
 
           status.textContent =
-            "Sky Radio-verbinding verbroken";
+            "Verbinding verbroken";
 
 
           return;
@@ -4745,7 +5019,7 @@ function scheduleSkyReconnect(
 
 
         status.textContent =
-          "Sky Radio opnieuw verbinden…";
+          "Opnieuw verbinden…";
 
 
         const stream =
@@ -4771,12 +5045,15 @@ function scheduleSkyReconnect(
 
         catch {
 
-          scheduleSkyReconnect(
+          scheduleReconnect(
             "error",
             Math.min(
-              5000,
+              6000,
               900 *
-              skyReconnectAttempts
+              Math.pow(
+                1.7,
+                reconnectAttempts
+              )
             )
           );
 
@@ -4814,23 +5091,14 @@ async function play() {
 
   catch {
 
-    if (
-      isSkySelected()
-    ) {
+    status.textContent =
+      "Stream tijdelijk niet beschikbaar";
 
-      scheduleSkyReconnect(
-        "error",
-        1000
-      );
 
-    }
-
-    else {
-
-      status.textContent =
-        "Kan de stream niet starten";
-
-    }
+    scheduleReconnect(
+      "error",
+      1000
+    );
 
   }
 
@@ -4846,7 +5114,11 @@ function pause(
     false;
 
 
-  cancelSkyReconnect();
+  cancelReconnect();
+
+
+  reconnectAttempts =
+    0;
 
 
   audio.pause();
@@ -4889,17 +5161,11 @@ audio.addEventListener(
   "playing",
   () => {
 
-    cancelSkyReconnect();
+    cancelReconnect();
 
 
-    if (
-      isSkySelected()
-    ) {
-
-      skyReconnectAttempts =
-        0;
-
-    }
+    reconnectAttempts =
+      0;
 
 
     document.body
@@ -4956,7 +5222,7 @@ audio.addEventListener(
   () => {
 
     if (
-      !audio.paused
+      playbackRequested
     ) {
 
       status.textContent =
@@ -4973,15 +5239,14 @@ audio.addEventListener(
   () => {
 
     if (
-      isSkySelected() &&
       playbackRequested
     ) {
 
       status.textContent =
-        "Sky Radio buffert…";
+        "Stream buffert…";
 
 
-      scheduleSkyReconnect(
+      scheduleReconnect(
         "stalled",
         3000
       );
@@ -4997,11 +5262,10 @@ audio.addEventListener(
   () => {
 
     if (
-      isSkySelected() &&
       playbackRequested
     ) {
 
-      scheduleSkyReconnect(
+      scheduleReconnect(
         "ended",
         600
       );
@@ -5017,11 +5281,14 @@ audio.addEventListener(
   () => {
 
     if (
-      isSkySelected() &&
       playbackRequested
     ) {
 
-      scheduleSkyReconnect(
+      status.textContent =
+        "Stream tijdelijk niet beschikbaar";
+
+
+      scheduleReconnect(
         "error",
         800
       );
@@ -5285,10 +5552,227 @@ function isHardNoTrack(
 
 
 /* =========================================================
-   NPO TRACKS
+   NPO MINIPLAYER
    ========================================================= */
 
-async function getNpoMetadata(
+const npoMiniCache =
+  new Map();
+
+
+async function getNpoMiniData(
+  provider
+) {
+
+  const channel =
+    provider.channel;
+
+
+  if (!channel) {
+
+    return null;
+
+  }
+
+
+  const cached =
+    npoMiniCache.get(
+      channel
+    );
+
+
+  if (
+    cached &&
+    Date.now() -
+      cached.at <
+      10000
+  ) {
+
+    return cached.data;
+
+  }
+
+
+  const data =
+    await fetchJsonSmart(
+      "https://www.nporadio2.nl/api/miniplayer/info?channel=" +
+      encodeURIComponent(
+        channel
+      )
+    );
+
+
+  npoMiniCache.set(
+    channel,
+    {
+      at:
+        Date.now(),
+
+      data
+    }
+  );
+
+
+  return data;
+
+}
+
+
+function parseNpoLocalDate(
+  value
+) {
+
+  const text =
+    cleanText(
+      value
+    );
+
+
+  if (!text) {
+
+    return 0;
+
+  }
+
+
+  const parsed =
+    Date.parse(
+      text.replace(
+        " ",
+        "T"
+      )
+    );
+
+
+  return Number.isFinite(parsed)
+    ? parsed
+    : 0;
+
+}
+
+
+async function getNpoMiniMetadata(
+  provider
+) {
+
+  const response =
+    await getNpoMiniData(
+      provider
+    );
+
+
+  const track =
+    response
+      ?.data
+      ?.radioTrackPlays
+      ?.data
+      ?.[0];
+
+
+  if (!track) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  const from =
+    parseNpoLocalDate(
+      track.from
+    );
+
+
+  const until =
+    parseNpoLocalDate(
+      track.until
+    );
+
+
+  const now =
+    Date.now();
+
+
+  if (
+    from &&
+    until &&
+    (
+      now < from - 5000 ||
+      now > until + 7000
+    )
+  ) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  const artist =
+    cleanText(
+      track.artist
+    );
+
+
+  const title =
+    cleanText(
+      track.song
+    );
+
+
+  if (
+    !artist ||
+    !title
+  ) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  return {
+    artist,
+    title
+  };
+
+}
+
+
+async function getNpoMiniProgram(
+  provider,
+  station
+) {
+
+  const response =
+    await getNpoMiniData(
+      provider
+    );
+
+
+  const broadcast =
+    response
+      ?.data
+      ?.radioBroadcasts
+      ?.data
+      ?.[0];
+
+
+  return cleanProgramValue(
+    broadcast?.name,
+    station
+  );
+
+}
+
+
+/* =========================================================
+   DPG TRACKS
+   ========================================================= */
+
+async function getDpgMetadata(
   provider
 ) {
 
@@ -5298,83 +5782,73 @@ async function getNpoMetadata(
     );
 
 
-  const items =
-    Array.isArray(
-      data?.data
-    )
-      ? data.data
-      : [];
+  const track =
+    data
+      ?.played_tracks
+      ?.[0];
+
+
+  if (!track) {
+
+    return null;
+
+  }
+
+
+  const title =
+    cleanText(
+      track.title
+    );
+
+
+  const artist =
+    cleanText(
+      track.artist?.name
+    );
 
 
   if (
-    provider.currentWindow
+    !title ||
+    !artist
+  ) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  const start =
+    Date.parse(
+      track.played_at ||
+      ""
+    );
+
+
+  const duration =
+    Number(
+      track.duration
+    ) * 1000;
+
+
+  if (
+    Number.isFinite(start) &&
+    Number.isFinite(duration) &&
+    duration > 0
   ) {
 
     const now =
       Date.now();
 
 
-    const current =
-      items.find(
-        item => {
-
-          const start =
-            Date.parse(
-              item.startdatetime
-            );
-
-
-          const end =
-            Date.parse(
-              item.enddatetime
-            );
-
-
-          if (
-            !Number.isFinite(start) ||
-            !Number.isFinite(end)
-          ) {
-
-            return false;
-
-          }
-
-
-          return (
-            now >=
-              start - 2500 &&
-            now <=
-              end + 2500
-          );
-
-        }
-      );
-
-
-    if (!current) {
-
-      return {
-        noTrack: true
-      };
-
-    }
-
-
-    const artist =
-      cleanText(
-        current.artist
-      );
-
-
-    const title =
-      cleanText(
-        current.title
-      );
-
-
     if (
-      !artist ||
-      !title
+      now <
+        start - 5000 ||
+      now >
+        start +
+        duration +
+        15000
     ) {
 
       return {
@@ -5383,17 +5857,456 @@ async function getNpoMetadata(
 
     }
 
+  }
+
+
+  return {
+    artist,
+    title
+  };
+
+}
+
+
+/* =========================================================
+   ARROW TRACKS
+   ========================================================= */
+
+async function getArrowMetadata(
+  provider
+) {
+
+  const data =
+    await fetchJsonSmart(
+      provider.url
+    );
+
+
+  const artist =
+    cleanText(
+      data?.artist
+    );
+
+
+  const title =
+    cleanText(
+      data?.title
+    );
+
+
+  if (
+    !artist ||
+    !title
+  ) {
+
+    return null;
+
+  }
+
+
+  const generic =
+    artist.toLowerCase() ===
+      "arrow classic rock" &&
+    /^(radio|live)$/i.test(
+      title
+    );
+
+
+  if (generic) {
 
     return {
-      artist,
-      title
+      noTrack: true
     };
 
   }
 
 
   return {
-    noTrack: true
+    artist,
+    title
+  };
+
+}
+
+
+/* =========================================================
+   VRT MAX TRACKS
+   ========================================================= */
+
+const VRT_GRAPHQL_URL =
+  "https://www.vrt.be/vrtnu-api/graphql/public/v1";
+
+
+const vrtSongListCache =
+  new Map();
+
+
+const VRT_LIVE_QUERY = `
+  query RadioLive($pageId: ID!) {
+    page(id: $pageId) {
+      __typename
+      ... on AudioLivestreamPage {
+        menu {
+          items {
+            title
+            componentId
+            active
+          }
+        }
+      }
+    }
+  }
+`;
+
+
+const VRT_PLAYLIST_TAB_QUERY = `
+  query PlaylistTab($componentId: ID!) {
+    component(id: $componentId) {
+      __typename
+      ... on ContainerNavigationItem {
+        components {
+          __typename
+          ... on PaginatedTileList {
+            componentId
+            tileContentType
+          }
+        }
+      }
+      ... on PaginatedTileList {
+        componentId
+        tileContentType
+      }
+    }
+  }
+`;
+
+
+const VRT_SONGS_QUERY = `
+  query SongList(
+    $componentId: ID!,
+    $first: Int!
+  ) {
+    component(id: $componentId) {
+      __typename
+      ... on PaginatedTileList {
+        paginatedItems(first: $first) {
+          edges {
+            node {
+              __typename
+              ... on ITile {
+                title
+                description
+              }
+              ... on SongTile {
+                startDate
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+
+async function fetchVrtGraphql(
+  query,
+  variables
+) {
+
+  const body =
+    await fetchJsonPost(
+      VRT_GRAPHQL_URL,
+      {
+        query,
+        variables
+      },
+      {
+        "x-vrt-client-name":
+          "WEB"
+      }
+    );
+
+
+  if (
+    body?.errors?.length
+  ) {
+
+    throw new Error(
+      "VRT GraphQL-fout"
+    );
+
+  }
+
+
+  return body?.data || {};
+
+}
+
+
+async function getVrtSongListId(
+  pageId
+) {
+
+  const cached =
+    vrtSongListCache.get(
+      pageId
+    );
+
+
+  if (cached) {
+
+    return cached;
+
+  }
+
+
+  const live =
+    await fetchVrtGraphql(
+      VRT_LIVE_QUERY,
+      {
+        pageId
+      }
+    );
+
+
+  const menuItems =
+    live
+      ?.page
+      ?.menu
+      ?.items ||
+    [];
+
+
+  const playlistItem =
+    menuItems.find(
+      item =>
+        /playlist/i.test(
+          cleanText(
+            item?.title
+          )
+        ) &&
+        item?.componentId
+    ) ||
+    menuItems.find(
+      item =>
+        item?.componentId
+    );
+
+
+  if (
+    !playlistItem?.componentId
+  ) {
+
+    return "";
+
+  }
+
+
+  const tab =
+    await fetchVrtGraphql(
+      VRT_PLAYLIST_TAB_QUERY,
+      {
+        componentId:
+          playlistItem.componentId
+      }
+    );
+
+
+  const component =
+    tab?.component;
+
+
+  let songListId =
+    "";
+
+
+  if (
+    component?.__typename ===
+      "PaginatedTileList"
+  ) {
+
+    songListId =
+      component.componentId ||
+      playlistItem.componentId;
+
+  }
+
+
+  if (
+    !songListId
+  ) {
+
+    const list =
+      component
+        ?.components
+        ?.find(
+          item =>
+            item?.__typename ===
+              "PaginatedTileList" &&
+            item?.componentId
+        );
+
+
+    songListId =
+      list?.componentId ||
+      "";
+
+  }
+
+
+  if (songListId) {
+
+    vrtSongListCache.set(
+      pageId,
+      songListId
+    );
+
+  }
+
+
+  return songListId;
+
+}
+
+
+async function getVrtMetadata(
+  provider
+) {
+
+  const songListId =
+    await getVrtSongListId(
+      provider.pageId
+    );
+
+
+  if (!songListId) {
+
+    return null;
+
+  }
+
+
+  const data =
+    await fetchVrtGraphql(
+      VRT_SONGS_QUERY,
+      {
+        componentId:
+          songListId,
+
+        first:
+          20
+      }
+    );
+
+
+  const nodes =
+    data
+      ?.component
+      ?.paginatedItems
+      ?.edges
+      ?.map(
+        edge =>
+          edge?.node
+      )
+      .filter(
+        node =>
+          node?.__typename ===
+            "SongTile"
+      ) ||
+    [];
+
+
+  const now =
+    Date.now();
+
+
+  const candidates =
+    nodes
+      .map(
+        node => ({
+          node,
+          start:
+            Date.parse(
+              node.startDate ||
+              ""
+            )
+        })
+      )
+      .filter(
+        item =>
+          Number.isFinite(
+            item.start
+          ) &&
+          item.start <=
+            now + 5000
+      )
+      .sort(
+        (a, b) =>
+          b.start - a.start
+      );
+
+
+  const current =
+    candidates[0];
+
+
+  if (!current) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  const maxAge =
+    (
+      provider.maxAgeMinutes ??
+      25
+    ) *
+    60000;
+
+
+  if (
+    now - current.start >
+      maxAge
+  ) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  const title =
+    cleanText(
+      current.node.title
+    );
+
+
+  const artist =
+    cleanText(
+      current.node.description
+    );
+
+
+  if (
+    !title ||
+    !artist
+  ) {
+
+    return {
+      noTrack: true
+    };
+
+  }
+
+
+  return {
+    artist,
+    title
   };
 
 }
@@ -5481,9 +6394,10 @@ async function getTritonMetadata(
 
 
   const xml =
-    await fetchTextSmart(
-      url,
-      true
+    await fetchTextDirect(
+      url +
+      "&rnd=" +
+      Date.now()
     );
 
 
@@ -5649,7 +6563,6 @@ async function getTritonTrackMetadata(
 ) {
 
   /*
-   * Geen AllOrigins / proxy.
    * Rechtstreeks naar de publieke
    * Triton endpoint.
    */
@@ -5824,917 +6737,6 @@ async function getTritonTrackMetadata(
 
 
 /* =========================================================
-   KINK TRACK
-   ========================================================= */
-
-async function getKinkMetadata(
-  provider
-) {
-
-  const doc =
-    await fetchDocument(
-      provider.url
-    );
-
-
-  const lines =
-    documentLines(
-      doc
-    );
-
-
-  const index =
-    lines.findIndex(
-      line =>
-        /^nu op kink$/i.test(
-          line
-        )
-    );
-
-
-  if (
-    index < 0
-  ) {
-
-    return null;
-
-  }
-
-
-  const values = [];
-
-
-  for (
-    let i =
-      index + 1;
-
-    i <
-      Math.min(
-        lines.length,
-        index + 8
-      );
-
-    i++
-  ) {
-
-    const line =
-      lines[i];
-
-
-    if (
-      /^now on air\b/i.test(
-        line
-      ) ||
-      /^deze week op kink/i.test(
-        line
-      )
-    ) {
-
-      break;
-
-    }
-
-
-    if (
-      /^app de studio/i.test(
-        line
-      )
-    ) {
-
-      continue;
-
-    }
-
-
-    values.push(
-      line
-    );
-
-
-    if (
-      values.length === 2
-    ) {
-
-      return {
-        artist:
-          values[0],
-
-        title:
-          values[1]
-      };
-
-    }
-
-  }
-
-
-  return {
-    noTrack: true
-  };
-
-}
-
-
-/* =========================================================
-   ONLINE RADIO BOX
-   ========================================================= */
-
-function extractOrbRows(
-  doc
-) {
-
-  const rows = [];
-
-
-  for (
-    const row
-    of doc.querySelectorAll(
-      "tr"
-    )
-  ) {
-
-    const cells =
-      [
-        ...row.querySelectorAll(
-          "td"
-        )
-      ]
-      .map(
-        cell =>
-          cleanText(
-            cell.textContent
-          )
-      )
-      .filter(Boolean);
-
-
-    let time =
-      cleanText(
-        row
-          .querySelector(
-            ".tablelist-schedule__time"
-          )
-          ?.textContent
-      );
-
-
-    let text =
-      cleanText(
-        row
-          .querySelector(
-            ".track_history_item"
-          )
-          ?.textContent
-      );
-
-
-    if (
-      !time &&
-      cells.length >= 1
-    ) {
-
-      time =
-        cells[0];
-
-    }
-
-
-    if (
-      !text &&
-      cells.length >= 2
-    ) {
-
-      text =
-        cells[
-          cells.length - 1
-        ];
-
-    }
-
-
-    if (
-      !time ||
-      !text
-    ) {
-
-      continue;
-
-    }
-
-
-    rows.push({
-
-      time,
-
-      text,
-
-      active:
-        row.classList
-          .contains(
-            "active"
-          ) ||
-        Boolean(
-          row.querySelector(
-            ".active"
-          )
-        )
-
-    });
-
-  }
-
-
-  return rows;
-
-}
-
-
-function clockToMinutes(
-  value
-) {
-
-  const match =
-    /^(\d{1,2}):(\d{2})$/
-      .exec(
-        cleanText(value)
-      );
-
-
-  if (!match) {
-
-    return null;
-
-  }
-
-
-  return (
-    Number(match[1]) *
-    60 +
-    Number(match[2])
-  );
-
-}
-
-
-function getOrbPageClock(
-  doc
-) {
-
-  const text =
-    doc.body?.innerText ||
-    doc.body?.textContent ||
-    "";
-
-
-  const match =
-    text.match(
-      /\b(?:nu|now)\s+in\s+[^)\n]{0,60}?(\d{1,2}:\d{2})\b/i
-    );
-
-
-  if (match) {
-
-    return clockToMinutes(
-      match[1]
-    );
-
-  }
-
-
-  const now =
-    new Date();
-
-
-  return (
-    now.getHours() *
-    60 +
-    now.getMinutes()
-  );
-
-}
-
-
-function getClockAgeMinutes(
-  time,
-  nowMinutes
-) {
-
-  const value =
-    clockToMinutes(
-      time
-    );
-
-
-  if (
-    value === null
-  ) {
-
-    return Infinity;
-
-  }
-
-
-  return (
-    nowMinutes -
-    value +
-    1440
-  ) % 1440;
-
-}
-
-
-function applyTrackOrder(
-  split,
-  provider
-) {
-
-  if (
-    provider.order ===
-    "title-artist"
-  ) {
-
-    return {
-      artist:
-        split.title,
-
-      title:
-        split.artist
-    };
-
-  }
-
-
-  return split;
-
-}
-
-
-function classifyOrbText(
-  value,
-  station,
-  provider
-) {
-
-  const text =
-    cleanText(
-      value
-    );
-
-
-  if (!text) {
-
-    return {
-      type:
-        "block"
-    };
-
-  }
-
-
-  const stationNoise =
-    isStationNoise(
-      text,
-      station
-    );
-
-
-  if (
-    stationNoise
-  ) {
-
-    if (
-      isHardNoTrack(
-        text
-      )
-    ) {
-
-      return {
-        type:
-          "block"
-      };
-
-    }
-
-
-    return {
-      type:
-        "noise"
-    };
-
-  }
-
-
-  const split =
-    splitTrack(
-      text
-    );
-
-
-  if (split) {
-
-    return {
-      type:
-        "track",
-
-      result:
-        applyTrackOrder(
-          split,
-          provider
-        )
-    };
-
-  }
-
-
-  if (
-    isHardNoTrack(
-      text
-    )
-  ) {
-
-    return {
-      type:
-        "block"
-    };
-
-  }
-
-
-  return {
-    type:
-      "block"
-  };
-
-}
-
-
-function evaluateOrbTimedRows(
-  rows,
-  startIndex,
-  station,
-  provider,
-  pageClock
-) {
-
-  const maxAge =
-    provider.maxAgeMinutes ??
-    6;
-
-
-  for (
-    let i =
-      startIndex;
-
-    i < rows.length;
-
-    i++
-  ) {
-
-    const row =
-      rows[i];
-
-
-    if (
-      row.time
-        .toLowerCase() ===
-      "live"
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      !/^\d{1,2}:\d{2}$/
-        .test(
-          row.time
-        )
-    ) {
-
-      continue;
-
-    }
-
-
-    const age =
-      getClockAgeMinutes(
-        row.time,
-        pageClock
-      );
-
-
-    if (
-      age >
-      maxAge
-    ) {
-
-      return {
-        noTrack: true
-      };
-
-    }
-
-
-    const classification =
-      classifyOrbText(
-        row.text,
-        station,
-        provider
-      );
-
-
-    if (
-      classification.type ===
-      "noise"
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      classification.type ===
-      "track"
-    ) {
-
-      return classification.result;
-
-    }
-
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  return {
-    noTrack: true
-  };
-
-}
-
-
-async function getOrbMetadata(
-  provider,
-  station
-) {
-
-  const doc =
-    await fetchDocument(
-      provider.url
-    );
-
-
-  const rows =
-    extractOrbRows(
-      doc
-    );
-
-
-  if (
-    !rows.length
-  ) {
-
-    return null;
-
-  }
-
-
-  if (
-    provider.format ===
-    "classical"
-  ) {
-
-    return getClassicalOrbMetadata(
-      rows,
-      station,
-      provider,
-      doc
-    );
-
-  }
-
-
-  const pageClock =
-    getOrbPageClock(
-      doc
-    );
-
-
-  const liveIndex =
-    rows.findIndex(
-      row =>
-        row.active ||
-        row.time
-          .toLowerCase() ===
-          "live"
-    );
-
-
-  if (
-    liveIndex >= 0
-  ) {
-
-    const live =
-      classifyOrbText(
-        rows[liveIndex].text,
-        station,
-        provider
-      );
-
-
-    if (
-      live.type ===
-      "track"
-    ) {
-
-      return live.result;
-
-    }
-
-
-    if (
-      live.type ===
-      "block"
-    ) {
-
-      return {
-        noTrack: true
-      };
-
-    }
-
-
-    return evaluateOrbTimedRows(
-      rows,
-      liveIndex + 1,
-      station,
-      provider,
-      pageClock
-    );
-
-  }
-
-
-  return evaluateOrbTimedRows(
-    rows,
-    0,
-    station,
-    provider,
-    pageClock
-  );
-
-}
-
-
-/* =========================================================
-   KLARA
-   ========================================================= */
-
-function getClassicalOrbMetadata(
-  rows,
-  station,
-  provider,
-  doc
-) {
-
-  const pageClock =
-    getOrbPageClock(
-      doc
-    );
-
-
-  const maxAge =
-    provider.maxAgeMinutes ??
-    15;
-
-
-  const useful = [];
-
-
-  for (
-    const row
-    of rows
-  ) {
-
-    if (
-      row.time
-        .toLowerCase() !==
-        "live" &&
-      /^\d{1,2}:\d{2}$/
-        .test(
-          row.time
-        )
-    ) {
-
-      const age =
-        getClockAgeMinutes(
-          row.time,
-          pageClock
-        );
-
-
-      if (
-        age >
-        maxAge
-      ) {
-
-        break;
-
-      }
-
-    }
-
-
-    if (
-      isHardNoTrack(
-        row.text
-      )
-    ) {
-
-      return {
-        noTrack: true
-      };
-
-    }
-
-
-    if (
-      isStationNoise(
-        row.text,
-        station
-      )
-    ) {
-
-      continue;
-
-    }
-
-
-    useful.push(
-      row
-    );
-
-
-    if (
-      useful.length >= 4
-    ) {
-
-      break;
-
-    }
-
-  }
-
-
-  if (
-    !useful.length
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  for (
-    const row
-    of useful
-  ) {
-
-    const split =
-      splitTrack(
-        row.text
-      );
-
-
-    if (split) {
-
-      return split;
-
-    }
-
-  }
-
-
-  const values =
-    useful
-      .map(
-        row =>
-          cleanText(
-            row.text
-          )
-      )
-      .filter(Boolean);
-
-
-  const result =
-    classifyClassical(
-      values
-    );
-
-
-  return (
-    result ||
-    {
-      noTrack: true
-    }
-  );
-
-}
-
-
-function classifyClassical(
-  values
-) {
-
-  values =
-    values
-      .map(
-        cleanText
-      )
-      .filter(Boolean);
-
-
-  if (
-    values.length < 2
-  ) {
-
-    return null;
-
-  }
-
-
-  const workRegex =
-    /(concerto|concert|sonat|symfon|symphon|suite|serenad|requiem|aria|partita|nocturne|prelude|fuga|fugue|rondo|opus|op\.|bwv|adagio|allegro|andante|wals|walz|mazurka|polonaise)/i;
-
-
-  let workIndex =
-    values.findIndex(
-      value =>
-        workRegex.test(
-          value
-        )
-    );
-
-
-  if (
-    workIndex < 0
-  ) {
-
-    return null;
-
-  }
-
-
-  const work =
-    values[
-      workIndex
-    ];
-
-
-  const composer =
-    values.find(
-      (
-        value,
-        index
-      ) =>
-        index !==
-          workIndex &&
-        !/\(|orchestra|orkest|ensemble|piano|violin|viool|cello|koor|choir|tenor|sopraan|bariton/i
-          .test(
-            value
-          )
-    );
-
-
-  if (
-    !composer ||
-    !work
-  ) {
-
-    return null;
-
-  }
-
-
-  return {
-    artist:
-      composer,
-
-    title:
-      work
-  };
-
-}
-
-
-/* =========================================================
    TRACK ROUTER
    ========================================================= */
 
@@ -6747,9 +6749,9 @@ async function resolveMetadataProvider(
     provider.type
   ) {
 
-    case "npo":
+    case "npo-mini":
 
-      return await getNpoMetadata(
+      return await getNpoMiniMetadata(
         provider
       );
 
@@ -6768,17 +6770,23 @@ async function resolveMetadataProvider(
       );
 
 
-    case "orb":
+    case "dpg":
 
-      return await getOrbMetadata(
-        provider,
-        station
+      return await getDpgMetadata(
+        provider
       );
 
 
-    case "kink":
+    case "arrow":
 
-      return await getKinkMetadata(
+      return await getArrowMetadata(
+        provider
+      );
+
+
+    case "vrt":
+
+      return await getVrtMetadata(
         provider
       );
 
@@ -7388,80 +7396,6 @@ async function getBnrProgram(
 }
 
 
-async function getKinkProgram(
-  provider,
-  station
-) {
-
-  const doc =
-    await fetchDocument(
-      provider.url
-    );
-
-
-  const lines =
-    documentLines(
-      doc
-    );
-
-
-  const start =
-    lines.findIndex(
-      line =>
-        /^now on air\b/i.test(
-          line
-        )
-    );
-
-
-  if (
-    start < 0
-  ) {
-
-    return "";
-
-  }
-
-
-  for (
-    let i =
-      start + 1;
-
-    i <
-      Math.min(
-        lines.length,
-        start + 5
-      );
-
-    i++
-  ) {
-
-    const candidate =
-      cleanProgramValue(
-        lines[i],
-        station
-      );
-
-
-    if (
-      candidate &&
-      !/^nu op kink$/i.test(
-        candidate
-      )
-    ) {
-
-      return candidate;
-
-    }
-
-  }
-
-
-  return "";
-
-}
-
-
 /* =========================================================
    PROGRAM ROUTER
    ========================================================= */
@@ -7474,6 +7408,14 @@ async function resolveProgram(
   switch (
     provider.type
   ) {
+
+    case "npo-mini":
+
+      return await getNpoMiniProgram(
+        provider,
+        station
+      );
+
 
     case "npo-live":
 
@@ -7514,13 +7456,6 @@ async function resolveProgram(
         station
       );
 
-
-    case "kink":
-
-      return await getKinkProgram(
-        provider,
-        station
-      );
 
 
     default:
@@ -8962,12 +8897,15 @@ window.addEventListener(
 
 
     if (
-      isSkySelected() &&
       playbackRequested &&
       audio.paused
     ) {
 
-      scheduleSkyReconnect(
+      reconnectAttempts =
+        0;
+
+
+      scheduleReconnect(
         "online",
         500
       );
