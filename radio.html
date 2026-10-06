@@ -2447,10 +2447,7 @@ const stations = [
         type: "vrt",
 
         pageId:
-          "/vrtmax/livestream/audio/studio-brussel/",
-
-        maxAgeMinutes:
-          20
+          "/kanalen/studio-brussel"
       }
     ]
   },
@@ -2482,10 +2479,7 @@ const stations = [
         type: "vrt",
 
         pageId:
-          "/vrtmax/livestream/audio/de-tijdloze/",
-
-        maxAgeMinutes:
-          25
+          "/kanalen/de-tijdloze"
       }
     ]
   },
@@ -2519,10 +2513,7 @@ const stations = [
         type: "vrt",
 
         pageId:
-          "/vrtmax/livestream/audio/mnm/",
-
-        maxAgeMinutes:
-          20
+          "/kanalen/mnm"
       }
     ]
   },
@@ -2620,10 +2611,7 @@ const stations = [
         type: "vrt",
 
         pageId:
-          "/vrtmax/livestream/audio/klara/",
-
-        maxAgeMinutes:
-          90
+          "/kanalen/klara"
       }
     ]
   },
@@ -2656,10 +2644,7 @@ const stations = [
         type: "vrt",
 
         pageId:
-          "/vrtmax/livestream/audio/radio1/",
-
-        maxAgeMinutes:
-          25
+          "/radio1"
       }
     ]
   },
@@ -2696,10 +2681,7 @@ const stations = [
         type: "vrt",
 
         pageId:
-          "/vrtmax/livestream/audio/radio2-limburg/",
-
-        maxAgeMinutes:
-          25
+          "/radio2"
       }
     ]
   },
@@ -5930,347 +5912,60 @@ async function getArrowMetadata(
 
 
 /* =========================================================
-   VRT MAX TRACKS
+   VRT METADATA
    ========================================================= */
 
-const VRT_GRAPHQL_URL =
-  "https://www.vrt.be/vrtnu-api/graphql/public/v1";
+/*
+ * VRT blokkeert zijn GraphQL-API voor browserrequests vanaf
+ * externe domeinen zoals rc045.nl. Daarom gebruikt de frontend
+ * uitsluitend een beperkte same-origin endpoint op rc045.nl.
+ *
+ * De frontend gebruikt geen externe CORS-relay voor VRT.
+ */
 
-
-const vrtSongListCache =
-  new Map();
-
-
-const VRT_LIVE_QUERY = `
-  query RadioLive($pageId: ID!) {
-    page(id: $pageId) {
-      __typename
-      ... on AudioLivestreamPage {
-        menu {
-          items {
-            title
-            componentId
-            active
-          }
-        }
-      }
-    }
-  }
-`;
-
-
-const VRT_PLAYLIST_TAB_QUERY = `
-  query PlaylistTab($componentId: ID!) {
-    component(id: $componentId) {
-      __typename
-      ... on ContainerNavigationItem {
-        components {
-          __typename
-          ... on PaginatedTileList {
-            componentId
-            tileContentType
-          }
-        }
-      }
-      ... on PaginatedTileList {
-        componentId
-        tileContentType
-      }
-    }
-  }
-`;
-
-
-const VRT_SONGS_QUERY = `
-  query SongList(
-    $componentId: ID!,
-    $first: Int!
-  ) {
-    component(id: $componentId) {
-      __typename
-      ... on PaginatedTileList {
-        paginatedItems(first: $first) {
-          edges {
-            node {
-              __typename
-              ... on ITile {
-                title
-                description
-              }
-              ... on SongTile {
-                startDate
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-
-async function fetchVrtGraphql(
-  query,
-  variables
-) {
-
-  const body =
-    await fetchJsonPost(
-      VRT_GRAPHQL_URL,
-      {
-        query,
-        variables
-      },
-      {
-        "x-vrt-client-name":
-          "WEB"
-      }
-    );
-
-
-  if (
-    body?.errors?.length
-  ) {
-
-    throw new Error(
-      "VRT GraphQL-fout"
-    );
-
-  }
-
-
-  return body?.data || {};
-
-}
-
-
-async function getVrtSongListId(
-  pageId
-) {
-
-  const cached =
-    vrtSongListCache.get(
-      pageId
-    );
-
-
-  if (cached) {
-
-    return cached;
-
-  }
-
-
-  const live =
-    await fetchVrtGraphql(
-      VRT_LIVE_QUERY,
-      {
-        pageId
-      }
-    );
-
-
-  const menuItems =
-    live
-      ?.page
-      ?.menu
-      ?.items ||
-    [];
-
-
-  const playlistItem =
-    menuItems.find(
-      item =>
-        /playlist/i.test(
-          cleanText(
-            item?.title
-          )
-        ) &&
-        item?.componentId
-    ) ||
-    menuItems.find(
-      item =>
-        item?.componentId
-    );
-
-
-  if (
-    !playlistItem?.componentId
-  ) {
-
-    return "";
-
-  }
-
-
-  const tab =
-    await fetchVrtGraphql(
-      VRT_PLAYLIST_TAB_QUERY,
-      {
-        componentId:
-          playlistItem.componentId
-      }
-    );
-
-
-  const component =
-    tab?.component;
-
-
-  let songListId =
-    "";
-
-
-  if (
-    component?.__typename ===
-      "PaginatedTileList"
-  ) {
-
-    songListId =
-      component.componentId ||
-      playlistItem.componentId;
-
-  }
-
-
-  if (
-    !songListId
-  ) {
-
-    const list =
-      component
-        ?.components
-        ?.find(
-          item =>
-            item?.__typename ===
-              "PaginatedTileList" &&
-            item?.componentId
-        );
-
-
-    songListId =
-      list?.componentId ||
-      "";
-
-  }
-
-
-  if (songListId) {
-
-    vrtSongListCache.set(
-      pageId,
-      songListId
-    );
-
-  }
-
-
-  return songListId;
-
-}
+const VRT_METADATA_ENDPOINT =
+  "/vrt-nowplaying.php";
 
 
 async function getVrtMetadata(
   provider
 ) {
 
-  const songListId =
-    await getVrtSongListId(
-      provider.pageId
-    );
-
-
-  if (!songListId) {
+  if (
+    !provider?.pageId
+  ) {
 
     return null;
 
   }
 
 
-  const data =
-    await fetchVrtGraphql(
-      VRT_SONGS_QUERY,
-      {
-        componentId:
-          songListId,
-
-        first:
-          20
-      }
+  const url =
+    VRT_METADATA_ENDPOINT +
+    "?page=" +
+    encodeURIComponent(
+      provider.pageId
     );
 
 
-  const nodes =
-    data
-      ?.component
-      ?.paginatedItems
-      ?.edges
-      ?.map(
-        edge =>
-          edge?.node
-      )
-      .filter(
-        node =>
-          node?.__typename ===
-            "SongTile"
-      ) ||
-    [];
+  const data =
+    await fetchJsonSmart(
+      url
+    );
 
 
-  const now =
-    Date.now();
+  if (
+    !data ||
+    data.error
+  ) {
 
-
-  const candidates =
-    nodes
-      .map(
-        node => ({
-          node,
-          start:
-            Date.parse(
-              node.startDate ||
-              ""
-            )
-        })
-      )
-      .filter(
-        item =>
-          Number.isFinite(
-            item.start
-          ) &&
-          item.start <=
-            now + 5000
-      )
-      .sort(
-        (a, b) =>
-          b.start - a.start
-      );
-
-
-  const current =
-    candidates[0];
-
-
-  if (!current) {
-
-    return {
-      noTrack: true
-    };
+    return null;
 
   }
 
 
-  const maxAge =
-    (
-      provider.maxAgeMinutes ??
-      25
-    ) *
-    60000;
-
-
   if (
-    now - current.start >
-      maxAge
+    data.noTrack
   ) {
 
     return {
@@ -6280,21 +5975,21 @@ async function getVrtMetadata(
   }
 
 
-  const title =
+  const artist =
     cleanText(
-      current.node.title
+      data.artist
     );
 
 
-  const artist =
+  const title =
     cleanText(
-      current.node.description
+      data.title
     );
 
 
   if (
-    !title ||
-    !artist
+    !artist ||
+    !title
   ) {
 
     return {
@@ -7803,6 +7498,7 @@ async function findWikipediaArtist(
 ) {
 
   if (!artist) {
+
     return null;
   }
 
