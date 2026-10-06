@@ -1,8687 +1,5948 @@
 <!doctype html>
 <html lang="nl">
 <head>
-  <meta charset="utf-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  >
-
-  <meta
-    id="themeColor"
-    name="theme-color"
-    content="#080a0f"
-  >
-
-  <link
-    id="dynamicFavicon"
-    rel="icon"
-    href=""
-  >
-
-  <title>radio.</title>
-
-  <script>
-    (() => {
-      try {
-        const stored =
-          localStorage.getItem(
-            "radio-theme"
-          );
-
-        document.documentElement.dataset.theme =
-          ["light", "dark"].includes(stored)
-            ? stored
-            : "system";
-      }
-      catch {
-        document.documentElement.dataset.theme =
-          "system";
-      }
-    })();
-  </script>
-
-  <style>
-    :root {
-      color-scheme: dark;
-
-      --bg: #080a0f;
-      --panel: rgba(255,255,255,.055);
-      --panel-hover: rgba(255,255,255,.09);
-      --border: rgba(255,255,255,.09);
-
-      --text: #f7f7f8;
-      --muted: #9297a2;
-
-      --accent: #e63946;
-      --accent-rgb: 230,57,70;
-
-      --logo-surface: #fff;
-
-      --play-bg: #f7f7f8;
-      --play-fg: #080a0f;
-
-      --menu-bg: #171a21;
-
-      --shadow:
-        0 30px 80px rgba(0,0,0,.35);
-
-      --radius-xl: 32px;
-      --radius-lg: 22px;
-    }
-
-
-    :root[data-theme="light"] {
-      color-scheme: light;
-
-      --bg: #f3f5f8;
-
-      --panel: rgba(255,255,255,.72);
-      --panel-hover: rgba(255,255,255,.98);
-      --border: rgba(15,18,24,.09);
-
-      --text: #111318;
-      --muted: #6f7581;
-
-      --play-bg: #111318;
-      --play-fg: #fff;
-
-      --menu-bg: #fff;
-
-      --shadow:
-        0 26px 65px rgba(26,32,44,.13);
-    }
-
-
-    :root[data-theme="dark"] {
-      color-scheme: dark;
-    }
-
-
-    @media (prefers-color-scheme: light) {
-      :root[data-theme="system"] {
-        color-scheme: light;
-
-        --bg: #f3f5f8;
-
-        --panel: rgba(255,255,255,.72);
-        --panel-hover: rgba(255,255,255,.98);
-        --border: rgba(15,18,24,.09);
-
-        --text: #111318;
-        --muted: #6f7581;
-
-        --play-bg: #111318;
-        --play-fg: #fff;
-
-        --menu-bg: #fff;
-
-        --shadow:
-          0 26px 65px rgba(26,32,44,.13);
-      }
-    }
-
-
-    * {
-      box-sizing: border-box;
-    }
-
-
-    [hidden] {
-      display: none !important;
-    }
-
-
-    html {
-      -webkit-text-size-adjust: 100%;
-    }
-
-
-    body {
-      margin: 0;
-
-      min-height: 100vh;
-      min-height: 100svh;
-
-      font-family:
-        Inter,
-        ui-sans-serif,
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-      color: var(--text);
-
-      background:
-        radial-gradient(
-          circle at 50% 10%,
-          rgba(var(--accent-rgb), .16),
-          transparent 40%
-        ),
-        var(--bg);
-
-      transition:
-        background .45s ease,
-        color .25s ease;
-    }
-
-
-    button,
-    input {
-      font: inherit;
-    }
-
-
-    button {
-      color: inherit;
-    }
-
-
-    .app {
-      width:
-        min(
-          1120px,
-          calc(100% - 32px)
-        );
-
-      min-height: 100svh;
-
-      margin: 0 auto;
-
-      display: flex;
-      flex-direction: column;
-
-      padding:
-        max(24px, env(safe-area-inset-top))
-        0
-        max(24px, env(safe-area-inset-bottom));
-    }
-
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      margin-bottom:
-        clamp(30px, 6vh, 70px);
-    }
-
-
-    .brand {
-      display: flex;
-      align-items: center;
-
-      gap: 11px;
-
-      font-size: 20px;
-      font-weight: 760;
-
-      letter-spacing: -.04em;
-    }
-
-
-    .brand-dot {
-      width: 11px;
-      height: 11px;
-
-      border-radius: 50%;
-
-      background: var(--accent);
-
-      box-shadow:
-        0 0 0 5px rgba(var(--accent-rgb), .12),
-        0 0 28px rgba(var(--accent-rgb), .65);
-    }
-
-
-    .station-count {
-      color: var(--muted);
-
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-
-    .header-tools {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-
-      gap: 14px;
-    }
-
-
-    .theme-switcher {
-      display: flex;
-      align-items: center;
-
-      gap: 2px;
-
-      padding: 3px;
-
-      border:
-        1px solid var(--border);
-      border-radius: 13px;
-
-      background: var(--panel);
-    }
-
-
-    .theme-option {
-      appearance: none;
-
-      min-height: 29px;
-
-      padding: 0 9px;
-
-      border: 0;
-      border-radius: 9px;
-
-      color: var(--muted);
-      background: transparent;
-
-      font-size: 11px;
-      font-weight: 700;
-
-      cursor: pointer;
-
-      transition:
-        color .16s ease,
-        background .16s ease;
-    }
-
-
-    .theme-option:hover {
-      color: var(--text);
-    }
-
-
-    .theme-option.active {
-      color: var(--text);
-      background: var(--panel-hover);
-    }
-
-
-    main {
-      flex: 1;
-
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-
-    .player {
-      display: grid;
-
-      grid-template-columns:
-        minmax(220px, 330px)
-        minmax(0, 1fr);
-
-      gap:
-        clamp(32px, 7vw, 85px);
-
-      align-items: center;
-
-      margin-bottom:
-        clamp(42px, 8vh, 78px);
-    }
-
-
-    .artwork {
-      position: relative;
-
-      aspect-ratio: 1;
-
-      display: grid;
-      place-items: center;
-
-      overflow: hidden;
-
-      border-radius:
-        var(--radius-xl);
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(var(--accent-rgb), .98),
-          rgba(var(--accent-rgb), .42)
-        );
-
-      box-shadow:
-        0 34px 80px rgba(var(--accent-rgb), .16),
-        inset 0 1px 0 rgba(255,255,255,.2);
-    }
-
-
-    .artwork::before,
-    .artwork::after {
-      content: "";
-
-      position: absolute;
-
-      border-radius: 50%;
-
-      border:
-        1px solid rgba(255,255,255,.14);
-
-      pointer-events: none;
-    }
-
-
-    .artwork::before {
-      width: 76%;
-      height: 76%;
-    }
-
-
-    .artwork::after {
-      width: 48%;
-      height: 48%;
-    }
-
-
-    .main-logo-surface {
-      position: relative;
-      z-index: 2;
-
-      width: 58%;
-      aspect-ratio: 1;
-
-      display: grid;
-      place-items: center;
-
-      padding: 11%;
-
-      border-radius: 26%;
-
-      background:
-        var(--logo-surface);
-
-      box-shadow:
-        0 18px 45px rgba(0,0,0,.17),
-        inset 0 0 0 1px rgba(0,0,0,.04);
-    }
-
-
-    .main-station-logo {
-      width: 100%;
-      height: 100%;
-
-      display: block;
-
-      object-fit: contain;
-
-      transition:
-        opacity .2s ease,
-        transform .25s ease;
-    }
-
-
-    .station-mark {
-      display: none;
-
-      color: #111318;
-
-      font-size:
-        clamp(42px, 6vw, 74px);
-
-      font-weight: 850;
-
-      line-height: 1;
-      letter-spacing: -.075em;
-    }
-
-
-    .playing-indicator {
-      position: absolute;
-
-      right: 20px;
-      bottom: 20px;
-
-      z-index: 3;
-
-      height: 35px;
-
-      padding: 0 14px;
-
-      display: flex;
-      align-items: center;
-      gap: 8px;
-
-      border-radius: 999px;
-
-      color: #fff;
-
-      background:
-        rgba(0,0,0,.36);
-
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-
-      font-size: 11px;
-      font-weight: 750;
-
-      letter-spacing: .08em;
-
-      opacity: .72;
-    }
-
-
-    .live-dot {
-      width: 7px;
-      height: 7px;
-
-      border-radius: 50%;
-
-      background: #fff;
-    }
-
-
-    body.is-playing .live-dot {
-      animation:
-        pulse 1.5s infinite;
-    }
-
-
-    @keyframes pulse {
-      50% {
-        opacity: .25;
-        transform: scale(.8);
-      }
-    }
-
-
-    .player-info {
-      min-width: 0;
-    }
-
-
-    h1 {
-      margin: 0;
-
-      max-width: 720px;
-
-      font-size:
-        clamp(40px, 6vw, 72px);
-
-      font-weight: 790;
-
-      line-height: .98;
-      letter-spacing: -.065em;
-
-      text-wrap: balance;
-    }
-
-
-    .program-title {
-      width: fit-content;
-      max-width: 100%;
-
-      margin-top: 15px;
-
-      color: var(--muted);
-
-      font-size:
-        clamp(14px, 1.7vw, 17px);
-
-      font-weight: 620;
-
-      line-height: 1.3;
-
-      letter-spacing: -.015em;
-
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-
-    .track {
-      margin-top: 14px;
-    }
-
-
-    .track-artist,
-    .track-title {
-      display: block;
-
-      width: fit-content;
-      max-width: 100%;
-
-      text-decoration: none;
-
-      cursor: default;
-
-      transition:
-        color .16s ease,
-        opacity .16s ease;
-    }
-
-
-    .track-artist {
-      color: var(--text);
-
-      font-size:
-        clamp(16px, 2vw, 20px);
-
-      font-weight: 650;
-
-      letter-spacing: -.025em;
-
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-
-    .track-title {
-      margin-top: 4px;
-
-      color: var(--muted);
-
-      font-size:
-        clamp(14px, 1.7vw, 17px);
-
-      font-weight: 500;
-
-      letter-spacing: -.015em;
-
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-
-    .track.single .track-artist {
-      display: none;
-    }
-
-
-    .track-link.has-wiki {
-      cursor: pointer;
-
-      text-decoration-line: underline;
-      text-decoration-style: dotted;
-      text-decoration-thickness: 1px;
-
-      text-underline-offset: 4px;
-
-      text-decoration-color:
-        rgba(var(--accent-rgb), .6);
-    }
-
-
-    .track-link.has-wiki::after {
-      content: " ↗";
-
-      font-size: .68em;
-      font-weight: 700;
-
-      opacity: .48;
-
-      vertical-align: .1em;
-    }
-
-
-    .track-link.has-wiki:hover {
-      color: var(--accent);
-
-      text-decoration-color:
-        var(--accent);
-    }
-
-
-    .track-link.has-wiki:hover::after {
-      opacity: .9;
-    }
-
-
-    .controls {
-      display: flex;
-      align-items: center;
-
-      gap: 20px;
-
-      margin-top: 27px;
-    }
-
-
-    .play-button {
-      appearance: none;
-
-      width: 72px;
-      height: 72px;
-
-      flex: 0 0 72px;
-
-      display: grid;
-      place-items: center;
-
-      padding: 0;
-
-      border: 0;
-      border-radius: 50%;
-
-      background:
-        var(--play-bg);
-
-      color:
-        var(--play-fg);
-
-      cursor: pointer;
-
-      box-shadow:
-        var(--shadow);
-
-      transition:
-        transform .16s ease;
-    }
-
-
-    .play-button:hover {
-      transform: scale(1.055);
-    }
-
-
-    .play-button:active {
-      transform: scale(.96);
-    }
-
-
-    .play-button svg {
-      width: 27px;
-      height: 27px;
-    }
-
-
-    .play-icon {
-      margin-left: 4px;
-    }
-
-
-    body.is-playing .play-icon {
-      display: none;
-    }
-
-
-    .pause-icon {
-      display: none;
-    }
-
-
-    body.is-playing .pause-icon {
-      display: block;
-    }
-
-
-    .secondary-controls {
-      width:
-        min(310px, 100%);
-    }
-
-
-    .status {
-      min-height: 20px;
-
-      margin-bottom: 12px;
-
-      color: var(--muted);
-
-      font-size: 13px;
-      font-weight: 550;
-    }
-
-
-    .control-row {
-      display: flex;
-      align-items: center;
-
-      gap: 10px;
-    }
-
-
-    .icon-button {
-      appearance: none;
-
-      width: 38px;
-      height: 38px;
-
-      flex: 0 0 38px;
-
-      display: grid;
-      place-items: center;
-
-      padding: 0;
-
-      border:
-        1px solid transparent;
-
-      border-radius: 12px;
-
-      background: transparent;
-
-      color: var(--muted);
-
-      cursor: pointer;
-    }
-
-
-    .icon-button:hover {
-      color: var(--text);
-
-      background:
-        var(--panel-hover);
-    }
-
-
-    .icon-button svg {
-      width: 19px;
-      height: 19px;
-    }
-
-
-    .mute-button.muted {
-      color: #fff;
-
-      background: #e5484d;
-
-      border-color: #e5484d;
-
-      box-shadow:
-        0 0 0 4px rgba(229,72,77,.20),
-        0 8px 22px rgba(229,72,77,.22);
-    }
-
-
-    .volume-on-icon {
-      display: block;
-    }
-
-
-    .volume-off-icon {
-      display: none;
-    }
-
-
-    .mute-button.muted .volume-on-icon {
-      display: none;
-    }
-
-
-    .mute-button.muted .volume-off-icon {
-      display: block;
-    }
-
-
-    .volume-slider {
-      flex: 1;
-
-      min-width: 50px;
-    }
-
-
-    input[type="range"] {
-      width: 100%;
-
-      appearance: none;
-      -webkit-appearance: none;
-
-      height: 4px;
-
-      border-radius: 999px;
-
-      background:
-        linear-gradient(
-          to right,
-          var(--text) 0,
-          var(--text) var(--volume),
-          rgba(128,128,128,.23) var(--volume),
-          rgba(128,128,128,.23) 100%
-        );
-
-      cursor: pointer;
-    }
-
-
-    input[type="range"]::-webkit-slider-thumb {
-      appearance: none;
-      -webkit-appearance: none;
-
-      width: 15px;
-      height: 15px;
-
-      border: 0;
-      border-radius: 50%;
-
-      background:
-        var(--text);
-    }
-
-
-    input[type="range"]::-moz-range-thumb {
-      width: 15px;
-      height: 15px;
-
-      border: 0;
-      border-radius: 50%;
-
-      background:
-        var(--text);
-    }
-
-
-    .sleep-wrap {
-      position: relative;
-    }
-
-
-    .sleep-button {
-      width: auto;
-
-      min-width: 38px;
-
-      padding: 0 10px;
-
-      gap: 6px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-
-    .sleep-button.active {
-      color: var(--accent);
-
-      border-color:
-        rgba(var(--accent-rgb), .28);
-
-      background:
-        rgba(var(--accent-rgb), .10);
-    }
-
-
-    .sleep-text {
-      display: none;
-
-      font-size: 11px;
-      font-weight: 750;
-    }
-
-
-    .sleep-button.active .sleep-text {
-      display: block;
-    }
-
-
-    .sleep-menu {
-      position: absolute;
-
-      right: 0;
-      bottom:
-        calc(100% + 10px);
-
-      z-index: 20;
-
-      width: 150px;
-
-      padding: 6px;
-
-      border:
-        1px solid var(--border);
-
-      border-radius: 15px;
-
-      background:
-        var(--menu-bg);
-
-      box-shadow:
-        0 20px 55px rgba(0,0,0,.20);
-    }
-
-
-    .sleep-option {
-      appearance: none;
-
-      width: 100%;
-
-      padding: 10px 11px;
-
-      border: 0;
-      border-radius: 10px;
-
-      background: transparent;
-
-      text-align: left;
-
-      cursor: pointer;
-    }
-
-
-    .sleep-option:hover {
-      background:
-        var(--panel-hover);
-    }
-
-
-    .station-groups {
-      display: grid;
-
-      gap: 22px;
-    }
-
-
-    .country-group {
-      min-width: 0;
-    }
-
-
-    .country-header {
-      display: flex;
-      align-items: center;
-
-      min-height: 52px;
-
-      margin-bottom: 12px;
-
-      padding:
-        5px 8px
-        5px 13px;
-
-      border:
-        1px solid var(--border);
-
-      border-radius: 17px;
-
-      background:
-        var(--panel);
-    }
-
-
-    .country-toggle {
-      appearance: none;
-
-      min-width: 0;
-      flex: 1;
-
-      display: flex;
-      align-items: center;
-
-      gap: 10px;
-
-      padding: 7px 5px;
-
-      border: 0;
-
-      background: transparent;
-
-      text-align: left;
-
-      cursor: pointer;
-    }
-
-
-    .country-flag {
-      flex: 0 0 auto;
-
-      font-size: 21px;
-
-      line-height: 1;
-    }
-
-
-    .country-title {
-      min-width: 0;
-
-      overflow: hidden;
-
-      font-size: 15px;
-      font-weight: 760;
-
-      letter-spacing: -.025em;
-
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-
-    .country-count {
-      margin-left: auto;
-
-      padding-left: 12px;
-
-      color: var(--muted);
-
-      font-size: 11px;
-      font-weight: 600;
-
-      white-space: nowrap;
-    }
-
-
-    .country-chevron {
-      width: 28px;
-      height: 28px;
-
-      flex: 0 0 28px;
-
-      display: grid;
-      place-items: center;
-
-      color: var(--muted);
-
-      transition:
-        transform .2s ease;
-    }
-
-
-    .country-group.collapsed
-    .country-chevron {
-      transform:
-        rotate(-90deg);
-    }
-
-
-    .country-favorite {
-      appearance: none;
-
-      width: 36px;
-      height: 36px;
-
-      flex: 0 0 36px;
-
-      display: grid;
-      place-items: center;
-
-      padding: 0;
-
-      border: 0;
-      border-radius: 11px;
-
-      background: transparent;
-
-      color: var(--muted);
-
-      font-size: 19px;
-
-      cursor: pointer;
-
-      opacity: .6;
-    }
-
-
-    .country-favorite:hover,
-    .country-favorite.active {
-      color: var(--accent);
-
-      background:
-        rgba(var(--accent-rgb), .08);
-
-      opacity: 1;
-    }
-
-
-    .country-stations {
-      display: grid;
-
-      grid-template-columns:
-        repeat(
-          auto-fit,
-          minmax(145px, 1fr)
-        );
-
-      gap: 12px;
-    }
-
-
-    .station {
-      position: relative;
-
-      min-width: 0;
-
-      overflow: hidden;
-
-      border:
-        1px solid var(--border);
-
-      border-radius:
-        var(--radius-lg);
-
-      background:
-        var(--panel);
-
-      transition:
-        background .18s ease,
-        border-color .18s ease,
-        transform .18s ease;
-    }
-
-
-    .station:hover {
-      background:
-        var(--panel-hover);
-
-      transform:
-        translateY(-2px);
-    }
-
-
-    .station.active {
-      border-color:
-        rgba(var(--accent-rgb), .52);
-
-      background:
-        rgba(var(--accent-rgb), .11);
-    }
-
-
-    .station-select {
-      appearance: none;
-
-      width: 100%;
-
-      min-height: 112px;
-
-      padding: 17px;
-
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: space-between;
-
-      border: 0;
-
-      background: transparent;
-
-      text-align: left;
-
-      cursor: pointer;
-    }
-
-
-    .station-logo-wrap {
-      width: 42px;
-      height: 42px;
-
-      display: grid;
-      place-items: center;
-
-      padding: 5px;
-
-      overflow: hidden;
-
-      border-radius: 12px;
-
-      background: #fff;
-
-      box-shadow:
-        inset 0 0 0 1px rgba(0,0,0,.05);
-    }
-
-
-    .station-logo {
-      width: 100%;
-      height: 100%;
-
-      max-width: 100%;
-      max-height: 100%;
-
-      display: block;
-
-      object-fit: contain;
-    }
-
-
-    .station[data-station-id="qmusic"]
-    .station-logo,
-
-    .station[data-station-id="qmusicbe"]
-    .station-logo {
-      width: 78%;
-      height: 78%;
-    }
-
-
-    .station-logo-fallback {
-      display: none;
-
-      width: 100%;
-      height: 100%;
-
-      align-items: center;
-      justify-content: center;
-
-      color: #111318;
-
-      font-size: 10px;
-      font-weight: 850;
-    }
-
-
-    .station-name {
-      width: 100%;
-
-      margin-top: 18px;
-
-      padding-right: 20px;
-
-      overflow: hidden;
-
-      font-size: 14px;
-      font-weight: 680;
-
-      letter-spacing: -.025em;
-
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-
-    .favorite-button {
-      appearance: none;
-
-      position: absolute;
-
-      top: 12px;
-      right: 12px;
-
-      z-index: 5;
-
-      width: 30px;
-      height: 30px;
-
-      display: grid;
-      place-items: center;
-
-      padding: 0;
-
-      border: 0;
-      border-radius: 10px;
-
-      background: transparent;
-
-      color: var(--muted);
-
-      font-size: 18px;
-
-      cursor: pointer;
-
-      opacity: .48;
-    }
-
-
-    .favorite-button:hover,
-    .favorite-button.active {
-      color: var(--accent);
-
-      opacity: 1;
-    }
-
-
-    footer {
-      display: flex;
-      justify-content: center;
-
-      margin-top: 28px;
-
-      color: var(--muted);
-
-      opacity: .64;
-
-      font-size: 11px;
-    }
-
-
-    :focus-visible {
-      outline:
-        2px solid var(--text);
-
-      outline-offset: 4px;
-    }
-
-
-    @media (max-width: 760px) {
-
-      .app {
-        width:
-          min(
-            100% - 24px,
-            620px
-          );
-      }
-
-
-      header {
-        margin-bottom: 32px;
-      }
-
-
-      .player {
-        grid-template-columns: 1fr;
-
-        gap: 26px;
-
-        margin-bottom: 38px;
-      }
-
-
-      .artwork {
-        width:
-          min(58vw, 255px);
-
-        justify-self: center;
-      }
-
-
-      .player-info {
-        text-align: center;
-      }
-
-
-      h1 {
-        margin-inline: auto;
-
-        font-size:
-          clamp(40px, 12vw, 60px);
-      }
-
-
-      .program-title,
-      .track-artist,
-      .track-title {
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-
-      .controls {
-        justify-content: center;
-      }
-
-
-      .secondary-controls {
-        width:
-          min(300px, 100%);
-
-        text-align: left;
-      }
-
-
-      .country-stations {
-        grid-template-columns:
-          repeat(
-            2,
-            minmax(0, 1fr)
-          );
-      }
-
-
-      footer {
-        display: none;
-      }
-    }
-
-
-    @media (max-width: 420px) {
-
-      .app {
-        width:
-          calc(100% - 20px);
-      }
-
-
-      .station-count {
-        display: none;
-      }
-
-
-      .artwork {
-        width:
-          min(54vw, 205px);
-
-        border-radius: 26px;
-      }
-
-
-      .controls {
-        flex-direction: column;
-
-        gap: 18px;
-      }
-
-
-      .secondary-controls {
-        width:
-          min(290px, 92%);
-      }
-
-
-      .station-select {
-        min-height: 97px;
-
-        padding: 14px;
-      }
-
-
-      .station-logo-wrap {
-        width: 38px;
-        height: 38px;
-      }
-
-
-      .country-header {
-        min-height: 48px;
-
-        padding-left: 9px;
-      }
-
-
-      .country-flag {
-        font-size: 20px;
-      }
-
-
-      .country-count {
-        display: none;
-      }
-    }
-
-
-    @media (prefers-reduced-motion: reduce) {
-
-      * {
-        transition-duration:
-          .01ms !important;
-
-        animation-duration:
-          .01ms !important;
-      }
-    }
-  </style>
-</head>
-
-
-<body>
-
-<div class="app">
-
-  <header>
-
-    <div class="brand">
-      <span class="brand-dot"></span>
-      radio.
-    </div>
-
-    <div class="header-tools">
-
-      <div
-        id="stationCount"
-        class="station-count"
-      ></div>
-
-      <div
-        class="theme-switcher"
-        role="group"
-        aria-label="Thema"
-      >
-
-        <button
-          class="theme-option"
-          type="button"
-          data-theme-choice="system"
-        >
-          Systeem
-        </button>
-
-        <button
-          class="theme-option"
-          type="button"
-          data-theme-choice="light"
-        >
-          Licht
-        </button>
-
-        <button
-          class="theme-option"
-          type="button"
-          data-theme-choice="dark"
-        >
-          Donker
-        </button>
-
-      </div>
-
-    </div>
-
-  </header>
-
-
-  <main>
-
-    <section class="player">
-
-      <div class="artwork">
-
-        <div class="main-logo-surface">
-
-          <img
-            id="mainStationLogo"
-            class="main-station-logo"
-            alt=""
-          >
-
-          <div
-            id="stationMark"
-            class="station-mark"
-          ></div>
-
-        </div>
-
-
-        <div class="playing-indicator">
-
-          <span class="live-dot"></span>
-
-          LIVE
-
-        </div>
-
-      </div>
-
-
-      <div class="player-info">
-
-        <h1 id="stationTitle"></h1>
-
-
-        <div
-          id="programTitle"
-          class="program-title"
-          hidden
-        ></div>
-
-
-        <div
-          id="trackInfo"
-          class="track"
-          aria-live="polite"
-          hidden
-        >
-
-          <a
-            id="trackArtist"
-            class="track-artist track-link"
-          ></a>
-
-          <a
-            id="trackTitle"
-            class="track-title track-link"
-          ></a>
-
-        </div>
-
-
-        <div class="controls">
-
-          <button
-            id="playButton"
-            class="play-button"
-            type="button"
-            aria-label="Afspelen"
-          >
-
-            <svg
-              class="play-icon"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-
-            <svg
-              class="pause-icon"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M7 5h4v14H7zm6 0h4v14h-4z"/>
-            </svg>
-
-          </button>
-
-
-          <div class="secondary-controls">
-
-            <div
-              id="status"
-              class="status"
-            >
-              Klaar om te luisteren
-            </div>
-
-
-            <div class="control-row">
-
-              <button
-                id="muteButton"
-                class="icon-button mute-button"
-                type="button"
-                aria-label="Geluid dempen"
-              >
-
-                <svg
-                  class="volume-on-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M11 5 6 9H2v6h4l5 4z"/>
-                  <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
-                  <path d="M18 6a8 8 0 0 1 0 12"/>
-                </svg>
-
-
-                <svg
-                  class="volume-off-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M11 5 6 9H2v6h4l5 4z"/>
-                  <path d="m16 9 5 5"/>
-                  <path d="m21 9-5 5"/>
-                </svg>
-
-              </button>
-
-
-              <div class="volume-slider">
-
-                <input
-                  id="volume"
-                  type="range"
-                  min="0"
-                  max="1"
-                  step=".01"
-                  value=".75"
-                  aria-label="Volume"
-                  style="--volume:75%"
-                >
-
-              </div>
-
-
-              <div class="sleep-wrap">
-
-                <button
-                  id="sleepButton"
-                  class="icon-button sleep-button"
-                  type="button"
-                  aria-label="Slaaptimer"
-                  aria-expanded="false"
-                >
-
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <circle cx="12" cy="12" r="8"/>
-                    <path d="M12 8v4l2.5 2"/>
-                  </svg>
-
-                  <span
-                    id="sleepText"
-                    class="sleep-text"
-                  ></span>
-
-                </button>
-
-
-                <div
-                  id="sleepMenu"
-                  class="sleep-menu"
-                  hidden
-                >
-
-                  <button
-                    class="sleep-option"
-                    data-minutes="15"
-                  >
-                    15 minuten
-                  </button>
-
-                  <button
-                    class="sleep-option"
-                    data-minutes="30"
-                  >
-                    30 minuten
-                  </button>
-
-                  <button
-                    class="sleep-option"
-                    data-minutes="60"
-                  >
-                    60 minuten
-                  </button>
-
-                  <button
-                    class="sleep-option"
-                    data-minutes="0"
-                  >
-                    Timer uit
-                  </button>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <section
-      id="stations"
-      class="station-groups"
-      aria-label="Radiostations"
-    ></section>
-
-  </main>
-
-
-  <footer>
-    Spatie: play/pauze · ← →: zender wisselen
-  </footer>
-
-</div>
-
-
-<audio
-  id="audio"
-  preload="none"
-></audio>
-
-
+<meta charset="utf-8">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1, viewport-fit=cover"
+>
+<meta
+id="themeColor"
+name="theme-color"
+content="#080a0f"
+>
+<link
+id="dynamicFavicon"
+rel="icon"
+href=""
+>
+<title>radio.</title>
 <script>
-
-/* =========================================================
-   CONFIG
-   ========================================================= */
-
-const METADATA_REFRESH = 15000;
-
-const PROGRAM_REFRESH = 60000;
-
-const REQUEST_TIMEOUT = 6500;
-
-const TRACK_STALE_MS = 90000;
-
-const PROGRAM_STALE_MS =
-  10 * 60 * 1000;
-
-const WIKI_CACHE_KEY =
-  "radio-wikipedia-cache-v1";
-
-const WIKI_CACHE_TTL =
-  30 * 24 * 60 * 60 * 1000;
-
-
-
-const COUNTRIES = [
-
-  {
-    code: "NL",
-    name: "Nederland",
-    flag: "🇳🇱"
-  },
-
-  {
-    code: "BE",
-    name: "België",
-    flag: "🇧🇪"
-  }
-
-];
-
-
-/* =========================================================
-   STATIONS
-   ========================================================= */
-
-const stations = [
-
-  {
-    id: "npo1",
-    country: "NL",
-
-    name: "NPO Radio 1",
-    mark: "1",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%201%20logo%202014.svg",
-
-    stream:
-      "https://icecast.omroep.nl/radio1-bb-mp3",
-
-    accent: "#003576",
-    rgb: "0,53,118",
-
-    metadata: [
-      {
-        type: "npo-mini",
-
-        channel:
-          "npo-radio-1"
-      }
-    ],
-
-    program: {
-      type: "npo-mini",
-
-      channel:
-        "npo-radio-1"
-    }
-  },
-
-
-  {
-    id: "npo2",
-    country: "NL",
-
-    name: "NPO Radio 2",
-    mark: "2",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%202%20logo.svg",
-
-    stream:
-      "https://icecast.omroep.nl/radio2-bb-mp3",
-
-    accent: "#d49319",
-    rgb: "212,147,25",
-
-    metadata: [
-      {
-        type: "npo-mini",
-
-        channel:
-          "npo-radio-2"
-      }
-    ],
-
-    program: {
-      type: "npo-mini",
-
-      channel:
-        "npo-radio-2"
-    }
-  },
-
-
-  {
-    id: "3fm",
-    country: "NL",
-
-    name: "NPO 3FM",
-    mark: "3",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%203FM%20logo%202020.svg",
-
-    stream:
-      "https://icecast.omroep.nl/3fm-bb-mp3",
-
-    accent: "#52d626",
-    rgb: "82,214,38",
-
-    metadata: [
-      {
-        type: "npo-mini",
-
-        channel:
-          "npo-3fm"
-      }
-    ],
-
-    program: {
-      type: "npo-mini",
-
-      channel:
-        "npo-3fm"
-    }
-  },
-
-
-  {
-    id: "npo5",
-    country: "NL",
-
-    name: "NPO Radio 5",
-    mark: "5",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%205%20logo%202016.svg",
-
-    stream:
-      "https://icecast.omroep.nl/radio5-bb-mp3",
-
-    accent: "#7854d8",
-    rgb: "120,84,216",
-
-    metadata: [
-      {
-        type: "npo-mini",
-
-        channel:
-          "npo-radio-5"
-      }
-    ],
-
-    program: {
-      type: "npo-mini",
-
-      channel:
-        "npo-radio-5"
-    }
-  },
-
-
-  {
-    id: "funx",
-    country: "NL",
-
-    name: "NPO FunX",
-    mark: "FX",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20FunX%20logo%202024.svg",
-
-    stream:
-      "https://icecast.omroep.nl/funx-bb-mp3",
-
-    accent: "#8254e8",
-    rgb: "130,84,232",
-
-    metadata: [
-      {
-        type: "npo-mini",
-
-        channel:
-          "npo-funx"
-      }
-    ],
-
-    program: {
-      type: "npo-mini",
-
-      channel:
-        "npo-funx"
-    }
-  },
-
-
-  {
-    id: "538",
-    country: "NL",
-
-    name: "Radio 538",
-    mark: "538",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo%20Radio538.svg",
-
-    stream:
-      "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO538.mp3",
-
-    accent: "#8bc53f",
-    rgb: "139,197,63",
-
-    metadata: [
-      {
-        type: "triton-track",
-
-        mount:
-          "RADIO538"
-      }
-    ],
-
-    program: {
-      type: "talpa-home",
-
-      url:
-        "https://www.538.nl/"
-    }
-  },
-
-
-  {
-    id: "qmusic",
-    country: "NL",
-
-    name: "Qmusic",
-    mark: "Q",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Qmusic%20logo.svg",
-
-    stream:
-      "https://stream.qmusic.nl/qmusic/mp3",
-
-    accent: "#e71d4f",
-    rgb: "231,29,79",
-
-    noise: [
-      "qmusic",
-      "q-music",
-      "qmusic nieuws"
-    ],
-
-    metadata: [
-      {
-        type: "dpg",
-
-        url:
-          "https://api.qmusic.nl/2.4/tracks/plays?limit=1&next=true"
-      }
-    ]
-  },
-
-
-  {
-    id: "joenl",
-    country: "NL",
-
-    name: "JOE Nederland",
-    mark: "JOE",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/JOE%20Logo%202023.png",
-
-    stream:
-      "https://stream.joe.nl/joe/mp3",
-
-    accent: "#2968d5",
-    rgb: "41,104,213",
-
-    noise: [
-      "joe",
-      "joe nieuws"
-    ],
-
-    metadata: [
-      {
-        type: "dpg",
-
-        url:
-          "https://api.joe.nl/2.4/tracks/plays?limit=1&next=true"
-      }
-    ]
-  },
-
-
-  {
-    id: "skyradio",
-    country: "NL",
-
-    name: "Sky Radio",
-    mark: "SKY",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sky%20Radio%20logo%202019.svg",
-
-    stream:
-      "https://playerservices.streamtheworld.com/api/livestream-redirect/SKYRADIO.mp3",
-
-    accent: "#ef3123",
-    rgb: "239,49,35",
-
-    metadata: [
-      {
-        type: "triton-track",
-
-        mount:
-          "SKYRADIO"
-      }
-    ],
-
-    program: {
-      type: "talpa-home",
-
-      url:
-        "https://www.skyradio.nl/"
-    }
-  },
-
-
-  {
-    id: "bnr",
-    country: "NL",
-
-    name: "BNR Nieuwsradio",
-    mark: "BNR",
-
-    logo:
-      "https://static.bnr.nl/assets/bnr-next/logo.png",
-
-    stream:
-      "https://stream.bnr.nl/bnr_mp3_128_20",
-
-    accent: "#ffd200",
-    rgb: "255,210,0",
-
-    metadata: [],
-
-    program: {
-      type: "bnr",
-
-      url:
-        "https://www.bnr.nl/player/live"
-    }
-  },
-
-
-  {
-    id: "veronica",
-    country: "NL",
-
-    name: "Radio Veronica",
-    mark: "V",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Radio%20Veronica%20logo.svg",
-
-    stream:
-      "https://playerservices.streamtheworld.com/api/livestream-redirect/VERONICA.mp3",
-
-    accent: "#169bd7",
-    rgb: "22,155,215",
-
-    noise: [
-      "radio veronica",
-      "veronica"
-    ],
-
-    metadata: [
-      {
-        type: "triton-track",
-
-        mount:
-          "VERONICA"
-      }
-    ],
-
-    program: {
-      type: "mediahuis-home",
-
-      url:
-        "https://www.radioveronica.nl/"
-    }
-  },
-
-
-  {
-    id: "radio10",
-    country: "NL",
-
-    name: "Radio 10",
-    mark: "10",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Radio%2010%20logo%202019.svg",
-
-    stream:
-      "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO10.mp3",
-
-    accent: "#2eb168",
-    rgb: "46,177,104",
-
-    preRollTrackGuardSeconds:
-      35,
-
-    noise: [
-      "radio 10",
-      "radio 10 nieuws"
-    ],
-
-    metadata: [
-      {
-        type: "triton-track",
-
-        mount:
-          "RADIO10"
-      }
-    ],
-
-    program: {
-      type: "talpa-home",
-
-      url:
-        "https://www.radio10.nl/"
-    }
-  },
-
-
-  {
-    id: "100nl",
-    country: "NL",
-
-    name: "100% NL",
-    mark: "100",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/100p-nl-logo.svg",
-
-    stream:
-      "https://stream.100p.nl/100pctnl.mp3",
-
-    accent: "#f26522",
-    rgb: "242,101,34",
-
-    noise: [
-      "100% nl",
-      "100 % nl"
-    ],
-
-    metadata: [
-      {
-        type: "triton-track",
-
-        mount:
-          "100PNL_MP3"
-      }
-    ],
-
-    program: {
-      type: "mediahuis-home",
-
-      url:
-        "https://www.100p.nl/"
-    }
-  },
-
-
-  {
-    id: "kink",
-    country: "NL",
-
-    name: "KINK",
-    mark: "K",
-
-    logo:
-      "https://plug.kink.nl/img/top-logo.png",
-
-    stream:
-      "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK.mp3",
-
-    accent: "#f2f2f2",
-    rgb: "210,210,210",
-
-    metadata: [
-      {
-        type: "triton-track",
-
-        mount:
-          "KINK"
-      }
-    ]
-  },
-
-
-  {
-    id: "slam",
-    country: "NL",
-
-    name: "SLAM!",
-    mark: "S!",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Slam%21-logo.png",
-
-    stream:
-      "https://stream.slam.nl/slam_mp3",
-
-    accent: "#ec008c",
-    rgb: "236,0,140",
-
-    noise: [
-      "slam",
-      "slam!",
-      "slam fm"
-    ],
-
-    metadata: [
-      {
-        type: "triton-track",
-
-        mount:
-          "SLAM_MP3"
-      }
-    ],
-
-    program: {
-      type: "mediahuis-home",
-
-      url:
-        "https://www.slam.nl/"
-    }
-  },
-
-
-  {
-    id: "arrow",
-    country: "NL",
-
-    name: "Arrow Classic Rock",
-    mark: "A",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Arrow%20Classic%20Rock%20logo.svg",
-
-    stream:
-      "https://stream.player.arrow.nl/arrowcr",
-
-    accent: "#e6b51e",
-    rgb: "230,181,30",
-
-    noise: [
-      "arrow",
-      "arrow classic rock",
-      "het arrow classic rock nieuws"
-    ],
-
-    metadata: [
-      {
-        type: "arrow",
-
-        url:
-          "https://player.arrow.nl/index.php?c=Arrow%20Classic%20Rock"
-      }
-    ]
-  },
-
-
-  {
-    id: "stubru",
-    country: "BE",
-
-    name: "Studio Brussel",
-    mark: "Stu",
-
-    logo:
-      "https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-06.svg",
-
-    stream:
-      "https://icecast.vrtcdn.be/stubru-high.mp3",
-
-    accent: "#ff4438",
-    rgb: "255,68,56",
-
-    noise: [
-      "studio brussel",
-      "vrt studio brussel",
-      "life is music"
-    ],
-
-    metadata: [
-      {
-        type: "vrt",
-
-        pageId:
-          "/kanalen/studio-brussel"
-      }
-    ]
-  },
-
-
-  {
-    id: "tijdloze",
-    country: "BE",
-
-    name: "De Tijdloze",
-    mark: "∞",
-
-    logo:
-      "https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-11.svg",
-
-    stream:
-      "https://icecast.vrtcdn.be/stubru_tijdloze-high.mp3",
-
-    accent: "#7471d8",
-    rgb: "116,113,216",
-
-    noise: [
-      "de tijdloze",
-      "vrt de tijdloze"
-    ],
-
-    metadata: [
-      {
-        type: "vrt",
-
-        pageId:
-          "/kanalen/de-tijdloze"
-      }
-    ]
-  },
-
-
-  {
-    id: "mnm",
-    country: "BE",
-
-    name: "MNM",
-    mark: "M",
-
-    logo:
-      "https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-05.svg",
-
-    stream:
-      "https://icecast.vrtcdn.be/mnm-high.mp3",
-
-    accent: "#235bc1",
-    rgb: "35,91,193",
-
-    noise: [
-      "mnm",
-      "vrt mnm",
-      "mnm - make life sing",
-      "make life sing"
-    ],
-
-    metadata: [
-      {
-        type: "vrt",
-
-        pageId:
-          "/kanalen/mnm"
-      }
-    ]
-  },
-
-
-  {
-    id: "qmusicbe",
-    country: "BE",
-
-    name: "Qmusic België",
-    mark: "Q",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/Qmusic%20logo.svg",
-
-    stream:
-      "https://streams.radio.dpgmedia.cloud/redirect/qmusic_be/mp3",
-
-    accent: "#e71d4f",
-    rgb: "231,29,79",
-
-    noise: [
-      "qmusic",
-      "q-music",
-      "qmusic nieuws"
-    ],
-
-    metadata: [
-      {
-        type: "dpg",
-
-        url:
-          "https://api.qmusic.be/2.4/tracks/plays?limit=1&next=true"
-      }
-    ]
-  },
-
-
-  {
-    id: "willy",
-    country: "BE",
-
-    name: "Willy",
-    mark: "W",
-
-    logo:
-      "https://images.seeklogo.com/logo-png/39/1/willy-music-matters-logo-png_seeklogo-392837.png",
-
-    stream:
-      "https://streams.radio.dpgmedia.cloud/redirect/willy_be/mp3",
-
-    accent: "#f05a28",
-    rgb: "240,90,40",
-
-    noise: [
-      "willy",
-      "music matters"
-    ],
-
-    metadata: [
-      {
-        type: "dpg",
-
-        url:
-          "https://api.willy.radio/2.4/tracks/plays?limit=1&next=true"
-      }
-    ]
-  },
-
-
-  {
-    id: "klara",
-    country: "BE",
-
-    name: "Klara",
-    mark: "K",
-
-    logo:
-      "https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-08.svg",
-
-    stream:
-      "https://icecast.vrtcdn.be/klara-high.mp3",
-
-    accent: "#b5915c",
-    rgb: "181,145,92",
-
-    noise: [
-      "klara",
-      "vrt klara",
-      "blijf verwonderd"
-    ],
-
-    metadata: [
-      {
-        type: "vrt",
-
-        pageId:
-          "/kanalen/klara"
-      }
-    ]
-  },
-
-
-  {
-    id: "vrt1",
-    country: "BE",
-
-    name: "VRT Radio 1",
-    mark: "R1",
-
-    logo:
-      "https://www.vrt.be/nl/assets/images/2025-06/radio1.svg",
-
-    stream:
-      "https://icecast.vrtcdn.be/radio1-high.mp3",
-
-    accent: "#4960dd",
-    rgb: "73,96,221",
-
-    noise: [
-      "radio 1",
-      "vrt radio 1",
-      "alles begint bij luisteren"
-    ],
-
-    metadata: [
-      {
-        type: "vrt",
-
-        pageId:
-          "/radio1"
-      }
-    ]
-  },
-
-
-  {
-    id: "radio2limburg",
-    country: "BE",
-
-    name: "Radio 2 Limburg",
-    mark: "R2",
-
-    logo:
-      "https://www.vrt.be/nl/assets/images/2025-06/color.svg",
-
-    stream:
-      "https://icecast.vrtcdn.be/ra2lim-high.mp3",
-
-    accent: "#ed1945",
-    rgb: "237,25,69",
-
-    noise: [
-      "radio 2",
-      "vrt radio 2",
-      "radio 2 limburg",
-      "vrt radio 2 limburg",
-      "radio 2 in limburg",
-      "radio 2 weekend",
-      "elke dag telt voor 2"
-    ],
-
-    metadata: [
-      {
-        type: "vrt",
-
-        pageId:
-          "/radio2"
-      }
-    ]
-  },
-
-
-  {
-    id: "joebe",
-    country: "BE",
-
-    name: "JOE België",
-    mark: "JOE",
-
-    logo:
-      "https://commons.wikimedia.org/wiki/Special:Redirect/file/JOE%20Logo%202023.png",
-
-    stream:
-      "https://streams.radio.dpgmedia.cloud/redirect/joe_fm/mp3",
-
-    accent: "#265ed7",
-    rgb: "38,94,215",
-
-    noise: [
-      "joe",
-      "joe nieuws"
-    ],
-
-    metadata: [
-      {
-        type: "dpg",
-
-        url:
-          "https://api.joe.be/2.4/tracks/plays?limit=1&next=true"
-      }
-    ]
-  }
-
-];
-
-
-/* =========================================================
-   ELEMENTS
-   ========================================================= */
-
-const audio =
-  document.getElementById("audio");
-
-const playButton =
-  document.getElementById("playButton");
-
-const muteButton =
-  document.getElementById("muteButton");
-
-const volume =
-  document.getElementById("volume");
-
-const stationTitle =
-  document.getElementById("stationTitle");
-
-const stationMark =
-  document.getElementById("stationMark");
-
-const stationCount =
-  document.getElementById("stationCount");
-
-const stationsContainer =
-  document.getElementById("stations");
-
-const status =
-  document.getElementById("status");
-
-const programTitle =
-  document.getElementById("programTitle");
-
-const trackInfo =
-  document.getElementById("trackInfo");
-
-const trackArtist =
-  document.getElementById("trackArtist");
-
-const trackTitle =
-  document.getElementById("trackTitle");
-
-const mainStationLogo =
-  document.getElementById("mainStationLogo");
-
-const dynamicFavicon =
-  document.getElementById("dynamicFavicon");
-
-const themeColor =
-  document.getElementById("themeColor");
-
-const themeButtons =
-  [
-    ...document.querySelectorAll(
-      "[data-theme-choice]"
-    )
-  ];
-
-const sleepButton =
-  document.getElementById("sleepButton");
-
-const sleepMenu =
-  document.getElementById("sleepMenu");
-
-const sleepText =
-  document.getElementById("sleepText");
-
-
-/* =========================================================
-   STATE
-   ========================================================= */
-
-const storedStationId =
-  localStorage.getItem(
-    "radio-station-id"
-  );
-
-
-let currentIndex =
-  stations.findIndex(
-    station =>
-      station.id ===
-      storedStationId
-  );
-
-
-if (
-  currentIndex < 0
-) {
-  currentIndex = 0;
-}
-
-
-const storedVolume =
-  Number(
-    localStorage.getItem(
-      "radio-volume"
-    )
-  );
-
-
-audio.volume =
-  Number.isFinite(
-    storedVolume
-  )
-    ? Math.max(
-        0,
-        Math.min(
-          1,
-          storedVolume
-        )
-      )
-    : .75;
-
-
-volume.value =
-  audio.volume;
-
-
-let metadataGeneration = 0;
-
-let programGeneration = 0;
-
-let wikipediaGeneration = 0;
-
-
-let currentTrack = {
-  artist: "",
-  title: ""
-};
-
-
-let currentTrackUpdatedAt = 0;
-
-
-let currentProgram = "";
-
-let currentProgramUpdatedAt = 0;
-
-
-let preRollGuardPending = false;
-
-let preRollTrackGuardUntil = 0;
-
-let preRollGuardTimer = null;
-
-
-let playbackRequested = false;
-
-let reconnectTimer = null;
-
-let reconnectAttempts = 0;
-
-
-let favoriteIds =
-  new Set();
-
-
+(() => {
 try {
-
-  favoriteIds =
-    new Set(
-      JSON.parse(
-        localStorage.getItem(
-          "radio-favorites"
-        ) ||
-        "[]"
-      )
-    );
-
-}
-catch {}
-
-
-let favoriteCountries =
-  new Set();
-
-
-try {
-
-  favoriteCountries =
-    new Set(
-      JSON.parse(
-        localStorage.getItem(
-          "radio-country-favorites"
-        ) ||
-        "[]"
-      )
-    );
-
-}
-catch {}
-
-
-let collapsedCountries =
-  new Set();
-
-
-try {
-
-  collapsedCountries =
-    new Set(
-      JSON.parse(
-        localStorage.getItem(
-          "radio-country-collapsed"
-        ) ||
-        "[]"
-      )
-    );
-
-}
-catch {}
-
-
-let sleepUntil =
-  Number(
-    localStorage.getItem(
-      "radio-sleep-until"
-    )
-  ) || 0;
-
-
-/* =========================================================
-   WIKIPEDIA CACHE
-   ========================================================= */
-
-let wikiCache = {};
-
-
-try {
-
-  wikiCache =
-    JSON.parse(
-      localStorage.getItem(
-        WIKI_CACHE_KEY
-      ) ||
-      "{}"
-    );
-
+const stored =
+localStorage.getItem(
+"radio-theme"
+);
+document.documentElement.dataset.theme =
+["light", "dark"].includes(stored)
+? stored
+: "system";
 }
 catch {
-
-  wikiCache = {};
-
+document.documentElement.dataset.theme =
+"system";
 }
+})();
+</script>
+<style>
+:root {
+color-scheme: dark;
+--bg: #080a0f;
+--panel: rgba(255,255,255,.055);
+--panel-hover: rgba(255,255,255,.09);
+--border: rgba(255,255,255,.09);
+--text: #f7f7f8;
+--muted: #9297a2;
+--accent: #e63946;
+--accent-rgb: 230,57,70;
+--logo-surface: #fff;
+--play-bg: #f7f7f8;
+--play-fg: #080a0f;
+--menu-bg: #171a21;
+--shadow:
+0 30px 80px rgba(0,0,0,.35);
+--radius-xl: 32px;
+--radius-lg: 22px;
+}
+:root[data-theme="light"] {
+color-scheme: light;
+--bg: #f3f5f8;
+--panel: rgba(255,255,255,.72);
+--panel-hover: rgba(255,255,255,.98);
+--border: rgba(15,18,24,.09);
+--text: #111318;
+--muted: #6f7581;
+--play-bg: #111318;
+--play-fg: #fff;
+--menu-bg: #fff;
+--shadow:
+0 26px 65px rgba(26,32,44,.13);
+}
+:root[data-theme="dark"] {
+color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+:root[data-theme="system"] {
+color-scheme: light;
+--bg: #f3f5f8;
+--panel: rgba(255,255,255,.72);
+--panel-hover: rgba(255,255,255,.98);
+--border: rgba(15,18,24,.09);
+--text: #111318;
+--muted: #6f7581;
+--play-bg: #111318;
+--play-fg: #fff;
+--menu-bg: #fff;
+--shadow:
+0 26px 65px rgba(26,32,44,.13);
+}
+}
+* {
+box-sizing: border-box;
+}
+[hidden] {
+display: none !important;
+}
+html {
+-webkit-text-size-adjust: 100%;
+}
+body {
+margin: 0;
+min-height: 100vh;
+min-height: 100svh;
+font-family:
+Inter,
+ui-sans-serif,
+system-ui,
+-apple-system,
+BlinkMacSystemFont,
+"Segoe UI",
+sans-serif;
+color: var(--text);
+background:
+radial-gradient(
+circle at 50% 10%,
+rgba(var(--accent-rgb), .16),
+transparent 40%
+),
+var(--bg);
+transition:
+background .45s ease,
+color .25s ease;
+}
+button,
+input {
+font: inherit;
+}
+button {
+color: inherit;
+}
+.app {
+width:
+min(
+1120px,
+calc(100% - 32px)
+);
+min-height: 100svh;
+margin: 0 auto;
+display: flex;
+flex-direction: column;
+padding:
+max(24px, env(safe-area-inset-top))
+0
+max(24px, env(safe-area-inset-bottom));
+}
+header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom:
+clamp(30px, 6vh, 70px);
+}
+.brand {
+display: flex;
+align-items: center;
+gap: 11px;
+font-size: 20px;
+font-weight: 760;
+letter-spacing: -.04em;
+}
+.brand-dot {
+width: 11px;
+height: 11px;
+border-radius: 50%;
+background: var(--accent);
+box-shadow:
+0 0 0 5px rgba(var(--accent-rgb), .12),
+0 0 28px rgba(var(--accent-rgb), .65);
+}
+.station-count {
+color: var(--muted);
+font-size: 13px;
+font-weight: 600;
+}
+.header-tools {
+display: flex;
+align-items: center;
+justify-content: flex-end;
+gap: 14px;
+}
+.theme-switcher {
+display: flex;
+align-items: center;
+gap: 2px;
+padding: 3px;
+border:
+1px solid var(--border);
+border-radius: 13px;
+background: var(--panel);
+}
+.theme-option {
+appearance: none;
+min-height: 29px;
+padding: 0 9px;
+border: 0;
+border-radius: 9px;
+color: var(--muted);
+background: transparent;
+font-size: 11px;
+font-weight: 700;
+cursor: pointer;
+transition:
+color .16s ease,
+background .16s ease;
+}
+.theme-option:hover {
+color: var(--text);
+}
+.theme-option.active {
+color: var(--text);
+background: var(--panel-hover);
+}
+main {
+flex: 1;
+display: flex;
+flex-direction: column;
+justify-content: center;
+}
+.player {
+display: grid;
+grid-template-columns:
+minmax(220px, 330px)
+minmax(0, 1fr);
+gap:
+clamp(32px, 7vw, 85px);
+align-items: center;
+margin-bottom:
+clamp(42px, 8vh, 78px);
+}
+.artwork {
+position: relative;
+aspect-ratio: 1;
+display: grid;
+place-items: center;
+overflow: hidden;
+border-radius:
+var(--radius-xl);
+background:
+linear-gradient(
+145deg,
+rgba(var(--accent-rgb), .98),
+rgba(var(--accent-rgb), .42)
+);
+box-shadow:
+0 34px 80px rgba(var(--accent-rgb), .16),
+inset 0 1px 0 rgba(255,255,255,.2);
+}
+.artwork::before,
+.artwork::after {
+content: "";
+position: absolute;
+border-radius: 50%;
+border:
+1px solid rgba(255,255,255,.14);
+pointer-events: none;
+}
+.artwork::before {
+width: 76%;
+height: 76%;
+}
+.artwork::after {
+width: 48%;
+height: 48%;
+}
+.main-logo-surface {
+position: relative;
+z-index: 2;
+width: 58%;
+aspect-ratio: 1;
+display: grid;
+place-items: center;
+padding: 11%;
+border-radius: 26%;
+background:
+var(--logo-surface);
+box-shadow:
+0 18px 45px rgba(0,0,0,.17),
+inset 0 0 0 1px rgba(0,0,0,.04);
+}
+.main-station-logo {
+width: 100%;
+height: 100%;
+display: block;
+object-fit: contain;
+transition:
+opacity .2s ease,
+transform .25s ease;
+}
+.station-mark {
+display: none;
+color: #111318;
+font-size:
+clamp(42px, 6vw, 74px);
+font-weight: 850;
+line-height: 1;
+letter-spacing: -.075em;
+}
+.playing-indicator {
+position: absolute;
+right: 20px;
+bottom: 20px;
+z-index: 3;
+height: 35px;
+padding: 0 14px;
+display: flex;
+align-items: center;
+gap: 8px;
+border-radius: 999px;
+color: #fff;
+background:
+rgba(0,0,0,.36);
+backdrop-filter: blur(18px);
+-webkit-backdrop-filter: blur(18px);
+font-size: 11px;
+font-weight: 750;
+letter-spacing: .08em;
+opacity: .72;
+}
+.live-dot {
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: #fff;
+}
+body.is-playing .live-dot {
+animation:
+pulse 1.5s infinite;
+}
+@keyframes pulse {
+50% {
+opacity: .25;
+transform: scale(.8);
+}
+}
+.player-info {
+min-width: 0;
+}
+h1 {
+margin: 0;
+max-width: 720px;
+font-size:
+clamp(40px, 6vw, 72px);
+font-weight: 790;
+line-height: .98;
+letter-spacing: -.065em;
+text-wrap: balance;
+}
+.program-title {
+width: fit-content;
+max-width: 100%;
+margin-top: 15px;
+color: var(--muted);
+font-size:
+clamp(14px, 1.7vw, 17px);
+font-weight: 620;
+line-height: 1.3;
+letter-spacing: -.015em;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.track {
+margin-top: 14px;
+}
+.track-artist,
+.track-title {
+display: block;
+width: fit-content;
+max-width: 100%;
+text-decoration: none;
+cursor: default;
+transition:
+color .16s ease,
+opacity .16s ease;
+}
+.track-artist {
+color: var(--text);
+font-size:
+clamp(16px, 2vw, 20px);
+font-weight: 650;
+letter-spacing: -.025em;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.track-title {
+margin-top: 4px;
+color: var(--muted);
+font-size:
+clamp(14px, 1.7vw, 17px);
+font-weight: 500;
+letter-spacing: -.015em;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.track.single .track-artist {
+display: none;
+}
+.track-link.has-wiki {
+cursor: pointer;
+text-decoration-line: underline;
+text-decoration-style: dotted;
+text-decoration-thickness: 1px;
+text-underline-offset: 4px;
+text-decoration-color:
+rgba(var(--accent-rgb), .6);
+}
+.track-link.has-wiki::after {
+content: " ↗";
+font-size: .68em;
+font-weight: 700;
+opacity: .48;
+vertical-align: .1em;
+}
+.track-link.has-wiki:hover {
+color: var(--accent);
+text-decoration-color:
+var(--accent);
+}
+.track-link.has-wiki:hover::after {
+opacity: .9;
+}
+.controls {
+display: flex;
+align-items: center;
+gap: 20px;
+margin-top: 27px;
+}
+.play-button {
+appearance: none;
+width: 72px;
+height: 72px;
+flex: 0 0 72px;
+display: grid;
+place-items: center;
+padding: 0;
+border: 0;
+border-radius: 50%;
+background:
+var(--play-bg);
+color:
+var(--play-fg);
+cursor: pointer;
+box-shadow:
+var(--shadow);
+transition:
+transform .16s ease;
+}
+.play-button:hover {
+transform: scale(1.055);
+}
+.play-button:active {
+transform: scale(.96);
+}
+.play-button svg {
+width: 27px;
+height: 27px;
+}
+.play-icon {
+margin-left: 4px;
+}
+body.is-playing .play-icon {
+display: none;
+}
+.pause-icon {
+display: none;
+}
+body.is-playing .pause-icon {
+display: block;
+}
+.secondary-controls {
+width:
+min(310px, 100%);
+}
+.status {
+min-height: 20px;
+margin-bottom: 12px;
+color: var(--muted);
+font-size: 13px;
+font-weight: 550;
+}
+.control-row {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.icon-button {
+appearance: none;
+width: 38px;
+height: 38px;
+flex: 0 0 38px;
+display: grid;
+place-items: center;
+padding: 0;
+border:
+1px solid transparent;
+border-radius: 12px;
+background: transparent;
+color: var(--muted);
+cursor: pointer;
+}
+.icon-button:hover {
+color: var(--text);
+background:
+var(--panel-hover);
+}
+.icon-button svg {
+width: 19px;
+height: 19px;
+}
+.mute-button.muted {
+color: #fff;
+background: #e5484d;
+border-color: #e5484d;
+box-shadow:
+0 0 0 4px rgba(229,72,77,.20),
+0 8px 22px rgba(229,72,77,.22);
+}
+.volume-on-icon {
+display: block;
+}
+.volume-off-icon {
+display: none;
+}
+.mute-button.muted .volume-on-icon {
+display: none;
+}
+.mute-button.muted .volume-off-icon {
+display: block;
+}
+.volume-slider {
+flex: 1;
+min-width: 50px;
+}
+input[type="range"] {
+width: 100%;
+appearance: none;
+-webkit-appearance: none;
+height: 4px;
+border-radius: 999px;
+background:
+linear-gradient(
+to right,
+var(--text) 0,
+var(--text) var(--volume),
+rgba(128,128,128,.23) var(--volume),
+rgba(128,128,128,.23) 100%
+);
+cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+appearance: none;
+-webkit-appearance: none;
+width: 15px;
+height: 15px;
+border: 0;
+border-radius: 50%;
+background:
+var(--text);
+}
+input[type="range"]::-moz-range-thumb {
+width: 15px;
+height: 15px;
+border: 0;
+border-radius: 50%;
+background:
+var(--text);
+}
+.sleep-wrap {
+position: relative;
+}
+.sleep-button {
+width: auto;
+min-width: 38px;
+padding: 0 10px;
+gap: 6px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.sleep-button.active {
+color: var(--accent);
+border-color:
+rgba(var(--accent-rgb), .28);
+background:
+rgba(var(--accent-rgb), .10);
+}
+.sleep-text {
+display: none;
+font-size: 11px;
+font-weight: 750;
+}
+.sleep-button.active .sleep-text {
+display: block;
+}
+.sleep-menu {
+position: absolute;
+right: 0;
+bottom:
+calc(100% + 10px);
+z-index: 20;
+width: 150px;
+padding: 6px;
+border:
+1px solid var(--border);
+border-radius: 15px;
+background:
+var(--menu-bg);
+box-shadow:
+0 20px 55px rgba(0,0,0,.20);
+}
+.sleep-option {
+appearance: none;
+width: 100%;
+padding: 10px 11px;
+border: 0;
+border-radius: 10px;
+background: transparent;
+text-align: left;
+cursor: pointer;
+}
+.sleep-option:hover {
+background:
+var(--panel-hover);
+}
+.station-groups {
+display: grid;
+gap: 22px;
+}
+.country-group {
+min-width: 0;
+}
+.country-header {
+display: flex;
+align-items: center;
+min-height: 52px;
+margin-bottom: 12px;
+padding:
+5px 8px
+5px 13px;
+border:
+1px solid var(--border);
+border-radius: 17px;
+background:
+var(--panel);
+}
+.country-toggle {
+appearance: none;
+min-width: 0;
+flex: 1;
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 7px 5px;
+border: 0;
+background: transparent;
+text-align: left;
+cursor: pointer;
+}
+.country-flag {
+flex: 0 0 auto;
+font-size: 21px;
+line-height: 1;
+}
+.country-title {
+min-width: 0;
+overflow: hidden;
+font-size: 15px;
+font-weight: 760;
+letter-spacing: -.025em;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.country-count {
+margin-left: auto;
+padding-left: 12px;
+color: var(--muted);
+font-size: 11px;
+font-weight: 600;
+white-space: nowrap;
+}
+.country-chevron {
+width: 28px;
+height: 28px;
+flex: 0 0 28px;
+display: grid;
+place-items: center;
+color: var(--muted);
+transition:
+transform .2s ease;
+}
+.country-group.collapsed
+.country-chevron {
+transform:
+rotate(-90deg);
+}
+.country-favorite {
+appearance: none;
+width: 36px;
+height: 36px;
+flex: 0 0 36px;
+display: grid;
+place-items: center;
+padding: 0;
+border: 0;
+border-radius: 11px;
+background: transparent;
+color: var(--muted);
+font-size: 19px;
+cursor: pointer;
+opacity: .6;
+}
+.country-favorite:hover,
+.country-favorite.active {
+color: var(--accent);
+background:
+rgba(var(--accent-rgb), .08);
+opacity: 1;
+}
+.country-stations {
+display: grid;
+grid-template-columns:
+repeat(
+auto-fit,
+minmax(145px, 1fr)
+);
+gap: 12px;
+}
+.station {
+position: relative;
+min-width: 0;
+overflow: hidden;
+border:
+1px solid var(--border);
+border-radius:
+var(--radius-lg);
+background:
+var(--panel);
+transition:
+background .18s ease,
+border-color .18s ease,
+transform .18s ease;
+}
+.station:hover {
+background:
+var(--panel-hover);
+transform:
+translateY(-2px);
+}
+.station.active {
+border-color:
+rgba(var(--accent-rgb), .52);
+background:
+rgba(var(--accent-rgb), .11);
+}
+.station-select {
+appearance: none;
+width: 100%;
+min-height: 112px;
+padding: 17px;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+justify-content: space-between;
+border: 0;
+background: transparent;
+text-align: left;
+cursor: pointer;
+}
+.station-logo-wrap {
+width: 42px;
+height: 42px;
+display: grid;
+place-items: center;
+padding: 5px;
+overflow: hidden;
+border-radius: 12px;
+background: #fff;
+box-shadow:
+inset 0 0 0 1px rgba(0,0,0,.05);
+}
+.station-logo {
+width: 100%;
+height: 100%;
+max-width: 100%;
+max-height: 100%;
+display: block;
+object-fit: contain;
+}
+.station[data-station-id="qmusic"]
+.station-logo,
+.station[data-station-id="qmusicbe"]
+.station-logo {
+width: 78%;
+height: 78%;
+}
+.station-logo-fallback {
+display: none;
+width: 100%;
+height: 100%;
+align-items: center;
+justify-content: center;
+color: #111318;
+font-size: 10px;
+font-weight: 850;
+}
+.station-name {
+width: 100%;
+margin-top: 18px;
+padding-right: 20px;
+overflow: hidden;
+font-size: 14px;
+font-weight: 680;
+letter-spacing: -.025em;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.favorite-button {
+appearance: none;
+position: absolute;
+top: 12px;
+right: 12px;
+z-index: 5;
+width: 30px;
+height: 30px;
+display: grid;
+place-items: center;
+padding: 0;
+border: 0;
+border-radius: 10px;
+background: transparent;
+color: var(--muted);
+font-size: 18px;
+cursor: pointer;
+opacity: .48;
+}
+.favorite-button:hover,
+.favorite-button.active {
+color: var(--accent);
+opacity: 1;
+}
+footer {
+display: flex;
+justify-content: center;
+margin-top: 28px;
+color: var(--muted);
+opacity: .64;
+font-size: 11px;
+}
+:focus-visible {
+outline:
+2px solid var(--text);
+outline-offset: 4px;
+}
+@media (max-width: 760px) {
+.app {
+width:
+min(
+100% - 24px,
+620px
+);
+}
+header {
+margin-bottom: 32px;
+}
+.player {
+grid-template-columns: 1fr;
+gap: 26px;
+margin-bottom: 38px;
+}
+.artwork {
+width:
+min(58vw, 255px);
+justify-self: center;
+}
+.player-info {
+text-align: center;
+}
+h1 {
+margin-inline: auto;
+font-size:
+clamp(40px, 12vw, 60px);
+}
+.program-title,
+.track-artist,
+.track-title {
+margin-left: auto;
+margin-right: auto;
+}
+.controls {
+justify-content: center;
+}
+.secondary-controls {
+width:
+min(300px, 100%);
+text-align: left;
+}
+.country-stations {
+grid-template-columns:
+repeat(
+2,
+minmax(0, 1fr)
+);
+}
+footer {
+display: none;
+}
+}
+@media (max-width: 420px) {
+.app {
+width:
+calc(100% - 20px);
+}
+.station-count {
+display: none;
+}
+.artwork {
+width:
+min(54vw, 205px);
+border-radius: 26px;
+}
+.controls {
+flex-direction: column;
+gap: 18px;
+}
+.secondary-controls {
+width:
+min(290px, 92%);
+}
+.station-select {
+min-height: 97px;
+padding: 14px;
+}
+.station-logo-wrap {
+width: 38px;
+height: 38px;
+}
+.country-header {
+min-height: 48px;
+padding-left: 9px;
+}
+.country-flag {
+font-size: 20px;
+}
+.country-count {
+display: none;
+}
+}
+@media (prefers-reduced-motion: reduce) {
+* {
+transition-duration:
+.01ms !important;
+animation-duration:
+.01ms !important;
+}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+<div class="brand">
+<span class="brand-dot"></span>
+radio.
+</div>
+<div class="header-tools">
+<div
+id="stationCount"
+class="station-count"
+></div>
+<div
+class="theme-switcher"
+role="group"
+aria-label="Thema"
+>
+<button
+class="theme-option"
+type="button"
+data-theme-choice="system"
+>
+Systeem
+</button>
+<button
+class="theme-option"
+type="button"
+data-theme-choice="light"
+>
+Licht
+</button>
+<button
+class="theme-option"
+type="button"
+data-theme-choice="dark"
+>
+Donker
+</button>
+</div>
+</div>
+</header>
+<main>
+<section class="player">
+<div class="artwork">
+<div class="main-logo-surface">
+<img
+id="mainStationLogo"
+class="main-station-logo"
+alt=""
+>
+<div
+id="stationMark"
+class="station-mark"
+></div>
+</div>
+<div class="playing-indicator">
+<span class="live-dot"></span>
+LIVE
+</div>
+</div>
+<div class="player-info">
+<h1 id="stationTitle"></h1>
+<div
+id="programTitle"
+class="program-title"
+hidden
+></div>
+<div
+id="trackInfo"
+class="track"
+aria-live="polite"
+hidden
+>
+<a
+id="trackArtist"
+class="track-artist track-link"
+></a>
+<a
+id="trackTitle"
+class="track-title track-link"
+></a>
+</div>
+<div class="controls">
+<button
+id="playButton"
+class="play-button"
+type="button"
+aria-label="Afspelen"
+>
+<svg
+class="play-icon"
+viewBox="0 0 24 24"
+fill="currentColor"
+>
+<path d="M8 5v14l11-7z"/>
+</svg>
+<svg
+class="pause-icon"
+viewBox="0 0 24 24"
+fill="currentColor"
+>
+<path d="M7 5h4v14H7zm6 0h4v14h-4z"/>
+</svg>
+</button>
+<div class="secondary-controls">
+<div
+id="status"
+class="status"
+>
+Klaar om te luisteren
+</div>
+<div class="control-row">
+<button
+id="muteButton"
+class="icon-button mute-button"
+type="button"
+aria-label="Geluid dempen"
+>
+<svg
+class="volume-on-icon"
+viewBox="0 0 24 24"
+fill="none"
+stroke="currentColor"
+stroke-width="1.8"
+stroke-linecap="round"
+stroke-linejoin="round"
+>
+<path d="M11 5 6 9H2v6h4l5 4z"/>
+<path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+<path d="M18 6a8 8 0 0 1 0 12"/>
+</svg>
+<svg
+class="volume-off-icon"
+viewBox="0 0 24 24"
+fill="none"
+stroke="currentColor"
+stroke-width="1.8"
+stroke-linecap="round"
+stroke-linejoin="round"
+>
+<path d="M11 5 6 9H2v6h4l5 4z"/>
+<path d="m16 9 5 5"/>
+<path d="m21 9-5 5"/>
+</svg>
+</button>
+<div class="volume-slider">
+<input
+id="volume"
+type="range"
+min="0"
+max="1"
+step=".01"
+value=".75"
+aria-label="Volume"
+style="--volume:75%"
+>
+</div>
+<div class="sleep-wrap">
+<button
+id="sleepButton"
+class="icon-button sleep-button"
+type="button"
+aria-label="Slaaptimer"
+aria-expanded="false"
+>
+<svg
+viewBox="0 0 24 24"
+fill="none"
+stroke="currentColor"
+stroke-width="1.8"
+stroke-linecap="round"
+stroke-linejoin="round"
+>
+<circle cx="12" cy="12" r="8"/>
+<path d="M12 8v4l2.5 2"/>
+</svg>
+<span
+id="sleepText"
+class="sleep-text"
+></span>
+</button>
+<div
+id="sleepMenu"
+class="sleep-menu"
+hidden
+>
+<button
+class="sleep-option"
+data-minutes="15"
+>
+15 minuten
+</button>
+<button
+class="sleep-option"
+data-minutes="30"
+>
+30 minuten
+</button>
+<button
+class="sleep-option"
+data-minutes="60"
+>
+60 minuten
+</button>
+<button
+class="sleep-option"
+data-minutes="0"
+>
+Timer uit
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section
+id="stations"
+class="station-groups"
+aria-label="Radiostations"
+></section>
+</main>
+<footer>
+Spatie: play/pauze · ← →: zender wisselen
+</footer>
+</div>
+<audio
+id="audio"
+preload="none"
+></audio>
+<script>
+const METADATA_REFRESH = 15000;
+const PROGRAM_REFRESH = 60000;
+const REQUEST_TIMEOUT = 6500;
+const TRACK_STALE_MS = 90000;
+const PROGRAM_STALE_MS =
+10 * 60 * 1000;
+const WIKI_CACHE_KEY =
+"radio-wikipedia-cache-v1";
+const WIKI_CACHE_TTL =
+30 * 24 * 60 * 60 * 1000;
 
+const COUNTRIES = [
+{
+code: "NL",
+name: "Nederland",
+flag: "🇳🇱"
+},
+{
+code: "BE",
+name: "België",
+flag: "🇧🇪"
+}
+];
+
+const stations = [
+{
+id: "npo1",
+country: "NL",
+name: "NPO Radio 1",
+mark: "1",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%201%20logo%202014.svg",
+stream:
+"https://icecast.omroep.nl/radio1-bb-mp3",
+accent: "#003576",
+rgb: "0,53,118",
+metadata: [
+{
+type: "npo-mini",
+channel:
+"npo-radio-1"
+}
+],
+program: {
+type: "npo-mini",
+channel:
+"npo-radio-1"
+}
+},
+{
+id: "npo2",
+country: "NL",
+name: "NPO Radio 2",
+mark: "2",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%202%20logo.svg",
+stream:
+"https://icecast.omroep.nl/radio2-bb-mp3",
+accent: "#d49319",
+rgb: "212,147,25",
+metadata: [
+{
+type: "npo-mini",
+channel:
+"npo-radio-2"
+}
+],
+program: {
+type: "npo-mini",
+channel:
+"npo-radio-2"
+}
+},
+{
+id: "3fm",
+country: "NL",
+name: "NPO 3FM",
+mark: "3",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%203FM%20logo%202020.svg",
+stream:
+"https://icecast.omroep.nl/3fm-bb-mp3",
+accent: "#52d626",
+rgb: "82,214,38",
+metadata: [
+{
+type: "npo-mini",
+channel:
+"npo-3fm"
+}
+],
+program: {
+type: "npo-mini",
+channel:
+"npo-3fm"
+}
+},
+{
+id: "npo5",
+country: "NL",
+name: "NPO Radio 5",
+mark: "5",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%205%20logo%202016.svg",
+stream:
+"https://icecast.omroep.nl/radio5-bb-mp3",
+accent: "#7854d8",
+rgb: "120,84,216",
+metadata: [
+{
+type: "npo-mini",
+channel:
+"npo-radio-5"
+}
+],
+program: {
+type: "npo-mini",
+channel:
+"npo-radio-5"
+}
+},
+{
+id: "funx",
+country: "NL",
+name: "NPO FunX",
+mark: "FX",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20FunX%20logo%202024.svg",
+stream:
+"https://icecast.omroep.nl/funx-bb-mp3",
+accent: "#8254e8",
+rgb: "130,84,232",
+metadata: [
+{
+type: "npo-mini",
+channel:
+"npo-funx"
+}
+],
+program: {
+type: "npo-mini",
+channel:
+"npo-funx"
+}
+},
+{
+id: "538",
+country: "NL",
+name: "Radio 538",
+mark: "538",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo%20Radio538.svg",
+stream:
+"https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO538.mp3",
+accent: "#8bc53f",
+rgb: "139,197,63",
+metadata: [
+{
+type: "triton-track",
+mount:
+"RADIO538"
+}
+],
+program: {
+type: "talpa-home",
+url:
+"https://www.538.nl/"
+}
+},
+{
+id: "qmusic",
+country: "NL",
+name: "Qmusic",
+mark: "Q",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/Qmusic%20logo.svg",
+stream:
+"https://stream.qmusic.nl/qmusic/mp3",
+accent: "#e71d4f",
+rgb: "231,29,79",
+noise: [
+"qmusic",
+"q-music",
+"qmusic nieuws"
+],
+metadata: [
+{
+type: "dpg",
+url:
+"https://api.qmusic.nl/2.4/tracks/plays?limit=1&next=true"
+}
+]
+},
+{
+id: "joenl",
+country: "NL",
+name: "JOE Nederland",
+mark: "JOE",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/JOE%20Logo%202023.png",
+stream:
+"https://stream.joe.nl/joe/mp3",
+accent: "#2968d5",
+rgb: "41,104,213",
+noise: [
+"joe",
+"joe nieuws"
+],
+metadata: [
+{
+type: "dpg",
+url:
+"https://api.joe.nl/2.4/tracks/plays?limit=1&next=true"
+}
+]
+},
+{
+id: "skyradio",
+country: "NL",
+name: "Sky Radio",
+mark: "SKY",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/Sky%20Radio%20logo%202019.svg",
+stream:
+"https://playerservices.streamtheworld.com/api/livestream-redirect/SKYRADIO.mp3",
+accent: "#ef3123",
+rgb: "239,49,35",
+metadata: [
+{
+type: "triton-track",
+mount:
+"SKYRADIO"
+}
+],
+program: {
+type: "talpa-home",
+url:
+"https://www.skyradio.nl/"
+}
+},
+{
+id: "bnr",
+country: "NL",
+name: "BNR Nieuwsradio",
+mark: "BNR",
+logo:
+"https://static.bnr.nl/assets/bnr-next/logo.png",
+stream:
+"https://stream.bnr.nl/bnr_mp3_128_20",
+accent: "#ffd200",
+rgb: "255,210,0",
+metadata: [],
+program: {
+type: "bnr",
+url:
+"https://www.bnr.nl/player/live"
+}
+},
+{
+id: "veronica",
+country: "NL",
+name: "Radio Veronica",
+mark: "V",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/Radio%20Veronica%20logo.svg",
+stream:
+"https://playerservices.streamtheworld.com/api/livestream-redirect/VERONICA.mp3",
+accent: "#169bd7",
+rgb: "22,155,215",
+noise: [
+"radio veronica",
+"veronica"
+],
+metadata: [
+{
+type: "triton-track",
+mount:
+"VERONICA"
+}
+],
+program: {
+type: "mediahuis-home",
+url:
+"https://www.radioveronica.nl/"
+}
+},
+{
+id: "radio10",
+country: "NL",
+name: "Radio 10",
+mark: "10",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/Radio%2010%20logo%202019.svg",
+stream:
+"https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO10.mp3",
+accent: "#2eb168",
+rgb: "46,177,104",
+preRollTrackGuardSeconds:
+35,
+noise: [
+"radio 10",
+"radio 10 nieuws"
+],
+metadata: [
+{
+type: "triton-track",
+mount:
+"RADIO10"
+}
+],
+program: {
+type: "talpa-home",
+url:
+"https://www.radio10.nl/"
+}
+},
+{
+id: "100nl",
+country: "NL",
+name: "100% NL",
+mark: "100",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/100p-nl-logo.svg",
+stream:
+"https://stream.100p.nl/100pctnl.mp3",
+accent: "#f26522",
+rgb: "242,101,34",
+noise: [
+"100% nl",
+"100 % nl"
+],
+metadata: [
+{
+type: "triton-track",
+mount:
+"100PNL_MP3"
+}
+],
+program: {
+type: "mediahuis-home",
+url:
+"https://www.100p.nl/"
+}
+},
+{
+id: "kink",
+country: "NL",
+name: "KINK",
+mark: "K",
+logo:
+"https://plug.kink.nl/img/top-logo.png",
+stream:
+"https://playerservices.streamtheworld.com/api/livestream-redirect/KINK.mp3",
+accent: "#f2f2f2",
+rgb: "210,210,210",
+metadata: [
+{
+type: "triton-track",
+mount:
+"KINK"
+}
+]
+},
+{
+id: "slam",
+country: "NL",
+name: "SLAM!",
+mark: "S!",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/Slam%21-logo.png",
+stream:
+"https://stream.slam.nl/slam_mp3",
+accent: "#ec008c",
+rgb: "236,0,140",
+noise: [
+"slam",
+"slam!",
+"slam fm"
+],
+metadata: [
+{
+type: "triton-track",
+mount:
+"SLAM_MP3"
+}
+],
+program: {
+type: "mediahuis-home",
+url:
+"https://www.slam.nl/"
+}
+},
+{
+id: "arrow",
+country: "NL",
+name: "Arrow Classic Rock",
+mark: "A",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/Arrow%20Classic%20Rock%20logo.svg",
+stream:
+"https://stream.player.arrow.nl/arrowcr",
+accent: "#e6b51e",
+rgb: "230,181,30",
+noise: [
+"arrow",
+"arrow classic rock",
+"het arrow classic rock nieuws"
+],
+metadata: [
+{
+type: "arrow",
+url:
+"https://player.arrow.nl/index.php?c=Arrow%20Classic%20Rock"
+}
+]
+},
+{
+id: "stubru",
+country: "BE",
+name: "Studio Brussel",
+mark: "Stu",
+logo:
+"https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-06.svg",
+stream:
+"https://icecast.vrtcdn.be/stubru-high.mp3",
+accent: "#ff4438",
+rgb: "255,68,56",
+noise: [
+"studio brussel",
+"vrt studio brussel",
+"life is music"
+],
+metadata: [
+{
+type: "vrt",
+pageId:
+"/kanalen/studio-brussel"
+}
+]
+},
+{
+id: "tijdloze",
+country: "BE",
+name: "De Tijdloze",
+mark: "∞",
+logo:
+"https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-11.svg",
+stream:
+"https://icecast.vrtcdn.be/stubru_tijdloze-high.mp3",
+accent: "#7471d8",
+rgb: "116,113,216",
+noise: [
+"de tijdloze",
+"vrt de tijdloze"
+],
+metadata: [
+{
+type: "vrt",
+pageId:
+"/kanalen/de-tijdloze"
+}
+]
+},
+{
+id: "mnm",
+country: "BE",
+name: "MNM",
+mark: "M",
+logo:
+"https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-05.svg",
+stream:
+"https://icecast.vrtcdn.be/mnm-high.mp3",
+accent: "#235bc1",
+rgb: "35,91,193",
+noise: [
+"mnm",
+"vrt mnm",
+"mnm - make life sing",
+"make life sing"
+],
+metadata: [
+{
+type: "vrt",
+pageId:
+"/kanalen/mnm"
+}
+]
+},
+{
+id: "qmusicbe",
+country: "BE",
+name: "Qmusic België",
+mark: "Q",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/Qmusic%20logo.svg",
+stream:
+"https://streams.radio.dpgmedia.cloud/redirect/qmusic_be/mp3",
+accent: "#e71d4f",
+rgb: "231,29,79",
+noise: [
+"qmusic",
+"q-music",
+"qmusic nieuws"
+],
+metadata: [
+{
+type: "dpg",
+url:
+"https://api.qmusic.be/2.4/tracks/plays?limit=1&next=true"
+}
+]
+},
+{
+id: "willy",
+country: "BE",
+name: "Willy",
+mark: "W",
+logo:
+"https://images.seeklogo.com/logo-png/39/1/willy-music-matters-logo-png_seeklogo-392837.png",
+stream:
+"https://streams.radio.dpgmedia.cloud/redirect/willy_be/mp3",
+accent: "#f05a28",
+rgb: "240,90,40",
+noise: [
+"willy",
+"music matters"
+],
+metadata: [
+{
+type: "dpg",
+url:
+"https://api.willy.radio/2.4/tracks/plays?limit=1&next=true"
+}
+]
+},
+{
+id: "klara",
+country: "BE",
+name: "Klara",
+mark: "K",
+logo:
+"https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-08.svg",
+stream:
+"https://icecast.vrtcdn.be/klara-high.mp3",
+accent: "#b5915c",
+rgb: "181,145,92",
+noise: [
+"klara",
+"vrt klara",
+"blijf verwonderd"
+],
+metadata: [
+{
+type: "vrt",
+pageId:
+"/kanalen/klara"
+}
+]
+},
+{
+id: "vrt1",
+country: "BE",
+name: "VRT Radio 1",
+mark: "R1",
+logo:
+"https://www.vrt.be/nl/assets/images/2025-06/radio1.svg",
+stream:
+"https://icecast.vrtcdn.be/radio1-high.mp3",
+accent: "#4960dd",
+rgb: "73,96,221",
+noise: [
+"radio 1",
+"vrt radio 1",
+"alles begint bij luisteren"
+],
+metadata: [
+{
+type: "vrt",
+pageId:
+"/radio1"
+}
+]
+},
+{
+id: "radio2limburg",
+country: "BE",
+name: "Radio 2 Limburg",
+mark: "R2",
+logo:
+"https://www.vrt.be/nl/assets/images/2025-06/color.svg",
+stream:
+"https://icecast.vrtcdn.be/ra2lim-high.mp3",
+accent: "#ed1945",
+rgb: "237,25,69",
+noise: [
+"radio 2",
+"vrt radio 2",
+"radio 2 limburg",
+"vrt radio 2 limburg",
+"radio 2 in limburg",
+"radio 2 weekend",
+"elke dag telt voor 2"
+],
+metadata: [
+{
+type: "vrt",
+pageId:
+"/radio2"
+}
+]
+},
+{
+id: "joebe",
+country: "BE",
+name: "JOE België",
+mark: "JOE",
+logo:
+"https://commons.wikimedia.org/wiki/Special:Redirect/file/JOE%20Logo%202023.png",
+stream:
+"https://streams.radio.dpgmedia.cloud/redirect/joe_fm/mp3",
+accent: "#265ed7",
+rgb: "38,94,215",
+noise: [
+"joe",
+"joe nieuws"
+],
+metadata: [
+{
+type: "dpg",
+url:
+"https://api.joe.be/2.4/tracks/plays?limit=1&next=true"
+}
+]
+}
+];
+
+const audio =
+document.getElementById("audio");
+const playButton =
+document.getElementById("playButton");
+const muteButton =
+document.getElementById("muteButton");
+const volume =
+document.getElementById("volume");
+const stationTitle =
+document.getElementById("stationTitle");
+const stationMark =
+document.getElementById("stationMark");
+const stationCount =
+document.getElementById("stationCount");
+const stationsContainer =
+document.getElementById("stations");
+const status =
+document.getElementById("status");
+const programTitle =
+document.getElementById("programTitle");
+const trackInfo =
+document.getElementById("trackInfo");
+const trackArtist =
+document.getElementById("trackArtist");
+const trackTitle =
+document.getElementById("trackTitle");
+const mainStationLogo =
+document.getElementById("mainStationLogo");
+const dynamicFavicon =
+document.getElementById("dynamicFavicon");
+const themeColor =
+document.getElementById("themeColor");
+const themeButtons =
+[
+...document.querySelectorAll(
+"[data-theme-choice]"
+)
+];
+const sleepButton =
+document.getElementById("sleepButton");
+const sleepMenu =
+document.getElementById("sleepMenu");
+const sleepText =
+document.getElementById("sleepText");
+
+const storedStationId =
+localStorage.getItem(
+"radio-station-id"
+);
+let currentIndex =
+stations.findIndex(
+station =>
+station.id ===
+storedStationId
+);
+if (
+currentIndex < 0
+) {
+currentIndex = 0;
+}
+const storedVolume =
+Number(
+localStorage.getItem(
+"radio-volume"
+)
+);
+audio.volume =
+Number.isFinite(
+storedVolume
+)
+? Math.max(
+0,
+Math.min(
+1,
+storedVolume
+)
+)
+: .75;
+volume.value =
+audio.volume;
+
+let metadataGeneration = 0;
+let programGeneration = 0;
+let wikipediaGeneration = 0;
+let currentTrack = {
+artist: "",
+title: ""
+};
+let currentTrackUpdatedAt = 0;
+let currentProgram = "";
+let currentProgramUpdatedAt = 0;
+let preRollGuardPending = false;
+let preRollTrackGuardUntil = 0;
+let preRollGuardTimer = null;
+let playbackRequested = false;
+let reconnectTimer = null;
+let reconnectAttempts = 0;
+
+let favoriteIds =
+new Set();
+try {
+favoriteIds =
+new Set(
+JSON.parse(
+localStorage.getItem(
+"radio-favorites"
+) ||
+"[]"
+)
+);
+}
+catch {}
+
+let favoriteCountries =
+new Set();
+try {
+favoriteCountries =
+new Set(
+JSON.parse(
+localStorage.getItem(
+"radio-country-favorites"
+) ||
+"[]"
+)
+);
+}
+catch {}
+
+let collapsedCountries =
+new Set();
+try {
+collapsedCountries =
+new Set(
+JSON.parse(
+localStorage.getItem(
+"radio-country-collapsed"
+) ||
+"[]"
+)
+);
+}
+catch {}
+
+let sleepUntil =
+Number(
+localStorage.getItem(
+"radio-sleep-until"
+)
+) || 0;
+
+let wikiCache = {};
+try {
+wikiCache =
+JSON.parse(
+localStorage.getItem(
+WIKI_CACHE_KEY
+) ||
+"{}"
+);
+}
+catch {
+wikiCache = {};
+}
 
 function readWikiCache(
-  key
+key
 ) {
-
-  const item =
-    wikiCache[key];
-
-
-  if (!item) {
-    return undefined;
-  }
-
-
-  if (
-    item.expires <
-    Date.now()
-  ) {
-
-    delete wikiCache[key];
-
-    return undefined;
-  }
-
-
-  return item.result || null;
-
+const item =
+wikiCache[key];
+if (!item) {
+return undefined;
 }
-
+if (
+item.expires <
+Date.now()
+) {
+delete wikiCache[key];
+return undefined;
+}
+return item.result || null;
+}
 
 function writeWikiCache(
-  key,
-  result
+key,
+result
 ) {
-
-  wikiCache[key] = {
-
-    expires:
-      Date.now() +
-      WIKI_CACHE_TTL,
-
-    result:
-      result || null
-
-  };
-
-
-  const entries =
-    Object.entries(
-      wikiCache
-    );
-
-
-  if (
-    entries.length > 200
-  ) {
-
-    entries
-      .sort(
-        (a, b) =>
-          a[1].expires -
-          b[1].expires
-      )
-      .slice(
-        0,
-        entries.length - 200
-      )
-      .forEach(
-        ([key]) =>
-          delete wikiCache[key]
-      );
-
-  }
-
-
-  try {
-
-    localStorage.setItem(
-      WIKI_CACHE_KEY,
-      JSON.stringify(
-        wikiCache
-      )
-    );
-
-  }
-  catch {}
-
+wikiCache[key] = {
+expires:
+Date.now() +
+WIKI_CACHE_TTL,
+result:
+result || null
+};
+const entries =
+Object.entries(
+wikiCache
+);
+if (
+entries.length > 200
+) {
+entries
+.sort(
+(a, b) =>
+a[1].expires -
+b[1].expires
+)
+.slice(
+0,
+entries.length - 200
+)
+.forEach(
+([key]) =>
+delete wikiCache[key]
+);
 }
-
-
-/* =========================================================
-   TEXT HELPERS
-   ========================================================= */
+try {
+localStorage.setItem(
+WIKI_CACHE_KEY,
+JSON.stringify(
+wikiCache
+)
+);
+}
+catch {}
+}
 
 function cleanText(
-  value
+value
 ) {
-
-  if (
-    value === null ||
-    value === undefined
-  ) {
-    return "";
-  }
-
-
-  const text =
-    String(value)
-      .replace(
-        /[\u0000-\u001f\u007f]/g,
-        " "
-      )
-      .replace(
-        /\s+/g,
-        " "
-      )
-      .trim();
-
-
-  if (
-    !text ||
-    text.length > 250
-  ) {
-    return "";
-  }
-
-
-  const invalid = [
-
-    /^\[?unknown\]?$/i,
-    /^undefined$/i,
-    /^null$/i,
-
-    /^no metadata/i,
-    /^no information/i,
-
-    /^metadata unavailable$/i,
-
-    /^not available$/i,
-    /^unavailable$/i,
-
-    /^sin información$/i,
-    /^sin informacion$/i,
-    /^sin datos$/i,
-
-    /^sem informação$/i,
-    /^sem informacao$/i,
-
-    /^offline$/i
-
-  ];
-
-
-  if (
-    invalid.some(
-      regex =>
-        regex.test(text)
-    )
-  ) {
-    return "";
-  }
-
-
-  return text;
-
+if (
+value === null ||
+value === undefined
+) {
+return "";
 }
-
+const text =
+String(value)
+.replace(
+/[\u0000-\u001f\u007f]/g,
+" "
+)
+.replace(
+/\s+/g,
+" "
+)
+.trim();
+if (
+!text ||
+text.length > 250
+) {
+return "";
+}
+const invalid = [
+/^\[?unknown\]?$/i,
+/^undefined$/i,
+/^null$/i,
+/^no metadata/i,
+/^no information/i,
+/^metadata unavailable$/i,
+/^not available$/i,
+/^unavailable$/i,
+/^sin información$/i,
+/^sin informacion$/i,
+/^sin datos$/i,
+/^sem informação$/i,
+/^sem informacao$/i,
+/^offline$/i
+];
+if (
+invalid.some(
+regex =>
+regex.test(text)
+)
+) {
+return "";
+}
+return text;
+}
 
 function documentLines(
-  doc
+doc
 ) {
-
-  const raw =
-    doc.body?.innerText ||
-    doc.body?.textContent ||
-    "";
-
-
-  return raw
-    .split(/\r?\n/)
-    .map(cleanText)
-    .filter(Boolean);
-
+const raw =
+doc.body?.innerText ||
+doc.body?.textContent ||
+"";
+return raw
+.split(/\r?\n/)
+.map(cleanText)
+.filter(Boolean);
 }
-
 
 function documentHeadings(
-  doc,
-  selector =
-    "h1,h2,h3,h4,h5,h6"
+doc,
+selector =
+"h1,h2,h3,h4,h5,h6"
 ) {
-
-  return [
-    ...doc.querySelectorAll(
-      selector
-    )
-  ]
-  .map(
-    element =>
-      cleanText(
-        element.textContent
-      )
-  )
-  .filter(Boolean);
-
+return [
+...doc.querySelectorAll(
+selector
+)
+]
+.map(
+element =>
+cleanText(
+element.textContent
+)
+)
+.filter(Boolean);
 }
-
-
-/* =========================================================
-   FETCH
-   ========================================================= */
 
 async function fetchTextWithTimeout(
-  url,
-  timeout =
-    REQUEST_TIMEOUT
+url,
+timeout =
+REQUEST_TIMEOUT
 ) {
-
-  const controller =
-    new AbortController();
-
-
-  const timer =
-    window.setTimeout(
-      () =>
-        controller.abort(),
-      timeout
-    );
-
-
-  try {
-
-    const response =
-      await fetch(
-        url,
-        {
-          signal:
-            controller.signal,
-
-          cache:
-            "no-store"
-        }
-      );
-
-
-    if (
-      !response.ok
-    ) {
-
-      throw new Error(
-        `HTTP ${response.status}`
-      );
-
-    }
-
-
-    return await response.text();
-
-  }
-
-  finally {
-
-    clearTimeout(
-      timer
-    );
-
-  }
-
+const controller =
+new AbortController();
+const timer =
+window.setTimeout(
+() =>
+controller.abort(),
+timeout
+);
+try {
+const response =
+await fetch(
+url,
+{
+signal:
+controller.signal,
+cache:
+"no-store"
 }
-
-
-/*
- * Alle metadata-aanvragen gaan rechtstreeks
- * naar de bron. Geen publieke CORS-relays.
- */
+);
+if (
+!response.ok
+) {
+throw new Error(
+`HTTP ${response.status}`
+);
+}
+return await response.text();
+}
+finally {
+clearTimeout(
+timer
+);
+}
+}
 
 async function fetchTextDirect(
-  url
+url
 ) {
-
-  return await fetchTextWithTimeout(
-    url,
-    REQUEST_TIMEOUT
-  );
-
+return await fetchTextWithTimeout(
+url,
+REQUEST_TIMEOUT
+);
 }
-
 
 async function fetchTextSmart(
-  url,
-  cacheBust = false
+url,
+cacheBust = false
 ) {
-
-  let target =
-    url;
-
-
-  if (
-    cacheBust
-  ) {
-
-    target +=
-      (
-        target.includes("?")
-          ? "&"
-          : "?"
-      ) +
-      "_radio=" +
-      Math.floor(
-        Date.now() /
-        15000
-      );
-
-  }
-
-
-  return await fetchTextWithTimeout(
-    target,
-    REQUEST_TIMEOUT
-  );
-
+let target =
+url;
+if (
+cacheBust
+) {
+target +=
+(
+target.includes("?")
+? "&"
+: "?"
+) +
+"_radio=" +
+Math.floor(
+Date.now() /
+15000
+);
 }
-
+return await fetchTextWithTimeout(
+target,
+REQUEST_TIMEOUT
+);
+}
 
 async function fetchJsonSmart(
-  url
+url
 ) {
-
-  return JSON.parse(
-    await fetchTextSmart(
-      url,
-      true
-    )
-  );
-
+return JSON.parse(
+await fetchTextSmart(
+url,
+true
+)
+);
 }
-
 
 async function fetchJsonPost(
-  url,
-  payload,
-  headers = {}
+url,
+payload,
+headers = {}
 ) {
-
-  const controller =
-    new AbortController();
-
-
-  const timer =
-    window.setTimeout(
-      () =>
-        controller.abort(),
-      REQUEST_TIMEOUT
-    );
-
-
-  try {
-
-    const response =
-      await fetch(
-        url,
-        {
-          method:
-            "POST",
-
-          signal:
-            controller.signal,
-
-          cache:
-            "no-store",
-
-          headers: {
-            "Accept":
-              "application/json",
-
-            "Content-Type":
-              "application/json",
-
-            ...headers
-          },
-
-          body:
-            JSON.stringify(
-              payload
-            )
-        }
-      );
-
-
-    if (
-      !response.ok
-    ) {
-
-      throw new Error(
-        `HTTP ${response.status}`
-      );
-
-    }
-
-
-    return await response.json();
-
-  }
-
-  finally {
-
-    clearTimeout(
-      timer
-    );
-
-  }
-
+const controller =
+new AbortController();
+const timer =
+window.setTimeout(
+() =>
+controller.abort(),
+REQUEST_TIMEOUT
+);
+try {
+const response =
+await fetch(
+url,
+{
+method:
+"POST",
+signal:
+controller.signal,
+cache:
+"no-store",
+headers: {
+"Accept":
+"application/json",
+"Content-Type":
+"application/json",
+...headers
+},
+body:
+JSON.stringify(
+payload
+)
 }
-
+);
+if (
+!response.ok
+) {
+throw new Error(
+`HTTP ${response.status}`
+);
+}
+return await response.json();
+}
+finally {
+clearTimeout(
+timer
+);
+}
+}
 
 async function fetchDocument(
-  url
+url
 ) {
-
-  const html =
-    await fetchTextSmart(
-      url,
-      true
-    );
-
-
-  return new DOMParser()
-    .parseFromString(
-      html,
-      "text/html"
-    );
-
+const html =
+await fetchTextSmart(
+url,
+true
+);
+return new DOMParser()
+.parseFromString(
+html,
+"text/html"
+);
 }
-
-
-/* =========================================================
-   LOGOS
-   ========================================================= */
 
 function getStationLogo(
-  station
+station
 ) {
-
-  return station.logo || "";
-
+return station.logo || "";
 }
-
 
 function updateMainLogo() {
-
-  const station =
-    stations[currentIndex];
-
-
-  stationMark.textContent =
-    station.mark;
-
-
-  mainStationLogo.style.display =
-    "block";
-
-
-  stationMark.style.display =
-    "none";
-
-
-  mainStationLogo.style.opacity =
-    "0";
-
-
-  mainStationLogo.style.transform =
-    "scale(.94)";
-
-
-  mainStationLogo.src =
-    getStationLogo(
-      station
-    );
-
-
-  window.setTimeout(
-    () => {
-
-      mainStationLogo.style.opacity =
-        "1";
-
-
-      mainStationLogo.style.transform =
-        "scale(1)";
-
-    },
-    80
-  );
-
+const station =
+stations[currentIndex];
+stationMark.textContent =
+station.mark;
+mainStationLogo.style.display =
+"block";
+stationMark.style.display =
+"none";
+mainStationLogo.style.opacity =
+"0";
+mainStationLogo.style.transform =
+"scale(.94)";
+mainStationLogo.src =
+getStationLogo(
+station
+);
+window.setTimeout(
+() => {
+mainStationLogo.style.opacity =
+"1";
+mainStationLogo.style.transform =
+"scale(1)";
+},
+80
+);
 }
-
 
 mainStationLogo.addEventListener(
-  "error",
-  () => {
-
-    mainStationLogo.style.display =
-      "none";
-
-
-    stationMark.style.display =
-      "block";
-
-  }
+"error",
+() => {
+mainStationLogo.style.display =
+"none";
+stationMark.style.display =
+"block";
+}
 );
-
-
-/* =========================================================
-   TAB
-   ========================================================= */
 
 function updateBrowserIdentity() {
-
-  const station =
-    stations[currentIndex];
-
-
-  document.title =
-    audio.paused
-      ? `${station.name} · radio.`
-      : `▶ ${station.name} · radio.`;
-
-
-  const logo =
-    getStationLogo(
-      station
-    );
-
-
-  if (
-    logo &&
-    !logo.startsWith("data:")
-  ) {
-
-    dynamicFavicon.href =
-      logo;
-
-  }
-
+const station =
+stations[currentIndex];
+document.title =
+audio.paused
+? `${station.name} · radio.`
+: `▶ ${station.name} · radio.`;
+const logo =
+getStationLogo(
+station
+);
+if (
+logo &&
+!logo.startsWith("data:")
+) {
+dynamicFavicon.href =
+logo;
 }
-
-
-/* =========================================================
-   THEME
-   ========================================================= */
+}
 
 const THEME_KEY =
-  "radio-theme";
-
-
+"radio-theme";
 const themeQuery =
-  window.matchMedia(
-    "(prefers-color-scheme: light)"
-  );
-
-
+window.matchMedia(
+"(prefers-color-scheme: light)"
+);
 let themePreference =
-  document.documentElement
-    .dataset
-    .theme ||
-  "system";
-
+document.documentElement
+.dataset
+.theme ||
+"system";
 
 function getResolvedTheme() {
-
-  if (
-    themePreference ===
-    "system"
-  ) {
-
-    return themeQuery.matches
-      ? "light"
-      : "dark";
-
-  }
-
-
-  return themePreference;
-
+if (
+themePreference ===
+"system"
+) {
+return themeQuery.matches
+? "light"
+: "dark";
 }
-
+return themePreference;
+}
 
 function updateThemeColor() {
-
-  themeColor.content =
-    getResolvedTheme() ===
-    "light"
-      ? "#f3f5f8"
-      : "#080a0f";
-
+themeColor.content =
+getResolvedTheme() ===
+"light"
+? "#f3f5f8"
+: "#080a0f";
 }
-
 
 function applyTheme(
-  choice,
-  persist = true
+choice,
+persist = true
 ) {
-
-  if (
-    ![
-      "system",
-      "light",
-      "dark"
-    ].includes(choice)
-  ) {
-
-    choice =
-      "system";
-
-  }
-
-
-  themePreference =
-    choice;
-
-
-  document.documentElement
-    .dataset
-    .theme =
-    choice;
-
-
-  for (
-    const button
-    of themeButtons
-  ) {
-
-    const active =
-      button.dataset
-        .themeChoice ===
-      choice;
-
-
-    button.classList.toggle(
-      "active",
-      active
-    );
-
-
-    button.setAttribute(
-      "aria-pressed",
-      active
-        ? "true"
-        : "false"
-    );
-
-  }
-
-
-  if (persist) {
-
-    try {
-
-      localStorage.setItem(
-        THEME_KEY,
-        choice
-      );
-
-    }
-    catch {}
-
-  }
-
-
-  updateThemeColor();
-
+if (
+![
+"system",
+"light",
+"dark"
+].includes(choice)
+) {
+choice =
+"system";
 }
-
+themePreference =
+choice;
+document.documentElement
+.dataset
+.theme =
+choice;
+for (
+const button
+of themeButtons
+) {
+const active =
+button.dataset
+.themeChoice ===
+choice;
+button.classList.toggle(
+"active",
+active
+);
+button.setAttribute(
+"aria-pressed",
+active
+? "true"
+: "false"
+);
+}
+if (persist) {
+try {
+localStorage.setItem(
+THEME_KEY,
+choice
+);
+}
+catch {}
+}
+updateThemeColor();
+}
 
 for (
-  const button
-  of themeButtons
+const button
+of themeButtons
 ) {
-
-  button.addEventListener(
-    "click",
-    () => {
-
-      applyTheme(
-        button.dataset
-          .themeChoice
-      );
-
-    }
-  );
-
+button.addEventListener(
+"click",
+() => {
+applyTheme(
+button.dataset
+.themeChoice
+);
 }
-
+);
+}
 
 applyTheme(
-  themePreference,
-  false
+themePreference,
+false
 );
-
 
 themeQuery.addEventListener?.(
-  "change",
-  () => {
-
-    if (
-      themePreference ===
-      "system"
-    ) {
-
-      updateThemeColor();
-
-    }
-
-  }
+"change",
+() => {
+if (
+themePreference ===
+"system"
+) {
+updateThemeColor();
+}
+}
 );
-
-
-/* =========================================================
-   FAVORITES / COUNTRIES
-   ========================================================= */
 
 function getCountryDisplayOrder() {
-
-  return [...COUNTRIES]
-    .sort(
-      (a, b) => {
-
-        const af =
-          favoriteCountries.has(
-            a.code
-          );
-
-
-        const bf =
-          favoriteCountries.has(
-            b.code
-          );
-
-
-        if (
-          af !== bf
-        ) {
-
-          return af
-            ? -1
-            : 1;
-
-        }
-
-
-        return (
-          COUNTRIES.indexOf(a) -
-          COUNTRIES.indexOf(b)
-        );
-
-      }
-    );
-
+return [...COUNTRIES]
+.sort(
+(a, b) => {
+const af =
+favoriteCountries.has(
+a.code
+);
+const bf =
+favoriteCountries.has(
+b.code
+);
+if (
+af !== bf
+) {
+return af
+? -1
+: 1;
 }
-
+return (
+COUNTRIES.indexOf(a) -
+COUNTRIES.indexOf(b)
+);
+}
+);
+}
 
 function getCountryOrder(
-  countryCode
+countryCode
 ) {
-
-  return stations
-    .map(
-      (station, index) => ({
-        station,
-        index
-      })
-    )
-    .filter(
-      item =>
-        item.station.country ===
-        countryCode
-    )
-    .sort(
-      (a, b) => {
-
-        const af =
-          favoriteIds.has(
-            a.station.id
-          );
-
-
-        const bf =
-          favoriteIds.has(
-            b.station.id
-          );
-
-
-        if (
-          af !== bf
-        ) {
-
-          return af
-            ? -1
-            : 1;
-
-        }
-
-
-        return a.index - b.index;
-
-      }
-    );
-
+return stations
+.map(
+(station, index) => ({
+station,
+index
+})
+)
+.filter(
+item =>
+item.station.country ===
+countryCode
+)
+.sort(
+(a, b) => {
+const af =
+favoriteIds.has(
+a.station.id
+);
+const bf =
+favoriteIds.has(
+b.station.id
+);
+if (
+af !== bf
+) {
+return af
+? -1
+: 1;
 }
-
+return a.index - b.index;
+}
+);
+}
 
 function getDisplayOrder() {
-
-  return getCountryDisplayOrder()
-    .flatMap(
-      country =>
-        getCountryOrder(
-          country.code
-        )
-    );
-
+return getCountryDisplayOrder()
+.flatMap(
+country =>
+getCountryOrder(
+country.code
+)
+);
 }
-
 
 function getVisibleDisplayOrder() {
-
-  return getCountryDisplayOrder()
-    .filter(
-      country =>
-        !collapsedCountries.has(
-          country.code
-        )
-    )
-    .flatMap(
-      country =>
-        getCountryOrder(
-          country.code
-        )
-    );
-
+return getCountryDisplayOrder()
+.filter(
+country =>
+!collapsedCountries.has(
+country.code
+)
+)
+.flatMap(
+country =>
+getCountryOrder(
+country.code
+)
+);
 }
-
 
 function toggleFavorite(
-  index
+index
 ) {
-
-  const id =
-    stations[index].id;
-
-
-  if (
-    favoriteIds.has(id)
-  ) {
-
-    favoriteIds.delete(id);
-
-  }
-
-  else {
-
-    favoriteIds.add(id);
-
-  }
-
-
-  localStorage.setItem(
-    "radio-favorites",
-    JSON.stringify(
-      [...favoriteIds]
-    )
-  );
-
-
-  renderStations();
-
+const id =
+stations[index].id;
+if (
+favoriteIds.has(id)
+) {
+favoriteIds.delete(id);
 }
-
+else {
+favoriteIds.add(id);
+}
+localStorage.setItem(
+"radio-favorites",
+JSON.stringify(
+[...favoriteIds]
+)
+);
+renderStations();
+}
 
 function toggleCountryFavorite(
-  code
+code
 ) {
-
-  if (
-    favoriteCountries.has(
-      code
-    )
-  ) {
-
-    favoriteCountries.delete(
-      code
-    );
-
-  }
-
-  else {
-
-    favoriteCountries.add(
-      code
-    );
-
-  }
-
-
-  localStorage.setItem(
-    "radio-country-favorites",
-    JSON.stringify(
-      [...favoriteCountries]
-    )
-  );
-
-
-  renderStations();
-
+if (
+favoriteCountries.has(
+code
+)
+) {
+favoriteCountries.delete(
+code
+);
 }
-
+else {
+favoriteCountries.add(
+code
+);
+}
+localStorage.setItem(
+"radio-country-favorites",
+JSON.stringify(
+[...favoriteCountries]
+)
+);
+renderStations();
+}
 
 function toggleCountryCollapsed(
-  code
+code
 ) {
-
-  if (
-    collapsedCountries.has(
-      code
-    )
-  ) {
-
-    collapsedCountries.delete(
-      code
-    );
-
-  }
-
-  else {
-
-    collapsedCountries.add(
-      code
-    );
-
-  }
-
-
-  localStorage.setItem(
-    "radio-country-collapsed",
-    JSON.stringify(
-      [...collapsedCountries]
-    )
-  );
-
-
-  renderStations();
-
+if (
+collapsedCountries.has(
+code
+)
+) {
+collapsedCountries.delete(
+code
+);
 }
-
-
-/* =========================================================
-   RENDER STATIONS
-   ========================================================= */
+else {
+collapsedCountries.add(
+code
+);
+}
+localStorage.setItem(
+"radio-country-collapsed",
+JSON.stringify(
+[...collapsedCountries]
+)
+);
+renderStations();
+}
 
 function createStationCard(
-  station,
-  index
+station,
+index
 ) {
-
-  const card =
-    document.createElement(
-      "div"
-    );
-
-
-  card.className =
-    "station";
-
-
-  card.dataset.stationId =
-    station.id;
-
-
-  card.classList.toggle(
-    "active",
-    index === currentIndex
-  );
-
-
-  const select =
-    document.createElement(
-      "button"
-    );
-
-
-  select.type =
-    "button";
-
-
-  select.className =
-    "station-select";
-
-
-  select.setAttribute(
-    "aria-label",
-    `Luister naar ${station.name}`
-  );
-
-
-  select.innerHTML = `
-
-    <span class="station-logo-wrap">
-
-      <img
-        class="station-logo"
-        src="${getStationLogo(station)}"
-        alt=""
-        loading="lazy"
-      >
-
-      <span
-        class="station-logo-fallback"
-      >
-        ${station.mark}
-      </span>
-
-    </span>
-
-
-    <span class="station-name">
-      ${station.name}
-    </span>
-
-  `;
-
-
-  const logo =
-    select.querySelector(
-      ".station-logo"
-    );
-
-
-  const fallback =
-    select.querySelector(
-      ".station-logo-fallback"
-    );
-
-
-  logo.addEventListener(
-    "error",
-    () => {
-
-      logo.style.display =
-        "none";
-
-
-      fallback.style.display =
-        "flex";
-
-    }
-  );
-
-
-  select.addEventListener(
-    "click",
-    () => {
-
-      selectStation(
-        index,
-        true
-      );
-
-    }
-  );
-
-
-  const favorite =
-    document.createElement(
-      "button"
-    );
-
-
-  const isFavorite =
-    favoriteIds.has(
-      station.id
-    );
-
-
-  favorite.type =
-    "button";
-
-
-  favorite.className =
-    "favorite-button";
-
-
-  favorite.classList.toggle(
-    "active",
-    isFavorite
-  );
-
-
-  favorite.textContent =
-    isFavorite
-      ? "★"
-      : "☆";
-
-
-  favorite.setAttribute(
-    "aria-label",
-
-    isFavorite
-      ? `${station.name} uit favorieten`
-      : `${station.name} toevoegen aan favorieten`
-  );
-
-
-  favorite.addEventListener(
-    "click",
-    event => {
-
-      event.stopPropagation();
-
-      toggleFavorite(
-        index
-      );
-
-    }
-  );
-
-
-  card.appendChild(
-    select
-  );
-
-
-  card.appendChild(
-    favorite
-  );
-
-
-  return card;
-
+const card =
+document.createElement(
+"div"
+);
+card.className =
+"station";
+card.dataset.stationId =
+station.id;
+card.classList.toggle(
+"active",
+index === currentIndex
+);
+const select =
+document.createElement(
+"button"
+);
+select.type =
+"button";
+select.className =
+"station-select";
+select.setAttribute(
+"aria-label",
+`Luister naar ${station.name}`
+);
+select.innerHTML = `
+<span class="station-logo-wrap">
+<img
+class="station-logo"
+src="${getStationLogo(station)}"
+alt=""
+loading="lazy"
+>
+<span
+class="station-logo-fallback"
+>
+${station.mark}
+</span>
+</span>
+<span class="station-name">
+${station.name}
+</span>
+`;
+const logo =
+select.querySelector(
+".station-logo"
+);
+const fallback =
+select.querySelector(
+".station-logo-fallback"
+);
+logo.addEventListener(
+"error",
+() => {
+logo.style.display =
+"none";
+fallback.style.display =
+"flex";
 }
-
+);
+select.addEventListener(
+"click",
+() => {
+selectStation(
+index,
+true
+);
+}
+);
+const favorite =
+document.createElement(
+"button"
+);
+const isFavorite =
+favoriteIds.has(
+station.id
+);
+favorite.type =
+"button";
+favorite.className =
+"favorite-button";
+favorite.classList.toggle(
+"active",
+isFavorite
+);
+favorite.textContent =
+isFavorite
+? "★"
+: "☆";
+favorite.setAttribute(
+"aria-label",
+isFavorite
+? `${station.name} uit favorieten`
+: `${station.name} toevoegen aan favorieten`
+);
+favorite.addEventListener(
+"click",
+event => {
+event.stopPropagation();
+toggleFavorite(
+index
+);
+}
+);
+card.appendChild(
+select
+);
+card.appendChild(
+favorite
+);
+return card;
+}
 
 function renderStations() {
-
-  stationsContainer.innerHTML =
-    "";
-
-
-  for (
-    const country
-    of getCountryDisplayOrder()
-  ) {
-
-    const items =
-      getCountryOrder(
-        country.code
-      );
-
-
-    const collapsed =
-      collapsedCountries.has(
-        country.code
-      );
-
-
-    const countryFavorite =
-      favoriteCountries.has(
-        country.code
-      );
-
-
-    const group =
-      document.createElement(
-        "section"
-      );
-
-
-    group.className =
-      "country-group";
-
-
-    group.classList.toggle(
-      "collapsed",
-      collapsed
-    );
-
-
-    const header =
-      document.createElement(
-        "div"
-      );
-
-
-    header.className =
-      "country-header";
-
-
-    const toggle =
-      document.createElement(
-        "button"
-      );
-
-
-    toggle.type =
-      "button";
-
-
-    toggle.className =
-      "country-toggle";
-
-
-    toggle.setAttribute(
-      "aria-expanded",
-      collapsed
-        ? "false"
-        : "true"
-    );
-
-
-    toggle.innerHTML = `
-
-      <span class="country-flag">
-        ${country.flag}
-      </span>
-
-      <span class="country-title">
-        ${country.name}
-      </span>
-
-      <span class="country-count">
-        ${items.length} stations
-      </span>
-
-      <span class="country-chevron">
-        ▾
-      </span>
-
-    `;
-
-
-    toggle.addEventListener(
-      "click",
-      () => {
-
-        toggleCountryCollapsed(
-          country.code
-        );
-
-      }
-    );
-
-
-    const favorite =
-      document.createElement(
-        "button"
-      );
-
-
-    favorite.type =
-      "button";
-
-
-    favorite.className =
-      "country-favorite";
-
-
-    favorite.classList.toggle(
-      "active",
-      countryFavorite
-    );
-
-
-    favorite.textContent =
-      countryFavorite
-        ? "★"
-        : "☆";
-
-
-    favorite.setAttribute(
-      "aria-label",
-
-      countryFavorite
-        ? `${country.name} uit favorieten`
-        : `${country.name} toevoegen aan favorieten`
-    );
-
-
-    favorite.addEventListener(
-      "click",
-      () => {
-
-        toggleCountryFavorite(
-          country.code
-        );
-
-      }
-    );
-
-
-    header.appendChild(
-      toggle
-    );
-
-
-    header.appendChild(
-      favorite
-    );
-
-
-    const grid =
-      document.createElement(
-        "div"
-      );
-
-
-    grid.className =
-      "country-stations";
-
-
-    grid.hidden =
-      collapsed;
-
-
-    for (
-      const {
-        station,
-        index
-      }
-      of items
-    ) {
-
-      grid.appendChild(
-        createStationCard(
-          station,
-          index
-        )
-      );
-
-    }
-
-
-    group.appendChild(
-      header
-    );
-
-
-    group.appendChild(
-      grid
-    );
-
-
-    stationsContainer.appendChild(
-      group
-    );
-
-  }
-
-
-  const favs =
-    favoriteIds.size;
-
-
-  const favoriteText =
-    favs === 1
-      ? "1 favoriet"
-      : `${favs} favorieten`;
-
-
-  stationCount.textContent =
-    favs
-      ? `${stations.length} stations · ${favoriteText}`
-      : `${stations.length} stations`;
-
+stationsContainer.innerHTML =
+"";
+for (
+const country
+of getCountryDisplayOrder()
+) {
+const items =
+getCountryOrder(
+country.code
+);
+const collapsed =
+collapsedCountries.has(
+country.code
+);
+const countryFavorite =
+favoriteCountries.has(
+country.code
+);
+const group =
+document.createElement(
+"section"
+);
+group.className =
+"country-group";
+group.classList.toggle(
+"collapsed",
+collapsed
+);
+const header =
+document.createElement(
+"div"
+);
+header.className =
+"country-header";
+const toggle =
+document.createElement(
+"button"
+);
+toggle.type =
+"button";
+toggle.className =
+"country-toggle";
+toggle.setAttribute(
+"aria-expanded",
+collapsed
+? "false"
+: "true"
+);
+toggle.innerHTML = `
+<span class="country-flag">
+${country.flag}
+</span>
+<span class="country-title">
+${country.name}
+</span>
+<span class="country-count">
+${items.length} stations
+</span>
+<span class="country-chevron">
+▾
+</span>
+`;
+toggle.addEventListener(
+"click",
+() => {
+toggleCountryCollapsed(
+country.code
+);
 }
-
-
-/* =========================================================
-   TRACK UI
-   ========================================================= */
+);
+const favorite =
+document.createElement(
+"button"
+);
+favorite.type =
+"button";
+favorite.className =
+"country-favorite";
+favorite.classList.toggle(
+"active",
+countryFavorite
+);
+favorite.textContent =
+countryFavorite
+? "★"
+: "☆";
+favorite.setAttribute(
+"aria-label",
+countryFavorite
+? `${country.name} uit favorieten`
+: `${country.name} toevoegen aan favorieten`
+);
+favorite.addEventListener(
+"click",
+() => {
+toggleCountryFavorite(
+country.code
+);
+}
+);
+header.appendChild(
+toggle
+);
+header.appendChild(
+favorite
+);
+const grid =
+document.createElement(
+"div"
+);
+grid.className =
+"country-stations";
+grid.hidden =
+collapsed;
+for (
+const {
+station,
+index
+}
+of items
+) {
+grid.appendChild(
+createStationCard(
+station,
+index
+)
+);
+}
+group.appendChild(
+header
+);
+group.appendChild(
+grid
+);
+stationsContainer.appendChild(
+group
+);
+}
+const favs =
+favoriteIds.size;
+const favoriteText =
+favs === 1
+? "1 favoriet"
+: `${favs} favorieten`;
+stationCount.textContent =
+favs
+? `${stations.length} stations · ${favoriteText}`
+: `${stations.length} stations`;
+}
 
 function resetWikipediaLinks() {
-
-  for (
-    const element
-    of [
-      trackArtist,
-      trackTitle
-    ]
-  ) {
-
-    element.removeAttribute(
-      "href"
-    );
-
-    element.removeAttribute(
-      "target"
-    );
-
-    element.removeAttribute(
-      "rel"
-    );
-
-    element.removeAttribute(
-      "title"
-    );
-
-    element.classList.remove(
-      "has-wiki"
-    );
-
-  }
-
+for (
+const element
+of [
+trackArtist,
+trackTitle
+]
+) {
+element.removeAttribute(
+"href"
+);
+element.removeAttribute(
+"target"
+);
+element.removeAttribute(
+"rel"
+);
+element.removeAttribute(
+"title"
+);
+element.classList.remove(
+"has-wiki"
+);
 }
-
+}
 
 function setTrackLoading() {
-
-  wikipediaGeneration++;
-
-  resetWikipediaLinks();
-
-
-  trackInfo.hidden =
-    true;
-
-
-  trackArtist.textContent =
-    "";
-
-
-  trackTitle.textContent =
-    "";
-
+wikipediaGeneration++;
+resetWikipediaLinks();
+trackInfo.hidden =
+true;
+trackArtist.textContent =
+"";
+trackTitle.textContent =
+"";
 }
-
 
 function clearTrack() {
-
-  wikipediaGeneration++;
-
-  resetWikipediaLinks();
-
-
-  currentTrack = {
-    artist: "",
-    title: ""
-  };
-
-
-  currentTrackUpdatedAt =
-    0;
-
-
-  trackArtist.textContent =
-    "";
-
-
-  trackTitle.textContent =
-    "";
-
-
-  trackInfo.hidden =
-    true;
-
-
-  updateMediaSession();
-
+wikipediaGeneration++;
+resetWikipediaLinks();
+currentTrack = {
+artist: "",
+title: ""
+};
+currentTrackUpdatedAt =
+0;
+trackArtist.textContent =
+"";
+trackTitle.textContent =
+"";
+trackInfo.hidden =
+true;
+updateMediaSession();
 }
-
 
 function setTrack(
-  artist,
-  title
+artist,
+title
 ) {
-
-  if (
-    isContentSuppressed()
-  ) {
-
-    clearTrack();
-
-    return true;
-
-  }
-
-
-  artist =
-    cleanText(
-      artist
-    );
-
-
-  title =
-    cleanText(
-      title
-    );
-
-
-  if (!title) {
-
-    return false;
-
-  }
-
-
-  currentTrackUpdatedAt =
-    Date.now();
-
-
-  if (
-    currentTrack.artist === artist &&
-    currentTrack.title === title
-  ) {
-
-    trackInfo.hidden =
-      false;
-
-
-    return true;
-
-  }
-
-
-  currentTrack = {
-    artist,
-    title
-  };
-
-
-  trackInfo.className =
-    artist
-      ? "track"
-      : "track single";
-
-
-  trackArtist.textContent =
-    artist;
-
-
-  trackTitle.textContent =
-    title;
-
-
-  trackInfo.hidden =
-    false;
-
-
-  resetWikipediaLinks();
-
-
-  updateWikipediaLinks(
-    artist,
-    title
-  );
-
-
-  updateMediaSession();
-
-
-  return true;
-
+if (
+isContentSuppressed()
+) {
+clearTrack();
+return true;
 }
-
-
-/* =========================================================
-   PROGRAM UI
-   ========================================================= */
+artist =
+cleanText(
+artist
+);
+title =
+cleanText(
+title
+);
+if (!title) {
+return false;
+}
+currentTrackUpdatedAt =
+Date.now();
+if (
+currentTrack.artist === artist &&
+currentTrack.title === title
+) {
+trackInfo.hidden =
+false;
+return true;
+}
+currentTrack = {
+artist,
+title
+};
+trackInfo.className =
+artist
+? "track"
+: "track single";
+trackArtist.textContent =
+artist;
+trackTitle.textContent =
+title;
+trackInfo.hidden =
+false;
+resetWikipediaLinks();
+updateWikipediaLinks(
+artist,
+title
+);
+updateMediaSession();
+return true;
+}
 
 function clearProgram() {
-
-  currentProgram =
-    "";
-
-
-  currentProgramUpdatedAt =
-    0;
-
-
-  programTitle.textContent =
-    "";
-
-
-  programTitle.hidden =
-    true;
-
-
-  updateMediaSession();
-
+currentProgram =
+"";
+currentProgramUpdatedAt =
+0;
+programTitle.textContent =
+"";
+programTitle.hidden =
+true;
+updateMediaSession();
 }
-
 
 function isInvalidProgram(
-  value
+value
 ) {
-
-  const text =
-    cleanText(
-      value
-    );
-
-
-  if (!text) {
-    return true;
-  }
-
-
-  return [
-
-    /^pagina onbeschikbaar$/i,
-    /^deze pagina kon niet geladen worden$/i,
-
-    /^live$/i,
-    /^nu live$/i,
-    /^kijk live$/i,
-    /^luister live$/i,
-
-    /^playlist$/i,
-    /^programmering$/i,
-    /^programma's$/i,
-    /^programma’s$/i,
-
-    /^nieuws$/i,
-    /^contact$/i,
-
-    /^volume$/i,
-
-    /^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}/i
-
-  ]
-  .some(
-    regex =>
-      regex.test(
-        text
-      )
-  );
-
+const text =
+cleanText(
+value
+);
+if (!text) {
+return true;
 }
-
+return [
+/^pagina onbeschikbaar$/i,
+/^deze pagina kon niet geladen worden$/i,
+/^live$/i,
+/^nu live$/i,
+/^kijk live$/i,
+/^luister live$/i,
+/^playlist$/i,
+/^programmering$/i,
+/^programma's$/i,
+/^programma’s$/i,
+/^nieuws$/i,
+/^contact$/i,
+/^volume$/i,
+/^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}/i
+]
+.some(
+regex =>
+regex.test(
+text
+)
+);
+}
 
 function setProgram(
-  value
+value
 ) {
-
-  const text =
-    cleanText(
-      value
-    );
-
-
-  if (
-    !text ||
-    isInvalidProgram(text) ||
-    isContentSuppressed()
-  ) {
-
-    clearProgram();
-
-    return false;
-
-  }
-
-
-  currentProgram =
-    text;
-
-
-  currentProgramUpdatedAt =
-    Date.now();
-
-
-  programTitle.textContent =
-    text;
-
-
-  programTitle.hidden =
-    false;
-
-
-  updateMediaSession();
-
-
-  return true;
-
+const text =
+cleanText(
+value
+);
+if (
+!text ||
+isInvalidProgram(text) ||
+isContentSuppressed()
+) {
+clearProgram();
+return false;
 }
-
-
-/* =========================================================
-   SELECT STATION
-   ========================================================= */
+currentProgram =
+text;
+currentProgramUpdatedAt =
+Date.now();
+programTitle.textContent =
+text;
+programTitle.hidden =
+false;
+updateMediaSession();
+return true;
+}
 
 function selectStation(
-  index,
-  autoPlay = false
+index,
+autoPlay = false
 ) {
-
-  if (
-    index === currentIndex &&
-    audio.src
-  ) {
-
-    if (
-      autoPlay &&
-      audio.paused
-    ) {
-
-      play();
-
-    }
-
-
-    return;
-
-  }
-
-
-  const wasPlaying =
-    !audio.paused;
-
-
-  cancelReconnect();
-
-
-  reconnectAttempts =
-    0;
-
-
-  currentIndex =
-    index;
-
-
-  metadataGeneration++;
-
-  programGeneration++;
-
-  wikipediaGeneration++;
-
-
-  clearTimeout(
-    preRollGuardTimer
-  );
-
-
-  preRollTrackGuardUntil =
-    0;
-
-
-  const station =
-    stations[currentIndex];
-
-
-  preRollGuardPending =
-    Boolean(
-      station.preRollTrackGuardSeconds
-    );
-
-
-  localStorage.setItem(
-    "radio-station-id",
-    station.id
-  );
-
-
-  stationTitle.textContent =
-    station.name;
-
-
-  stationMark.textContent =
-    station.mark;
-
-
-  document.documentElement
-    .style
-    .setProperty(
-      "--accent",
-      station.accent
-    );
-
-
-  document.documentElement
-    .style
-    .setProperty(
-      "--accent-rgb",
-      station.rgb
-    );
-
-
-  updateMainLogo();
-
-
-  clearTrack();
-
-  clearProgram();
-
-
-  audio.pause();
-
-
-  audio.src =
-    station.stream;
-
-
-  audio.load();
-
-
-  status.textContent =
-    "Zender geselecteerd";
-
-
-  renderStations();
-
-  updateBrowserIdentity();
-
-  updateMediaSession();
-
-  refreshMetadata();
-
-  refreshProgram();
-
-
-  if (
-    wasPlaying ||
-    autoPlay
-  ) {
-
-    play();
-
-  }
-
-  else {
-
-    playbackRequested =
-      false;
-
-  }
-
+if (
+index === currentIndex &&
+audio.src
+) {
+if (
+autoPlay &&
+audio.paused
+) {
+play();
 }
-
-
-/* =========================================================
-   PRE-ROLL
-   ========================================================= */
+return;
+}
+const wasPlaying =
+!audio.paused;
+cancelReconnect();
+reconnectAttempts =
+0;
+currentIndex =
+index;
+metadataGeneration++;
+programGeneration++;
+wikipediaGeneration++;
+clearTimeout(
+preRollGuardTimer
+);
+preRollTrackGuardUntil =
+0;
+const station =
+stations[currentIndex];
+preRollGuardPending =
+Boolean(
+station.preRollTrackGuardSeconds
+);
+localStorage.setItem(
+"radio-station-id",
+station.id
+);
+stationTitle.textContent =
+station.name;
+stationMark.textContent =
+station.mark;
+document.documentElement
+.style
+.setProperty(
+"--accent",
+station.accent
+);
+document.documentElement
+.style
+.setProperty(
+"--accent-rgb",
+station.rgb
+);
+updateMainLogo();
+clearTrack();
+clearProgram();
+audio.pause();
+audio.src =
+station.stream;
+audio.load();
+status.textContent =
+"Zender geselecteerd";
+renderStations();
+updateBrowserIdentity();
+updateMediaSession();
+refreshMetadata();
+refreshProgram();
+if (
+wasPlaying ||
+autoPlay
+) {
+play();
+}
+else {
+playbackRequested =
+false;
+}
+}
 
 function beginPreRollGuard() {
-
-  const station =
-    stations[currentIndex];
-
-
-  if (
-    !preRollGuardPending ||
-    !station.preRollTrackGuardSeconds
-  ) {
-
-    return;
-
-  }
-
-
-  preRollTrackGuardUntil =
-    Infinity;
-
-
-  clearTrack();
-
-  clearProgram();
-
+const station =
+stations[currentIndex];
+if (
+!preRollGuardPending ||
+!station.preRollTrackGuardSeconds
+) {
+return;
 }
-
+preRollTrackGuardUntil =
+Infinity;
+clearTrack();
+clearProgram();
+}
 
 function activatePreRollTimer() {
-
-  const station =
-    stations[currentIndex];
-
-
-  if (
-    preRollTrackGuardUntil !==
-      Infinity ||
-    !station.preRollTrackGuardSeconds
-  ) {
-
-    return;
-
-  }
-
-
-  preRollGuardPending =
-    false;
-
-
-  preRollTrackGuardUntil =
-    Date.now() +
-    station.preRollTrackGuardSeconds *
-    1000;
-
-
-  clearTimeout(
-    preRollGuardTimer
-  );
-
-
-  preRollGuardTimer =
-    window.setTimeout(
-      () => {
-
-        preRollTrackGuardUntil =
-          0;
-
-
-        refreshMetadata();
-
-        refreshProgram();
-
-      },
-      station.preRollTrackGuardSeconds *
-      1000
-    );
-
+const station =
+stations[currentIndex];
+if (
+preRollTrackGuardUntil !==
+Infinity ||
+!station.preRollTrackGuardSeconds
+) {
+return;
 }
-
+preRollGuardPending =
+false;
+preRollTrackGuardUntil =
+Date.now() +
+station.preRollTrackGuardSeconds *
+1000;
+clearTimeout(
+preRollGuardTimer
+);
+preRollGuardTimer =
+window.setTimeout(
+() => {
+preRollTrackGuardUntil =
+0;
+refreshMetadata();
+refreshProgram();
+},
+station.preRollTrackGuardSeconds *
+1000
+);
+}
 
 function isContentSuppressed() {
-
-  if (
-    preRollTrackGuardUntil ===
-    Infinity
-  ) {
-
-    return true;
-
-  }
-
-
-  return (
-    preRollTrackGuardUntil >
-    Date.now()
-  );
-
+if (
+preRollTrackGuardUntil ===
+Infinity
+) {
+return true;
 }
-
-
-/* =========================================================
-   STREAM RECOVERY
-   ========================================================= */
+return (
+preRollTrackGuardUntil >
+Date.now()
+);
+}
 
 const MAX_RECONNECT_ATTEMPTS =
-  5;
-
+5;
 
 function cancelReconnect() {
-
-  clearTimeout(
-    reconnectTimer
-  );
-
-
-  reconnectTimer =
-    null;
-
+clearTimeout(
+reconnectTimer
+);
+reconnectTimer =
+null;
 }
-
 
 function scheduleReconnect(
-  reason,
-  delay = 900
+reason,
+delay = 900
 ) {
-
-  if (
-    !playbackRequested ||
-    navigator.onLine === false
-  ) {
-
-    return;
-
-  }
-
-
-  const stationIndex =
-    currentIndex;
-
-
-  cancelReconnect();
-
-
-  reconnectTimer =
-    window.setTimeout(
-      async () => {
-
-        if (
-          stationIndex !==
-            currentIndex ||
-          !playbackRequested ||
-          navigator.onLine ===
-            false
-        ) {
-
-          return;
-
-        }
-
-
-        if (
-          reason === "stalled" &&
-          !audio.paused &&
-          audio.readyState >=
-            HTMLMediaElement.HAVE_FUTURE_DATA
-        ) {
-
-          reconnectAttempts =
-            0;
-
-          return;
-
-        }
-
-
-        reconnectAttempts++;
-
-
-        if (
-          reconnectAttempts >
-            MAX_RECONNECT_ATTEMPTS
-        ) {
-
-          status.textContent =
-            "Verbinding verbroken";
-
-
-          return;
-
-        }
-
-
-        status.textContent =
-          "Opnieuw verbinden…";
-
-
-        const stream =
-          stations[currentIndex]
-            .stream;
-
-
-        try {
-
-          audio.pause();
-
-
-          audio.src =
-            stream;
-
-
-          audio.load();
-
-
-          await audio.play();
-
-        }
-
-        catch {
-
-          scheduleReconnect(
-            "error",
-            Math.min(
-              6000,
-              900 *
-              Math.pow(
-                1.7,
-                reconnectAttempts
-              )
-            )
-          );
-
-        }
-
-      },
-      delay
-    );
-
+if (
+!playbackRequested ||
+navigator.onLine === false
+) {
+return;
 }
-
-
-/* =========================================================
-   AUDIO
-   ========================================================= */
+const stationIndex =
+currentIndex;
+cancelReconnect();
+reconnectTimer =
+window.setTimeout(
+async () => {
+if (
+stationIndex !==
+currentIndex ||
+!playbackRequested ||
+navigator.onLine ===
+false
+) {
+return;
+}
+if (
+reason === "stalled" &&
+!audio.paused &&
+audio.readyState >=
+HTMLMediaElement.HAVE_FUTURE_DATA
+) {
+reconnectAttempts =
+0;
+return;
+}
+reconnectAttempts++;
+if (
+reconnectAttempts >
+MAX_RECONNECT_ATTEMPTS
+) {
+status.textContent =
+"Verbinding verbroken";
+return;
+}
+status.textContent =
+"Opnieuw verbinden…";
+const stream =
+stations[currentIndex]
+.stream;
+try {
+audio.pause();
+audio.src =
+stream;
+audio.load();
+await audio.play();
+}
+catch {
+scheduleReconnect(
+"error",
+Math.min(
+6000,
+900 *
+Math.pow(
+1.7,
+reconnectAttempts
+)
+)
+);
+}
+},
+delay
+);
+}
 
 async function play() {
-
-  playbackRequested =
-    true;
-
-
-  status.textContent =
-    "Verbinden…";
-
-
-  beginPreRollGuard();
-
-
-  try {
-
-    await audio.play();
-
-  }
-
-  catch {
-
-    status.textContent =
-      "Stream tijdelijk niet beschikbaar";
-
-
-    scheduleReconnect(
-      "error",
-      1000
-    );
-
-  }
-
+playbackRequested =
+true;
+status.textContent =
+"Verbinden…";
+beginPreRollGuard();
+try {
+await audio.play();
 }
-
+catch {
+status.textContent =
+"Stream tijdelijk niet beschikbaar";
+scheduleReconnect(
+"error",
+1000
+);
+}
+}
 
 function pause(
-  message =
-    "Gepauzeerd"
+message =
+"Gepauzeerd"
 ) {
-
-  playbackRequested =
-    false;
-
-
-  cancelReconnect();
-
-
-  reconnectAttempts =
-    0;
-
-
-  audio.pause();
-
-
-  status.textContent =
-    typeof message === "string"
-      ? message
-      : "Gepauzeerd";
-
+playbackRequested =
+false;
+cancelReconnect();
+reconnectAttempts =
+0;
+audio.pause();
+status.textContent =
+typeof message === "string"
+? message
+: "Gepauzeerd";
 }
-
 
 function togglePlay() {
-
-  if (
-    audio.paused
-  ) {
-
-    play();
-
-  }
-
-  else {
-
-    pause();
-
-  }
-
+if (
+audio.paused
+) {
+play();
 }
-
+else {
+pause();
+}
+}
 
 playButton.addEventListener(
-  "click",
-  togglePlay
+"click",
+togglePlay
 );
-
 
 audio.addEventListener(
-  "playing",
-  () => {
-
-    cancelReconnect();
-
-
-    reconnectAttempts =
-      0;
-
-
-    document.body
-      .classList
-      .add(
-        "is-playing"
-      );
-
-
-    playButton.setAttribute(
-      "aria-label",
-      "Pauzeren"
-    );
-
-
-    status.textContent =
-      "Live";
-
-
-    activatePreRollTimer();
-
-
-    updateBrowserIdentity();
-
-  }
+"playing",
+() => {
+cancelReconnect();
+reconnectAttempts =
+0;
+document.body
+.classList
+.add(
+"is-playing"
 );
-
+playButton.setAttribute(
+"aria-label",
+"Pauzeren"
+);
+status.textContent =
+"Live";
+activatePreRollTimer();
+updateBrowserIdentity();
+}
+);
 
 audio.addEventListener(
-  "pause",
-  () => {
-
-    document.body
-      .classList
-      .remove(
-        "is-playing"
-      );
-
-
-    playButton.setAttribute(
-      "aria-label",
-      "Afspelen"
-    );
-
-
-    updateBrowserIdentity();
-
-  }
+"pause",
+() => {
+document.body
+.classList
+.remove(
+"is-playing"
 );
-
+playButton.setAttribute(
+"aria-label",
+"Afspelen"
+);
+updateBrowserIdentity();
+}
+);
 
 audio.addEventListener(
-  "waiting",
-  () => {
-
-    if (
-      playbackRequested
-    ) {
-
-      status.textContent =
-        "Bufferen…";
-
-    }
-
-  }
+"waiting",
+() => {
+if (
+playbackRequested
+) {
+status.textContent =
+"Bufferen…";
+}
+}
 );
-
 
 audio.addEventListener(
-  "stalled",
-  () => {
-
-    if (
-      playbackRequested
-    ) {
-
-      status.textContent =
-        "Stream buffert…";
-
-
-      scheduleReconnect(
-        "stalled",
-        3000
-      );
-
-    }
-
-  }
+"stalled",
+() => {
+if (
+playbackRequested
+) {
+status.textContent =
+"Stream buffert…";
+scheduleReconnect(
+"stalled",
+3000
 );
-
+}
+}
+);
 
 audio.addEventListener(
-  "ended",
-  () => {
-
-    if (
-      playbackRequested
-    ) {
-
-      scheduleReconnect(
-        "ended",
-        600
-      );
-
-    }
-
-  }
+"ended",
+() => {
+if (
+playbackRequested
+) {
+scheduleReconnect(
+"ended",
+600
 );
-
+}
+}
+);
 
 audio.addEventListener(
-  "error",
-  () => {
-
-    if (
-      playbackRequested
-    ) {
-
-      status.textContent =
-        "Stream tijdelijk niet beschikbaar";
-
-
-      scheduleReconnect(
-        "error",
-        800
-      );
-
-
-      return;
-
-    }
-
-
-    status.textContent =
-      "Stream tijdelijk niet beschikbaar";
-
-  }
+"error",
+() => {
+if (
+playbackRequested
+) {
+status.textContent =
+"Stream tijdelijk niet beschikbaar";
+scheduleReconnect(
+"error",
+800
 );
-
-
-/* =========================================================
-   MUTE / VOLUME
-   ========================================================= */
+return;
+}
+status.textContent =
+"Stream tijdelijk niet beschikbaar";
+}
+);
 
 function updateMuteUI() {
-
-  muteButton.classList.toggle(
-    "muted",
-    audio.muted
-  );
-
-
-  muteButton.setAttribute(
-    "aria-label",
-
-    audio.muted
-      ? "Geluid inschakelen"
-      : "Geluid dempen"
-  );
-
+muteButton.classList.toggle(
+"muted",
+audio.muted
+);
+muteButton.setAttribute(
+"aria-label",
+audio.muted
+? "Geluid inschakelen"
+: "Geluid dempen"
+);
 }
-
 
 muteButton.addEventListener(
-  "click",
-  () => {
-
-    audio.muted =
-      !audio.muted;
-
-
-    updateMuteUI();
-
-  }
+"click",
+() => {
+audio.muted =
+!audio.muted;
+updateMuteUI();
+}
 );
-
 
 function updateVolumeBar() {
-
-  volume.style.setProperty(
-    "--volume",
-    `${audio.volume * 100}%`
-  );
-
+volume.style.setProperty(
+"--volume",
+`${audio.volume * 100}%`
+);
 }
-
 
 volume.addEventListener(
-  "input",
-  () => {
-
-    audio.volume =
-      Number(
-        volume.value
-      );
-
-
-    audio.muted =
-      false;
-
-
-    localStorage.setItem(
-      "radio-volume",
-      audio.volume
-    );
-
-
-    updateMuteUI();
-
-    updateVolumeBar();
-
-  }
+"input",
+() => {
+audio.volume =
+Number(
+volume.value
 );
-
-
-/* =========================================================
-   TRACK SPLIT
-   ========================================================= */
+audio.muted =
+false;
+localStorage.setItem(
+"radio-volume",
+audio.volume
+);
+updateMuteUI();
+updateVolumeBar();
+}
+);
 
 function splitTrack(
-  value
+value
 ) {
-
-  const text =
-    cleanText(
-      value
-    );
-
-
-  if (!text) {
-
-    return null;
-
-  }
-
-
-  const separators = [
-    " - ",
-    " – ",
-    " — ",
-    " | "
-  ];
-
-
-  for (
-    const separator
-    of separators
-  ) {
-
-    const position =
-      text.indexOf(
-        separator
-      );
-
-
-    if (
-      position <= 0
-    ) {
-
-      continue;
-
-    }
-
-
-    const artist =
-      cleanText(
-        text.slice(
-          0,
-          position
-        )
-      );
-
-
-    const title =
-      cleanText(
-        text.slice(
-          position +
-          separator.length
-        )
-      );
-
-
-    if (
-      artist &&
-      title
-    ) {
-
-      return {
-        artist,
-        title
-      };
-
-    }
-
-  }
-
-
-  return null;
-
+const text =
+cleanText(
+value
+);
+if (!text) {
+return null;
 }
-
-
-/* =========================================================
-   STATION NOISE
-   ========================================================= */
+const separators = [
+" - ",
+" – ",
+" — ",
+" | "
+];
+for (
+const separator
+of separators
+) {
+const position =
+text.indexOf(
+separator
+);
+if (
+position <= 0
+) {
+continue;
+}
+const artist =
+cleanText(
+text.slice(
+0,
+position
+)
+);
+const title =
+cleanText(
+text.slice(
+position +
+separator.length
+)
+);
+if (
+artist &&
+title
+) {
+return {
+artist,
+title
+};
+}
+}
+return null;
+}
 
 function isStationNoise(
-  value,
-  station
+value,
+station
 ) {
-
-  const text =
-    cleanText(
-      value
-    )
-    .toLowerCase();
-
-
-  if (!text) {
-
-    return true;
-
-  }
-
-
-  for (
-    const noise
-    of station.noise || []
-  ) {
-
-    const lowered =
-      noise.toLowerCase();
-
-
-    if (
-      text === lowered ||
-      text.startsWith(
-        lowered +
-        " - "
-      )
-    ) {
-
-      return true;
-
-    }
-
-  }
-
-
-  return false;
-
+const text =
+cleanText(
+value
+)
+.toLowerCase();
+if (!text) {
+return true;
 }
-
+for (
+const noise
+of station.noise || []
+) {
+const lowered =
+noise.toLowerCase();
+if (
+text === lowered ||
+text.startsWith(
+lowered +
+" - "
+)
+) {
+return true;
+}
+}
+return false;
+}
 
 function isHardNoTrack(
-  value
+value
 ) {
-
-  const text =
-    cleanText(
-      value
-    );
-
-
-  if (!text) {
-
-    return true;
-
-  }
-
-
-  return (
-    /^(ad break|ad start|commercial break|dynamic break)/i
-      .test(text) ||
-
-    /\breclame\b/i
-      .test(text) ||
-
-    /\bnieuws\b/i
-      .test(text)
-  );
-
+const text =
+cleanText(
+value
+);
+if (!text) {
+return true;
 }
-
-
-/* =========================================================
-   NPO MINIPLAYER
-   ========================================================= */
+return (
+/^(ad break|ad start|commercial break|dynamic break)/i
+.test(text) ||
+/\breclame\b/i
+.test(text) ||
+/\bnieuws\b/i
+.test(text)
+);
+}
 
 const npoMiniCache =
-  new Map();
-
+new Map();
 
 async function getNpoMiniData(
-  provider
+provider
 ) {
-
-  const channel =
-    provider.channel;
-
-
-  if (!channel) {
-
-    return null;
-
-  }
-
-
-  const cached =
-    npoMiniCache.get(
-      channel
-    );
-
-
-  if (
-    cached &&
-    Date.now() -
-      cached.at <
-      10000
-  ) {
-
-    return cached.data;
-
-  }
-
-
-  const data =
-    await fetchJsonSmart(
-      "https://www.nporadio2.nl/api/miniplayer/info?channel=" +
-      encodeURIComponent(
-        channel
-      )
-    );
-
-
-  npoMiniCache.set(
-    channel,
-    {
-      at:
-        Date.now(),
-
-      data
-    }
-  );
-
-
-  return data;
-
+const channel =
+provider.channel;
+if (!channel) {
+return null;
 }
-
+const cached =
+npoMiniCache.get(
+channel
+);
+if (
+cached &&
+Date.now() -
+cached.at <
+10000
+) {
+return cached.data;
+}
+const data =
+await fetchJsonSmart(
+"https://www.nporadio2.nl/api/miniplayer/info?channel=" +
+encodeURIComponent(
+channel
+)
+);
+npoMiniCache.set(
+channel,
+{
+at:
+Date.now(),
+data
+}
+);
+return data;
+}
 
 function parseNpoLocalDate(
-  value
+value
 ) {
-
-  const text =
-    cleanText(
-      value
-    );
-
-
-  if (!text) {
-
-    return 0;
-
-  }
-
-
-  const parsed =
-    Date.parse(
-      text.replace(
-        " ",
-        "T"
-      )
-    );
-
-
-  return Number.isFinite(parsed)
-    ? parsed
-    : 0;
-
+const text =
+cleanText(
+value
+);
+if (!text) {
+return 0;
 }
-
+const parsed =
+Date.parse(
+text.replace(
+" ",
+"T"
+)
+);
+return Number.isFinite(parsed)
+? parsed
+: 0;
+}
 
 async function getNpoMiniMetadata(
-  provider
+provider
 ) {
-
-  const response =
-    await getNpoMiniData(
-      provider
-    );
-
-
-  const track =
-    response
-      ?.data
-      ?.radioTrackPlays
-      ?.data
-      ?.[0];
-
-
-  if (!track) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  const from =
-    parseNpoLocalDate(
-      track.from
-    );
-
-
-  const until =
-    parseNpoLocalDate(
-      track.until
-    );
-
-
-  const now =
-    Date.now();
-
-
-  if (
-    from &&
-    until &&
-    (
-      now < from - 5000 ||
-      now > until + 7000
-    )
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  const artist =
-    cleanText(
-      track.artist
-    );
-
-
-  const title =
-    cleanText(
-      track.song
-    );
-
-
-  if (
-    !artist ||
-    !title
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  return {
-    artist,
-    title
-  };
-
+const response =
+await getNpoMiniData(
+provider
+);
+const track =
+response
+?.data
+?.radioTrackPlays
+?.data
+?.[0];
+if (!track) {
+return {
+noTrack: true
+};
 }
-
+const from =
+parseNpoLocalDate(
+track.from
+);
+const until =
+parseNpoLocalDate(
+track.until
+);
+const now =
+Date.now();
+if (
+from &&
+until &&
+(
+now < from - 5000 ||
+now > until + 7000
+)
+) {
+return {
+noTrack: true
+};
+}
+const artist =
+cleanText(
+track.artist
+);
+const title =
+cleanText(
+track.song
+);
+if (
+!artist ||
+!title
+) {
+return {
+noTrack: true
+};
+}
+return {
+artist,
+title
+};
+}
 
 async function getNpoMiniProgram(
-  provider,
-  station
+provider,
+station
 ) {
-
-  const response =
-    await getNpoMiniData(
-      provider
-    );
-
-
-  const broadcast =
-    response
-      ?.data
-      ?.radioBroadcasts
-      ?.data
-      ?.[0];
-
-
-  return cleanProgramValue(
-    broadcast?.name,
-    station
-  );
-
+const response =
+await getNpoMiniData(
+provider
+);
+const broadcast =
+response
+?.data
+?.radioBroadcasts
+?.data
+?.[0];
+return cleanProgramValue(
+broadcast?.name,
+station
+);
 }
-
-
-/* =========================================================
-   DPG TRACKS
-   ========================================================= */
 
 async function getDpgMetadata(
-  provider
+provider
 ) {
-
-  const data =
-    await fetchJsonSmart(
-      provider.url
-    );
-
-
-  const track =
-    data
-      ?.played_tracks
-      ?.[0];
-
-
-  if (!track) {
-
-    return null;
-
-  }
-
-
-  const title =
-    cleanText(
-      track.title
-    );
-
-
-  const artist =
-    cleanText(
-      track.artist?.name
-    );
-
-
-  if (
-    !title ||
-    !artist
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  const start =
-    Date.parse(
-      track.played_at ||
-      ""
-    );
-
-
-  const duration =
-    Number(
-      track.duration
-    ) * 1000;
-
-
-  if (
-    Number.isFinite(start) &&
-    Number.isFinite(duration) &&
-    duration > 0
-  ) {
-
-    const now =
-      Date.now();
-
-
-    if (
-      now <
-        start - 5000 ||
-      now >
-        start +
-        duration +
-        15000
-    ) {
-
-      return {
-        noTrack: true
-      };
-
-    }
-
-  }
-
-
-  return {
-    artist,
-    title
-  };
-
+const data =
+await fetchJsonSmart(
+provider.url
+);
+const track =
+data
+?.played_tracks
+?.[0];
+if (!track) {
+return null;
 }
-
-
-/* =========================================================
-   ARROW TRACKS
-   ========================================================= */
+const title =
+cleanText(
+track.title
+);
+const artist =
+cleanText(
+track.artist?.name
+);
+if (
+!title ||
+!artist
+) {
+return {
+noTrack: true
+};
+}
+const start =
+Date.parse(
+track.played_at ||
+""
+);
+const duration =
+Number(
+track.duration
+) * 1000;
+if (
+Number.isFinite(start) &&
+Number.isFinite(duration) &&
+duration > 0
+) {
+const now =
+Date.now();
+if (
+now <
+start - 5000 ||
+now >
+start +
+duration +
+15000
+) {
+return {
+noTrack: true
+};
+}
+}
+return {
+artist,
+title
+};
+}
 
 async function getArrowMetadata(
-  provider
+provider
 ) {
-
-  const data =
-    await fetchJsonSmart(
-      provider.url
-    );
-
-
-  const artist =
-    cleanText(
-      data?.artist
-    );
-
-
-  const title =
-    cleanText(
-      data?.title
-    );
-
-
-  if (
-    !artist ||
-    !title
-  ) {
-
-    return null;
-
-  }
-
-
-  const generic =
-    artist.toLowerCase() ===
-      "arrow classic rock" &&
-    /^(radio|live)$/i.test(
-      title
-    );
-
-
-  if (generic) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  return {
-    artist,
-    title
-  };
-
+const data =
+await fetchJsonSmart(
+provider.url
+);
+const artist =
+cleanText(
+data?.artist
+);
+const title =
+cleanText(
+data?.title
+);
+if (
+!artist ||
+!title
+) {
+return null;
 }
-
-
-/* =========================================================
-   VRT METADATA
-   ========================================================= */
-
-/*
- * VRT blokkeert zijn GraphQL-API voor browserrequests vanaf
- * externe domeinen zoals rc045.nl. Daarom gebruikt de frontend
- * uitsluitend een beperkte same-origin endpoint op rc045.nl.
- *
- * De frontend gebruikt geen externe CORS-relay voor VRT.
- */
+const generic =
+artist.toLowerCase() ===
+"arrow classic rock" &&
+/^(radio|live)$/i.test(
+title
+);
+if (generic) {
+return {
+noTrack: true
+};
+}
+return {
+artist,
+title
+};
+}
 
 const VRT_METADATA_ENDPOINT =
-  "/vrt-nowplaying.php";
-
+"/vrt-nowplaying.php";
 
 async function getVrtMetadata(
-  provider
+provider
 ) {
-
-  if (
-    !provider?.pageId
-  ) {
-
-    return null;
-
-  }
-
-
-  const url =
-    VRT_METADATA_ENDPOINT +
-    "?page=" +
-    encodeURIComponent(
-      provider.pageId
-    );
-
-
-  const data =
-    await fetchJsonSmart(
-      url
-    );
-
-
-  if (
-    !data ||
-    data.error
-  ) {
-
-    return null;
-
-  }
-
-
-  if (
-    data.noTrack
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  const artist =
-    cleanText(
-      data.artist
-    );
-
-
-  const title =
-    cleanText(
-      data.title
-    );
-
-
-  if (
-    !artist ||
-    !title
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  return {
-    artist,
-    title
-  };
-
-}
-
-
-/* =========================================================
-   TRITON HELPERS
-   ========================================================= */
-
-function parseEpochMilliseconds(
-  value
+if (
+!provider?.pageId
 ) {
-
-  const number =
-    Number(
-      String(value || "")
-        .trim()
-    );
-
-
-  if (
-    !Number.isFinite(number)
-  ) {
-
-    return 0;
-
-  }
-
-
-  return (
-    number >
-    100000000000
-  )
-    ? number
-    : number * 1000;
-
+return null;
 }
 
-
-function parseDurationMilliseconds(
-  value
-) {
-
-  const number =
-    Number(
-      String(value || "")
-        .trim()
-    );
-
-
-  if (
-    !Number.isFinite(number) ||
-    number <= 0
-  ) {
-
-    return 0;
-
-  }
-
-
-  return (
-    number < 1000
-  )
-    ? number * 1000
-    : number;
-
-}
-
-
-/* =========================================================
-   538 TRITON
-   ========================================================= */
-
-async function getTritonMetadata(
-  provider
-) {
-
-  const url =
-    "https://np.tritondigital.com/public/nowplaying" +
-    "?mountName=" +
-    encodeURIComponent(
-      provider.mount
-    ) +
-    "&numberToFetch=8";
-
-
-  const xml =
-    await fetchTextDirect(
-      url +
-      "&rnd=" +
-      Date.now()
-    );
-
-
-  const doc =
-    new DOMParser()
-      .parseFromString(
-        xml,
-        "application/xml"
-      );
-
-
-  if (
-    doc.querySelector(
-      "parsererror"
-    )
-  ) {
-
-    return null;
-
-  }
-
-
-  const block =
-    doc.querySelector(
-      "nowplaying-info"
-    );
-
-
-  if (!block) {
-
-    return null;
-
-  }
-
-
-  const props =
-    [
-      ...block.querySelectorAll(
-        "property"
-      )
-    ]
-    .map(
-      property =>
-        cleanText(
-          property.textContent
-        )
-    );
-
-
-  if (
-    !props.length
-  ) {
-
-    return null;
-
-  }
-
-
-  const type =
-    (
-      props[0] ||
-      ""
-    )
-    .toLowerCase();
-
-
-  const duration =
-    parseDurationMilliseconds(
-      props[1]
-    );
-
-
-  const start =
-    parseEpochMilliseconds(
-      props[2]
-    );
-
-
-  const title =
-    cleanText(
-      props[3]
-    );
-
-
-  const artist =
-    cleanText(
-      props[4]
-    );
-
-
-  if (
-    /break|advert|commercial|spot|promo/
-      .test(type)
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  if (
-    start &&
-    duration
-  ) {
-
-    const now =
-      Date.now();
-
-
-    const end =
-      start +
-      duration;
-
-
-    if (
-      now <
-        start - 5000 ||
-      now >
-        end + 5000
-    ) {
-
-      return {
-        noTrack: true
-      };
-
-    }
-
-  }
-
-
-  if (
-    !artist ||
-    !title ||
-    artist.toLowerCase() ===
-      "null" ||
-    title.toLowerCase() ===
-      "null"
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  return {
-    artist,
-    title
-  };
-
-}
-
-
-/* =========================================================
-   SKY RADIO DIRECT TRITON
-   ========================================================= */
-
-async function getTritonTrackMetadata(
-  provider
-) {
-
-  /*
-   * Rechtstreeks naar de publieke
-   * Triton endpoint.
-   */
-
-  const url =
-    "https://np.tritondigital.com/public/nowplaying" +
-    "?mountName=" +
-    encodeURIComponent(
-      provider.mount
-    ) +
-    "&numberToFetch=2" +
-    "&eventType=track" +
-    "&rnd=" +
-    Date.now();
-
-
-  const xml =
-    await fetchTextDirect(
-      url
-    );
-
-
-  const doc =
-    new DOMParser()
-      .parseFromString(
-        xml,
-        "application/xml"
-      );
-
-
-  if (
-    doc.querySelector(
-      "parsererror"
-    )
-  ) {
-
-    return null;
-
-  }
-
-
-  const block =
-    doc.querySelector(
-      "nowplaying-info"
-    );
-
-
-  if (!block) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  /*
-   * SKYRADIO eventType=track:
-   *
-   * 0 = duur (ms)
-   * 1 = starttijd epoch (ms)
-   * 2 = titel
-   * 3 = artiest
-   * 4 = ISRC
-   */
-
-  const props =
-    [
-      ...block.querySelectorAll(
-        "property"
-      )
-    ]
-    .map(
-      property =>
-        cleanText(
-          property.textContent
-        )
-    );
-
-
-  if (
-    props.length < 4
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  const duration =
-    parseDurationMilliseconds(
-      props[0]
-    );
-
-
-  const start =
-    parseEpochMilliseconds(
-      props[1]
-    );
-
-
-  const title =
-    cleanText(
-      props[2]
-    );
-
-
-  const artist =
-    cleanText(
-      props[3]
-    );
-
-
-  if (
-    !title ||
-    !artist
-  ) {
-
-    return {
-      noTrack: true
-    };
-
-  }
-
-
-  /*
-   * eventType=track geeft de laatste
-   * song terug, óók als er daarna
-   * inmiddels reclame is gestart.
-   *
-   * Daarom is het tijdvenster leidend.
-   */
-
-  if (
-    start &&
-    duration
-  ) {
-
-    const now =
-      Date.now();
-
-
-    const end =
-      start +
-      duration;
-
-
-    if (
-      now <
-        start - 4000 ||
-      now >
-        end + 7000
-    ) {
-
-      return {
-        noTrack: true
-      };
-
-    }
-
-  }
-
-
-  return {
-    artist,
-    title
-  };
-
-}
-
-
-/* =========================================================
-   TRACK ROUTER
-   ========================================================= */
-
-async function resolveMetadataProvider(
-  provider,
-  station
-) {
-
-  switch (
-    provider.type
-  ) {
-
-    case "npo-mini":
-
-      return await getNpoMiniMetadata(
-        provider
-      );
-
-
-    case "triton":
-
-      return await getTritonMetadata(
-        provider
-      );
-
-
-    case "triton-track":
-
-      return await getTritonTrackMetadata(
-        provider
-      );
-
-
-    case "dpg":
-
-      return await getDpgMetadata(
-        provider
-      );
-
-
-    case "arrow":
-
-      return await getArrowMetadata(
-        provider
-      );
-
-
-    case "vrt":
-
-      return await getVrtMetadata(
-        provider
-      );
-
-
-    default:
-
-      return null;
-
-  }
-
-}
-
-
-/* =========================================================
-   REFRESH TRACK
-   ========================================================= */
-
-async function refreshMetadata() {
-
-  if (
-    document.visibilityState ===
-    "hidden"
-  ) {
-
-    return;
-
-  }
-
-
-  if (
-    isContentSuppressed()
-  ) {
-
-    clearTrack();
-
-    return;
-
-  }
-
-
-  const generation =
-    metadataGeneration;
-
-
-  const stationIndex =
-    currentIndex;
-
-
-  const station =
-    stations[
-      stationIndex
-    ];
-
-
-  if (
-    !station.metadata?.length
-  ) {
-
-    clearTrack();
-
-    return;
-
-  }
-
-
-  let resolved =
-    false;
-
-
-  for (
-    const provider
-    of station.metadata
-  ) {
-
-    if (
-      generation !==
-        metadataGeneration ||
-      stationIndex !==
-        currentIndex
-    ) {
-
-      return;
-
-    }
-
-
-    try {
-
-      const result =
-        await resolveMetadataProvider(
-          provider,
-          station
-        );
-
-
-      if (
-        generation !==
-          metadataGeneration ||
-        stationIndex !==
-          currentIndex
-      ) {
-
-        return;
-
-      }
-
-
-      if (
-        result?.noTrack
-      ) {
-
-        clearTrack();
-
-        return;
-
-      }
-
-
-      if (
-        result?.title
-      ) {
-
-        setTrack(
-          result.artist || "",
-          result.title
-        );
-
-
-        return;
-
-      }
-
-
-      if (result) {
-
-        resolved =
-          true;
-
-      }
-
-    }
-
-    catch {}
-
-
-  }
-
-
-  if (
-    !resolved &&
-    currentTrack.title &&
-    Date.now() -
-      currentTrackUpdatedAt >
-      TRACK_STALE_MS
-  ) {
-
-    clearTrack();
-
-  }
-
-
-  if (
-    !currentTrack.title
-  ) {
-
-    clearTrack();
-
-  }
-
-}
-
-
-/* =========================================================
-   PROGRAM PARSERS
-   ========================================================= */
-
-function cleanProgramValue(
-  value,
-  station
-) {
-
-  let text =
-    cleanText(
-      value
-    );
-
-
-  if (!text) {
-
-    return "";
-
-  }
-
-
-  text =
-    text.replace(
-      /^nu live:\s*/i,
-      ""
-    );
-
-
-  text =
-    text.replace(
-      /^nu live\s*/i,
-      ""
-    );
-
-
-  text =
-    text.replace(
-      /^now on air[:\s]*/i,
-      ""
-    );
-
-
-  if (
-    isInvalidProgram(
-      text
-    )
-  ) {
-
-    return "";
-
-  }
-
-
-  if (
-    station &&
-    text.toLowerCase() ===
-      station.name.toLowerCase()
-  ) {
-
-    return "";
-
-  }
-
-
-  return text;
-
-}
-
-
-async function getNpoLiveProgram(
-  provider,
-  station
-) {
-
-  const doc =
-    await fetchDocument(
-      provider.url
-    );
-
-
-  const lines =
-    documentLines(
-      doc
-    );
-
-
-  for (
-    let i = 0;
-    i < lines.length;
-    i++
-  ) {
-
-    const line =
-      lines[i];
-
-
-    const inline =
-      line.match(
-        /^nu live:\s*(.+)$/i
-      );
-
-
-    if (
-      inline?.[1]
-    ) {
-
-      const result =
-        cleanProgramValue(
-          inline[1],
-          station
-        );
-
-
-      if (result) {
-
-        return result;
-
-      }
-
-    }
-
-
-    if (
-      /^nu live:?$/i.test(
-        line
-      )
-    ) {
-
-      for (
-        let j =
-          i + 1;
-
-        j <
-          Math.min(
-            lines.length,
-            i + 8
-          );
-
-        j++
-      ) {
-
-        const candidate =
-          cleanProgramValue(
-            lines[j],
-            station
-          );
-
-
-        if (
-          candidate &&
-          !/^(luister|kijk|playlist|volume)/i
-            .test(candidate)
-        ) {
-
-          return candidate;
-
-        }
-
-      }
-
-    }
-
-  }
-
-
-  return "";
-
-}
-
-
-async function getNpo5Program(
-  provider,
-  station
-) {
-
-  const doc =
-    await fetchDocument(
-      provider.url
-    );
-
-
-  const headings =
-    documentHeadings(
-      doc,
-      "h2"
-    );
-
-
-  for (
-    const heading
-    of headings
-  ) {
-
-    const candidate =
-      cleanProgramValue(
-        heading,
-        station
-      );
-
-
-    if (
-      !candidate
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      /^(nieuws|artikelen|podcasts|muziek|playlist|gemist|meer van)/i
-        .test(candidate)
-    ) {
-
-      continue;
-
-    }
-
-
-    return candidate;
-
-  }
-
-
-  return "";
-
-}
-
-
-async function getTalpaProgram(
-  provider,
-  station
-) {
-
-  const doc =
-    await fetchDocument(
-      provider.url
-    );
-
-
-  const lines =
-    documentLines(
-      doc
-    );
-
-
-  const start =
-    lines.findIndex(
-      line =>
-        /^nu live$/i.test(
-          line
-        )
-    );
-
-
-  if (
-    start < 0
-  ) {
-
-    return "";
-
-  }
-
-
-  const skip =
-    /^(kijk live|luister live|stuur bericht|volume|playlist|programmering|radio|home)$/i;
-
-
-  for (
-    let i =
-      start + 1;
-
-    i <
-      Math.min(
-        lines.length,
-        start + 20
-      );
-
-    i++
-  ) {
-
-    const line =
-      lines[i];
-
-
-    if (
-      skip.test(line) ||
-      /^\d{1,2}:\d{2}/
-        .test(line) ||
-      /^elke\s/i.test(line)
-    ) {
-
-      continue;
-
-    }
-
-
-    const candidate =
-      cleanProgramValue(
-        line,
-        station
-      );
-
-
-    if (candidate) {
-
-      return candidate;
-
-    }
-
-  }
-
-
-  return "";
-
-}
-
-
-async function getMediahuisProgram(
-  provider,
-  station
-) {
-
-  const doc =
-    await fetchDocument(
-      provider.url
-    );
-
-
-  const headings =
-    documentHeadings(
-      doc,
-      "h2"
-    );
-
-
-  for (
-    const heading
-    of headings
-  ) {
-
-    const candidate =
-      cleanProgramValue(
-        heading,
-        station
-      );
-
-
-    if (
-      !candidate
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      /^(eerder op|meer van|nieuws|acties|win|ontdek|playlist|programma's|programma’s)/i
-        .test(candidate)
-    ) {
-
-      continue;
-
-    }
-
-
-    return candidate;
-
-  }
-
-
-  return "";
-
-}
-
-
-async function getBnrProgram(
-  provider,
-  station
-) {
-
-  const doc =
-    await fetchDocument(
-      provider.url
-    );
-
-
-  const headings =
-    documentHeadings(
-      doc,
-      "h3"
-    );
-
-
-  for (
-    const heading
-    of headings
-  ) {
-
-    const candidate =
-      cleanProgramValue(
-        heading,
-        station
-      );
-
-
-    if (
-      !candidate
-    ) {
-
-      continue;
-
-    }
-
-
-    if (
-      /^(luister live|kijk live|nieuws)/i
-        .test(candidate)
-    ) {
-
-      continue;
-
-    }
-
-
-    return candidate;
-
-  }
-
-
-  return "";
-
-}
-
-
-/* =========================================================
-   PROGRAM ROUTER
-   ========================================================= */
-
-async function resolveProgram(
-  provider,
-  station
-) {
-
-  switch (
-    provider.type
-  ) {
-
-    case "npo-mini":
-
-      return await getNpoMiniProgram(
-        provider,
-        station
-      );
-
-
-    case "npo-live":
-
-      return await getNpoLiveProgram(
-        provider,
-        station
-      );
-
-
-    case "npo5-home":
-
-      return await getNpo5Program(
-        provider,
-        station
-      );
-
-
-    case "talpa-home":
-
-      return await getTalpaProgram(
-        provider,
-        station
-      );
-
-
-    case "mediahuis-home":
-
-      return await getMediahuisProgram(
-        provider,
-        station
-      );
-
-
-    case "bnr":
-
-      return await getBnrProgram(
-        provider,
-        station
-      );
-
-
-
-    default:
-
-      return "";
-
-  }
-
-}
-
-
-/* =========================================================
-   REFRESH PROGRAM
-   ========================================================= */
-
-async function refreshProgram() {
-
-  if (
-    document.visibilityState ===
-    "hidden"
-  ) {
-
-    return;
-
-  }
-
-
-  if (
-    isContentSuppressed()
-  ) {
-
-    clearProgram();
-
-    return;
-
-  }
-
-
-  const generation =
-    programGeneration;
-
-
-  const stationIndex =
-    currentIndex;
-
-
-  const station =
-    stations[
-      stationIndex
-    ];
-
-
-  if (
-    !station.program
-  ) {
-
-    clearProgram();
-
-    return;
-
-  }
-
-
-  try {
-
-    const value =
-      await resolveProgram(
-        station.program,
-        station
-      );
-
-
-    if (
-      generation !==
-        programGeneration ||
-      stationIndex !==
-        currentIndex
-    ) {
-
-      return;
-
-    }
-
-
-    if (value) {
-
-      setProgram(
-        value
-      );
-
-      return;
-
-    }
-
-
-    if (
-      currentProgram &&
-      Date.now() -
-        currentProgramUpdatedAt >
-        PROGRAM_STALE_MS
-    ) {
-
-      clearProgram();
-
-    }
-
-
-    if (!currentProgram) {
-
-      clearProgram();
-
-    }
-
-  }
-
-  catch {
-
-    if (
-      generation ===
-        programGeneration &&
-      stationIndex ===
-        currentIndex &&
-      currentProgram &&
-      Date.now() -
-        currentProgramUpdatedAt >
-        PROGRAM_STALE_MS
-    ) {
-
-      clearProgram();
-
-    }
-
-  }
-
-}
-
-
-/* =========================================================
-   WIKIPEDIA
-   ========================================================= */
-
-function normalizeWikiText(
-  value
-) {
-
-  return String(
-    value || ""
-  )
-  .normalize("NFD")
-  .replace(
-    /[\u0300-\u036f]/g,
-    ""
-  )
-  .toLowerCase()
-  .replace(
-    /&/g,
-    " and "
-  )
-  .replace(
-    /[^a-z0-9]+/g,
-    " "
-  )
-  .trim();
-
-}
-
-
-function stripParentheses(
-  value
-) {
-
-  return cleanText(
-    String(value || "")
-      .replace(
-        /\s*\([^)]*\)\s*$/,
-        ""
-      )
-  );
-
-}
-
-
-function stripHtml(
-  value
-) {
-
-  const div =
-    document.createElement(
-      "div"
-    );
-
-
-  div.innerHTML =
-    value || "";
-
-
-  return cleanText(
-    div.textContent || ""
-  );
-
-}
-
-
-function wikipediaUrl(
-  language,
-  title
-) {
-
-  return (
-    `https://${language}.wikipedia.org/wiki/` +
-    encodeURIComponent(
-      title.replace(
-        / /g,
-        "_"
-      )
-    )
-  );
-
-}
-
-
-async function wikipediaSearch(
-  language,
-  query
-) {
-
-  const url =
-    `https://${language}.wikipedia.org/w/api.php` +
-    "?action=query" +
-    "&list=search" +
-    "&srnamespace=0" +
-    "&srlimit=5" +
-    "&format=json" +
-    "&origin=*" +
-    "&srsearch=" +
-    encodeURIComponent(
-      query
-    );
-
-
-  const text =
-    await fetchTextWithTimeout(
-      url,
-      REQUEST_TIMEOUT
-    );
-
-
-  const data =
-    JSON.parse(
-      text
-    );
-
-
-  return (
-    data
-      ?.query
-      ?.search ||
-    []
-  );
-
-}
-
-
-function scoreWikipediaArtist(
-  result,
-  artist
-) {
-
-  const wanted =
-    normalizeWikiText(
-      artist
-    );
-
-
-  const title =
-    normalizeWikiText(
-      result.title
-    );
-
-
-  const titleBase =
-    normalizeWikiText(
-      stripParentheses(
-        result.title
-      )
-    );
-
-
-  const snippet =
-    normalizeWikiText(
-      stripHtml(
-        result.snippet
-      )
-    );
-
-
-  let score = 0;
-
-
-  if (
-    title === wanted
-  ) {
-    score += 120;
-  }
-
-
-  if (
-    titleBase === wanted
-  ) {
-    score += 110;
-  }
-
-
-  if (
-    title.includes(wanted)
-  ) {
-    score += 55;
-  }
-
-
-  if (
-    snippet.includes(wanted)
-  ) {
-    score += 20;
-  }
-
-
-  if (
-    /(band|zanger|zangeres|rapper|dj|muzikant|musicus|singer|musician|record producer|musical group|rock band|pop group)/
-      .test(
-        snippet
-      )
-  ) {
-    score += 25;
-  }
-
-
-  return score;
-
-}
-
-
-async function findWikipediaArtist(
-  artist
-) {
-
-  if (!artist) {
-
-    return null;
-  }
-
-
-  const cacheKey =
-    "artist:" +
-    normalizeWikiText(
-      artist
-    );
-
-
-  const cached =
-    readWikiCache(
-      cacheKey
-    );
-
-
-  if (
-    cached !== undefined
-  ) {
-    return cached;
-  }
-
-
-  let best = null;
-
-
-  for (
-    const language
-    of ["nl", "en"]
-  ) {
-
-    try {
-
-      const results =
-        await wikipediaSearch(
-          language,
-          `"${artist}"`
-        );
-
-
-      for (
-        const result
-        of results
-      ) {
-
-        const score =
-          scoreWikipediaArtist(
-            result,
-            artist
-          );
-
-
-        if (
-          !best ||
-          score > best.score
-        ) {
-
-          best = {
-            language,
-            title:
-              result.title,
-            score
-          };
-
-        }
-
-      }
-
-
-      if (
-        best &&
-        best.score >= 100
-      ) {
-
-        break;
-
-      }
-
-    }
-
-    catch {}
-
-  }
-
-
-  const match =
-    best &&
-    best.score >= 80
-      ? {
-          title:
-            best.title,
-
-          url:
-            wikipediaUrl(
-              best.language,
-              best.title
-            )
-        }
-      : null;
-
-
-  writeWikiCache(
-    cacheKey,
-    match
-  );
-
-
-  return match;
-
-}
-
-
-function scoreWikipediaTrack(
-  result,
-  artist,
-  track
-) {
-
-  const wantedArtist =
-    normalizeWikiText(
-      artist
-    );
-
-
-  const wantedTrack =
-    normalizeWikiText(
-      track
-    );
-
-
-  const title =
-    normalizeWikiText(
-      result.title
-    );
-
-
-  const titleBase =
-    normalizeWikiText(
-      stripParentheses(
-        result.title
-      )
-    );
-
-
-  const snippet =
-    normalizeWikiText(
-      stripHtml(
-        result.snippet
-      )
-    );
-
-
-  let score = 0;
-
-
-  if (
-    titleBase === wantedTrack
-  ) {
-    score += 70;
-  }
-
-
-  if (
-    title.startsWith(
-      wantedTrack + " "
-    )
-  ) {
-    score += 50;
-  }
-
-
-  if (
-    title.includes(
-      wantedTrack
-    )
-  ) {
-    score += 20;
-  }
-
-
-  if (
-    wantedArtist &&
-    title.includes(
-      wantedArtist
-    )
-  ) {
-    score += 35;
-  }
-
-
-  if (
-    wantedArtist &&
-    snippet.includes(
-      wantedArtist
-    )
-  ) {
-    score += 35;
-  }
-
-
-  if (
-    /(single|nummer|lied|song|track|recording|opgenomen|uitgebracht|released)/
-      .test(
-        snippet
-      )
-  ) {
-    score += 15;
-  }
-
-
-  return score;
-
-}
-
-
-async function findWikipediaTrack(
-  artist,
-  title
-) {
-
-  if (
-    !artist ||
-    !title
-  ) {
-
-    return null;
-
-  }
-
-
-  const cacheKey =
-    "track:" +
-    normalizeWikiText(
-      artist
-    ) +
-    "|" +
-    normalizeWikiText(
-      title
-    );
-
-
-  const cached =
-    readWikiCache(
-      cacheKey
-    );
-
-
-  if (
-    cached !== undefined
-  ) {
-
-    return cached;
-
-  }
-
-
-  let best = null;
-
-
-  const searches = [
-
-    {
-      language: "nl",
-
-      query:
-        `"${title}" "${artist}" nummer`
-    },
-
-    {
-      language: "en",
-
-      query:
-        `"${title}" "${artist}" song`
-    }
-
-  ];
-
-
-  for (
-    const search
-    of searches
-  ) {
-
-    try {
-
-      const results =
-        await wikipediaSearch(
-          search.language,
-          search.query
-        );
-
-
-      for (
-        const result
-        of results
-      ) {
-
-        const score =
-          scoreWikipediaTrack(
-            result,
-            artist,
-            title
-          );
-
-
-        if (
-          !best ||
-          score > best.score
-        ) {
-
-          best = {
-            language:
-              search.language,
-
-            title:
-              result.title,
-
-            score
-          };
-
-        }
-
-      }
-
-
-      if (
-        best &&
-        best.score >= 110
-      ) {
-
-        break;
-
-      }
-
-    }
-
-    catch {}
-
-  }
-
-
-  const match =
-    best &&
-    best.score >= 90
-      ? {
-          title:
-            best.title,
-
-          url:
-            wikipediaUrl(
-              best.language,
-              best.title
-            )
-        }
-      : null;
-
-
-  writeWikiCache(
-    cacheKey,
-    match
-  );
-
-
-  return match;
-
-}
-
-
-function applyWikipediaLink(
-  element,
-  result,
-  label
-) {
-
-  if (!result) {
-
-    return;
-
-  }
-
-
-  element.href =
-    result.url;
-
-
-  element.target =
-    "_blank";
-
-
-  element.rel =
-    "noopener noreferrer";
-
-
-  element.title =
-    `${label} op Wikipedia: ${result.title}`;
-
-
-  element.classList.add(
-    "has-wiki"
-  );
-
-}
-
-
-async function updateWikipediaLinks(
-  artist,
-  title
-) {
-
-  wikipediaGeneration++;
-
-
-  const generation =
-    wikipediaGeneration;
-
-
-  if (
-    !artist ||
-    !title
-  ) {
-
-    return;
-
-  }
-
-
-  const expectedArtist =
-    artist;
-
-
-  const expectedTitle =
-    title;
-
-
-  const [
-    artistResult,
-    trackResult
-  ] =
-    await Promise.all([
-
-      findWikipediaArtist(
-        artist
-      ),
-
-      findWikipediaTrack(
-        artist,
-        title
-      )
-
-    ]);
-
-
-  if (
-    generation !==
-      wikipediaGeneration ||
-    currentTrack.artist !==
-      expectedArtist ||
-    currentTrack.title !==
-      expectedTitle
-  ) {
-
-    return;
-
-  }
-
-
-  applyWikipediaLink(
-    trackArtist,
-    artistResult,
-    artist
-  );
-
-
-  applyWikipediaLink(
-    trackTitle,
-    trackResult,
-    `${artist} – ${title}`
-  );
-
-}
-
-
-/* =========================================================
-   PERIODIC REFRESH
-   ========================================================= */
-
-window.setInterval(
-  () =>
-    refreshMetadata(),
-  METADATA_REFRESH
+const url =
+VRT_METADATA_ENDPOINT +
+"?page=" +
+encodeURIComponent(
+provider.pageId
 );
 
-
-window.setInterval(
-  () =>
-    refreshProgram(),
-  PROGRAM_REFRESH
+const data =
+await fetchJsonSmart(
+url
 );
-
-
-document.addEventListener(
-  "visibilitychange",
-  () => {
-
-    if (
-      document.visibilityState ===
-      "visible"
-    ) {
-
-      refreshMetadata();
-
-      refreshProgram();
-
-      updateSleepTimer();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   SLEEP TIMER
-   ========================================================= */
-
-function openSleepMenu() {
-
-  sleepMenu.hidden =
-    false;
-
-
-  sleepButton.setAttribute(
-    "aria-expanded",
-    "true"
-  );
-
-}
-
-
-function closeSleepMenu() {
-
-  sleepMenu.hidden =
-    true;
-
-
-  sleepButton.setAttribute(
-    "aria-expanded",
-    "false"
-  );
-
-}
-
-
-sleepButton.addEventListener(
-  "click",
-  event => {
-
-    event.stopPropagation();
-
-
-    if (
-      sleepMenu.hidden
-    ) {
-
-      openSleepMenu();
-
-    }
-
-    else {
-
-      closeSleepMenu();
-
-    }
-
-  }
-);
-
-
-document
-  .querySelectorAll(
-    ".sleep-option"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          setSleepTimer(
-            Number(
-              button.dataset.minutes
-            )
-          );
-
-
-          closeSleepMenu();
-
-        }
-      );
-
-    }
-  );
-
-
-document.addEventListener(
-  "click",
-  event => {
-
-    if (
-      !event.target.closest(
-        ".sleep-wrap"
-      )
-    ) {
-
-      closeSleepMenu();
-
-    }
-
-  }
-);
-
-
-function setSleepTimer(
-  minutes
-) {
-
-  if (!minutes) {
-
-    sleepUntil =
-      0;
-
-
-    localStorage.removeItem(
-      "radio-sleep-until"
-    );
-
-
-    updateSleepTimer();
-
-
-    return;
-
-  }
-
-
-  sleepUntil =
-    Date.now() +
-    minutes *
-    60000;
-
-
-  localStorage.setItem(
-    "radio-sleep-until",
-    String(
-      sleepUntil
-    )
-  );
-
-
-  updateSleepTimer();
-
-}
-
-
-function updateSleepTimer() {
-
-  if (!sleepUntil) {
-
-    sleepButton
-      .classList
-      .remove(
-        "active"
-      );
-
-
-    sleepText.textContent =
-      "";
-
-
-    return;
-
-  }
-
-
-  const remaining =
-    sleepUntil -
-    Date.now();
-
-
-  if (
-    remaining <= 0
-  ) {
-
-    sleepUntil =
-      0;
-
-
-    localStorage.removeItem(
-      "radio-sleep-until"
-    );
-
-
-    sleepButton
-      .classList
-      .remove(
-        "active"
-      );
-
-
-    sleepText.textContent =
-      "";
-
-
-    if (
-      !audio.paused
-    ) {
-
-      pause(
-        "Slaaptimer afgelopen"
-      );
-
-    }
-
-
-    return;
-
-  }
-
-
-  const totalSeconds =
-    Math.ceil(
-      remaining /
-      1000
-    );
-
-
-  const minutes =
-    Math.floor(
-      totalSeconds /
-      60
-    );
-
-
-  const seconds =
-    totalSeconds %
-    60;
-
-
-  sleepButton
-    .classList
-    .add(
-      "active"
-    );
-
-
-  sleepText.textContent =
-    `${minutes}:${
-      String(
-        seconds
-      )
-      .padStart(
-        2,
-        "0"
-      )
-    }`;
-
-}
-
-
-window.setInterval(
-  updateSleepTimer,
-  1000
-);
-
-
-/* =========================================================
-   NEXT / PREVIOUS
-   ========================================================= */
-
-function moveStation(
-  direction
-) {
-
-  const order =
-    getVisibleDisplayOrder()
-      .map(
-        item =>
-          item.index
-      );
-
-
-  if (
-    !order.length
-  ) {
-
-    return;
-
-  }
-
-
-  const position =
-    order.indexOf(
-      currentIndex
-    );
-
-
-  let target;
-
-
-  if (
-    position < 0
-  ) {
-
-    target =
-      direction > 0
-        ? order[0]
-        : order[
-            order.length - 1
-          ];
-
-  }
-
-  else {
-
-    target =
-      order[
-        (
-          position +
-          direction +
-          order.length
-        ) %
-        order.length
-      ];
-
-  }
-
-
-  selectStation(
-    target,
-    !audio.paused
-  );
-
-}
-
-
-function nextStation() {
-
-  moveStation(
-    1
-  );
-
-}
-
-
-function previousStation() {
-
-  moveStation(
-    -1
-  );
-
-}
-
-
-/* =========================================================
-   KEYBOARD
-   ========================================================= */
-
-document.addEventListener(
-  "keydown",
-  event => {
-
-    if (
-      document.activeElement
-        .tagName ===
-      "INPUT"
-    ) {
-
-      return;
-
-    }
-
-
-    if (
-      event.code ===
-      "Space"
-    ) {
-
-      event.preventDefault();
-
-      togglePlay();
-
-    }
-
-
-    if (
-      event.key ===
-      "ArrowRight"
-    ) {
-
-      event.preventDefault();
-
-      nextStation();
-
-    }
-
-
-    if (
-      event.key ===
-      "ArrowLeft"
-    ) {
-
-      event.preventDefault();
-
-      previousStation();
-
-    }
-
-
-    if (
-      event.key ===
-      "Escape"
-    ) {
-
-      closeSleepMenu();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   MEDIA SESSION
-   ========================================================= */
-
-function updateMediaSession() {
-
-  if (
-    !(
-      "mediaSession"
-      in navigator
-    )
-  ) {
-
-    return;
-
-  }
-
-
-  const station =
-    stations[
-      currentIndex
-    ];
-
-
-  const metadata = {
-
-    title:
-      currentTrack.title ||
-      station.name,
-
-    artist:
-      currentTrack.artist ||
-      currentProgram ||
-      "Live radio",
-
-    album:
-      station.name
-
-  };
-
-
-  const logo =
-    getStationLogo(
-      station
-    );
-
-
-  try {
-
-    if (logo) {
-
-      metadata.artwork = [
-        {
-          src:
-            logo
-        }
-      ];
-
-    }
-
-
-    navigator
-      .mediaSession
-      .metadata =
-      new MediaMetadata(
-        metadata
-      );
-
-  }
-
-  catch {
-
-    delete metadata.artwork;
-
-
-    navigator
-      .mediaSession
-      .metadata =
-      new MediaMetadata(
-        metadata
-      );
-
-  }
-
-}
-
 
 if (
-  "mediaSession"
-  in navigator
+!data ||
+data.error
 ) {
-
-  navigator
-    .mediaSession
-    .setActionHandler(
-      "play",
-      () =>
-        play()
-    );
-
-
-  navigator
-    .mediaSession
-    .setActionHandler(
-      "pause",
-      () =>
-        pause()
-    );
-
-
-  navigator
-    .mediaSession
-    .setActionHandler(
-      "nexttrack",
-      () =>
-        nextStation()
-    );
-
-
-  navigator
-    .mediaSession
-    .setActionHandler(
-      "previoustrack",
-      () =>
-        previousStation()
-    );
-
+return null;
 }
 
-
-/* =========================================================
-   NETWORK
-   ========================================================= */
-
-window.addEventListener(
-  "offline",
-  () => {
-
-    status.textContent =
-      "Geen internetverbinding";
-
-  }
+const program =
+cleanText(
+data.program
 );
 
-
-window.addEventListener(
-  "online",
-  () => {
-
-    status.textContent =
-      audio.paused
-        ? "Internetverbinding hersteld"
-        : "Live";
-
-
-    refreshMetadata();
-
-    refreshProgram();
-
-
-    if (
-      playbackRequested &&
-      audio.paused
-    ) {
-
-      reconnectAttempts =
-        0;
-
-
-      scheduleReconnect(
-        "online",
-        500
-      );
-
-    }
-
-  }
+const image =
+cleanText(
+data.image
 );
 
+if (
+data.noTrack
+) {
+return {
+noTrack: true,
+program,
+image
+};
+}
 
-/* =========================================================
-   START
-   ========================================================= */
+const artist =
+cleanText(
+data.artist
+);
+
+const title =
+cleanText(
+data.title
+);
+
+if (
+!artist ||
+!title
+) {
+return {
+noTrack: true,
+program,
+image
+};
+}
+
+return {
+artist,
+title,
+program,
+image
+};
+}
+
+function parseEpochMilliseconds(
+value
+) {
+const number =
+Number(
+String(value || "")
+.trim()
+);
+if (
+!Number.isFinite(number)
+) {
+return 0;
+}
+return (
+number >
+100000000000
+)
+? number
+: number * 1000;
+}
+
+function parseDurationMilliseconds(
+value
+) {
+const number =
+Number(
+String(value || "")
+.trim()
+);
+if (
+!Number.isFinite(number) ||
+number <= 0
+) {
+return 0;
+}
+return (
+number < 1000
+)
+? number * 1000
+: number;
+}
+
+async function getTritonMetadata(
+provider
+) {
+const url =
+"https://np.tritondigital.com/public/nowplaying" +
+"?mountName=" +
+encodeURIComponent(
+provider.mount
+) +
+"&numberToFetch=8";
+
+const xml =
+await fetchTextDirect(
+url +
+"&rnd=" +
+Date.now()
+);
+
+const doc =
+new DOMParser()
+.parseFromString(
+xml,
+"application/xml"
+);
+
+if (
+doc.querySelector(
+"parsererror"
+)
+) {
+return null;
+}
+
+const block =
+doc.querySelector(
+"nowplaying-info"
+);
+
+if (!block) {
+return null;
+}
+
+const props =
+[
+...block.querySelectorAll(
+"property"
+)
+]
+.map(
+property =>
+cleanText(
+property.textContent
+)
+);
+
+if (
+!props.length
+) {
+return null;
+}
+
+const type =
+(
+props[0] ||
+""
+)
+.toLowerCase();
+
+const duration =
+parseDurationMilliseconds(
+props[1]
+);
+
+const start =
+parseEpochMilliseconds(
+props[2]
+);
+
+const title =
+cleanText(
+props[3]
+);
+
+const artist =
+cleanText(
+props[4]
+);
+
+if (
+/break|advert|commercial|spot|promo/
+.test(type)
+) {
+return {
+noTrack: true
+};
+}
+
+if (
+start &&
+duration
+) {
+const now =
+Date.now();
+const end =
+start +
+duration;
+
+if (
+now <
+start - 5000 ||
+now >
+end + 5000
+) {
+return {
+noTrack: true
+};
+}
+}
+
+if (
+!artist ||
+!title ||
+artist.toLowerCase() ===
+"null" ||
+title.toLowerCase() ===
+"null"
+) {
+return {
+noTrack: true
+};
+}
+
+return {
+artist,
+title
+};
+}
+
+async function getTritonTrackMetadata(
+provider
+) {
+const url =
+"https://np.tritondigital.com/public/nowplaying" +
+"?mountName=" +
+encodeURIComponent(
+provider.mount
+) +
+"&numberToFetch=2" +
+"&eventType=track" +
+"&rnd=" +
+Date.now();
+
+const xml =
+await fetchTextDirect(
+url
+);
+
+const doc =
+new DOMParser()
+.parseFromString(
+xml,
+"application/xml"
+);
+
+if (
+doc.querySelector(
+"parsererror"
+)
+) {
+return null;
+}
+
+const block =
+doc.querySelector(
+"nowplaying-info"
+);
+
+if (!block) {
+return {
+noTrack: true
+};
+}
+
+const props =
+[
+...block.querySelectorAll(
+"property"
+)
+]
+.map(
+property =>
+cleanText(
+property.textContent
+)
+);
+
+if (
+props.length < 4
+) {
+return {
+noTrack: true
+};
+}
+
+const duration =
+parseDurationMilliseconds(
+props[0]
+);
+
+const start =
+parseEpochMilliseconds(
+props[1]
+);
+
+const title =
+cleanText(
+props[2]
+);
+
+const artist =
+cleanText(
+props[3]
+);
+
+if (
+!title ||
+!artist
+) {
+return {
+noTrack: true
+};
+}
+
+if (
+start &&
+duration
+) {
+const now =
+Date.now();
+const end =
+start +
+duration;
+
+if (
+now <
+start - 4000 ||
+now >
+end + 7000
+) {
+return {
+noTrack: true
+};
+}
+}
+
+return {
+artist,
+title
+};
+}
+
+async function resolveMetadataProvider(
+provider,
+station
+) {
+switch (
+provider.type
+) {
+case "npo-mini":
+return await getNpoMiniMetadata(
+provider
+);
+
+case "triton":
+return await getTritonMetadata(
+provider
+);
+
+case "triton-track":
+return await getTritonTrackMetadata(
+provider
+);
+
+case "dpg":
+return await getDpgMetadata(
+provider
+);
+
+case "arrow":
+return await getArrowMetadata(
+provider
+);
+
+case "vrt":
+return await getVrtMetadata(
+provider
+);
+
+default:
+return null;
+}
+}
+
+async function refreshMetadata() {
+if (
+document.visibilityState ===
+"hidden"
+) {
+return;
+}
+
+if (
+isContentSuppressed()
+) {
+clearTrack();
+return;
+}
+
+const generation =
+metadataGeneration;
+
+const stationIndex =
+currentIndex;
+
+const station =
+stations[
+stationIndex
+];
+
+if (
+!station.metadata?.length
+) {
+clearTrack();
+return;
+}
+
+let resolved =
+false;
+
+for (
+const provider
+of station.metadata
+) {
+if (
+generation !==
+metadataGeneration ||
+stationIndex !==
+currentIndex
+) {
+return;
+}
+
+try {
+const result =
+await resolveMetadataProvider(
+provider,
+station
+);
+
+if (
+generation !==
+metadataGeneration ||
+stationIndex !==
+currentIndex
+) {
+return;
+}
+
+/*
+ * VRT levert programma + track in dezelfde response.
+ * Het programma wordt daarom hier verwerkt en niet
+ * via een tweede request.
+ */
+if (
+provider.type === "vrt" &&
+result &&
+Object.prototype.hasOwnProperty.call(
+result,
+"program"
+)
+) {
+if (
+result.program
+) {
+setProgram(
+result.program
+);
+}
+else {
+clearProgram();
+}
+}
+
+if (
+result?.noTrack
+) {
+clearTrack();
+return;
+}
+
+if (
+result?.title
+) {
+setTrack(
+result.artist || "",
+result.title
+);
+return;
+}
+
+if (result) {
+resolved =
+true;
+}
+}
+catch {}
+}
+
+if (
+!resolved &&
+currentTrack.title &&
+Date.now() -
+currentTrackUpdatedAt >
+TRACK_STALE_MS
+) {
+clearTrack();
+}
+
+if (
+!currentTrack.title
+) {
+clearTrack();
+}
+}
+
+function cleanProgramValue(
+value,
+station
+) {
+let text =
+cleanText(
+value
+);
+if (!text) {
+return "";
+}
+
+text =
+text.replace(
+/^nu live:\s*/i,
+""
+);
+
+text =
+text.replace(
+/^nu live\s*/i,
+""
+);
+
+text =
+text.replace(
+/^now on air[:\s]*/i,
+""
+);
+
+if (
+isInvalidProgram(
+text
+)
+) {
+return "";
+}
+
+if (
+station &&
+text.toLowerCase() ===
+station.name.toLowerCase()
+) {
+return "";
+}
+
+return text;
+}
+
+async function getNpoLiveProgram(
+provider,
+station
+) {
+const doc =
+await fetchDocument(
+provider.url
+);
+
+const lines =
+documentLines(
+doc
+);
+
+for (
+let i = 0;
+i < lines.length;
+i++
+) {
+const line =
+lines[i];
+
+const inline =
+line.match(
+/^nu live:\s*(.+)$/i
+);
+
+if (
+inline?.[1]
+) {
+const result =
+cleanProgramValue(
+inline[1],
+station
+);
+
+if (result) {
+return result;
+}
+}
+
+if (
+/^nu live:?$/i.test(
+line
+)
+) {
+for (
+let j =
+i + 1;
+j <
+Math.min(
+lines.length,
+i + 8
+);
+j++
+) {
+const candidate =
+cleanProgramValue(
+lines[j],
+station
+);
+
+if (
+candidate &&
+!/^(luister|kijk|playlist|volume)/i
+.test(candidate)
+) {
+return candidate;
+}
+}
+}
+}
+
+return "";
+}
+
+async function getNpo5Program(
+provider,
+station
+) {
+const doc =
+await fetchDocument(
+provider.url
+);
+
+const headings =
+documentHeadings(
+doc,
+"h2"
+);
+
+for (
+const heading
+of headings
+) {
+const candidate =
+cleanProgramValue(
+heading,
+station
+);
+
+if (
+!candidate
+) {
+continue;
+}
+
+if (
+/^(nieuws|artikelen|podcasts|muziek|playlist|gemist|meer van)/i
+.test(candidate)
+) {
+continue;
+}
+
+return candidate;
+}
+
+return "";
+}
+
+async function getTalpaProgram(
+provider,
+station
+) {
+const doc =
+await fetchDocument(
+provider.url
+);
+
+const lines =
+documentLines(
+doc
+);
+
+const start =
+lines.findIndex(
+line =>
+/^nu live$/i.test(
+line
+)
+);
+
+if (
+start < 0
+) {
+return "";
+}
+
+const skip =
+/^(kijk live|luister live|stuur bericht|volume|playlist|programmering|radio|home)$/i;
+
+for (
+let i =
+start + 1;
+i <
+Math.min(
+lines.length,
+start + 20
+);
+i++
+) {
+const line =
+lines[i];
+
+if (
+skip.test(line) ||
+/^\d{1,2}:\d{2}/
+.test(line) ||
+/^elke\s/i.test(line)
+) {
+continue;
+}
+
+const candidate =
+cleanProgramValue(
+line,
+station
+);
+
+if (candidate) {
+return candidate;
+}
+}
+
+return "";
+}
+
+async function getMediahuisProgram(
+provider,
+station
+) {
+const doc =
+await fetchDocument(
+provider.url
+);
+
+const headings =
+documentHeadings(
+doc,
+"h2"
+);
+
+for (
+const heading
+of headings
+) {
+const candidate =
+cleanProgramValue(
+heading,
+station
+);
+
+if (
+!candidate
+) {
+continue;
+}
+
+if (
+/^(eerder op|meer van|nieuws|acties|win|ontdek|playlist|programma's|programma’s)/i
+.test(candidate)
+) {
+continue;
+}
+
+return candidate;
+}
+
+return "";
+}
+
+async function getBnrProgram(
+provider,
+station
+) {
+const doc =
+await fetchDocument(
+provider.url
+);
+
+const headings =
+documentHeadings(
+doc,
+"h3"
+);
+
+for (
+const heading
+of headings
+) {
+const candidate =
+cleanProgramValue(
+heading,
+station
+);
+
+if (
+!candidate
+) {
+continue;
+}
+
+if (
+/^(luister live|kijk live|nieuws)/i
+.test(candidate)
+) {
+continue;
+}
+
+return candidate;
+}
+
+return "";
+}
+
+async function resolveProgram(
+provider,
+station
+) {
+switch (
+provider.type
+) {
+case "npo-mini":
+return await getNpoMiniProgram(
+provider,
+station
+);
+
+case "npo-live":
+return await getNpoLiveProgram(
+provider,
+station
+);
+
+case "npo5-home":
+return await getNpo5Program(
+provider,
+station
+);
+
+case "talpa-home":
+return await getTalpaProgram(
+provider,
+station
+);
+
+case "mediahuis-home":
+return await getMediahuisProgram(
+provider,
+station
+);
+
+case "bnr":
+return await getBnrProgram(
+provider,
+station
+);
+
+default:
+return "";
+}
+}
+
+async function refreshProgram() {
+if (
+document.visibilityState ===
+"hidden"
+) {
+return;
+}
+
+if (
+isContentSuppressed()
+) {
+clearProgram();
+return;
+}
+
+const generation =
+programGeneration;
+
+const stationIndex =
+currentIndex;
+
+const station =
+stations[
+stationIndex
+];
+
+/*
+ * VRT heeft geen aparte programma-provider nodig.
+ * Programma + track komen uit dezelfde now-playing response.
+ * Daarom mag deze functie het VRT-programma niet wissen.
+ */
+if (
+!station.program
+) {
+const hasEmbeddedProgram =
+station.metadata?.some(
+provider =>
+provider.type ===
+"vrt"
+);
+
+if (
+hasEmbeddedProgram
+) {
+if (
+currentProgram &&
+Date.now() -
+currentProgramUpdatedAt >
+PROGRAM_STALE_MS
+) {
+clearProgram();
+}
+
+return;
+}
+
+clearProgram();
+return;
+}
+
+try {
+const value =
+await resolveProgram(
+station.program,
+station
+);
+
+if (
+generation !==
+programGeneration ||
+stationIndex !==
+currentIndex
+) {
+return;
+}
+
+if (value) {
+setProgram(
+value
+);
+return;
+}
+
+if (
+currentProgram &&
+Date.now() -
+currentProgramUpdatedAt >
+PROGRAM_STALE_MS
+) {
+clearProgram();
+}
+
+if (!currentProgram) {
+clearProgram();
+}
+}
+catch {
+if (
+generation ===
+programGeneration &&
+stationIndex ===
+currentIndex &&
+currentProgram &&
+Date.now() -
+currentProgramUpdatedAt >
+PROGRAM_STALE_MS
+) {
+clearProgram();
+}
+}
+}
+
+function normalizeWikiText(
+value
+) {
+return String(
+value || ""
+)
+.normalize("NFD")
+.replace(
+/[\u0300-\u036f]/g,
+""
+)
+.toLowerCase()
+.replace(
+/&/g,
+" and "
+)
+.replace(
+/[^a-z0-9]+/g,
+" "
+)
+.trim();
+}
+
+function stripParentheses(
+value
+) {
+return cleanText(
+String(value || "")
+.replace(
+/\s*\([^)]*\)\s*$/,
+""
+)
+);
+}
+
+function stripHtml(
+value
+) {
+const div =
+document.createElement(
+"div"
+);
+div.innerHTML =
+value || "";
+return cleanText(
+div.textContent || ""
+);
+}
+
+function wikipediaUrl(
+language,
+title
+) {
+return (
+`https://${language}.wikipedia.org/wiki/` +
+encodeURIComponent(
+title.replace(
+/ /g,
+"_"
+)
+)
+);
+}
+
+async function wikipediaSearch(
+language,
+query
+) {
+const url =
+`https://${language}.wikipedia.org/w/api.php` +
+"?action=query" +
+"&list=search" +
+"&srnamespace=0" +
+"&srlimit=5" +
+"&format=json" +
+"&origin=*" +
+"&srsearch=" +
+encodeURIComponent(
+query
+);
+
+const text =
+await fetchTextWithTimeout(
+url,
+REQUEST_TIMEOUT
+);
+
+const data =
+JSON.parse(
+text
+);
+
+return (
+data
+?.query
+?.search ||
+[]
+);
+}
+
+function scoreWikipediaArtist(
+result,
+artist
+) {
+const wanted =
+normalizeWikiText(
+artist
+);
+
+const title =
+normalizeWikiText(
+result.title
+);
+
+const titleBase =
+normalizeWikiText(
+stripParentheses(
+result.title
+)
+);
+
+const snippet =
+normalizeWikiText(
+stripHtml(
+result.snippet
+)
+);
+
+let score = 0;
+
+if (
+title === wanted
+) {
+score += 120;
+}
+
+if (
+titleBase === wanted
+) {
+score += 110;
+}
+
+if (
+title.includes(wanted)
+) {
+score += 55;
+}
+
+if (
+snippet.includes(wanted)
+) {
+score += 20;
+}
+
+if (
+/(band|zanger|zangeres|rapper|dj|muzikant|musicus|singer|musician|record producer|musical group|rock band|pop group)/
+.test(
+snippet
+)
+) {
+score += 25;
+}
+
+return score;
+}
+
+async function findWikipediaArtist(
+artist
+) {
+if (!artist) {
+return null;
+}
+
+const cacheKey =
+"artist:" +
+normalizeWikiText(
+artist
+);
+
+const cached =
+readWikiCache(
+cacheKey
+);
+
+if (
+cached !== undefined
+) {
+return cached;
+}
+
+let best = null;
+
+for (
+const language
+of ["nl", "en"]
+) {
+try {
+const results =
+await wikipediaSearch(
+language,
+`"${artist}"`
+);
+
+for (
+const result
+of results
+) {
+const score =
+scoreWikipediaArtist(
+result,
+artist
+);
+
+if (
+!best ||
+score > best.score
+) {
+best = {
+language,
+title:
+result.title,
+score
+};
+}
+}
+
+if (
+best &&
+best.score >= 100
+) {
+break;
+}
+}
+catch {}
+}
+
+const match =
+best &&
+best.score >= 80
+? {
+title:
+best.title,
+url:
+wikipediaUrl(
+best.language,
+best.title
+)
+}
+: null;
+
+writeWikiCache(
+cacheKey,
+match
+);
+
+return match;
+}
+
+function scoreWikipediaTrack(
+result,
+artist,
+track
+) {
+const wantedArtist =
+normalizeWikiText(
+artist
+);
+
+const wantedTrack =
+normalizeWikiText(
+track
+);
+
+const title =
+normalizeWikiText(
+result.title
+);
+
+const titleBase =
+normalizeWikiText(
+stripParentheses(
+result.title
+)
+);
+
+const snippet =
+normalizeWikiText(
+stripHtml(
+result.snippet
+)
+);
+
+let score = 0;
+
+if (
+titleBase === wantedTrack
+) {
+score += 70;
+}
+
+if (
+title.startsWith(
+wantedTrack + " "
+)
+) {
+score += 50;
+}
+
+if (
+title.includes(
+wantedTrack
+)
+) {
+score += 20;
+}
+
+if (
+wantedArtist &&
+title.includes(
+wantedArtist
+)
+) {
+score += 35;
+}
+
+if (
+wantedArtist &&
+snippet.includes(
+wantedArtist
+)
+) {
+score += 35;
+}
+
+if (
+/(single|nummer|lied|song|track|recording|opgenomen|uitgebracht|released)/
+.test(
+snippet
+)
+) {
+score += 15;
+}
+
+return score;
+}
+
+async function findWikipediaTrack(
+artist,
+title
+) {
+if (
+!artist ||
+!title
+) {
+return null;
+}
+
+const cacheKey =
+"track:" +
+normalizeWikiText(
+artist
+) +
+"|" +
+normalizeWikiText(
+title
+);
+
+const cached =
+readWikiCache(
+cacheKey
+);
+
+if (
+cached !== undefined
+) {
+return cached;
+}
+
+let best = null;
+
+const searches = [
+{
+language: "nl",
+query:
+`"${title}" "${artist}" nummer`
+},
+{
+language: "en",
+query:
+`"${title}" "${artist}" song`
+}
+];
+
+for (
+const search
+of searches
+) {
+try {
+const results =
+await wikipediaSearch(
+search.language,
+search.query
+);
+
+for (
+const result
+of results
+) {
+const score =
+scoreWikipediaTrack(
+result,
+artist,
+title
+);
+
+if (
+!best ||
+score > best.score
+) {
+best = {
+language:
+search.language,
+title:
+result.title,
+score
+};
+}
+}
+
+if (
+best &&
+best.score >= 110
+) {
+break;
+}
+}
+catch {}
+}
+
+const match =
+best &&
+best.score >= 90
+? {
+title:
+best.title,
+url:
+wikipediaUrl(
+best.language,
+best.title
+)
+}
+: null;
+
+writeWikiCache(
+cacheKey,
+match
+);
+
+return match;
+}
+
+function applyWikipediaLink(
+element,
+result,
+label
+) {
+if (!result) {
+return;
+}
+
+element.href =
+result.url;
+
+element.target =
+"_blank";
+
+element.rel =
+"noopener noreferrer";
+
+element.title =
+`${label} op Wikipedia: ${result.title}`;
+
+element.classList.add(
+"has-wiki"
+);
+}
+
+async function updateWikipediaLinks(
+artist,
+title
+) {
+wikipediaGeneration++;
+
+const generation =
+wikipediaGeneration;
+
+if (
+!artist ||
+!title
+) {
+return;
+}
+
+const expectedArtist =
+artist;
+
+const expectedTitle =
+title;
+
+const [
+artistResult,
+trackResult
+] =
+await Promise.all([
+findWikipediaArtist(
+artist
+),
+findWikipediaTrack(
+artist,
+title
+)
+]);
+
+if (
+generation !==
+wikipediaGeneration ||
+currentTrack.artist !==
+expectedArtist ||
+currentTrack.title !==
+expectedTitle
+) {
+return;
+}
+
+applyWikipediaLink(
+trackArtist,
+artistResult,
+artist
+);
+
+applyWikipediaLink(
+trackTitle,
+trackResult,
+`${artist} – ${title}`
+);
+}
+
+window.setInterval(
+() =>
+refreshMetadata(),
+METADATA_REFRESH
+);
+
+window.setInterval(
+() =>
+refreshProgram(),
+PROGRAM_REFRESH
+);
+
+document.addEventListener(
+"visibilitychange",
+() => {
+if (
+document.visibilityState ===
+"visible"
+) {
+refreshMetadata();
+refreshProgram();
+updateSleepTimer();
+}
+}
+);
+
+function openSleepMenu() {
+sleepMenu.hidden =
+false;
+sleepButton.setAttribute(
+"aria-expanded",
+"true"
+);
+}
+
+function closeSleepMenu() {
+sleepMenu.hidden =
+true;
+sleepButton.setAttribute(
+"aria-expanded",
+"false"
+);
+}
+
+sleepButton.addEventListener(
+"click",
+event => {
+event.stopPropagation();
+if (
+sleepMenu.hidden
+) {
+openSleepMenu();
+}
+else {
+closeSleepMenu();
+}
+}
+);
+
+document
+.querySelectorAll(
+".sleep-option"
+)
+.forEach(
+button => {
+button.addEventListener(
+"click",
+() => {
+setSleepTimer(
+Number(
+button.dataset.minutes
+)
+);
+closeSleepMenu();
+}
+);
+}
+);
+
+document.addEventListener(
+"click",
+event => {
+if (
+!event.target.closest(
+".sleep-wrap"
+)
+) {
+closeSleepMenu();
+}
+}
+);
+
+function setSleepTimer(
+minutes
+) {
+if (!minutes) {
+sleepUntil =
+0;
+localStorage.removeItem(
+"radio-sleep-until"
+);
+updateSleepTimer();
+return;
+}
+
+sleepUntil =
+Date.now() +
+minutes *
+60000;
+
+localStorage.setItem(
+"radio-sleep-until",
+String(
+sleepUntil
+)
+);
+
+updateSleepTimer();
+}
+
+function updateSleepTimer() {
+if (!sleepUntil) {
+sleepButton
+.classList
+.remove(
+"active"
+);
+
+sleepText.textContent =
+"";
+
+return;
+}
+
+const remaining =
+sleepUntil -
+Date.now();
+
+if (
+remaining <= 0
+) {
+sleepUntil =
+0;
+
+localStorage.removeItem(
+"radio-sleep-until"
+);
+
+sleepButton
+.classList
+.remove(
+"active"
+);
+
+sleepText.textContent =
+"";
+
+if (
+!audio.paused
+) {
+pause(
+"Slaaptimer afgelopen"
+);
+}
+
+return;
+}
+
+const totalSeconds =
+Math.ceil(
+remaining /
+1000
+);
+
+const minutes =
+Math.floor(
+totalSeconds /
+60
+);
+
+const seconds =
+totalSeconds %
+60;
+
+sleepButton
+.classList
+.add(
+"active"
+);
+
+sleepText.textContent =
+`${minutes}:${
+String(
+seconds
+)
+.padStart(
+2,
+"0"
+)
+}`;
+}
+
+window.setInterval(
+updateSleepTimer,
+1000
+);
+
+function moveStation(
+direction
+) {
+const order =
+getVisibleDisplayOrder()
+.map(
+item =>
+item.index
+);
+
+if (
+!order.length
+) {
+return;
+}
+
+const position =
+order.indexOf(
+currentIndex
+);
+
+let target;
+
+if (
+position < 0
+) {
+target =
+direction > 0
+? order[0]
+: order[
+order.length - 1
+];
+}
+else {
+target =
+order[
+(
+position +
+direction +
+order.length
+) %
+order.length
+];
+}
+
+selectStation(
+target,
+!audio.paused
+);
+}
+
+function nextStation() {
+moveStation(
+1
+);
+}
+
+function previousStation() {
+moveStation(
+-1
+);
+}
+
+document.addEventListener(
+"keydown",
+event => {
+if (
+document.activeElement
+.tagName ===
+"INPUT"
+) {
+return;
+}
+
+if (
+event.code ===
+"Space"
+) {
+event.preventDefault();
+togglePlay();
+}
+
+if (
+event.key ===
+"ArrowRight"
+) {
+event.preventDefault();
+nextStation();
+}
+
+if (
+event.key ===
+"ArrowLeft"
+) {
+event.preventDefault();
+previousStation();
+}
+
+if (
+event.key ===
+"Escape"
+) {
+closeSleepMenu();
+}
+}
+);
+
+function updateMediaSession() {
+if (
+!(
+"mediaSession"
+in navigator
+)
+) {
+return;
+}
+
+const station =
+stations[
+currentIndex
+];
+
+const metadata = {
+title:
+currentTrack.title ||
+station.name,
+artist:
+currentTrack.artist ||
+currentProgram ||
+"Live radio",
+album:
+station.name
+};
+
+const logo =
+getStationLogo(
+station
+);
+
+try {
+if (logo) {
+metadata.artwork = [
+{
+src:
+logo
+}
+];
+}
+
+navigator
+.mediaSession
+.metadata =
+new MediaMetadata(
+metadata
+);
+}
+catch {
+delete metadata.artwork;
+
+navigator
+.mediaSession
+.metadata =
+new MediaMetadata(
+metadata
+);
+}
+}
+
+if (
+"mediaSession"
+in navigator
+) {
+navigator
+.mediaSession
+.setActionHandler(
+"play",
+() =>
+play()
+);
+
+navigator
+.mediaSession
+.setActionHandler(
+"pause",
+() =>
+pause()
+);
+
+navigator
+.mediaSession
+.setActionHandler(
+"nexttrack",
+() =>
+nextStation()
+);
+
+navigator
+.mediaSession
+.setActionHandler(
+"previoustrack",
+() =>
+previousStation()
+);
+}
+
+window.addEventListener(
+"offline",
+() => {
+status.textContent =
+"Geen internetverbinding";
+}
+);
+
+window.addEventListener(
+"online",
+() => {
+status.textContent =
+audio.paused
+? "Internetverbinding hersteld"
+: "Live";
+
+refreshMetadata();
+refreshProgram();
+
+if (
+playbackRequested &&
+audio.paused
+) {
+reconnectAttempts =
+0;
+
+scheduleReconnect(
+"online",
+500
+);
+}
+}
+);
 
 function initialise() {
+const station =
+stations[
+currentIndex
+];
 
-  const station =
-    stations[
-      currentIndex
-    ];
+stationTitle.textContent =
+station.name;
 
+stationMark.textContent =
+station.mark;
 
-  stationTitle.textContent =
-    station.name;
+document.documentElement
+.style
+.setProperty(
+"--accent",
+station.accent
+);
 
+document.documentElement
+.style
+.setProperty(
+"--accent-rgb",
+station.rgb
+);
 
-  stationMark.textContent =
-    station.mark;
+audio.src =
+station.stream;
 
+preRollGuardPending =
+Boolean(
+station.preRollTrackGuardSeconds
+);
 
-  document.documentElement
-    .style
-    .setProperty(
-      "--accent",
-      station.accent
-    );
-
-
-  document.documentElement
-    .style
-    .setProperty(
-      "--accent-rgb",
-      station.rgb
-    );
-
-
-  audio.src =
-    station.stream;
-
-
-  preRollGuardPending =
-    Boolean(
-      station.preRollTrackGuardSeconds
-    );
-
-
-  updateVolumeBar();
-
-  updateMuteUI();
-
-  updateMainLogo();
-
-  renderStations();
-
-  updateBrowserIdentity();
-
-  updateMediaSession();
-
-  updateSleepTimer();
-
-  refreshMetadata();
-
-  refreshProgram();
-
+updateVolumeBar();
+updateMuteUI();
+updateMainLogo();
+renderStations();
+updateBrowserIdentity();
+updateMediaSession();
+updateSleepTimer();
+refreshMetadata();
+refreshProgram();
 }
 
-
 initialise();
-
 </script>
-
 </body>
 </html>
