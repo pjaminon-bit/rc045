@@ -2444,10 +2444,8 @@ const stations = [
 
     metadata: [
       {
-        type: "vrt",
-
-        pageId:
-          "/kanalen/studio-brussel"
+        type: "be",
+        station: "stubru"
       }
     ]
   },
@@ -2476,10 +2474,8 @@ const stations = [
 
     metadata: [
       {
-        type: "vrt",
-
-        pageId:
-          "/kanalen/de-tijdloze"
+        type: "be",
+        station: "tijdloze"
       }
     ]
   },
@@ -2510,10 +2506,8 @@ const stations = [
 
     metadata: [
       {
-        type: "vrt",
-
-        pageId:
-          "/kanalen/mnm"
+        type: "be",
+        station: "mnm"
       }
     ]
   },
@@ -2543,10 +2537,8 @@ const stations = [
 
     metadata: [
       {
-        type: "dpg",
-
-        url:
-          "https://api.qmusic.be/2.4/tracks/plays?limit=1&next=true"
+        type: "be",
+        station: "qmusicbe"
       }
     ]
   },
@@ -2575,10 +2567,8 @@ const stations = [
 
     metadata: [
       {
-        type: "dpg",
-
-        url:
-          "https://api.willy.radio/2.4/tracks/plays?limit=1&next=true"
+        type: "be",
+        station: "willy"
       }
     ]
   },
@@ -2608,10 +2598,8 @@ const stations = [
 
     metadata: [
       {
-        type: "vrt",
-
-        pageId:
-          "/kanalen/klara"
+        type: "be",
+        station: "klara"
       }
     ]
   },
@@ -2641,10 +2629,8 @@ const stations = [
 
     metadata: [
       {
-        type: "vrt",
-
-        pageId:
-          "/radio1"
+        type: "be",
+        station: "vrt1"
       }
     ]
   },
@@ -2678,10 +2664,8 @@ const stations = [
 
     metadata: [
       {
-        type: "vrt",
-
-        pageId:
-          "/radio2"
+        type: "be",
+        station: "radio2limburg"
       }
     ]
   },
@@ -2710,10 +2694,8 @@ const stations = [
 
     metadata: [
       {
-        type: "dpg",
-
-        url:
-          "https://api.joe.be/2.4/tracks/plays?limit=1&next=true"
+        type: "be",
+        station: "joebe"
       }
     ]
   }
@@ -5912,29 +5894,19 @@ async function getArrowMetadata(
 
 
 /* =========================================================
-   VRT METADATA
+   BELGIAN METADATA
    ========================================================= */
 
-/*
- * VRT blokkeert zijn GraphQL-API voor browserrequests vanaf
- * externe domeinen zoals rc045.nl. Daarom gebruikt de frontend
- * uitsluitend een beperkte same-origin endpoint op rc045.nl.
- *
- * De frontend gebruikt geen externe CORS-relay voor VRT.
- */
-
-const VRT_METADATA_ENDPOINT =
-  "/vrt-nowplaying.php";
+const BELGIAN_METADATA_ENDPOINT =
+  "/be-nowplaying.php";
 
 
-async function getVrtMetadata(
-  provider,
-  station
+async function getBelgianMetadata(
+  provider
 ) {
 
   if (
-    !provider?.pageId ||
-    !station?.stream
+    !provider?.station
   ) {
 
     return null;
@@ -5943,14 +5915,10 @@ async function getVrtMetadata(
 
 
   const url =
-    VRT_METADATA_ENDPOINT +
-    "?page=" +
+    BELGIAN_METADATA_ENDPOINT +
+    "?station=" +
     encodeURIComponent(
-      provider.pageId
-    ) +
-    "&stream=" +
-    encodeURIComponent(
-      station.stream
+      provider.station
     );
 
 
@@ -6503,11 +6471,10 @@ async function resolveMetadataProvider(
       );
 
 
-    case "vrt":
+    case "be":
 
-      return await getVrtMetadata(
-        provider,
-        station
+      return await getBelgianMetadata(
+        provider
       );
 
 
@@ -6615,7 +6582,6 @@ async function refreshMetadata() {
 
 
       if (
-        provider.type === "vrt" &&
         result &&
         Object.prototype.hasOwnProperty.call(
           result,
@@ -7264,7 +7230,7 @@ async function refreshProgram() {
       station.metadata?.some(
         provider =>
           provider.type ===
-          "vrt"
+          "be"
       );
 
 
