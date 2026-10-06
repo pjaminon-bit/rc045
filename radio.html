@@ -2537,8 +2537,9 @@ const stations = [
 
     metadata: [
       {
-        type: "be",
-        station: "qmusicbe"
+        type: "dpg",
+        url:
+          "https://api.qmusic.be/2.4/tracks/plays?limit=1&next=true"
       }
     ]
   },
@@ -2567,8 +2568,9 @@ const stations = [
 
     metadata: [
       {
-        type: "be",
-        station: "willy"
+        type: "dpg",
+        url:
+          "https://api.willy.radio/2.4/tracks/plays?limit=1&next=true"
       }
     ]
   },
@@ -6377,14 +6379,6 @@ async function getTritonTrackMetadata(
   }
 
 
-  /*
-   * eventType=track geeft de laatste
-   * song terug, óók als er daarna
-   * inmiddels reclame is gestart.
-   *
-   * Daarom is het tijdvenster leidend.
-   */
-
   if (
     start &&
     duration
@@ -7169,7 +7163,6 @@ async function resolveProgram(
         provider,
         station
       );
-
 
 
     default:
