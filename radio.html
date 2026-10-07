@@ -376,7 +376,7 @@
 
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
     }
 
 
@@ -719,6 +719,8 @@
     .play-button {
       appearance: none;
 
+      position: relative;
+
       width: 72px;
       height: 72px;
 
@@ -728,6 +730,8 @@
       place-items: center;
 
       padding: 0;
+
+      overflow: hidden;
 
       border: 0;
       border-radius: 50%;
@@ -740,6 +744,8 @@
 
       cursor: pointer;
 
+      isolation: isolate;
+
       box-shadow:
         var(--shadow);
 
@@ -748,32 +754,110 @@
     }
 
 
+    .play-button::after {
+      content: "";
+
+      position: absolute;
+
+      top: -18%;
+      bottom: -18%;
+      left: -52%;
+
+      z-index: 0;
+
+      width: 42%;
+
+      border-radius: 999px;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          rgba(var(--accent-rgb), .15),
+          rgba(var(--accent-rgb), .58),
+          rgba(255,255,255,.48),
+          rgba(var(--accent-rgb), .34),
+          transparent
+        );
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      transform:
+        translateX(-170%)
+        rotate(14deg);
+    }
+
+
     body.awaiting-first-play
     .play-button {
       animation:
-        play-attention 6.4s ease-in-out infinite;
+        play-attention 4.8s ease-in-out infinite;
+    }
+
+
+    body.awaiting-first-play
+    .play-button::after {
+      animation:
+        play-sweep 4.8s
+        cubic-bezier(.4,0,.2,1)
+        infinite;
     }
 
 
     @keyframes play-attention {
       0%,
-      68%,
+      54%,
       100% {
         box-shadow:
           var(--shadow);
       }
 
-      76% {
+      63% {
         box-shadow:
           var(--shadow),
-          0 0 0 1px rgba(var(--accent-rgb), .10),
-          0 0 22px rgba(var(--accent-rgb), .13);
+          0 0 0 2px rgba(var(--accent-rgb), .13),
+          0 0 24px rgba(var(--accent-rgb), .18);
       }
 
-      84% {
+      79% {
         box-shadow:
           var(--shadow),
-          0 0 0 5px rgba(var(--accent-rgb), .04);
+          0 0 0 5px rgba(var(--accent-rgb), .05);
+      }
+    }
+
+
+    @keyframes play-sweep {
+      0%,
+      55% {
+        opacity: 0;
+
+        transform:
+          translateX(-170%)
+          rotate(14deg);
+      }
+
+      60% {
+        opacity: .9;
+      }
+
+      76% {
+        opacity: .95;
+
+        transform:
+          translateX(430%)
+          rotate(14deg);
+      }
+
+      77%,
+      100% {
+        opacity: 0;
+
+        transform:
+          translateX(430%)
+          rotate(14deg);
       }
     }
 
@@ -789,6 +873,9 @@
 
 
     .play-button svg {
+      position: relative;
+      z-index: 1;
+
       width: 27px;
       height: 27px;
     }
@@ -1848,7 +1935,9 @@
 
 
       body.awaiting-first-play
-      .play-button {
+      .play-button,
+      body.awaiting-first-play
+      .play-button::after {
         animation: none;
       }
     }
