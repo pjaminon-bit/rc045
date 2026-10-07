@@ -879,6 +879,16 @@
     }
 
 
+    .route-wrap {
+      position: relative;
+
+      width: 38px;
+      height: 38px;
+
+      flex: 0 0 38px;
+    }
+
+
     .route-button.active {
       color: var(--accent);
 
@@ -890,27 +900,142 @@
     }
 
 
-    .cast-wrap {
-      width: 38px;
-      height: 38px;
+    .route-menu {
+      position: absolute;
 
-      flex: 0 0 38px;
+      right: 0;
+      bottom: calc(100% + 10px);
 
-      display: grid;
-      place-items: center;
+      z-index: 30;
+
+      width: 206px;
+
+      padding: 7px;
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 16px;
+
+      background:
+        var(--menu-bg);
+
+      box-shadow:
+        0 20px 55px rgba(0,0,0,.22);
     }
 
 
-    google-cast-launcher {
-      width: 38px;
-      height: 38px;
+    .route-menu-title {
+      padding: 7px 9px 6px;
 
-      padding: 8px;
+      color: var(--muted);
 
-      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
 
-      --connected-color: var(--accent);
-      --disconnected-color: var(--muted);
+      letter-spacing: .02em;
+    }
+
+
+    .route-option {
+      appearance: none;
+
+      width: 100%;
+
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr) 8px;
+      align-items: center;
+
+      gap: 9px;
+
+      padding: 9px;
+
+      border: 0;
+      border-radius: 11px;
+
+      background: transparent;
+
+      color: var(--text);
+
+      text-align: left;
+
+      cursor: pointer;
+    }
+
+
+    .route-option:hover {
+      background:
+        var(--panel-hover);
+    }
+
+
+    .route-option-icon {
+      width: 32px;
+      height: 32px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 10px;
+
+      color: var(--muted);
+
+      background:
+        var(--panel);
+    }
+
+
+    .route-option-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+
+    .route-option-copy {
+      min-width: 0;
+    }
+
+
+    .route-option-name {
+      display: block;
+
+      font-size: 13px;
+      font-weight: 700;
+
+      line-height: 1.2;
+    }
+
+
+    .route-option-subtitle {
+      display: block;
+
+      margin-top: 2px;
+
+      color: var(--muted);
+
+      font-size: 10px;
+      font-weight: 550;
+
+      line-height: 1.2;
+    }
+
+
+    .route-option-state {
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+
+      background: transparent;
+    }
+
+
+    .route-option.active
+    .route-option-state {
+      background: var(--accent);
+
+      box-shadow:
+        0 0 0 4px rgba(var(--accent-rgb), .10);
     }
 
 
@@ -1903,39 +2028,149 @@
               </div>
 
 
-              <button
-                id="airPlayButton"
-                class="icon-button route-button"
-                type="button"
-                aria-label="AirPlay"
-                title="AirPlay"
-                hidden
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="4" y="3.5" width="16" height="11" rx="2"/>
-                  <path d="m12 14.5-5 6h10z"/>
-                </svg>
-              </button>
-
-
               <div
-                id="castWrap"
-                class="cast-wrap"
+                id="routeWrap"
+                class="route-wrap"
                 hidden
               >
-                <google-cast-launcher
-                  id="castButton"
-                  aria-label="Google Cast"
-                  title="Google Cast"
-                ></google-cast-launcher>
+
+                <button
+                  id="routeButton"
+                  class="icon-button route-button"
+                  type="button"
+                  aria-label="Afspelen op"
+                  title="Afspelen op"
+                  aria-expanded="false"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 18.5a1.5 1.5 0 0 1 1.5 1.5"/>
+                    <path d="M4 14a6 6 0 0 1 6 6"/>
+                    <path d="M4 9.5A10.5 10.5 0 0 1 14.5 20"/>
+                    <rect x="9" y="4" width="11" height="8" rx="2"/>
+                  </svg>
+                </button>
+
+
+                <div
+                  id="routeMenu"
+                  class="route-menu"
+                  hidden
+                >
+
+                  <div
+                    class="route-menu-title"
+                  >
+                    Afspelen op
+                  </div>
+
+
+                  <button
+                    id="airPlayRouteOption"
+                    class="route-option"
+                    type="button"
+                    hidden
+                  >
+
+                    <span
+                      class="route-option-icon"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <rect x="4" y="3.5" width="16" height="11" rx="2"/>
+                        <path d="m12 14.5-5 6h10z"/>
+                      </svg>
+                    </span>
+
+                    <span
+                      class="route-option-copy"
+                    >
+                      <span
+                        class="route-option-name"
+                      >
+                        AirPlay
+                      </span>
+
+                      <span
+                        class="route-option-subtitle"
+                      >
+                        Apple-apparaten
+                      </span>
+                    </span>
+
+                    <span
+                      class="route-option-state"
+                      aria-hidden="true"
+                    ></span>
+
+                  </button>
+
+
+                  <button
+                    id="castRouteOption"
+                    class="route-option"
+                    type="button"
+                    hidden
+                  >
+
+                    <span
+                      class="route-option-icon"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M4 18.5a1.5 1.5 0 0 1 1.5 1.5"/>
+                        <path d="M4 14a6 6 0 0 1 6 6"/>
+                        <path d="M4 9.5A10.5 10.5 0 0 1 14.5 20"/>
+                        <path d="M9 4h9a2 2 0 0 1 2 2v8"/>
+                      </svg>
+                    </span>
+
+                    <span
+                      class="route-option-copy"
+                    >
+                      <span
+                        class="route-option-name"
+                      >
+                        Chromecast
+                      </span>
+
+                      <span
+                        class="route-option-subtitle"
+                      >
+                        Google-apparaten
+                      </span>
+                    </span>
+
+                    <span
+                      class="route-option-state"
+                      aria-hidden="true"
+                    ></span>
+
+                  </button>
+
+                </div>
+
               </div>
 
 
@@ -3010,11 +3245,24 @@ const themeButtons =
     )
   ];
 
-const airPlayButton =
-  document.getElementById("airPlayButton");
+const routeWrap =
+  document.getElementById("routeWrap");
 
-const castWrap =
-  document.getElementById("castWrap");
+const routeButton =
+  document.getElementById("routeButton");
+
+const routeMenu =
+  document.getElementById("routeMenu");
+
+const airPlayRouteOption =
+  document.getElementById(
+    "airPlayRouteOption"
+  );
+
+const castRouteOption =
+  document.getElementById(
+    "castRouteOption"
+  );
 
 const sleepButton =
   document.getElementById("sleepButton");
@@ -3121,6 +3369,10 @@ let castPlayerController = null;
 let castLoadedStationId = "";
 
 let airPlayActive = false;
+
+let airPlayAvailable = false;
+
+let castAvailable = false;
 
 
 let favoriteIds =
@@ -3649,11 +3901,57 @@ async function fetchDocument(
    AIRPLAY / GOOGLE CAST
    ========================================================= */
 
-function initialiseAirPlay() {
+function updateRouteUi() {
+
+  const available =
+    airPlayAvailable ||
+    castAvailable;
+
+
+  routeWrap.hidden =
+    !available;
+
+
+  airPlayRouteOption.hidden =
+    !airPlayAvailable;
+
+
+  castRouteOption.hidden =
+    !castAvailable;
+
+
+  airPlayRouteOption.classList.toggle(
+    "active",
+    airPlayActive
+  );
+
+
+  castRouteOption.classList.toggle(
+    "active",
+    isCasting()
+  );
+
+
+  routeButton.classList.toggle(
+    "active",
+    airPlayActive ||
+    isCasting()
+  );
+
+
+  if (!available) {
+
+    closeRouteMenu();
+
+  }
+
+}
+
+
+function openRouteMenu() {
 
   if (
-    typeof audio.webkitShowPlaybackTargetPicker !==
-      "function"
+    routeWrap.hidden
   ) {
 
     return;
@@ -3661,13 +3959,104 @@ function initialiseAirPlay() {
   }
 
 
-  airPlayButton.hidden =
+  routeMenu.hidden =
     false;
 
 
-  airPlayButton.addEventListener(
+  routeButton.setAttribute(
+    "aria-expanded",
+    "true"
+  );
+
+}
+
+
+function closeRouteMenu() {
+
+  routeMenu.hidden =
+    true;
+
+
+  routeButton.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+
+}
+
+
+routeButton.addEventListener(
+  "click",
+  () => {
+
+    if (
+      routeMenu.hidden
+    ) {
+
+      openRouteMenu();
+
+    }
+
+    else {
+
+      closeRouteMenu();
+
+    }
+
+  }
+);
+
+
+document.addEventListener(
+  "click",
+  event => {
+
+    if (
+      !event.target.closest(
+        ".route-wrap"
+      )
+    ) {
+
+      closeRouteMenu();
+
+    }
+
+  }
+);
+
+
+function initialiseAirPlay() {
+
+  if (
+    typeof audio.webkitShowPlaybackTargetPicker !==
+      "function"
+  ) {
+
+    airPlayAvailable =
+      false;
+
+
+    updateRouteUi();
+
+
+    return;
+
+  }
+
+
+  airPlayAvailable =
+    true;
+
+
+  updateRouteUi();
+
+
+  airPlayRouteOption.addEventListener(
     "click",
     () => {
+
+      closeRouteMenu();
+
 
       try {
 
@@ -3681,28 +4070,6 @@ function initialiseAirPlay() {
   );
 
 
-  if (
-    window.WebKitPlaybackTargetAvailabilityEvent
-  ) {
-
-    audio.addEventListener(
-      "webkitplaybacktargetavailabilitychanged",
-      event => {
-
-        const available =
-          event.availability ===
-          "available";
-
-
-        airPlayButton.hidden =
-          !available;
-
-      }
-    );
-
-  }
-
-
   audio.addEventListener(
     "webkitcurrentplaybacktargetiswirelesschanged",
     () => {
@@ -3713,10 +4080,7 @@ function initialiseAirPlay() {
         );
 
 
-      airPlayButton.classList.toggle(
-        "active",
-        airPlayActive
-      );
+      updateRouteUi();
 
     }
   );
@@ -3760,6 +4124,9 @@ function updatePlaybackUiFromCast() {
     !isCasting()
   ) {
 
+    updateRouteUi();
+
+
     return;
 
   }
@@ -3799,6 +4166,8 @@ function updatePlaybackUiFromCast() {
   updateVolumeBar();
 
   updateBrowserIdentity();
+
+  updateRouteUi();
 
 }
 
@@ -3967,8 +4336,11 @@ function updateCastAvailability(
     !castApiReady
   ) {
 
-    castWrap.hidden =
-      true;
+    castAvailable =
+      false;
+
+
+    updateRouteUi();
 
 
     return;
@@ -3983,12 +4355,49 @@ function updateCastAvailability(
       .getCastState();
 
 
-  castWrap.hidden =
-    state ===
+  castAvailable =
+    state !==
     cast.framework.CastState
       .NO_DEVICES_AVAILABLE;
 
+
+  updateRouteUi();
+
 }
+
+
+async function requestCastSession() {
+
+  if (
+    !castApiReady ||
+    !castAvailable
+  ) {
+
+    return;
+
+  }
+
+
+  closeRouteMenu();
+
+
+  try {
+
+    await cast.framework.CastContext
+      .getInstance()
+      .requestSession();
+
+  }
+
+  catch {}
+
+}
+
+
+castRouteOption.addEventListener(
+  "click",
+  requestCastSession
+);
 
 
 function handleCastSessionStateChange(
@@ -4015,6 +4424,9 @@ function handleCastSessionStateChange(
     loadCurrentStationOnCast(
       shouldPlay
     );
+
+
+    updateRouteUi();
 
 
     return;
@@ -4109,6 +4521,8 @@ function handleCastSessionStateChange(
 
     updateBrowserIdentity();
 
+    updateRouteUi();
+
   }
 
 }
@@ -4188,6 +4602,8 @@ function initialiseCastApi() {
 
 
       updatePlaybackUiFromCast();
+
+      updateRouteUi();
 
     }
   );
@@ -9524,6 +9940,8 @@ document.addEventListener(
     ) {
 
       closeSleepMenu();
+
+      closeRouteMenu();
 
     }
 
