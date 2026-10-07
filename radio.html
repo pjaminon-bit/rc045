@@ -384,16 +384,16 @@
       display: grid;
 
       grid-template-columns:
-        minmax(220px, 330px)
+        minmax(200px, 285px)
         minmax(0, 1fr);
 
       gap:
-        clamp(32px, 7vw, 85px);
+        clamp(28px, 5vw, 64px);
 
       align-items: center;
 
       margin-bottom:
-        clamp(42px, 8vh, 78px);
+        clamp(34px, 6vh, 58px);
     }
 
 
@@ -505,14 +505,14 @@
     .playing-indicator {
       position: absolute;
 
-      right: 20px;
-      bottom: 20px;
+      right: 16px;
+      bottom: 16px;
 
       z-index: 3;
 
-      height: 35px;
+      height: 32px;
 
-      padding: 0 14px;
+      padding: 0 12px;
 
       display: flex;
       align-items: center;
@@ -751,28 +751,29 @@
     body.awaiting-first-play
     .play-button {
       animation:
-        play-attention 4s ease-in-out infinite;
+        play-attention 6.4s ease-in-out infinite;
     }
 
 
     @keyframes play-attention {
       0%,
-      42%,
+      68%,
       100% {
-        transform: scale(1);
-        box-shadow: var(--shadow);
+        box-shadow:
+          var(--shadow);
       }
 
-      50% {
-        transform: scale(1.04);
+      76% {
         box-shadow:
           var(--shadow),
-          0 0 0 7px rgba(var(--accent-rgb), .08);
+          0 0 0 1px rgba(var(--accent-rgb), .10),
+          0 0 22px rgba(var(--accent-rgb), .13);
       }
 
-      58% {
-        transform: scale(1);
-        box-shadow: var(--shadow);
+      84% {
+        box-shadow:
+          var(--shadow),
+          0 0 0 5px rgba(var(--accent-rgb), .04);
       }
     }
 
@@ -820,14 +821,17 @@
 
 
     .status {
-      min-height: 20px;
-
       margin-bottom: 12px;
 
       color: var(--muted);
 
       font-size: 13px;
       font-weight: 550;
+    }
+
+
+    .status:empty {
+      display: none;
     }
 
 
@@ -1182,7 +1186,7 @@
 
       z-index: 20;
 
-      width: 150px;
+      width: 190px;
 
       padding: 6px;
 
@@ -1220,6 +1224,89 @@
     .sleep-option:hover {
       background:
         var(--panel-hover);
+    }
+
+
+    .sleep-custom {
+      margin-top: 4px;
+      padding: 8px 6px 6px;
+
+      border-top:
+        1px solid var(--border);
+    }
+
+
+    .sleep-custom-row {
+      display: grid;
+      grid-template-columns:
+        minmax(0, 1fr) auto;
+
+      gap: 6px;
+    }
+
+
+    .sleep-custom-input {
+      width: 100%;
+      min-width: 0;
+
+      padding: 9px 10px;
+
+      border:
+        1px solid var(--border);
+      border-radius: 9px;
+
+      color: var(--text);
+      background:
+        rgba(128,128,128,.08);
+
+      outline: none;
+    }
+
+
+    .sleep-custom-input:focus {
+      border-color:
+        rgba(var(--accent-rgb), .42);
+
+      box-shadow:
+        0 0 0 3px rgba(var(--accent-rgb), .08);
+    }
+
+
+    .sleep-custom-submit {
+      appearance: none;
+
+      padding: 0 10px;
+
+      border:
+        1px solid var(--border);
+      border-radius: 9px;
+
+      color: var(--text);
+      background:
+        var(--panel);
+
+      font-size: 12px;
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+
+    .sleep-custom-submit:hover {
+      background:
+        var(--panel-hover);
+    }
+
+
+    .sleep-custom-error {
+      margin-top: 6px;
+
+      color: var(--accent);
+
+      font-size: 10px;
+      font-weight: 650;
+
+      line-height: 1.3;
     }
 
 
@@ -1319,17 +1406,17 @@
 
 
     .country-chevron {
-      width: 30px;
-      height: 30px;
+      width: 34px;
+      height: 34px;
 
-      flex: 0 0 30px;
+      flex: 0 0 34px;
 
       display: grid;
       place-items: center;
 
       color: var(--muted);
 
-      font-size: 18px;
+      font-size: 22px;
       line-height: 1;
 
       transition:
@@ -1621,15 +1708,15 @@
       .player {
         grid-template-columns: 1fr;
 
-        gap: 26px;
+        gap: 22px;
 
-        margin-bottom: 38px;
+        margin-bottom: 32px;
       }
 
 
       .artwork {
         width:
-          min(58vw, 255px);
+          min(50vw, 220px);
 
         justify-self: center;
       }
@@ -1699,7 +1786,7 @@
 
       .artwork {
         width:
-          min(54vw, 205px);
+          min(46vw, 180px);
 
         border-radius: 26px;
       }
@@ -1966,9 +2053,7 @@
             <div
               id="status"
               class="status"
-            >
-              Klaar om te luisteren
-            </div>
+            ></div>
 
 
             <div class="control-row">
@@ -2230,6 +2315,57 @@
                   >
                     60 minuten
                   </button>
+
+                  <button
+                    class="sleep-option"
+                    data-custom="true"
+                  >
+                    Aangepast…
+                  </button>
+
+
+                  <div
+                    id="sleepCustomWrap"
+                    class="sleep-custom"
+                    hidden
+                  >
+                    <form
+                      id="sleepCustomForm"
+                      novalidate
+                    >
+                      <div class="sleep-custom-row">
+                        <input
+                          id="sleepCustomInput"
+                          class="sleep-custom-input"
+                          type="number"
+                          min="1"
+                          max="720"
+                          step="1"
+                          inputmode="numeric"
+                          autocomplete="off"
+                          placeholder="1–720 min"
+                          aria-label="Aangepaste slaaptimer in minuten"
+                        >
+
+                        <button
+                          class="sleep-custom-submit"
+                          type="submit"
+                        >
+                          Start
+                        </button>
+                      </div>
+
+                      <div
+                        id="sleepCustomError"
+                        class="sleep-custom-error"
+                        role="alert"
+                        hidden
+                      >
+                        Vul 1–720 minuten in.
+                      </div>
+                    </form>
+                  </div>
+
 
                   <button
                     class="sleep-option"
@@ -3273,6 +3409,26 @@ const sleepMenu =
 const sleepText =
   document.getElementById("sleepText");
 
+const sleepCustomWrap =
+  document.getElementById(
+    "sleepCustomWrap"
+  );
+
+const sleepCustomForm =
+  document.getElementById(
+    "sleepCustomForm"
+  );
+
+const sleepCustomInput =
+  document.getElementById(
+    "sleepCustomInput"
+  );
+
+const sleepCustomError =
+  document.getElementById(
+    "sleepCustomError"
+  );
+
 
 /* =========================================================
    STATE
@@ -3435,12 +3591,35 @@ try {
 catch {}
 
 
+const MAX_SLEEP_MINUTES =
+  720;
+
+
 let sleepUntil =
   Number(
     localStorage.getItem(
       "radio-sleep-until"
     )
   ) || 0;
+
+
+if (
+  !Number.isFinite(
+    sleepUntil
+  ) ||
+  sleepUntil < 0 ||
+  sleepUntil - Date.now() >
+    MAX_SLEEP_MINUTES *
+    60000
+) {
+
+  sleepUntil =
+    0;
+
+  localStorage.removeItem(
+    "radio-sleep-until"
+  );
+}
 
 
 /* =========================================================
@@ -4898,6 +5077,7 @@ function applyTheme(
       );
 
     }
+
     catch {}
 
   }
@@ -9560,6 +9740,14 @@ function closeSleepMenu() {
     true;
 
 
+  sleepCustomWrap.hidden =
+    true;
+
+
+  sleepCustomError.hidden =
+    true;
+
+
   sleepButton.setAttribute(
     "aria-expanded",
     "false"
@@ -9604,6 +9792,38 @@ document
         "click",
         () => {
 
+          if (
+            button.dataset.custom ===
+              "true"
+          ) {
+
+            sleepCustomWrap.hidden =
+              !sleepCustomWrap.hidden;
+
+
+            sleepCustomError.hidden =
+              true;
+
+
+            if (
+              !sleepCustomWrap.hidden
+            ) {
+
+              sleepCustomInput
+                .focus();
+
+
+              sleepCustomInput
+                .select();
+
+            }
+
+
+            return;
+
+          }
+
+
           setSleepTimer(
             Number(
               button.dataset.minutes
@@ -9618,6 +9838,67 @@ document
 
     }
   );
+
+
+sleepCustomForm.addEventListener(
+  "submit",
+  event => {
+
+    event.preventDefault();
+
+
+    const minutes =
+      Number(
+        sleepCustomInput.value
+      );
+
+
+    const valid =
+      Number.isInteger(
+        minutes
+      ) &&
+      minutes >= 1 &&
+      minutes <=
+        MAX_SLEEP_MINUTES;
+
+
+    sleepCustomError.hidden =
+      valid;
+
+
+    if (!valid) {
+
+      sleepCustomInput.focus();
+
+      return;
+
+    }
+
+
+    setSleepTimer(
+      minutes
+    );
+
+
+    sleepCustomInput.value =
+      "";
+
+
+    closeSleepMenu();
+
+  }
+);
+
+
+sleepCustomInput.addEventListener(
+  "input",
+  () => {
+
+    sleepCustomError.hidden =
+      true;
+
+  }
+);
 
 
 document.addEventListener(
@@ -9642,7 +9923,9 @@ function setSleepTimer(
   minutes
 ) {
 
-  if (!minutes) {
+  if (
+    minutes === 0
+  ) {
 
     sleepUntil =
       0;
@@ -9655,6 +9938,20 @@ function setSleepTimer(
 
     updateSleepTimer();
 
+
+    return;
+
+  }
+
+
+  if (
+    !Number.isInteger(
+      minutes
+    ) ||
+    minutes < 1 ||
+    minutes >
+      MAX_SLEEP_MINUTES
+  ) {
 
     return;
 
