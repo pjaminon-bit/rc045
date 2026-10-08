@@ -10,7 +10,6 @@ const urls = [
   ["NPO Sterren NL", "https://icecast.omroep.nl/radio2-sterrennl-mp3"],
   ["Sublime", "https://playerservices.streamtheworld.com/api/livestream-redirect/SUBLIME.mp3"],
   ["Grand Prix Radio", "https://playerservices.streamtheworld.com/api/livestream-redirect/GRAND_PRIX_RADIO.mp3"],
-  ["KINK Classics", "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_DNA.mp3"],
   ["KINK 80's", "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_DNA.mp3"],
   ["KINK 90's", "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_90S.mp3"],
   ["KINK Distortion", "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_DISTORTION.mp3"],
@@ -19,7 +18,18 @@ const urls = [
   ["Radio 10 Non-Stop", "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR15.mp3"],
   ["Sky Radio Hits", "https://playerservices.streamtheworld.com/api/livestream-redirect/SRGSTR01.mp3"],
   ["Sky Radio Love Songs", "https://playerservices.streamtheworld.com/api/livestream-redirect/SRGSTR03.mp3"],
-  ["RADIONL", "https://stream.radionl.fm/radionl"]
+  ["RADIONL", "https://stream.radionl.fm/radionl"],
+  ["RTV Noord", "https://media.rtvnoord.nl/icecast/rtvnoord/radio"],
+  ["Omrop Fryslân", "https://d3pvma9xb2775h.cloudfront.net/icecast/omropfryslan/radio.mp3"],
+  ["RTV Drenthe", "https://cdn.rtvdrenthe.nl/icecast/rtvdrenthe/rtvradio"],
+  ["Radio Oost", "https://streams.rtvoost.nl/audio/oost/mp3"],
+  ["Omroep Flevoland", "https://stream.omroepflevoland.nl/icecast/omroepflevoland/stream2"],
+  ["Radio Gelderland", "https://d2od87akyl46nm.cloudfront.net/icecast/omroepgelderland/radiogelderland"],
+  ["Radio M Utrecht", "https://d18rwjdhpr8dcw.cloudfront.net/icecast/rtvutrecht/radiomutrecht-bb-mp3"],
+  ["NH Radio", "https://ice.cr6.streamzilla.xlcdn.com:8000/sz=nhnieuws=NHRadio_mp3"],
+  ["Radio West", "https://d3jhv0ayn0z3fg.cloudfront.net/icecast/omroepwest/radio"],
+  ["Radio Rijnmond", "https://d2e9xgjjdd9cr5.cloudfront.net/icecast/rijnmond/radio-mp3"],
+  ["Omroep Zeeland", "https://d3isaxd2t6q8zm.cloudfront.net/icecast/omroepzeeland/omroepzeeland_radio"]
 ];
 
 const checks = await Promise.all(urls.map(async ([name,url]) => {
