@@ -21,9 +21,11 @@ Voor zenders bij Triton en NPO zijn de **bestaande** provider-types toegewezen:
 de bestaande parser actuele en geldige gegevens teruggeeft. Geen metadata
 van bestaande zenders wordt doorgestuurd naar een ander station.
 
-Geen nieuwe trackinfo-logica of parsers toegevoegd. Voor Qmusic themakanalen,
-RADIONL, NPO BLEND, Sterren NL en de regionale omroepen is geen bewezen,
-browser-toegankelijke en zenderspecifieke feed gekoppeld. De standaardspeler
+Geen nieuwe trackinfo-logica of parsers toegevoegd. Voor Qmusic themakanalen, RADIONL en de regionale omroepen is nog geen
+bewezen browser-toegankelijke, zenderspecifieke metadatafeed gekoppeld.
+De officiële NPO-miniplayerfeeds voor NPO BLEND en Sterren NL zijn
+wel rechtstreeks bevestigd en worden hergebruikt via het bestaande
+\`npo-mini\`-providertype, inclusief programmagegevens. De standaardspeler
 verbergt trackinfo in dat geval; dit is geen regressie van bestaande kanalen.
 
 ## Aanbieders en belangrijke verificatiepunten
@@ -42,13 +44,14 @@ verbergt trackinfo in dat geval; dit is geen regressie van bestaande kanalen.
   `KINK_DNA.pls`, net als KINK 80's. Dit zijn daarom op dit moment
   twee afzonderlijke selecties met dezelfde bron. Niet doen alsof een
   afzonderlijke stream is bevestigd.
-- L1 Radio: regionaal Icecast via cloudfront.
-- Omroep Brabant: regionaal Icecast via cloudfront.
+- L1 Radio: regionaal Icecast via CloudFront (getest op 8 oktober 2026, HTTP 200, audio/mpeg).
+- Omroep Brabant: https://av.omroepbrabant.nl/icecast/omroepbrabant/mp3hq
+  (getest op 8 oktober 2026, HTTP 200, audio/mpeg; voorgaande CloudFront-stream gaf HTTP 502).
 - RADIONL: https://stream.radionl.fm/radionl.
 
 ## Handmatige regressie na preview (voor merge)
 
-1. iPhone Safari & desktop: afspelen van ieder nieuw kanaal; vooral Q Easy/Energy.
+1. iPhone Safari & desktop: afspelen van ieder nieuw kanaal; Qmusic Easy/Energy en L1/Brabant HTTP 200 via GitHub Actions, maar daadwerkelijke playback op Safari blijft handmatig te testen.
 2. Geen dubbele streams bij veelvuldig zenderwisselen / miniplayer / Cast.
 3. NL, BE, Lokaal NL: tabs bedienen; favorieten sorteren; inklappen,
    geselecteerde tab bewaren en zoekactie over alle tabbladen.
