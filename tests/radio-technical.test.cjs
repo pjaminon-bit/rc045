@@ -79,18 +79,35 @@ test('Licht/Donker: zonder voorkeur OS volgen, daarna handmatig bewaren', () => 
   assert.equal(buttons[0].attrs['aria-pressed'], 'true');
 });
 
-test('uitbreiding heeft 46 unieke zenders, met L1 en Brabant alleen in Lokaal NL', () => {
-  const text = html.slice(html.indexOf('const stations = ['), html.indexOf('/* =========================================================\n   ELEMENTS'));
-  const pairs = [...text.matchAll(/id: "([^"]+)",\s*country: "(NL|BE|LOCAL_NL)"/g)];
-  assert.equal(pairs.length, 46);
-  assert.equal(new Set(pairs.map(x => x[1])).size, 46);
-  const locally = pairs.filter(p => p[2] === 'LOCAL_NL').map(p => p[1]).sort();
-  assert.deepEqual(locally, ['l1radio', 'omroepbrabant']);
-  assert.equal(pairs.filter(p => p[2] === 'BE').length, 9);
-  assert.equal(pairs.filter(p => p[2] === 'NL').length, 35);
-  assert.match(text, /id: "kink80s"/);
-  assert.match(text, /id: "qeasynl"/);
-  assert.match(text, /id: "qenergynl"/);
+test('alle 13 regionale publieke omroepen inclusief dubbel Zuid-Holland', () => {
+  const st = html.slice(html.indexOf('const stations = ['), html.indexOf('/* =========================================================\\n   ELEMENTS'));
+  const entries = [...st.matchAll(/id: "([^"]+)",\\s*country: "(NL|BE|LOCAL_NL)"/g)];
+  assert.equal(entries.length, 56);
+  assert.equal(new Set(entries.map(e => e[1])).size, 56);
+  const locals = entries.filter(e => e[2] === 'LOCAL_NL').map(e => e[1]).sort();
+  assert.deepEqual(locals, ["l1radio","nhradio","omroepbrabant","omroepflevoland","omroepgelderland","omroepwest","omroepzeeland","omropfryslan","radiomutrecht","rtvdrenthe","rtvnoord","rtvoost","rtvrijnmond"]);
+  assert.equal(entries.filter(e => e[2] === 'NL').length, 34);
+  assert.equal(entries.filter(e => e[2] === 'BE').length, 9);
+  assert.equal(entries.filter(e => e[2] === 'LOCAL_NL').length, 13);
+  for (const province of ['Groningen','Friesland','Drenthe','Overijssel','Flevoland',
+   'Gelderland','Utrecht','Noord-Holland','Zuid-Holland','Zeeland','Noord-Brabant','Limburg']) {
+    assert.ok(st.includes('province: "' + province + '"'), province);
+  }
+  assert.match(html, /class="station-province"/);
+});
+
+test('verouderde KINK Classics verdwijnt met behoud opgeslagen keuzes', () => {
+  const st = html.slice(html.indexOf('const stations = ['), html.indexOf('/* =========================================================\\n   ELEMENTS'));
+  assert.doesNotMatch(st, /id: "kinkclassics"/);
+  for (const [id,mount] of [['kink80s','KINK_DNA'],['kink90s','KINK_90S'],['kinkdistortion','KINK_DISTORTION']]) {
+    const start = st.indexOf('id: "'+id+'"'), end = st.indexOf('\\n  },',start);
+    const piece=st.slice(start,end);
+    assert.ok(start>=0 && end>start,id);
+    assert.ok(piece.includes(mount),id);
+  }
+  assert.match(html, /previousStationId === "kinkclassics"/);
+  assert.match(html, /favoriteIds\\.delete\\("kinkclassics"\\)/);
+  assert.match(html, /favoriteIds\\.add\\("kink80s"\\)/);
 });
 
 test('NL / BE / Lokaal NL zijn echte toegankelijke tabs met zoek- en favorietenbehoud', () => {
