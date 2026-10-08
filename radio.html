@@ -2530,6 +2530,17 @@
     @media (max-width: 420px) {
       .radio-country-tab { font-size: 12px; padding-inline: 5px; }
     }
+    /* Alleen regionale zenderkaarten: provincie duidelijk zichtbaar. */
+    .station-province {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: normal;
+      line-height: 1.2;
+    }
+
   </style>
 </head>
 
@@ -4234,23 +4245,6 @@ const stations = [
   },
 
   {
-    id: "kinkclassics",
-    country: "NL",
-    name: "KINK Classics",
-    mark: "KC",
-    logo: "https://plug.kink.nl/img/top-logo.png",
-    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_DNA.mp3",
-    accent: "#e9e9e9",
-    rgb: "220,220,220",
-    metadata: [
-      {
-        "type": "triton-track",
-        "mount": "KINK_DNA"
-      }
-    ]
-  },
-
-  {
     id: "kink80s",
     country: "NL",
     name: "KINK 80's",
@@ -4434,6 +4428,7 @@ const stations = [
     id: "l1radio",
     country: "LOCAL_NL",
     name: "L1 Radio",
+    province: "Limburg",
     mark: "L1",
     logo: "https://www.google.com/s2/favicons?domain=l1.nl&sz=128",
     stream: "https://d34pj260kw1xmk.cloudfront.net/icecast/l1/radio-bb-mp3",
@@ -4445,11 +4440,144 @@ const stations = [
     id: "omroepbrabant",
     country: "LOCAL_NL",
     name: "Omroep Brabant",
+    province: "Noord-Brabant",
     mark: "OB",
     logo: "https://www.google.com/s2/favicons?domain=omroepbrabant.nl&sz=128",
     stream: "https://av.omroepbrabant.nl/icecast/omroepbrabant/mp3hq",
     accent: "#f04b2b",
     rgb: "240,75,43"
+  },
+
+  {
+    id: "rtvnoord",
+    country: "LOCAL_NL",
+    name: "RTV Noord",
+    province: "Groningen",
+    mark: "NO",
+    logo: "https://www.google.com/s2/favicons?domain=rtvnoord.nl&sz=128",
+    stream: "https://media.rtvnoord.nl/icecast/rtvnoord/radio",
+    accent: "#d5233b",
+    rgb: "213,35,59"
+  },
+
+  {
+    id: "omropfryslan",
+    country: "LOCAL_NL",
+    name: "Omrop Fryslân",
+    province: "Friesland",
+    mark: "FR",
+    logo: "https://www.google.com/s2/favicons?domain=omropfryslan.nl&sz=128",
+    stream: "https://d3pvma9xb2775h.cloudfront.net/icecast/omropfryslan/radio.mp3",
+    accent: "#1365ac",
+    rgb: "19,101,172"
+  },
+
+  {
+    id: "rtvdrenthe",
+    country: "LOCAL_NL",
+    name: "RTV Drenthe",
+    province: "Drenthe",
+    mark: "DR",
+    logo: "https://www.google.com/s2/favicons?domain=rtvdrenthe.nl&sz=128",
+    stream: "https://cdn.rtvdrenthe.nl/icecast/rtvdrenthe/rtvradio",
+    accent: "#df263a",
+    rgb: "223,38,58"
+  },
+
+  {
+    id: "rtvoost",
+    country: "LOCAL_NL",
+    name: "Radio Oost",
+    province: "Overijssel",
+    mark: "OO",
+    logo: "https://www.google.com/s2/favicons?domain=rtvoost.nl&sz=128",
+    stream: "https://streams.rtvoost.nl/audio/oost/mp3",
+    accent: "#ef8717",
+    rgb: "239,135,23"
+  },
+
+  {
+    id: "omroepflevoland",
+    country: "LOCAL_NL",
+    name: "Omroep Flevoland",
+    province: "Flevoland",
+    mark: "FL",
+    logo: "https://www.google.com/s2/favicons?domain=omroepflevoland.nl&sz=128",
+    stream: "https://stream.omroepflevoland.nl/icecast/omroepflevoland/stream2",
+    accent: "#009cb3",
+    rgb: "0,156,179"
+  },
+
+  {
+    id: "omroepgelderland",
+    country: "LOCAL_NL",
+    name: "Radio Gelderland",
+    province: "Gelderland",
+    mark: "GE",
+    logo: "https://www.google.com/s2/favicons?domain=omroepgelderland.nl&sz=128",
+    stream: "https://d2od87akyl46nm.cloudfront.net/icecast/omroepgelderland/radiogelderland",
+    accent: "#e32132",
+    rgb: "227,33,50"
+  },
+
+  {
+    id: "radiomutrecht",
+    country: "LOCAL_NL",
+    name: "Radio M Utrecht",
+    province: "Utrecht",
+    mark: "MU",
+    logo: "https://www.google.com/s2/favicons?domain=rtvutrecht.nl&sz=128",
+    stream: "https://d18rwjdhpr8dcw.cloudfront.net/icecast/rtvutrecht/radiomutrecht-bb-mp3",
+    accent: "#ed2950",
+    rgb: "237,41,80"
+  },
+
+  {
+    id: "nhradio",
+    country: "LOCAL_NL",
+    name: "NH Radio",
+    province: "Noord-Holland",
+    mark: "NH",
+    logo: "https://www.google.com/s2/favicons?domain=nhradio.nl&sz=128",
+    stream: "https://ice.cr6.streamzilla.xlcdn.com:8000/sz=nhnieuws=NHRadio_mp3",
+    accent: "#ee7a18",
+    rgb: "238,122,24"
+  },
+
+  {
+    id: "omroepwest",
+    country: "LOCAL_NL",
+    name: "Radio West",
+    province: "Zuid-Holland",
+    mark: "WE",
+    logo: "https://www.google.com/s2/favicons?domain=omroepwest.nl&sz=128",
+    stream: "https://d3jhv0ayn0z3fg.cloudfront.net/icecast/omroepwest/radio",
+    accent: "#1359ba",
+    rgb: "19,89,186"
+  },
+
+  {
+    id: "rtvrijnmond",
+    country: "LOCAL_NL",
+    name: "Radio Rijnmond",
+    province: "Zuid-Holland",
+    mark: "RI",
+    logo: "https://www.google.com/s2/favicons?domain=rijnmond.nl&sz=128",
+    stream: "https://d2e9xgjjdd9cr5.cloudfront.net/icecast/rijnmond/radio-mp3",
+    accent: "#e52b28",
+    rgb: "229,43,40"
+  },
+
+  {
+    id: "omroepzeeland",
+    country: "LOCAL_NL",
+    name: "Omroep Zeeland",
+    province: "Zeeland",
+    mark: "ZE",
+    logo: "https://www.google.com/s2/favicons?domain=omroepzeeland.nl&sz=128",
+    stream: "https://d3isaxd2t6q8zm.cloudfront.net/icecast/omroepzeeland/omroepzeeland_radio",
+    accent: "#117bbc",
+    rgb: "17,123,188"
   }
 
 ];
@@ -4581,7 +4709,14 @@ function saveRadioPreference(key, value) {
   try { localStorage.setItem(key, String(value)); return true; }
   catch { return false; }
 }
-const storedStationId = readRadioPreference("radio-station-id");
+// KINK Classics werd in 2023 vervangen door KINK 80's.
+const previousStationId = readRadioPreference("radio-station-id");
+const storedStationId =
+  previousStationId === "kinkclassics" ? "kink80s" : previousStationId;
+
+if (previousStationId === "kinkclassics") {
+  saveRadioPreference("radio-station-id", storedStationId);
+}
 
 
 let currentIndex =
@@ -4700,6 +4835,12 @@ try {
 
 }
 catch {}
+
+// Migreer de oude Classics-favoriet zonder andere favorieten te wijzigen.
+if (favoriteIds.delete("kinkclassics")) {
+  favoriteIds.add("kink80s");
+  saveRadioPreference("radio-favorites", JSON.stringify([...favoriteIds]));
+}
 
 
 let favoriteCountries =
@@ -6563,6 +6704,9 @@ function createStationCard(
 
     <span class="station-name">
       ${station.name}
+      ${station.province
+        ? `<span class="station-province">${station.province}</span>`
+        : ""}
     </span>
 
   `;
