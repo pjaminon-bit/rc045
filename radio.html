@@ -388,6 +388,7 @@
 
 
     .player {
+      min-height: 285px;
       display: grid;
 
       grid-template-columns:
@@ -570,6 +571,7 @@
 
     .player-info {
       min-width: 0;
+      min-height: 218px;
     }
 
 
@@ -2117,6 +2119,9 @@
 
     @media (max-width: 760px) {
 
+      .player { min-height: 455px; }
+      .player-info { min-height: 205px; }
+
       .app {
         width:
           min(
@@ -2499,6 +2504,17 @@
       }
     }
 
+
+    /* Stabiliteit van player, kaartafmetingen en een afgeschermd diagnoseluik. */
+    #stations [hidden], .radio-diagnostics [hidden] { display: none !important; }
+    .radio-diagnostics { width: min(100%, 680px); margin: 10px 0 20px; color: var(--muted); font-size: 12px; }
+    .radio-diagnostics details { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--panel); }
+    .radio-diagnostics summary { padding: 12px 15px; min-height: 42px; cursor: pointer; font-weight: 650; }
+    .radio-diagnostics details[open] summary { border-bottom: 1px solid var(--border); }
+    .radio-diagnostics-body { padding: 12px 15px 14px; }
+    .radio-diagnostics pre { margin: 0 0 12px; white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--text); user-select: text; }
+    .radio-diagnostics-copy { min-height: 40px; padding: 7px 13px; border: 1px solid var(--border); border-radius: 10px; color: var(--text); background: var(--panel-hover); cursor: pointer; }
+    .radio-diagnostics-feedback { margin-left: 10px; }
   </style>
 </head>
 
@@ -2604,7 +2620,7 @@
 
   <main>
 
-    <section class="player">
+    <section class="player" aria-label="Radioplayer">
 
       <div class="artwork">
 
@@ -2614,6 +2630,7 @@
             id="mainStationLogo"
             class="main-station-logo"
             alt=""
+            width="160" height="160" decoding="async"
           >
 
           <div
@@ -2700,6 +2717,9 @@
             <div
               id="status"
               class="status"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
             ></div>
 
 
@@ -3062,6 +3082,16 @@
 
   </main>
 
+  <aside class="radio-diagnostics" aria-label="Audiotechniek">
+    <details id="radioDiagnostics">
+      <summary>Technische diagnose</summary>
+      <div class="radio-diagnostics-body">
+        <pre id="radioDiagnosticsOutput" aria-label="Audiostatus en recente fouten"></pre>
+        <button id="radioDiagnosticsCopy" class="radio-diagnostics-copy" type="button">Kopieer diagnose</button>
+        <span id="radioDiagnosticsFeedback" class="radio-diagnostics-feedback" role="status" aria-live="polite"></span>
+      </div>
+    </details>
+  </aside>
 
   <footer>
     Spatie: play/pauze · ← →: zender wisselen
@@ -3094,6 +3124,7 @@
           id="miniPlayerLogo"
           class="mini-player-logo"
           alt=""
+          width="46" height="46" decoding="async"
         >
 
         <span
@@ -3197,6 +3228,8 @@
 <audio
   id="audio"
   preload="none"
+  playsinline
+  webkit-playsinline
   x-webkit-airplay="allow"
 ></audio>
 
@@ -4223,10 +4256,16 @@ const sleepCustomError =
    STATE
    ========================================================= */
 
-const storedStationId =
-  localStorage.getItem(
-    "radio-station-id"
-  );
+/* Voorkeuren: Safari/private-modus mag bij geblokkeerde opslag niet vastlopen. */
+function readRadioPreference(key) {
+  try { return localStorage.getItem(key); }
+  catch { return null; }
+}
+function saveRadioPreference(key, value) {
+  try { localStorage.setItem(key, String(value)); return true; }
+  catch { return false; }
+}
+const storedStationId = readRadioPreference("radio-station-id");
 
 
 let currentIndex =
@@ -4305,6 +4344,11 @@ let playbackRequested = false;
 let reconnectTimer = null;
 
 let reconnectAttempts = 0;
+
+/* Eén audio-element, maximaal één lokale Play- en herstelpoging. */
+let playInFlight = null;
+let playSequence = 0;
+let reconnectInFlight = false;
 
 
 let castApiReady = false;
@@ -5733,8 +5777,10 @@ function updateBrowserIdentity() {
     !logo.startsWith("data:")
   ) {
 
-    dynamicFavicon.href =
-      logo;
+    // Geen onnodige nieuwe fetch voor een gelijk gebleven extern SVG-logo.
+    if (dynamicFavicon.getAttribute("href") !== logo) {
+      dynamicFavicon.href = logo;
+    }
 
   }
 
@@ -6071,12 +6117,7 @@ function toggleFavorite(
   }
 
 
-  localStorage.setItem(
-    "radio-favorites",
-    JSON.stringify(
-      [...favoriteIds]
-    )
-  );
+  saveRadioPreference("radio-favorites", JSON.stringify([...favoriteIds]));
 
 
   renderStations();
@@ -6109,12 +6150,7 @@ function toggleCountryFavorite(
   }
 
 
-  localStorage.setItem(
-    "radio-country-favorites",
-    JSON.stringify(
-      [...favoriteCountries]
-    )
-  );
+  saveRadioPreference("radio-country-favorites", JSON.stringify([...favoriteCountries]));
 
 
   renderStations();
@@ -6147,12 +6183,7 @@ function toggleCountryCollapsed(
   }
 
 
-  localStorage.setItem(
-    "radio-country-collapsed",
-    JSON.stringify(
-      [...collapsedCountries]
-    )
-  );
+  saveRadioPreference("radio-country-collapsed", JSON.stringify([...collapsedCountries]));
 
 
   renderStations();
@@ -6203,10 +6234,8 @@ function createStationCard(
     "station-select";
 
 
-  select.setAttribute(
-    "aria-label",
-    `Luister naar ${station.name}`
-  );
+  select.setAttribute("aria-label", `Luister naar ${station.name}`);
+  if (index === currentIndex) select.setAttribute("aria-current", "true");
 
 
   select.innerHTML = `
@@ -6217,6 +6246,7 @@ function createStationCard(
         class="station-logo"
         src="${getStationLogo(station)}"
         alt=""
+        width="42" height="42" decoding="async"
         loading="lazy"
       >
 
@@ -6296,10 +6326,8 @@ function createStationCard(
     "favorite-button";
 
 
-  favorite.classList.toggle(
-    "active",
-    isFavorite
-  );
+  favorite.classList.toggle("active", isFavorite);
+  favorite.setAttribute("aria-pressed", String(isFavorite));
 
 
   favorite.textContent =
@@ -6347,9 +6375,8 @@ function createStationCard(
 
 
 function renderStations() {
-
-  stationsContainer.innerHTML =
-    "";
+  // Bouw zware lijsten buiten het document, voeg één keer toe.
+  const stationFragment = document.createDocumentFragment();
 
 
   for (
@@ -6470,10 +6497,8 @@ function renderStations() {
       "country-favorite";
 
 
-    favorite.classList.toggle(
-      "active",
-      countryFavorite
-    );
+    favorite.classList.toggle("active", countryFavorite);
+    favorite.setAttribute("aria-pressed", String(countryFavorite));
 
 
     favorite.textContent =
@@ -6555,12 +6580,12 @@ function renderStations() {
     );
 
 
-    stationsContainer.appendChild(
-      group
-    );
+    stationFragment.appendChild(group);
 
   }
 
+
+  stationsContainer.replaceChildren(stationFragment);
 
   const favs =
     favoriteIds.size;
@@ -6894,6 +6919,20 @@ function setProgram(
    SELECT STATION
    ========================================================= */
 
+/* Alleen actieve markering aanpassen; favorietwijzigingen mogen opnieuw sorteren. */
+function updateActiveStationCards() {
+  const activeId = stations[currentIndex].id;
+  for (const card of stationsContainer.querySelectorAll(".station")) {
+    const active = card.dataset.stationId === activeId;
+    card.classList.toggle("active", active);
+    const button = card.querySelector(".station-select");
+    if (button) {
+      if (active) button.setAttribute("aria-current", "true");
+      else button.removeAttribute("aria-current");
+    }
+  }
+}
+
 function selectStation(
   index,
   autoPlay = false
@@ -6924,14 +6963,11 @@ function selectStation(
 
 
   cancelReconnect();
+  playSequence++;   // Negeer late Promise-fouten van vorige zender.
+  playInFlight = null;
 
-
-  reconnectAttempts =
-    0;
-
-
-  currentIndex =
-    index;
+  reconnectAttempts = 0;
+  currentIndex = index;
 
 
   metadataGeneration++;
@@ -6960,10 +6996,7 @@ function selectStation(
     );
 
 
-  localStorage.setItem(
-    "radio-station-id",
-    station.id
-  );
+  saveRadioPreference("radio-station-id", station.id);
 
 
   stationTitle.textContent =
@@ -7012,7 +7045,7 @@ function selectStation(
     "Zender geselecteerd";
 
 
-  renderStations();
+  updateActiveStationCards();
 
   updateBrowserIdentity();
 
@@ -7166,122 +7199,96 @@ function cancelReconnect() {
 }
 
 
-function scheduleReconnect(
-  reason,
-  delay = 900
-) {
+function radioDiagnostic(kind, detail = {}) {
+  window.dispatchEvent(new CustomEvent("radio:diagnostic", {
+    detail: { kind, ...detail }
+  }));
+}
 
+function scheduleReconnect(reason, delay = 900) {
   if (
-    !playbackRequested ||
-    navigator.onLine === false
-  ) {
+    !playbackRequested || isCasting() || navigator.onLine === false ||
+    reconnectTimer !== null || reconnectInFlight
+  ) return;
 
+  if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+    status.textContent = "Verbinding verbroken · probeer opnieuw";
+    radioDiagnostic("recovery-exhausted", { reason });
     return;
-
   }
 
+  const stationIndex = currentIndex;
+  const nextDelay = Math.max(
+    delay,
+    Math.min(20000, 900 * Math.pow(2, reconnectAttempts))
+  );
 
-  const stationIndex =
-    currentIndex;
+  radioDiagnostic("recovery-scheduled", {
+    reason, attempt: reconnectAttempts + 1, delayMs: Math.round(nextDelay)
+  });
 
+  reconnectTimer = window.setTimeout(async () => {
+    reconnectTimer = null;
 
-  cancelReconnect();
+    if (
+      stationIndex !== currentIndex || !playbackRequested ||
+      isCasting() || navigator.onLine === false || reconnectInFlight
+    ) return;
 
+    if (
+      (reason === "stalled" || reason === "waiting") &&
+      !audio.paused &&
+      audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA
+    ) {
+      reconnectAttempts = 0;
+      radioDiagnostic("buffer-restored");
+      return;
+    }
 
-  reconnectTimer =
-    window.setTimeout(
-      async () => {
+    reconnectInFlight = true;
+    reconnectAttempts++;
+    const token = ++playSequence;
+    status.textContent = "Opnieuw verbinden…";
+    radioDiagnostic("recovery-attempt", { reason, attempt: reconnectAttempts });
 
-        if (
-          stationIndex !==
-            currentIndex ||
-          !playbackRequested ||
-          navigator.onLine ===
-            false
-        ) {
+    try {
+      // Zelfde audio-element, nooit een tweede lokale stream.
+      audio.pause();
+      audio.src = stations[stationIndex].stream;
+      audio.load();
+      await audio.play();
+    }
+    catch (error) {
+      if (token !== playSequence || !playbackRequested) return;
 
-          return;
-
+      if (error?.name === "NotAllowedError") {
+        playbackRequested = false;
+        status.textContent = "Tik op afspelen om verder te luisteren";
+        radioDiagnostic("gesture-required");
+        return;
+      }
+      if (error?.name === "AbortError") {
+        radioDiagnostic("recovery-aborted");
+        return;
+      }
+      radioDiagnostic("recovery-failed", { errorName: error?.name || "UnknownError" });
+    }
+    finally {
+      reconnectInFlight = false;
+      if (
+        token === playSequence && playbackRequested && audio.paused &&
+        navigator.onLine !== false
+      ) {
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          scheduleReconnect("retry", 900);
         }
-
-
-        if (
-          reason === "stalled" &&
-          !audio.paused &&
-          audio.readyState >=
-            HTMLMediaElement.HAVE_FUTURE_DATA
-        ) {
-
-          reconnectAttempts =
-            0;
-
-          return;
-
+        else {
+          status.textContent = "Verbinding verbroken · probeer opnieuw";
+          radioDiagnostic("recovery-exhausted", { reason: "maximum-attempts" });
         }
-
-
-        reconnectAttempts++;
-
-
-        if (
-          reconnectAttempts >
-            MAX_RECONNECT_ATTEMPTS
-        ) {
-
-          status.textContent =
-            "Verbinding verbroken";
-
-
-          return;
-
-        }
-
-
-        status.textContent =
-          "Opnieuw verbinden…";
-
-
-        const stream =
-          stations[currentIndex]
-            .stream;
-
-
-        try {
-
-          audio.pause();
-
-
-          audio.src =
-            stream;
-
-
-          audio.load();
-
-
-          await audio.play();
-
-        }
-
-        catch {
-
-          scheduleReconnect(
-            "error",
-            Math.min(
-              6000,
-              900 *
-              Math.pow(
-                1.7,
-                reconnectAttempts
-              )
-            )
-          );
-
-        }
-
-      },
-      delay
-    );
-
+      }
+    }
+  }, nextDelay);
 }
 
 
@@ -7290,83 +7297,60 @@ function scheduleReconnect(
    ========================================================= */
 
 async function play() {
+  document.body.classList.remove("awaiting-first-play");
+  playbackRequested = true;
 
-  document.body
-    .classList
-    .remove(
-      "awaiting-first-play"
-    );
-
-
-  playbackRequested =
-    true;
-
-
+  // Bestaande pre-roll beveiliging wordt ongewijzigd gebruikt.
   beginPreRollGuard();
 
-
-  if (
-    isCasting()
-  ) {
-
+  if (isCasting()) {
     if (
-      castLoadedStationId !==
-        stations[currentIndex].id ||
+      castLoadedStationId !== stations[currentIndex].id ||
       !castPlayer.isMediaLoaded
     ) {
-
-      await loadCurrentStationOnCast(
-        true
-      );
-
-
+      await loadCurrentStationOnCast(true);
       return;
-
     }
-
-
-    if (
-      castPlayer.isPaused
-    ) {
-
-      castPlayerController
-        .playOrPause();
-
-    }
-
-
-    status.textContent =
-      "Cast · Live";
-
-
+    if (castPlayer.isPaused) castPlayerController.playOrPause();
+    status.textContent = "Cast · Live";
     return;
-
   }
 
+  if (playInFlight) return playInFlight;
+  if (!audio.paused) return;
 
-  status.textContent =
-    "Verbinden…";
+  if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) reconnectAttempts = 0;
+  cancelReconnect();  // Handmatige Play vervangt een geplande herstelpoging.
 
+  const token = ++playSequence;
+  status.textContent = "Verbinden…";
+  radioDiagnostic("play-requested");
+  let started;
+  try { started = audio.play(); }
+  catch (error) { started = Promise.reject(error); }
 
-  try {
+  playInFlight = Promise.resolve(started)
+    .catch((error) => {
+      if (token !== playSequence || !playbackRequested) return;
+      if (error?.name === "NotAllowedError") {
+        playbackRequested = false;
+        status.textContent = "Tik op afspelen om verder te luisteren";
+        radioDiagnostic("gesture-required");
+        return;
+      }
+      if (error?.name === "AbortError") {
+        radioDiagnostic("play-aborted");
+        return;
+      }
+      status.textContent = "Stream tijdelijk niet beschikbaar";
+      radioDiagnostic("play-failed", { errorName: error?.name || "UnknownError" });
+      scheduleReconnect("error", 1100);
+    })
+    .finally(() => {
+      if (token === playSequence) playInFlight = null;
+    });
 
-    await audio.play();
-
-  }
-
-  catch {
-
-    status.textContent =
-      "Stream tijdelijk niet beschikbaar";
-
-
-    scheduleReconnect(
-      "error",
-      1000
-    );
-
-  }
-
+  return playInFlight;
 }
 
 
@@ -7375,10 +7359,10 @@ function pause(
     "Gepauzeerd"
 ) {
 
-  playbackRequested =
-    false;
-
-
+  playbackRequested = false;
+  playSequence++;
+  playInFlight = null;
+  radioDiagnostic("pause-requested");
   cancelReconnect();
 
 
@@ -7426,7 +7410,7 @@ function pause(
 function togglePlay() {
 
   if (
-    isPlaybackActive()
+    isPlaybackActive() || (!isCasting() && playInFlight)
   ) {
 
     pause();
@@ -7538,6 +7522,7 @@ audio.addEventListener(
 
       status.textContent =
         "Bufferen…";
+      scheduleReconnect("waiting", 11000);
 
     }
 
@@ -7566,10 +7551,7 @@ audio.addEventListener(
         "Stream buffert…";
 
 
-      scheduleReconnect(
-        "stalled",
-        3000
-      );
+      scheduleReconnect("stalled", 7000);
 
     }
 
@@ -10985,70 +10967,35 @@ function previousStation() {
    KEYBOARD
    ========================================================= */
 
-document.addEventListener(
-  "keydown",
-  event => {
-
-    if (
-      document.activeElement
-        .tagName ===
-      "INPUT"
-    ) {
-
-      return;
-
-    }
-
-
-    if (
-      event.code ===
-      "Space"
-    ) {
-
-      event.preventDefault();
-
-      togglePlay();
-
-    }
-
-
-    if (
-      event.key ===
-      "ArrowRight"
-    ) {
-
-      event.preventDefault();
-
-      nextStation();
-
-    }
-
-
-    if (
-      event.key ===
-      "ArrowLeft"
-    ) {
-
-      event.preventDefault();
-
-      previousStation();
-
-    }
-
-
-    if (
-      event.key ===
-      "Escape"
-    ) {
-
-      closeSleepMenu();
-
-      closeRouteMenu();
-
-    }
-
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    closeSleepMenu();
+    closeRouteMenu();
+    return;
   }
-);
+  const target = event.target;
+  const interactive = target?.closest?.(
+    "button, input, textarea, select, a, [contenteditable], [role='slider'], [role='textbox']"
+  );
+  // Knoppen voeren op Space al een native click uit: voorkom een tweede toggle.
+  if (
+    event.repeat || event.isComposing ||
+    event.altKey || event.ctrlKey || event.metaKey || interactive
+  ) return;
+
+  if (event.code === "Space") {
+    event.preventDefault();
+    togglePlay();
+  }
+  else if (event.key === "ArrowRight") {
+    event.preventDefault();
+    nextStation();
+  }
+  else if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    previousStation();
+  }
+});
 
 
 /* =========================================================
@@ -11181,6 +11128,21 @@ if (
 }
 
 
+/* iOS Safari na BFCache: visuele audio-UI synchroniseren zonder autoplay
+   en zonder metadata opnieuw op te vragen. */
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted) return;
+  if (!isCasting()) {
+    const playing = !audio.paused;
+    document.body.classList.toggle("is-playing", playing);
+    playButton.setAttribute("aria-label", playing ? "Pauzeren" : "Afspelen");
+  }
+  updateMuteUI();
+  updateVolumeBar();
+  updateBrowserIdentity();
+  radioDiagnostic("bfcache-restored");
+});
+
 /* =========================================================
    NETWORK
    ========================================================= */
@@ -11188,6 +11150,9 @@ if (
 window.addEventListener(
   "offline",
   () => {
+
+    cancelReconnect();
+    radioDiagnostic("offline");
 
     status.textContent =
       "Geen internetverbinding";
@@ -11199,6 +11164,8 @@ window.addEventListener(
 window.addEventListener(
   "online",
   () => {
+
+    radioDiagnostic("online");
 
     status.textContent =
       audio.paused
@@ -11988,6 +11955,83 @@ if ("serviceWorker" in navigator && window.isSecureContext) {
     });
   }, { once: true });
 }
+</script>
+
+
+<script>
+/* Paneel verzamelt uitsluitend lokale audio-/netwerkstatus.
+   Geen stream-URL's, artiesten/titels of metadata-verzoeken. */
+(() => {
+  const details = document.getElementById("radioDiagnostics");
+  const output = document.getElementById("radioDiagnosticsOutput");
+  const copy = document.getElementById("radioDiagnosticsCopy");
+  const feedback = document.getElementById("radioDiagnosticsFeedback");
+  const player = document.getElementById("audio");
+  if (!details || !output || !copy || !player) return;
+
+  const events = [];
+  let refreshInterval = null;
+  function append(kind, data = {}) {
+    const safe = Object.entries(data)
+      .filter(([key]) => ["reason", "attempt", "delayMs", "errorName"].includes(key))
+      .map(([key, value]) => `${key}=${String(value).slice(0, 36)}`)
+      .join(", ");
+    events.unshift(
+      `${new Date().toLocaleTimeString("nl-NL")} · ${kind}${safe ? " · " + safe : ""}`
+    );
+    if (events.length > 12) events.length = 12;
+    if (details.open) update();
+  }
+  function snapshot() {
+    const errors = {
+      1: "MEDIA_ERR_ABORTED", 2: "MEDIA_ERR_NETWORK",
+      3: "MEDIA_ERR_DECODE", 4: "MEDIA_ERR_SRC_NOT_SUPPORTED"
+    };
+    return [
+      "radio. — lokale audiodiagnose",
+      `Zender: ${document.getElementById("stationTitle")?.textContent?.trim() || "onbekend"}`,
+      `Internet: ${navigator.onLine ? "online" : "offline"} (browserindicatie)`,
+      `Audio-elementen: ${document.querySelectorAll("audio").length}`,
+      `Afspelen: ${player.paused ? "gepauzeerd" : "speelt/buffert"}`,
+      `Netwerkstatus: ${player.networkState} (0=empty, 1=idle, 2=loading, 3=no-source)`,
+      `Bufferstatus: ${player.readyState} (0=none t/m 4=enough)`,
+      `Audiofout: ${player.error ? (errors[player.error.code] || player.error.code) : "geen"}`,
+      `Volume: ${Math.round(player.volume * 100)}% ${player.muted ? "(gedempt)" : ""}`,
+      `Status: ${document.getElementById("status")?.textContent?.trim() || "—"}`,
+      "Recente gebeurtenissen:",
+      ...(events.length ? events : ["(geen)"])
+    ].join("\n");
+  }
+  function update() {
+    if (details.open) output.textContent = snapshot();
+  }
+  details.addEventListener("toggle", () => {
+    if (refreshInterval !== null) {
+      clearInterval(refreshInterval);
+      refreshInterval = null;
+    }
+    if (details.open) {
+      update();
+      refreshInterval = setInterval(update, 1500);
+    }
+  });
+  window.addEventListener("radio:diagnostic", (event) => {
+    append(event.detail?.kind || "event", event.detail || {});
+  });
+  for (const type of ["playing", "waiting", "stalled", "error", "ended", "pause"]) {
+    player.addEventListener(type, () => append("audio:" + type));
+  }
+  for (const type of ["online", "offline"]) {
+    window.addEventListener(type, () => append("netwerk:" + type));
+  }
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(snapshot());
+      feedback.textContent = "Gekopieerd";
+    }
+    catch { feedback.textContent = "Selecteer de tekst om te kopiëren"; }
+  });
+})();
 </script>
 
 </body>
