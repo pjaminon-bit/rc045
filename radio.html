@@ -2494,6 +2494,42 @@
 
     /* Ook binnen CSS-grid moeten gefilterde zenders echt verborgen blijven. */
     #stations [hidden] { display: none !important; }
+
+    /* Drie zender-tabbladen, zonder wijzigingen aan de grote player. */
+    .radio-country-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      padding: 5px;
+      margin: 0 0 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+    }
+    .radio-country-tab {
+      min-width: 0;
+      min-height: 43px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 12px;
+      font-weight: 690;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      transition: background .16s ease, color .16s ease;
+    }
+    .radio-country-tab[aria-selected="true"] {
+      background: var(--panel-hover);
+      color: var(--text);
+      box-shadow: inset 0 0 0 1px var(--border);
+    }
+    .radio-country-tab:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    @media (max-width: 420px) {
+      .radio-country-tab { font-size: 12px; padding-inline: 5px; }
+    }
   </style>
 </head>
 
@@ -3014,6 +3050,19 @@
     </section>
 
 
+    <nav id="radioCountryTabs" class="radio-country-tabs"
+         role="tablist" aria-label="Zenders per regio">
+      <button id="radioTab-NL" type="button" role="tab" class="radio-country-tab"
+              data-radio-tab="NL" aria-controls="radioPanel-NL"
+              aria-selected="true" tabindex="0">NL</button>
+      <button id="radioTab-BE" type="button" role="tab" class="radio-country-tab"
+              data-radio-tab="BE" aria-controls="radioPanel-BE"
+              aria-selected="false" tabindex="-1">BE</button>
+      <button id="radioTab-LOCAL_NL" type="button" role="tab" class="radio-country-tab"
+              data-radio-tab="LOCAL_NL" aria-controls="radioPanel-LOCAL_NL"
+              aria-selected="false" tabindex="-1">Lokaal NL</button>
+    </nav>
+
     <section class="station-search" role="search" aria-label="Radiostations zoeken">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
@@ -3021,7 +3070,7 @@
         <path d="m16 16 4.5 4.5"/>
       </svg>
       <input id="stationSearchInput" class="station-search-input"
-             type="search" placeholder="Zoek een zender in NL of BE…"
+             type="search" placeholder="Zoek alle radiostations…"
              aria-label="Zoek radiostations" autocomplete="off"
              spellcheck="false">
       <button id="stationSearchClear" class="station-search-clear"
@@ -3240,6 +3289,12 @@ const COUNTRIES = [
     code: "BE",
     name: "België",
     flag: "🇧🇪"
+  },
+
+  {
+    code: "LOCAL_NL",
+    name: "Lokaal NL",
+    flag: "📍"
   }
 
 ];
@@ -4081,6 +4136,320 @@ const stations = [
         station: "joebe"
       }
     ]
+  },
+
+  {
+    id: "npoklassiek",
+    country: "NL",
+    name: "NPO Klassiek",
+    mark: "KL",
+    logo: "https://www.google.com/s2/favicons?domain=npoklassiek.nl&sz=128",
+    stream: "https://icecast.omroep.nl/radio4-bb-mp3",
+    accent: "#e2a624",
+    rgb: "226,166,36",
+    metadata: [
+      {
+        "type": "npo-mini",
+        "channel": "npo-radio-4"
+      }
+    ],
+    program: {"type":"npo-mini","channel":"npo-radio-4"}
+  },
+
+  {
+    id: "npoblend",
+    country: "NL",
+    name: "NPO BLEND",
+    mark: "BL",
+    logo: "https://www.google.com/s2/favicons?domain=npoblend.nl&sz=128",
+    stream: "https://icecast.omroep.nl/npoblend-bb-mp3",
+    accent: "#fe7326",
+    rgb: "254,115,38",
+    metadata: [{type:"npo-mini",channel:"npo-blend"}],
+    program: {type:"npo-mini",channel:"npo-blend"}
+  },
+
+  {
+    id: "sterrennl",
+    country: "NL",
+    name: "NPO Sterren NL",
+    mark: "SN",
+    logo: "https://www.google.com/s2/favicons?domain=nporadio5.nl&sz=128",
+    stream: "https://icecast.omroep.nl/radio2-sterrennl-mp3",
+    accent: "#f6aa2a",
+    rgb: "246,170,42",
+    metadata: [{type:"npo-mini",channel:"npo-sterren-nl"}],
+    program: {type:"npo-mini",channel:"npo-sterren-nl"}
+  },
+
+  {
+    id: "noordzee",
+    country: "NL",
+    name: "Radio Noordzee",
+    mark: "NZ",
+    logo: "https://www.google.com/s2/favicons?domain=radionoordzee.nl&sz=128",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR17.mp3",
+    accent: "#0777c9",
+    rgb: "7,119,201",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "TLPSTR17"
+      }
+    ]
+  },
+
+  {
+    id: "sublime",
+    country: "NL",
+    name: "Sublime",
+    mark: "SU",
+    logo: "https://www.google.com/s2/favicons?domain=sublime.nl&sz=128",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/SUBLIME.mp3",
+    accent: "#b13d84",
+    rgb: "177,61,132",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "SUBLIME"
+      }
+    ]
+  },
+
+  {
+    id: "gpradio",
+    country: "NL",
+    name: "Grand Prix Radio",
+    mark: "GP",
+    logo: "https://www.google.com/s2/favicons?domain=grandprixradio.nl&sz=128",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/GRAND_PRIX_RADIO.mp3",
+    accent: "#e62234",
+    rgb: "230,34,52",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "GRAND_PRIX_RADIO"
+      }
+    ]
+  },
+
+  {
+    id: "kinkclassics",
+    country: "NL",
+    name: "KINK Classics",
+    mark: "KC",
+    logo: "https://plug.kink.nl/img/top-logo.png",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_DNA.mp3",
+    accent: "#e9e9e9",
+    rgb: "220,220,220",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "KINK_DNA"
+      }
+    ]
+  },
+
+  {
+    id: "kink80s",
+    country: "NL",
+    name: "KINK 80's",
+    mark: "K80",
+    logo: "https://plug.kink.nl/img/top-logo.png",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_DNA.mp3",
+    accent: "#ececec",
+    rgb: "220,220,220",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "KINK_DNA"
+      }
+    ]
+  },
+
+  {
+    id: "kink90s",
+    country: "NL",
+    name: "KINK 90's",
+    mark: "K90",
+    logo: "https://plug.kink.nl/img/top-logo.png",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_90S.mp3",
+    accent: "#ececec",
+    rgb: "220,220,220",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "KINK_90S"
+      }
+    ]
+  },
+
+  {
+    id: "kinkdistortion",
+    country: "NL",
+    name: "KINK Distortion",
+    mark: "KD",
+    logo: "https://plug.kink.nl/img/top-logo.png",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_DISTORTION.mp3",
+    accent: "#e44946",
+    rgb: "228,73,70",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "KINK_DISTORTION"
+      }
+    ]
+  },
+
+  {
+    id: "radio1080s",
+    country: "NL",
+    name: "Radio 10 80's Hits",
+    mark: "80",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Radio%2010%20logo%202019.svg",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR20.mp3",
+    accent: "#e63252",
+    rgb: "230,50,82",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "TLPSTR20"
+      }
+    ]
+  },
+
+  {
+    id: "radio1090s",
+    country: "NL",
+    name: "Radio 10 90's Hits",
+    mark: "90",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Radio%2010%20logo%202019.svg",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR22.mp3",
+    accent: "#d73255",
+    rgb: "215,50,85",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "TLPSTR22"
+      }
+    ]
+  },
+
+  {
+    id: "radio10nonstop",
+    country: "NL",
+    name: "Radio 10 Non-Stop",
+    mark: "10",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Radio%2010%20logo%202019.svg",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR15.mp3",
+    accent: "#df3451",
+    rgb: "223,52,81",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "TLPSTR15"
+      }
+    ]
+  },
+
+  {
+    id: "skyhits",
+    country: "NL",
+    name: "Sky Radio Hits",
+    mark: "H",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sky%20Radio%20logo%202019.svg",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/SRGSTR01.mp3",
+    accent: "#e53535",
+    rgb: "229,53,53",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "SRGSTR01"
+      }
+    ]
+  },
+
+  {
+    id: "skylovesongs",
+    country: "NL",
+    name: "Sky Radio Love Songs",
+    mark: "♥",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sky%20Radio%20logo%202019.svg",
+    stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/SRGSTR03.mp3",
+    accent: "#c34076",
+    rgb: "195,64,118",
+    metadata: [
+      {
+        "type": "triton-track",
+        "mount": "SRGSTR03"
+      }
+    ]
+  },
+
+  {
+    id: "qnonstop",
+    country: "NL",
+    name: "Qmusic Non-Stop",
+    mark: "QN",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Qmusic%20logo.svg",
+    stream: "https://stream.qmusic.nl/nonstop/mp3",
+    accent: "#e91e4f",
+    rgb: "233,30,79"
+  },
+
+  {
+    id: "qeasynl",
+    country: "NL",
+    name: "Qmusic Easy",
+    mark: "QE",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Qmusic%20logo.svg",
+    stream: "https://streams.radio.dpgmedia.cloud/redirect/qnl_easy/mp3",
+    accent: "#e84e80",
+    rgb: "232,78,128"
+  },
+
+  {
+    id: "qenergynl",
+    country: "NL",
+    name: "Qmusic Energy",
+    mark: "Q+",
+    logo: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Qmusic%20logo.svg",
+    stream: "https://streams.radio.dpgmedia.cloud/redirect/qnl_energy/mp3",
+    accent: "#e11d58",
+    rgb: "225,29,88"
+  },
+
+  {
+    id: "radionl",
+    country: "NL",
+    name: "RADIONL",
+    mark: "RN",
+    logo: "https://www.google.com/s2/favicons?domain=radionl.fm&sz=128",
+    stream: "https://stream.radionl.fm/radionl",
+    accent: "#ef4b24",
+    rgb: "239,75,36"
+  },
+
+  {
+    id: "l1radio",
+    country: "LOCAL_NL",
+    name: "L1 Radio",
+    mark: "L1",
+    logo: "https://www.google.com/s2/favicons?domain=l1.nl&sz=128",
+    stream: "https://d34pj260kw1xmk.cloudfront.net/icecast/l1/radio-bb-mp3",
+    accent: "#f28a21",
+    rgb: "242,138,33"
+  },
+
+  {
+    id: "omroepbrabant",
+    country: "LOCAL_NL",
+    name: "Omroep Brabant",
+    mark: "OB",
+    logo: "https://www.google.com/s2/favicons?domain=omroepbrabant.nl&sz=128",
+    stream: "https://av.omroepbrabant.nl/icecast/omroepbrabant/mp3hq",
+    accent: "#f04b2b",
+    rgb: "240,75,43"
   }
 
 ];
@@ -6343,6 +6712,13 @@ function renderStations() {
 
     group.className =
       "country-group";
+
+    // Landgroepen zijn de panels van de regiokeuze; favorieten,
+    // zoeken en inklappen blijven de bestaande functies gebruiken.
+    group.dataset.country = country.code;
+    group.id = "radioPanel-" + country.code;
+    group.setAttribute("role", "tabpanel");
+    group.setAttribute("aria-labelledby", "radioTab-" + country.code);
 
 
     group.classList.toggle(
@@ -11744,7 +12120,50 @@ initialise();
   const summary = document.getElementById("stationSearchSummary");
   const stationsRoot = document.getElementById("stations");
 
-  if (!input || !clear || !summary || !stationsRoot) return;
+  const tabs = [...document.querySelectorAll("[data-radio-tab]")];
+  const validTabs = new Set(["NL", "BE", "LOCAL_NL"]);
+  let activeTab = readRadioPreference("radio-country-tab");
+  if (!validTabs.has(activeTab)) activeTab = "NL";
+
+  if (!input || !clear || !summary || !stationsRoot || tabs.length !== 3) return;
+
+  function updateTabs() {
+    for (const tab of tabs) {
+      const selected = tab.dataset.radioTab === activeTab;
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    }
+  }
+
+  function selectTab(code) {
+    if (!validTabs.has(code)) return;
+    activeTab = code;
+    saveRadioPreference("radio-country-tab", code);
+
+    // Het zoekresultaat toont alle landen. Bij handmatig tabwisselen
+    // keren we terug naar het geselecteerde land.
+    if (input.value) {
+      input.value = "";
+      renderStations();
+    }
+    updateTabs();
+    applyFilter();
+  }
+
+  for (const tab of tabs) {
+    tab.addEventListener("click", () => selectTab(tab.dataset.radioTab));
+    tab.addEventListener("keydown", event => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const index = tabs.indexOf(tab);
+      const next = event.key === "Home" ? 0
+        : event.key === "End" ? tabs.length - 1
+        : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+      tabs[next].focus();
+      selectTab(tabs[next].dataset.radioTab);
+    });
+  }
+  updateTabs();
 
   const normalise = (value) =>
     String(value || "")
@@ -11774,7 +12193,9 @@ initialise();
         if (matches) visible++;
       }
 
-      group.hidden = Boolean(query && visible === 0);
+      group.hidden = query
+        ? visible === 0
+        : group.dataset.country !== activeTab;
       totalMatches += visible;
 
       const count = group.querySelector(".country-count");

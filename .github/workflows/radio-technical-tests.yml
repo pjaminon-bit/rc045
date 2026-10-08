@@ -22,3 +22,5 @@ jobs:
           node-version: '22'
       - name: Controleer radio zonder metadata-aanroepen
         run: node --test tests/radio-technical.test.cjs
+      - name: Controleer nieuw toegevoegde streamadressen
+        run: node tests/radio-stream-probe.mjs
