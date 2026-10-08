@@ -23,13 +23,22 @@ test('één centraal HTML-audio-element voor beide players', () => {
 
 test('bestaande PWA, zenderzoekfunctie en trackstructuur aanwezig', () => {
   for (const element of ['stationSearchInput', 'stationSearchClear', 'trackInfo',
-    'trackArtist', 'trackTitle', 'miniPlayer', 'radioDiagnostics']) {
+    'trackArtist', 'trackTitle', 'miniPlayer']) {
     assert.ok(html.includes('id="' + element + '"'), element);
   }
   assert.match(html, /rel="manifest"/);
   assert.match(html, /function refreshMetadata\(/);
   assert.match(html, /function refreshProgram\(/);
   assert.match(html, /function splitTrack\(/);
+});
+
+test('geen technische diagnose, zonder andere playerfuncties te verliezen', () => {
+  assert.doesNotMatch(html, /radioDiagnostic(?:s|\()/);
+  assert.doesNotMatch(html, /radio-diagnostics/);
+  assert.doesNotMatch(html, /radio:diagnostic/);
+  assert.doesNotMatch(html, /Technische diagnose/);
+  assert.match(html, /function scheduleReconnect\(/);
+  assert.match(html, /async function play\(/);
 });
 
 test('alle inline scripts zijn syntactisch geldig', () => {
@@ -62,15 +71,11 @@ function makeAudioEnvironment(playImpl) {
     document: { body: { classList: { remove() {} } } },
     status: { textContent: '' },
     window: {
-      dispatchEvent() {},
       setTimeout(callback, ms) {
         const id = ++timerId;
         timers.set(id, { callback, ms });
         return id;
       }
-    },
-    CustomEvent: class {
-      constructor(name, value) { this.type = name; this.detail = value?.detail; }
     },
     navigator: { onLine: true },
     HTMLMediaElement: { HAVE_FUTURE_DATA: 3 },
