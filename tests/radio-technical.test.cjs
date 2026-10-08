@@ -41,6 +41,44 @@ test('geen technische diagnose, zonder andere playerfuncties te verliezen', () =
   assert.match(html, /async function play\(/);
 });
 
+test('Licht/Donker: zonder voorkeur OS volgen, daarna handmatig bewaren', () => {
+  const choices = [...html.matchAll(/data-theme-choice="([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(choices, ['light', 'dark']);
+  assert.doesNotMatch(html, /theme-option-system/);
+  const themeJS = part('const THEME_KEY =',
+    '/* =========================================================\n   FAVORITES / COUNTRIES\n');
+  const storage = new Map(), query = {
+    matches: true, addEventListener(_event, callback) { this.changed = callback; }
+  };
+  const buttons = choices.map(choice => ({
+    dataset: {themeChoice: choice}, attrs: {},
+    addEventListener() {}, classList: {toggle() {}},
+    setAttribute(key,val) {this.attrs[key] = val;}
+  }));
+  const switcher = { dataset: {}, setAttribute() {} }, themeColor = {content: ''};
+  const ctx = {
+    document: {documentElement: {dataset: {theme: 'system'}}},
+    window: {matchMedia() {return query;}}, themeColor,
+    themeSwitcher: switcher, themeButtons: buttons,
+    localStorage: {getItem(k) {return storage.get(k) ?? null;},
+      setItem(k,v) {storage.set(k,v);}}
+  };
+  const api = new Function('ctx',
+    'with(ctx){' + themeJS + '\nreturn {applyTheme,getResolvedTheme};}'
+  )(ctx);
+  assert.equal(switcher.dataset.state, 'light');
+  assert.equal(storage.has('radio-theme'), false);
+  query.matches = false; query.changed();
+  assert.equal(switcher.dataset.state, 'dark');
+  assert.equal(themeColor.content, '#080a0f');
+  api.applyTheme('light');
+  assert.equal(storage.get('radio-theme'), 'light');
+  query.matches = true; query.changed();
+  query.matches = false; query.changed();
+  assert.equal(switcher.dataset.state, 'light');
+  assert.equal(buttons[0].attrs['aria-pressed'], 'true');
+});
+
 test('alle inline scripts zijn syntactisch geldig', () => {
   const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)]
     .filter(m => !m[1].includes('src='));
