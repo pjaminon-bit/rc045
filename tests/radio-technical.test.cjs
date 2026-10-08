@@ -106,8 +106,8 @@ test('verouderde KINK Classics verdwijnt met behoud opgeslagen keuzes', () => {
     assert.ok(piece.includes(mount),id);
   }
   assert.match(html, /previousStationId === "kinkclassics"/);
-  assert.match(html, /favoriteIds\.delete\\("kinkclassics"\\)/);
-  assert.match(html, /favoriteIds\.add\\("kink80s"\\)/);
+  assert.match(html, /favoriteIds\.delete\("kinkclassics"\)/);
+  assert.match(html, /favoriteIds\.add\("kink80s"\)/);
 });
 
 test('NL / BE / Lokaal NL zijn echte toegankelijke tabs met zoek- en favorietenbehoud', () => {
