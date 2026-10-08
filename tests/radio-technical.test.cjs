@@ -112,13 +112,48 @@ test('verouderde KINK Classics verdwijnt met behoud opgeslagen keuzes', () => {
 
 test('NL / BE / Lokaal NL zijn echte toegankelijke tabs met zoek- en favorietenbehoud', () => {
   const names = [...html.matchAll(/data-radio-tab="([^"]+)"/g)].map(x => x[1]);
-  assert.deepEqual(names, ['NL', 'BE', 'LOCAL_NL']);
+  assert.deepEqual(names, ['NL', 'LOCAL_NL', 'BE']);
   assert.match(html, /role="tablist"/);
   assert.match(html, /aria-selected="true"/);
   assert.match(html, /aria-labelledby", "radioTab-"/);
   assert.match(html, /saveRadioPreference\("radio-country-tab", code\)/);
   assert.match(html, /group\.dataset\.country !== activeTab/);
   assert.match(html, /renderStations\(\)/);
+});
+
+test('zendergroepen zijn direct zichtbaar en niet meer uitklapbaar', () => {
+  assert.doesNotMatch(html, /class="country-(?:header|toggle|count|chevron)"/);
+  assert.doesNotMatch(html, /function toggleCountryCollapsed\(/);
+  assert.match(html, /group\.hidden = country\.code !== selectedTab/);
+  assert.match(html, /getVisibleDisplayOrder\(\) \{[\s\S]*?return getDisplayOrder\(\)/);
+  assert.match(html, /group\.dataset\.country !== activeTab/);
+  assert.match(html, /function renderStations\(/);
+  assert.doesNotMatch(html, /\$\{items\.length\} stations/);
+  assert.doesNotMatch(html, /\$\{stations\.length\} stations/);
+  assert.doesNotMatch(html, /van \$\{stations\.length\} radiostations/);
+});
+
+test('drie vaste tabs met afzonderlijke toegankelijke favorietsterren', () => {
+  const labels = [...html.matchAll(/data-radio-tab="(NL|BE|LOCAL_NL)"[^>]*>([^<]+)<\/button>/g)]
+    .map(match => [match[1], match[2].trim()]);
+  assert.deepEqual(labels, [['NL', 'NL'], ['LOCAL_NL', 'NL Lokaal'], ['BE', 'BE']]);
+  const favorites = [...html.matchAll(/data-country-favorite="([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(favorites, ['NL', 'LOCAL_NL', 'BE']);
+  assert.match(html, /role="tablist"/);
+  assert.match(html, /role="group" aria-label="Favoriete zendergroepen"/);
+  assert.match(html, /saveRadioPreference\("radio-country-favorites"/);
+  assert.match(html, /toggleCountryFavorite\(favorite\.dataset\.countryFavorite\)/);
+  assert.match(html, /updateCountryFavoriteButtons\(\)/);
+});
+
+test('de originele 56 stations, metadata en programmaconfiguratie zijn beschermd', () => {
+  const all = part('const stations = [', '/* =========================================================\n   ELEMENTS');
+  const entries = [...all.matchAll(/id: "([^"]+)",\s*country: "(NL|BE|LOCAL_NL)"/g)];
+  assert.equal(entries.length, 56);
+  assert.equal(new Set(entries.map(m => m[1])).size, 56);
+  for (const id of ['npo1','npo2','kink80s','omroepbrabant','l1radio']) {
+    assert.match(all, new RegExp('id: "' + id + '"'));
+  }
 });
 
 test('alle inline scripts zijn syntactisch geldig', () => {
