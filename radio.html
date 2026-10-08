@@ -1405,154 +1405,6 @@
     }
 
 
-    .country-header {
-      display: flex;
-      align-items: center;
-
-      min-height: 52px;
-
-      margin-bottom: 12px;
-
-      padding:
-        5px 8px
-        5px 13px;
-
-      border:
-        1px solid var(--border);
-
-      border-radius: 17px;
-
-      background:
-        var(--panel);
-    }
-
-
-    .country-toggle {
-      appearance: none;
-
-      min-width: 0;
-      flex: 1;
-
-      display: flex;
-      align-items: center;
-
-      gap: 10px;
-
-      padding: 7px 5px;
-
-      border: 0;
-
-      background: transparent;
-
-      text-align: left;
-
-      cursor: pointer;
-    }
-
-
-    .country-flag {
-      flex: 0 0 auto;
-
-      font-size: 21px;
-
-      line-height: 1;
-    }
-
-
-    .country-title {
-      min-width: 0;
-
-      overflow: hidden;
-
-      font-size: 15px;
-      font-weight: 760;
-
-      letter-spacing: -.025em;
-
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-
-    .country-count {
-      margin-left: auto;
-
-      padding-left: 12px;
-
-      color: var(--muted);
-
-      font-size: 11px;
-      font-weight: 600;
-
-      white-space: nowrap;
-    }
-
-
-    .country-chevron {
-      width: 34px;
-      height: 34px;
-
-      flex: 0 0 34px;
-
-      display: grid;
-      place-items: center;
-
-      color: var(--muted);
-
-      font-size: 22px;
-      line-height: 1;
-
-      transition:
-        transform .2s ease;
-    }
-
-
-    .country-group.collapsed
-    .country-chevron {
-      transform:
-        rotate(-90deg);
-    }
-
-
-    .country-favorite {
-      appearance: none;
-
-      width: 36px;
-      height: 36px;
-
-      flex: 0 0 36px;
-
-      display: grid;
-      place-items: center;
-
-      padding: 0;
-
-      border: 0;
-      border-radius: 11px;
-
-      background: transparent;
-
-      color: var(--muted);
-
-      font-size: 19px;
-
-      cursor: pointer;
-
-      opacity: .6;
-    }
-
-
-    .country-favorite:hover,
-    .country-favorite.active {
-      color: var(--accent);
-
-      background:
-        rgba(var(--accent-rgb), .08);
-
-      opacity: 1;
-    }
-
-
     .country-stations {
       display: grid;
 
@@ -2305,21 +2157,6 @@
       }
 
 
-      .country-header {
-        min-height: 48px;
-
-        padding-left: 9px;
-      }
-
-
-      .country-flag {
-        font-size: 20px;
-      }
-
-
-      .country-count {
-        display: none;
-      }
     }
 
 
@@ -2495,21 +2332,26 @@
     /* Ook binnen CSS-grid moeten gefilterde zenders echt verborgen blijven. */
     #stations [hidden] { display: none !important; }
 
-    /* Drie zender-tabbladen, zonder wijzigingen aan de grote player. */
+    /* Vaste tabs: NL | NL Lokaal | BE. Favorieten staan in dezelfde balk. */
     .radio-country-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
-      padding: 5px;
+      position: relative;
       margin: 0 0 12px;
+      padding: 5px;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 17px;
     }
+    .radio-country-tab-list,
+    .radio-country-favorite-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
     .radio-country-tab {
       min-width: 0;
       min-height: 43px;
-      padding: 8px 10px;
+      width: 100%;
+      padding: 8px 35px 8px 10px;
       border: 0;
       border-radius: 12px;
       font-weight: 690;
@@ -2523,12 +2365,49 @@
       color: var(--text);
       box-shadow: inset 0 0 0 1px var(--border);
     }
-    .radio-country-tab:focus-visible {
+    .radio-country-favorite-list {
+      position: absolute;
+      inset: 5px;
+      pointer-events: none;
+    }
+    .radio-country-favorite {
+      pointer-events: auto;
+      justify-self: end;
+      align-self: center;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 34px;
+      margin-right: 3px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 19px;
+      opacity: .78;
+    }
+    .radio-country-favorite:hover,
+    .radio-country-favorite.active {
+      color: var(--accent);
+      opacity: 1;
+    }
+    .radio-country-tab:focus-visible,
+    .radio-country-favorite:focus-visible {
       outline: 2px solid var(--accent);
-      outline-offset: 2px;
+      outline-offset: 1px;
     }
     @media (max-width: 420px) {
-      .radio-country-tab { font-size: 12px; padding-inline: 5px; }
+      .radio-country-tab {
+        padding-left: 5px;
+        padding-right: 30px;
+        font-size: 12px;
+      }
+      .radio-country-favorite {
+        width: 28px;
+        margin-right: 2px;
+        font-size: 17px;
+      }
     }
     /* Alleen regionale zenderkaarten: provincie duidelijk zichtbaar. */
     .station-province {
@@ -3061,17 +2940,26 @@
     </section>
 
 
-    <nav id="radioCountryTabs" class="radio-country-tabs"
-         role="tablist" aria-label="Zenders per regio">
-      <button id="radioTab-NL" type="button" role="tab" class="radio-country-tab"
-              data-radio-tab="NL" aria-controls="radioPanel-NL"
-              aria-selected="true" tabindex="0">NL</button>
-      <button id="radioTab-BE" type="button" role="tab" class="radio-country-tab"
-              data-radio-tab="BE" aria-controls="radioPanel-BE"
-              aria-selected="false" tabindex="-1">BE</button>
-      <button id="radioTab-LOCAL_NL" type="button" role="tab" class="radio-country-tab"
-              data-radio-tab="LOCAL_NL" aria-controls="radioPanel-LOCAL_NL"
-              aria-selected="false" tabindex="-1">Lokaal NL</button>
+    <nav id="radioCountryTabs" class="radio-country-tabs" aria-label="Zendergroepen">
+      <div class="radio-country-tab-list" role="tablist" aria-label="Zenders per regio">
+        <button id="radioTab-NL" type="button" role="tab" class="radio-country-tab"
+                data-radio-tab="NL" aria-controls="radioPanel-NL"
+                aria-selected="true" tabindex="0">NL</button>
+        <button id="radioTab-LOCAL_NL" type="button" role="tab" class="radio-country-tab"
+                data-radio-tab="LOCAL_NL" aria-controls="radioPanel-LOCAL_NL"
+                aria-selected="false" tabindex="-1">NL Lokaal</button>
+        <button id="radioTab-BE" type="button" role="tab" class="radio-country-tab"
+                data-radio-tab="BE" aria-controls="radioPanel-BE"
+                aria-selected="false" tabindex="-1">BE</button>
+      </div>
+      <div class="radio-country-favorite-list" role="group" aria-label="Favoriete zendergroepen">
+        <button class="radio-country-favorite" type="button" data-country-favorite="NL"
+                aria-label="Nederland toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
+        <button class="radio-country-favorite" type="button" data-country-favorite="LOCAL_NL"
+                aria-label="NL Lokaal toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
+        <button class="radio-country-favorite" type="button" data-country-favorite="BE"
+                aria-label="België toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
+      </div>
     </nav>
 
     <section class="station-search" role="search" aria-label="Radiostations zoeken">
@@ -3297,15 +3185,15 @@ const COUNTRIES = [
   },
 
   {
-    code: "BE",
-    name: "België",
-    flag: "🇧🇪"
+    code: "LOCAL_NL",
+    name: "NL Lokaal",
+    flag: "📍"
   },
 
   {
-    code: "LOCAL_NL",
-    name: "Lokaal NL",
-    flag: "📍"
+    code: "BE",
+    name: "België",
+    flag: "🇧🇪"
   }
 
 ];
@@ -6519,23 +6407,10 @@ function getDisplayOrder() {
 
 
 function getVisibleDisplayOrder() {
-
-  return getCountryDisplayOrder()
-    .filter(
-      country =>
-        !collapsedCountries.has(
-          country.code
-        )
-    )
-    .flatMap(
-      country =>
-        getCountryOrder(
-          country.code
-        )
-    );
-
+  // Oude opgeslagen inklapkeuzes mogen geen zenders meer overslaan.
+  // De bestaande volgende/vorige-zenderbediening behoudt alle stations.
+  return getDisplayOrder();
 }
-
 
 function toggleFavorite(
   index
@@ -6597,40 +6472,25 @@ function toggleCountryFavorite(
 
 
   renderStations();
+  updateCountryFavoriteButtons();
 
 }
 
 
-function toggleCountryCollapsed(
-  code
-) {
-
-  if (
-    collapsedCountries.has(
-      code
-    )
-  ) {
-
-    collapsedCountries.delete(
-      code
-    );
-
+function updateCountryFavoriteButtons() {
+  for (const button of document.querySelectorAll("[data-country-favorite]")) {
+    const code = button.dataset.countryFavorite;
+    const country = COUNTRIES.find(item => item.code === code);
+    const active = favoriteCountries.has(code);
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+    button.textContent = active ? "★" : "☆";
+    if (country) {
+      button.setAttribute("aria-label", active
+        ? `${country.name} uit favorieten`
+        : `${country.name} toevoegen aan favorieten`);
+    }
   }
-
-  else {
-
-    collapsedCountries.add(
-      code
-    );
-
-  }
-
-
-  saveRadioPreference("radio-country-collapsed", JSON.stringify([...collapsedCountries]));
-
-
-  renderStations();
-
 }
 
 
@@ -6821,242 +6681,40 @@ function createStationCard(
 
 
 function renderStations() {
-  // Bouw zware lijsten buiten het document, voeg één keer toe.
+  // Alle groepen bestaan voor de zoekfunctie; tabs kiezen het zichtbare panel.
+  // Niet meer inklappen: alleen een tab selecteren is voldoende.
   const stationFragment = document.createDocumentFragment();
+  const storedTab = readRadioPreference("radio-country-tab");
+  const selectedTab = COUNTRIES.some(country => country.code === storedTab)
+    ? storedTab : "NL";
 
-
-  for (
-    const country
-    of getCountryDisplayOrder()
-  ) {
-
-    const items =
-      getCountryOrder(
-        country.code
-      );
-
-
-    const collapsed =
-      collapsedCountries.has(
-        country.code
-      );
-
-
-    const countryFavorite =
-      favoriteCountries.has(
-        country.code
-      );
-
-
-    const group =
-      document.createElement(
-        "section"
-      );
-
-
-    group.className =
-      "country-group";
-
-    // Landgroepen zijn de panels van de regiokeuze; favorieten,
-    // zoeken en inklappen blijven de bestaande functies gebruiken.
+  for (const country of COUNTRIES) {
+    const group = document.createElement("section");
+    group.className = "country-group";
     group.dataset.country = country.code;
     group.id = "radioPanel-" + country.code;
     group.setAttribute("role", "tabpanel");
     group.setAttribute("aria-labelledby", "radioTab-" + country.code);
+    group.hidden = country.code !== selectedTab;
 
+    const grid = document.createElement("div");
+    grid.className = "country-stations";
 
-    group.classList.toggle(
-      "collapsed",
-      collapsed
-    );
-
-
-    const header =
-      document.createElement(
-        "div"
-      );
-
-
-    header.className =
-      "country-header";
-
-
-    const toggle =
-      document.createElement(
-        "button"
-      );
-
-
-    toggle.type =
-      "button";
-
-
-    toggle.className =
-      "country-toggle";
-
-
-    toggle.setAttribute(
-      "aria-expanded",
-      collapsed
-        ? "false"
-        : "true"
-    );
-
-
-    toggle.innerHTML = `
-
-      <span class="country-flag">
-        ${country.flag}
-      </span>
-
-      <span class="country-title">
-        ${country.name}
-      </span>
-
-      <span class="country-count">
-        ${items.length} stations
-      </span>
-
-      <span class="country-chevron">
-        ▾
-      </span>
-
-    `;
-
-
-    toggle.addEventListener(
-      "click",
-      () => {
-
-        toggleCountryCollapsed(
-          country.code
-        );
-
-      }
-    );
-
-
-    const favorite =
-      document.createElement(
-        "button"
-      );
-
-
-    favorite.type =
-      "button";
-
-
-    favorite.className =
-      "country-favorite";
-
-
-    favorite.classList.toggle("active", countryFavorite);
-    favorite.setAttribute("aria-pressed", String(countryFavorite));
-
-
-    favorite.textContent =
-      countryFavorite
-        ? "★"
-        : "☆";
-
-
-    favorite.setAttribute(
-      "aria-label",
-
-      countryFavorite
-        ? `${country.name} uit favorieten`
-        : `${country.name} toevoegen aan favorieten`
-    );
-
-
-    favorite.addEventListener(
-      "click",
-      () => {
-
-        toggleCountryFavorite(
-          country.code
-        );
-
-      }
-    );
-
-
-    header.appendChild(
-      toggle
-    );
-
-
-    header.appendChild(
-      favorite
-    );
-
-
-    const grid =
-      document.createElement(
-        "div"
-      );
-
-
-    grid.className =
-      "country-stations";
-
-
-    grid.hidden =
-      collapsed;
-
-
-    for (
-      const {
-        station,
-        index
-      }
-      of items
-    ) {
-
-      grid.appendChild(
-        createStationCard(
-          station,
-          index
-        )
-      );
-
+    for (const {station, index} of getCountryOrder(country.code)) {
+      grid.appendChild(createStationCard(station, index));
     }
 
-
-    group.appendChild(
-      header
-    );
-
-
-    group.appendChild(
-      grid
-    );
-
-
+    group.appendChild(grid);
     stationFragment.appendChild(group);
-
   }
-
 
   stationsContainer.replaceChildren(stationFragment);
 
-  const favs =
-    favoriteIds.size;
-
-
-  const favoriteText =
-    favs === 1
-      ? "1 favoriet"
-      : `${favs} favorieten`;
-
-
+  // Geen aantallen radiostations meer in de kop; favorietenindicatie blijft.
+  const favs = favoriteIds.size;
   stationCount.textContent =
-    favs
-      ? `${stations.length} stations · ${favoriteText}`
-      : `${stations.length} stations`;
-
+    favs ? `${favs} ${favs === 1 ? "favoriet" : "favorieten"}` : "";
 }
-
 
 /* =========================================================
    TRACK UI
@@ -12255,8 +11913,8 @@ initialise();
 })();
 </script>
 
-<!-- De zoekfunctie filtert alleen bestaande zenderkaarten in de DOM.
-     Geen wijzigingen aan streams, metadata, trackinfo of renderStations(). -->
+<!-- Zenderzoeken over alle drie tabbladen; geen wijzigingen aan streams,
+     metadata of bestaande trackinfo. -->
 <script>
 (() => {
   const input = document.getElementById("stationSearchInput");
@@ -12265,11 +11923,13 @@ initialise();
   const stationsRoot = document.getElementById("stations");
 
   const tabs = [...document.querySelectorAll("[data-radio-tab]")];
-  const validTabs = new Set(["NL", "BE", "LOCAL_NL"]);
+  const countryFavoriteButtons = [...document.querySelectorAll("[data-country-favorite]")];
+  const validTabs = new Set(["NL", "LOCAL_NL", "BE"]);
   let activeTab = readRadioPreference("radio-country-tab");
   if (!validTabs.has(activeTab)) activeTab = "NL";
 
-  if (!input || !clear || !summary || !stationsRoot || tabs.length !== 3) return;
+  if (!input || !clear || !summary || !stationsRoot
+      || tabs.length !== 3 || countryFavoriteButtons.length !== 3) return;
 
   function updateTabs() {
     for (const tab of tabs) {
@@ -12307,6 +11967,12 @@ initialise();
       selectTab(tabs[next].dataset.radioTab);
     });
   }
+  for (const favorite of countryFavoriteButtons) {
+    favorite.addEventListener("click", () =>
+      toggleCountryFavorite(favorite.dataset.countryFavorite)
+    );
+  }
+  updateCountryFavoriteButtons();
   updateTabs();
 
   const normalise = (value) =>
@@ -12322,7 +11988,7 @@ initialise();
 
     for (const group of stationsRoot.querySelectorAll(".country-group")) {
       const country = normalise(
-        group.querySelector(".country-title")?.textContent
+        COUNTRIES.find(item => item.code === group.dataset.country)?.name
       );
       const entireCountry = Boolean(query && country.includes(query));
       const cards = group.querySelectorAll(".station");
@@ -12342,25 +12008,7 @@ initialise();
         : group.dataset.country !== activeTab;
       totalMatches += visible;
 
-      const count = group.querySelector(".country-count");
-      if (count) {
-        count.textContent = query
-          ? `${visible} van ${cards.length} stations`
-          : `${cards.length} stations`;
-      }
 
-      if (query) {
-        // Tijdelijk alle relevante groepen open; opgeslagen
-        // inklapvoorkeuren blijven volledig intact.
-        group.classList.remove("collapsed");
-        const grid = group.querySelector(".country-stations");
-        if (grid) grid.hidden = false;
-        const toggle = group.querySelector(".country-toggle");
-        if (toggle) {
-          toggle.disabled = true;
-          toggle.setAttribute("aria-expanded", "true");
-        }
-      }
     }
 
     clear.hidden = !input.value;
@@ -12369,12 +12017,12 @@ initialise();
       ? ""
       : totalMatches === 0
         ? "Geen radiostations gevonden"
-        : `${totalMatches} van ${stations.length} radiostations gevonden`;
+        : "Zoekresultaten uit alle zendergroepen";
   }
 
   input.addEventListener("input", () => {
     if (!normalise(input.value)) {
-      // renderStations herstelt de echte inklapstatus.
+      // renderStations herstelt het gekozen tabblad.
       renderStations();
     }
     applyFilter();
@@ -12411,8 +12059,8 @@ initialise();
     }
   });
 
-  // Favorieten, zenderwissels en landen genereren bestaande
-  // kaarten opnieuw. Dan wordt het filter opnieuw toegepast.
+  // Favorieten en zenderwissels genereren kaarten opnieuw.
+  // Pas daarna het tab-/zoekfilter opnieuw toe.
   const observer = new MutationObserver(applyFilter);
   observer.observe(stationsRoot, { childList: true });
   applyFilter();
