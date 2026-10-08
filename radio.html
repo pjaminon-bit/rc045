@@ -22,6 +22,13 @@
 
   <title>radio.</title>
 
+  <!-- PWA uitsluitend voor de radiopagina; overige RC045-pagina's blijven ongemoeid. -->
+  <link rel="manifest" href="/radio-manifest.json">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="radio.">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <script>
     (() => {
       try {
@@ -2342,6 +2349,156 @@
         animation: none;
       }
     }
+
+    /* =========================================================
+       ZENDERZOEKEN EN COMPACTE ZENDERLIJST
+       ========================================================= */
+
+    .station-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 5px 8px 5px 14px;
+      margin: 0 0 8px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      color: var(--muted);
+    }
+
+    .station-search svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+    }
+
+    .station-search-input {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      border: 0;
+      outline: 0;
+      padding: 8px 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+    }
+
+    .station-search-input::placeholder {
+      color: var(--muted);
+      opacity: 1;
+    }
+
+    .station-search:focus-within {
+      border-color: rgba(var(--accent-rgb), .65);
+      box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .12);
+    }
+
+    .station-search-clear {
+      appearance: none;
+      flex: 0 0 34px;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 9px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .station-search-clear:hover {
+      color: var(--text);
+      background: var(--panel-hover);
+    }
+
+    .station-search-clear[hidden],
+    .station-search-summary[hidden] {
+      display: none;
+    }
+
+    .station-search-summary {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+
+    .country-stations {
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 235px), 1fr)
+      );
+      gap: 9px;
+    }
+
+    .station-select {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 11px;
+      min-height: 66px;
+      padding: 9px 43px 9px 11px;
+    }
+
+    .station-logo-wrap {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 40px;
+      border-radius: 11px;
+    }
+
+    .station-name {
+      flex: 1;
+      min-width: 0;
+      width: auto;
+      margin-top: 0;
+      padding-right: 0;
+      line-height: 1.25;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
+
+    .favorite-button {
+      top: 50%;
+      right: 7px;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+    }
+
+    @media (max-width: 760px) {
+      .country-stations {
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(min(100%, 280px), 1fr)
+        );
+      }
+    }
+
+    @media (max-width: 420px) {
+      .station-select {
+        min-height: 62px;
+        padding: 8px 42px 8px 10px;
+      }
+
+      .station-logo-wrap {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+      }
+
+      .station-name {
+        font-size: 13px;
+      }
+    }
+
   </style>
 </head>
 
@@ -2878,6 +3035,24 @@
 
     </section>
 
+
+    <section class="station-search" role="search" aria-label="Radiostations zoeken">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <circle cx="10.8" cy="10.8" r="6.8"/>
+        <path d="m16 16 4.5 4.5"/>
+      </svg>
+      <input id="stationSearchInput" class="station-search-input"
+             type="search" placeholder="Zoek een zender in NL of BE…"
+             aria-label="Zoek radiostations" autocomplete="off"
+             spellcheck="false">
+      <button id="stationSearchClear" class="station-search-clear"
+              type="button" aria-label="Zoekopdracht wissen"
+              title="Zoekopdracht wissen" hidden>×</button>
+    </section>
+
+    <div id="stationSearchSummary" class="station-search-summary"
+         role="status" aria-live="polite" hidden></div>
 
     <section
       id="stations"
@@ -4069,27 +4244,29 @@ if (
 }
 
 
-const storedVolume =
-  Number(
-    localStorage.getItem(
-      "radio-volume"
-    )
-  );
+/* Lees pas een opgeslagen waarde als deze bestaat:
+   Number(null) werd 0 en zette het volume bij een eerste bezoek stil. */
+let savedVolume = null;
+let savedMuted = null;
 
+try {
+  savedVolume = localStorage.getItem("radio-volume");
+  savedMuted = localStorage.getItem("radio-muted");
+}
+catch {}
+
+const storedVolume =
+  savedVolume === null
+    ? .75
+    : Number(savedVolume);
 
 audio.volume =
-  Number.isFinite(
-    storedVolume
-  )
-    ? Math.max(
-        0,
-        Math.min(
-          1,
-          storedVolume
-        )
-      )
+  Number.isFinite(storedVolume)
+    ? Math.max(0, Math.min(1, storedVolume))
     : .75;
 
+audio.muted =
+  savedMuted === "true";
 
 volume.value =
   audio.volume;
@@ -7518,6 +7695,13 @@ muteButton.addEventListener(
     audio.muted =
       !audio.muted;
 
+    try {
+      localStorage.setItem(
+        "radio-muted",
+        String(audio.muted)
+      );
+    }
+    catch {}
 
     updateMuteUI();
 
@@ -7594,11 +7778,18 @@ volume.addEventListener(
       false;
 
 
-    localStorage.setItem(
-      "radio-volume",
-      audio.volume
-    );
+    try {
+      localStorage.setItem(
+        "radio-volume",
+        String(audio.volume)
+      );
 
+      localStorage.setItem(
+        "radio-muted",
+        "false"
+      );
+    }
+    catch {}
 
     updateMuteUI();
 
@@ -11666,6 +11857,137 @@ initialise();
   syncMiniPlayer();
 
 })();
+</script>
+
+<!-- De zoekfunctie filtert alleen bestaande zenderkaarten in de DOM.
+     Geen wijzigingen aan streams, metadata, trackinfo of renderStations(). -->
+<script>
+(() => {
+  const input = document.getElementById("stationSearchInput");
+  const clear = document.getElementById("stationSearchClear");
+  const summary = document.getElementById("stationSearchSummary");
+  const stationsRoot = document.getElementById("stations");
+
+  if (!input || !clear || !summary || !stationsRoot) return;
+
+  const normalise = (value) =>
+    String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("nl-NL")
+      .trim();
+
+  function applyFilter() {
+    const query = normalise(input.value);
+    let totalMatches = 0;
+
+    for (const group of stationsRoot.querySelectorAll(".country-group")) {
+      const country = normalise(
+        group.querySelector(".country-title")?.textContent
+      );
+      const entireCountry = Boolean(query && country.includes(query));
+      const cards = group.querySelectorAll(".station");
+      let visible = 0;
+
+      for (const card of cards) {
+        const name = normalise(
+          card.querySelector(".station-name")?.textContent
+        );
+        const matches = !query || entireCountry || name.includes(query);
+        card.hidden = !matches;
+        if (matches) visible++;
+      }
+
+      group.hidden = Boolean(query && visible === 0);
+      totalMatches += visible;
+
+      const count = group.querySelector(".country-count");
+      if (count) {
+        count.textContent = query
+          ? `${visible} van ${cards.length} stations`
+          : `${cards.length} stations`;
+      }
+
+      if (query) {
+        // Tijdelijk alle relevante groepen open; opgeslagen
+        // inklapvoorkeuren blijven volledig intact.
+        group.classList.remove("collapsed");
+        const grid = group.querySelector(".country-stations");
+        if (grid) grid.hidden = false;
+        const toggle = group.querySelector(".country-toggle");
+        if (toggle) {
+          toggle.disabled = true;
+          toggle.setAttribute("aria-expanded", "true");
+        }
+      }
+    }
+
+    clear.hidden = !input.value;
+    summary.hidden = !query;
+    summary.textContent = !query
+      ? ""
+      : totalMatches === 0
+        ? "Geen radiostations gevonden"
+        : `${totalMatches} van ${stations.length} radiostations gevonden`;
+  }
+
+  input.addEventListener("input", () => {
+    if (!normalise(input.value)) {
+      // renderStations herstelt de echte inklapstatus.
+      renderStations();
+    }
+    applyFilter();
+  });
+
+  clear.addEventListener("click", () => {
+    input.value = "";
+    renderStations();
+    applyFilter();
+    input.focus();
+  });
+
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && input.value) {
+      event.stopPropagation();
+      input.value = "";
+      renderStations();
+      applyFilter();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (
+      event.key === "/" &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey &&
+      !target?.isContentEditable &&
+      !["INPUT", "TEXTAREA", "SELECT"].includes(target?.tagName)
+    ) {
+      event.preventDefault();
+      input.focus();
+    }
+  });
+
+  // Favorieten, zenderwissels en landen genereren bestaande
+  // kaarten opnieuw. Dan wordt het filter opnieuw toegepast.
+  const observer = new MutationObserver(applyFilter);
+  observer.observe(stationsRoot, { childList: true });
+  applyFilter();
+})();
+</script>
+
+<script>
+if ("serviceWorker" in navigator && window.isSecureContext) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/radio-sw.js", {
+      scope: "/radio.html"
+    }).catch((error) => {
+      console.warn("Radio PWA niet geactiveerd:", error);
+    });
+  }, { once: true });
+}
 </script>
 
 </body>
