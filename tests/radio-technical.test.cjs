@@ -79,6 +79,31 @@ test('Licht/Donker: zonder voorkeur OS volgen, daarna handmatig bewaren', () => 
   assert.equal(buttons[0].attrs['aria-pressed'], 'true');
 });
 
+test('uitbreiding heeft 46 unieke zenders, met L1 en Brabant alleen in Lokaal NL', () => {
+  const text = html.slice(html.indexOf('const stations = ['), html.indexOf('/* =========================================================\n   ELEMENTS'));
+  const pairs = [...text.matchAll(/id: "([^"]+)",\s*country: "(NL|BE|LOCAL_NL)"/g)];
+  assert.equal(pairs.length, 46);
+  assert.equal(new Set(pairs.map(x => x[1])).size, 46);
+  const locally = pairs.filter(p => p[2] === 'LOCAL_NL').map(p => p[1]).sort();
+  assert.deepEqual(locally, ['l1radio', 'omroepbrabant']);
+  assert.equal(pairs.filter(p => p[2] === 'BE').length, 9);
+  assert.equal(pairs.filter(p => p[2] === 'NL').length, 35);
+  assert.match(text, /id: "kink80s"/);
+  assert.match(text, /id: "qeasynl"/);
+  assert.match(text, /id: "qenergynl"/);
+});
+
+test('NL / BE / Lokaal NL zijn echte toegankelijke tabs met zoek- en favorietenbehoud', () => {
+  const names = [...html.matchAll(/data-radio-tab="([^"]+)"/g)].map(x => x[1]);
+  assert.deepEqual(names, ['NL', 'BE', 'LOCAL_NL']);
+  assert.match(html, /role="tablist"/);
+  assert.match(html, /aria-selected="true"/);
+  assert.match(html, /aria-labelledby", "radioTab-"/);
+  assert.match(html, /saveRadioPreference\("radio-country-tab", code\)/);
+  assert.match(html, /group\.dataset\.country !== activeTab/);
+  assert.match(html, /renderStations\(\)/);
+});
+
 test('alle inline scripts zijn syntactisch geldig', () => {
   const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)]
     .filter(m => !m[1].includes('src='));
