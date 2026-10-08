@@ -25,7 +25,6 @@ reeds gerenderde informatie uit de grote player.
 10. Toetsenbord: Space op Play-knop veroorzaakt slechts één klik,
     pijltjes op volumeslider wisselen niet van station.
 11. Check afmetingen en scrollgedrag op 320/375/430/768/1440 px.
-12. Diagnosepaneel: fouten zichtbaar, geen URL's/trackgegevens, kopiëren veilig.
 
 Echte Safari-, AirPlay-, Bluetooth- en provider-failure-tests zijn **niet**
 automatisch uitgevoerd en vereisen handmatige controle.
