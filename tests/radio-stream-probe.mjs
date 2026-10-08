@@ -4,7 +4,12 @@ const urls = [
   ["Qmusic Energy", "https://streams.radio.dpgmedia.cloud/redirect/qnl_energy/mp3"],
   ["Radio Noordzee", "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR17.mp3"],
   ["L1 Radio", "https://d34pj260kw1xmk.cloudfront.net/icecast/l1/radio-bb-mp3"],
-  ["Omroep Brabant", "https://d3slqp9xhts6qb.cloudfront.net/icecast/omroepbrabant/mp3hq"]
+  ["Brabant A", "https://streaming.omroepbrabant.nl/mp3hq"],
+  ["Brabant B", "https://streaming.omroepbrabant.nl/mp3"],
+  ["Brabant C", "https://av.omroepbrabant.nl/icecast/omroepbrabant/mp3"],
+  ["Brabant D", "https://av.omroepbrabant.nl/icecast/omroepbrabant/mp3hq"],
+  ["Brabant E", "https://icecast.stream.bbvms.com/omroepbrabant-mp3hq"],
+  ["Brabant F", "https://icecast.stream.bbvms.com/omroepbrabant-mp3"]
 ];
 
 const checks = await Promise.all(urls.map(async ([name,url]) => {
@@ -27,7 +32,7 @@ const checks = await Promise.all(urls.map(async ([name,url]) => {
     return {name,ok:false,error:String(e)};
   } finally {clearTimeout(timeout);ac.abort()}
 }));
-if (checks.some(x=>!x.ok)) {
+if (checks.slice(0,5).some(x=>!x.ok) || !checks.slice(5).some(x=>x.ok)) {
   console.error("STREAM PROBE ERRORS:",checks.filter(x=>!x.ok).map(x=>x.name).join(", "));
   process.exitCode=1;
 } else {console.log("ALL PROBED STREAMS RETURNED AUDIO");}
