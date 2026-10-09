@@ -2183,23 +2183,34 @@
        ZENDERZOEKEN EN COMPACTE ZENDERLIJST
        ========================================================= */
 
-    .station-search {
+    .station-toolbar {
       display: flex;
       align-items: center;
-      gap: 10px;
-      min-height: 46px;
-      padding: 5px 8px 5px 14px;
-      margin: 0 0 8px;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 0 9px;
+    }
+
+    .station-search {
+      display: flex;
+      flex: 0 1 280px;
+      width: min(100%, 280px);
+      min-width: 0;
+      align-items: center;
+      gap: 9px;
+      min-height: 42px;
+      padding: 4px 8px 4px 12px;
+      margin: 0;
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 13px;
       color: var(--muted);
     }
 
     .station-search svg {
-      width: 18px;
-      height: 18px;
-      flex: 0 0 18px;
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
     }
 
     .station-search-input {
@@ -2208,11 +2219,11 @@
       width: 100%;
       border: 0;
       outline: 0;
-      padding: 8px 0;
+      padding: 7px 0;
       background: transparent;
       color: var(--text);
       font: inherit;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .station-search-input::placeholder {
@@ -2332,42 +2343,48 @@
     /* Ook binnen CSS-grid moeten gefilterde zenders echt verborgen blijven. */
     #stations [hidden] { display: none !important; }
 
-    /* Vaste tabs: NL | NL Lokaal | BE. Favorieten staan in dezelfde balk. */
+    /* Compacte tabs links, subtiele favorieten binnen hun eigen segment. */
     .radio-country-tabs {
       position: relative;
-      margin: 0 0 12px;
-      padding: 5px;
+      flex: 0 0 375px;
+      width: min(100%, 375px);
+      padding: 3px;
+      margin: 0;
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 17px;
+      border-radius: 14px;
     }
     .radio-country-tab-list,
     .radio-country-favorite-list {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
+      gap: 3px;
     }
     .radio-country-tab {
       min-width: 0;
-      min-height: 43px;
+      min-height: 40px;
       width: 100%;
-      padding: 8px 35px 8px 10px;
+      padding: 7px 32px 7px 9px;
       border: 0;
-      border-radius: 12px;
+      border-radius: 10px;
+      font-size: 13px;
       font-weight: 690;
       color: var(--muted);
       background: transparent;
       cursor: pointer;
       transition: background .16s ease, color .16s ease;
     }
-    .radio-country-tab[aria-selected="true"] {
+    .radio-country-tab:hover:not([aria-selected="true"]) {
       background: var(--panel-hover);
+    }
+    .radio-country-tab[aria-selected="true"] {
+      background: rgba(var(--accent-rgb), .075);
       color: var(--text);
-      box-shadow: inset 0 0 0 1px var(--border);
+      box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .24);
     }
     .radio-country-favorite-list {
       position: absolute;
-      inset: 5px;
+      inset: 3px;
       pointer-events: none;
     }
     .radio-country-favorite {
@@ -2376,16 +2393,17 @@
       align-self: center;
       display: grid;
       place-items: center;
-      width: 32px;
-      height: 34px;
-      margin-right: 3px;
+      width: 30px;
+      height: 36px;
+      margin-right: 2px;
+      padding: 0;
       border: 0;
-      border-radius: 9px;
+      border-radius: 8px;
       background: transparent;
       color: var(--muted);
       cursor: pointer;
-      font-size: 19px;
-      opacity: .78;
+      font-size: 15px;
+      opacity: .55;
     }
     .radio-country-favorite:hover,
     .radio-country-favorite.active {
@@ -2397,16 +2415,37 @@
       outline: 2px solid var(--accent);
       outline-offset: 1px;
     }
+
+    /* Pas onder tabletbreedte wordt de zoekbalk onder de tabs geplaatst. */
+    @media (max-width: 760px) {
+      .station-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .radio-country-tabs {
+        flex: none;
+        max-width: 100%;
+      }
+      .station-search {
+        flex: none;
+        width: min(100%, 320px);
+      }
+    }
     @media (max-width: 420px) {
+      .radio-country-tabs {
+        width: 100%;
+      }
       .radio-country-tab {
         padding-left: 5px;
-        padding-right: 30px;
+        padding-right: 29px;
         font-size: 12px;
       }
       .radio-country-favorite {
-        width: 28px;
-        margin-right: 2px;
-        font-size: 17px;
+        width: 27px;
+        height: 34px;
+        margin-right: 1px;
+        font-size: 14px;
       }
     }
     /* Alleen regionale zenderkaarten: provincie duidelijk zichtbaar. */
@@ -2940,42 +2979,45 @@
     </section>
 
 
-    <nav id="radioCountryTabs" class="radio-country-tabs" aria-label="Zendergroepen">
-      <div class="radio-country-tab-list" role="tablist" aria-label="Zenders per regio">
-        <button id="radioTab-NL" type="button" role="tab" class="radio-country-tab"
-                data-radio-tab="NL" aria-controls="radioPanel-NL"
-                aria-selected="true" tabindex="0">NL</button>
-        <button id="radioTab-LOCAL_NL" type="button" role="tab" class="radio-country-tab"
-                data-radio-tab="LOCAL_NL" aria-controls="radioPanel-LOCAL_NL"
-                aria-selected="false" tabindex="-1">NL Lokaal</button>
-        <button id="radioTab-BE" type="button" role="tab" class="radio-country-tab"
-                data-radio-tab="BE" aria-controls="radioPanel-BE"
-                aria-selected="false" tabindex="-1">BE</button>
-      </div>
-      <div class="radio-country-favorite-list" role="group" aria-label="Favoriete zendergroepen">
-        <button class="radio-country-favorite" type="button" data-country-favorite="NL"
-                aria-label="Nederland toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
-        <button class="radio-country-favorite" type="button" data-country-favorite="LOCAL_NL"
-                aria-label="NL Lokaal toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
-        <button class="radio-country-favorite" type="button" data-country-favorite="BE"
-                aria-label="België toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
-      </div>
-    </nav>
+    <!-- Compacte bediening: tabs links, zoekveld rechts. Zendergrid blijft volbreed. -->
+    <div class="station-toolbar">
+      <nav id="radioCountryTabs" class="radio-country-tabs" aria-label="Zendergroepen">
+        <div class="radio-country-tab-list" role="tablist" aria-label="Zenders per regio">
+          <button id="radioTab-NL" type="button" role="tab" class="radio-country-tab"
+                  data-radio-tab="NL" aria-controls="radioPanel-NL"
+                  aria-selected="true" tabindex="0">NL</button>
+          <button id="radioTab-LOCAL_NL" type="button" role="tab" class="radio-country-tab"
+                  data-radio-tab="LOCAL_NL" aria-controls="radioPanel-LOCAL_NL"
+                  aria-selected="false" tabindex="-1">NL Lokaal</button>
+          <button id="radioTab-BE" type="button" role="tab" class="radio-country-tab"
+                  data-radio-tab="BE" aria-controls="radioPanel-BE"
+                  aria-selected="false" tabindex="-1">BE</button>
+        </div>
+        <div class="radio-country-favorite-list" role="group" aria-label="Favoriete zendergroepen">
+          <button class="radio-country-favorite" type="button" data-country-favorite="NL"
+                  aria-label="Nederland toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
+          <button class="radio-country-favorite" type="button" data-country-favorite="LOCAL_NL"
+                  aria-label="NL Lokaal toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
+          <button class="radio-country-favorite" type="button" data-country-favorite="BE"
+                  aria-label="België toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
+        </div>
+      </nav>
 
-    <section class="station-search" role="search" aria-label="Radiostations zoeken">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-        <circle cx="10.8" cy="10.8" r="6.8"/>
-        <path d="m16 16 4.5 4.5"/>
-      </svg>
-      <input id="stationSearchInput" class="station-search-input"
-             type="search" placeholder="Zoek alle radiostations…"
-             aria-label="Zoek radiostations" autocomplete="off"
-             spellcheck="false">
-      <button id="stationSearchClear" class="station-search-clear"
-              type="button" aria-label="Zoekopdracht wissen"
-              title="Zoekopdracht wissen" hidden>×</button>
-    </section>
+      <section class="station-search" role="search" aria-label="Radiostations zoeken">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <circle cx="10.8" cy="10.8" r="6.8"/>
+          <path d="m16 16 4.5 4.5"/>
+        </svg>
+        <input id="stationSearchInput" class="station-search-input"
+               type="search" placeholder="Zoek radiostation…"
+               aria-label="Zoek radiostations" autocomplete="off"
+               spellcheck="false">
+        <button id="stationSearchClear" class="station-search-clear"
+                type="button" aria-label="Zoekopdracht wissen"
+                title="Zoekopdracht wissen" hidden>×</button>
+      </section>
+    </div>
 
     <div id="stationSearchSummary" class="station-search-summary"
          role="status" aria-live="polite" hidden></div>

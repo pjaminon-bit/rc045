@@ -246,6 +246,48 @@ test('vertraagde Windows-mediakaart van vorig station wordt bij opnieuw wisselen
   assert.equal(session.playbackState,'playing');
 });
 
+
+test('compacte radio-toolbar zet tabbladen links en zoeken rechts', () => {
+  const toolbar=part('<!-- Compacte bediening:', '<div id="stationSearchSummary"');
+  assert.match(toolbar, /class="station-toolbar"/);
+  assert.ok(toolbar.indexOf('id="radioCountryTabs"') < toolbar.indexOf('class="station-search"'));
+  assert.match(toolbar, /id="stationSearchInput"/);
+  assert.match(toolbar, /role="tablist"/);
+  assert.deepEqual([...toolbar.matchAll(/data-radio-tab="([^"]+)"/g)].map(m=>m[1]),
+    ['NL','LOCAL_NL','BE']);
+  assert.deepEqual([...toolbar.matchAll(/data-country-favorite="([^"]+)"/g)].map(m=>m[1]),
+    ['NL','LOCAL_NL','BE']);
+  assert.match(toolbar, /aria-pressed="false"/);
+  assert.match(toolbar, /Zoek radiostation…/);
+});
+
+test('compacte toolbar gebruikt begrensde breedte en mobiele stapeling', () => {
+  const css=part('/* =========================================================\n       ZENDERZOEKEN EN COMPACTE ZENDERLIJST',
+                 '</style>');
+  const toolbar=css.slice(css.indexOf('.station-toolbar {'),css.indexOf('.station-search svg {'));
+  assert.match(toolbar, /display: flex/);
+  assert.match(toolbar, /justify-content: space-between/);
+  assert.match(toolbar, /margin: 0 0 9px/);
+  assert.match(toolbar, /width: min\(100%, 280px\)/);
+  const nav=css.slice(css.indexOf('/* Compacte tabs links'),css.indexOf('/* Alleen regionale zenderkaarten'));
+  assert.match(nav, /flex: 0 0 375px/);
+  assert.match(nav, /width: min\(100%, 375px\)/);
+  assert.match(nav, /font-size: 15px/);
+  assert.match(nav, /background: rgba\(var\(--accent-rgb\), \.075\)/);
+  assert.match(nav, /@media \(max-width: 760px\)[\s\S]*?flex-direction: column/);
+  assert.match(nav, /width: min\(100%, 320px\)/);
+  assert.match(nav, /@media \(max-width: 420px\)/);
+});
+
+test('zenderkaarten houden het bestaande grid en breedte van vier kolommen', () => {
+  const css=part('/* =========================================================\n       ZENDERZOEKEN EN COMPACTE ZENDERLIJST',
+                 '</style>');
+  assert.match(css, /\.country-stations\s*\{\s*grid-template-columns: repeat\(\s*auto-fit,\s*minmax\(min\(100%, 235px\), 1fr\)/);
+  assert.match(css, /\.station-select\s*\{\s*flex-direction: row/);
+  assert.match(html, /class="station-groups"/);
+  assert.match(html, /grid\.className = "country-stations"/);
+});
+
 test('alle inline scripts zijn syntactisch geldig', () => {
   const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)]
     .filter(m => !m[1].includes('src='));
