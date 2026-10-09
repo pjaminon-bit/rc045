@@ -156,6 +156,96 @@ test('de originele 56 stations, metadata en programmaconfiguratie zijn beschermd
   }
 });
 
+
+function makeWindowsMediaSessionHarness() {
+  const events = new Map(), timers = new Map(), assignments = [];
+  let counter = 0;
+  const sessionState = {metadata: null, playbackState: 'none', setActionHandler() {}};
+  const session = new Proxy(sessionState, {
+    set(target,key,value) {
+      if (key === 'metadata') assignments.push(value);
+      target[key] = value;
+      return true;
+    }
+  });
+  const ctx = {
+    navigator:{mediaSession:session},
+    MediaMetadata: class { constructor(data) {Object.assign(this,data);} },
+    stations: [
+      {id:'3fm',name:'NPO 3FM',logo:'https://assets.example/3fm.png'},
+      {id:'stubru',name:'Studio Brussel',logo:'https://assets.example/stubru.png'}
+    ],
+    currentIndex:0, currentTrack:{artist:'Artiest van 3FM',title:'Titel van 3FM'},
+    currentProgram:'3FM programma',
+    audio: {paused:true, addEventListener(event,callback){events.set(event,callback);}},
+    isCasting(){return false;},
+    getStationLogo(station){return station.logo;},
+    window: {setTimeout(fn,ms){const id=++counter;timers.set(id,{fn,ms});return id;}},
+    clearTimeout(id){timers.delete(id);},
+    play(){},pause(){},nextStation(){},previousStation(){}
+  };
+  const source = part('let mediaSessionRefreshTimer = null;', '/* iOS Safari na BFCache');
+  const api = new Function('ctx','with(ctx){'+source+
+    '\nreturn {updateMediaSession,resetMediaSessionForStationChange};}')(ctx);
+  return {ctx,api,session,events,timers,assignments};
+}
+
+test('Windows Firefox lockscreen krijgt Studio Brussel in plaats van 3FM na afspelen', () => {
+  const testSession = makeWindowsMediaSessionHarness();
+  const {ctx,api,session,events,timers,assignments} = testSession;
+  api.updateMediaSession();
+  assert.equal(session.metadata.album,'NPO 3FM');
+  assert.equal(session.metadata.title,'Titel van 3FM');
+
+  ctx.currentIndex=1;
+  ctx.currentTrack={artist:'',title:''};
+  ctx.currentProgram='';
+  api.resetMediaSessionForStationChange();
+  assert.equal(assignments.at(-1),null);
+  assert.equal(session.playbackState,'none');
+
+  api.updateMediaSession();
+  assert.equal(session.metadata.title,'Studio Brussel');
+  assert.equal(session.metadata.artist,'Live radio');
+  assert.equal(session.metadata.album,'Studio Brussel');
+  assert.equal(session.metadata.artwork[0].src,'https://assets.example/stubru.png');
+
+  ctx.audio.paused=false;
+  events.get('play')();
+  events.get('playing')();
+  assert.equal(session.playbackState,'playing');
+  assert.equal(session.metadata.album,'Studio Brussel');
+  assert.equal(timers.size,1);
+  const [{fn,ms}]=[...timers.values()];
+  assert.equal(ms,400);
+  fn();
+  assert.equal(session.metadata.album,'Studio Brussel');
+  assert.equal(session.metadata.artwork[0].src,'https://assets.example/stubru.png');
+
+  ctx.audio.paused=true;
+  events.get('pause')();
+  assert.equal(session.playbackState,'paused');
+});
+
+test('vertraagde Windows-mediakaart van vorig station wordt bij opnieuw wisselen geannuleerd', () => {
+  const {ctx,api,session,events,timers}=makeWindowsMediaSessionHarness();
+  ctx.audio.paused=false;
+  events.get('playing')();
+  assert.equal(timers.size,1);
+
+  ctx.currentIndex=1;
+  ctx.currentTrack={artist:'',title:''};
+  ctx.currentProgram='';
+  api.resetMediaSessionForStationChange();
+  assert.equal(timers.size,0);
+  api.updateMediaSession();
+  events.get('playing')();
+  assert.equal(timers.size,1);
+  for (const {fn} of timers.values()) fn();
+  assert.equal(session.metadata.album,'Studio Brussel');
+  assert.equal(session.playbackState,'playing');
+});
+
 test('alle inline scripts zijn syntactisch geldig', () => {
   const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)]
     .filter(m => !m[1].includes('src='));

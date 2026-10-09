@@ -7080,6 +7080,9 @@ function selectStation(
   reconnectAttempts = 0;
   currentIndex = index;
 
+  // Maak de oude OS-mediakaart leeg voordat het nieuwe station verschijnt.
+  resetMediaSessionForStationChange();
+
 
   metadataGeneration++;
 
@@ -11092,6 +11095,63 @@ document.addEventListener("keydown", event => {
    MEDIA SESSION
    ========================================================= */
 
+/*
+ * Windows/Firefox synchronisatie voor wisselen van live streams.
+ * Trackproviders en hun eigen caching/validatie blijven ongewijzigd.
+ */
+let mediaSessionRefreshTimer = null;
+
+function setMediaSessionPlaybackState(state) {
+  if (!("mediaSession" in navigator)) return;
+  try {
+    navigator.mediaSession.playbackState = state;
+  } catch {
+    // Sommige browsers accepteren deze optionele property niet.
+  }
+}
+
+function resetMediaSessionForStationChange() {
+  if (!("mediaSession" in navigator)) return;
+
+  if (mediaSessionRefreshTimer !== null) {
+    clearTimeout(mediaSessionRefreshTimer);
+    mediaSessionRefreshTimer = null;
+  }
+
+  try {
+    navigator.mediaSession.metadata = null;
+  } catch {
+    // Meta-data reset wordt niet overal ondersteund.
+  }
+  setMediaSessionPlaybackState("none");
+}
+
+function publishMediaSessionForPlayingAudio() {
+  if (!("mediaSession" in navigator) || isCasting() || audio.paused) return;
+
+  updateMediaSession();
+  setMediaSessionPlaybackState("playing");
+
+  if (mediaSessionRefreshTimer !== null) {
+    clearTimeout(mediaSessionRefreshTimer);
+  }
+
+  // Firefox kan Windows SMTC ná het audio-'playing'-event activeren.
+  // Werk eenmalig opnieuw bij; nooit met de gegevens van een vorig station.
+  const stationId = stations[currentIndex].id;
+  mediaSessionRefreshTimer = window.setTimeout(() => {
+    mediaSessionRefreshTimer = null;
+    if (
+      stations[currentIndex].id !== stationId ||
+      isCasting() ||
+      audio.paused
+    ) return;
+
+    updateMediaSession();
+    setMediaSessionPlaybackState("playing");
+  }, 400);
+}
+
 function updateMediaSession() {
 
   if (
@@ -11216,6 +11276,20 @@ if (
     );
 
 }
+
+// De oorspronkelijke update bij selectStation() gebeurt vóór audio afspeelt.
+// Firefox/Windows heeft ook een publicatie na daadwerkelijke playback nodig.
+audio.addEventListener("play", () => {
+  if (!isCasting()) updateMediaSession();
+});
+
+audio.addEventListener("playing", publishMediaSessionForPlayingAudio);
+
+audio.addEventListener("pause", () => {
+  if (!isCasting() && audio.paused) {
+    setMediaSessionPlaybackState("paused");
+  }
+});
 
 
 /* iOS Safari na BFCache: visuele audio-UI synchroniseren zonder autoplay
