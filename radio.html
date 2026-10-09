@@ -2186,9 +2186,9 @@
     .station-toolbar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin: 0 0 9px;
+      justify-content: center;
+      gap: 12px;
+      margin: 0 0 10px;
     }
 
     .station-search {
@@ -2198,7 +2198,7 @@
       min-width: 0;
       align-items: center;
       gap: 9px;
-      min-height: 42px;
+      min-height: 44px;
       padding: 4px 8px 4px 12px;
       margin: 0;
       background: var(--panel);
@@ -2343,28 +2343,33 @@
     /* Ook binnen CSS-grid moeten gefilterde zenders echt verborgen blijven. */
     #stations [hidden] { display: none !important; }
 
-    /* Compacte tabs links, subtiele favorieten binnen hun eigen segment. */
+    /* Eén samenhangende bedieningsgroep: tabs, actieve groepsfavoriet, zoeken. */
     .radio-country-tabs {
-      position: relative;
-      flex: 0 0 375px;
-      width: min(100%, 375px);
+      flex: 0 1 370px;
+      width: min(100%, 370px);
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 3px;
       padding: 3px;
       margin: 0;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 14px;
     }
-    .radio-country-tab-list,
-    .radio-country-favorite-list {
+    .radio-country-tab-list {
+      flex: 1 1 auto;
+      min-width: 0;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 3px;
+      gap: 2px;
     }
     .radio-country-tab {
+      position: relative;
       min-width: 0;
-      min-height: 40px;
+      min-height: 36px;
       width: 100%;
-      padding: 7px 32px 7px 9px;
+      padding: 6px 5px;
       border: 0;
       border-radius: 10px;
       font-size: 13px;
@@ -2378,32 +2383,42 @@
       background: var(--panel-hover);
     }
     .radio-country-tab[aria-selected="true"] {
-      background: rgba(var(--accent-rgb), .075);
+      background: var(--panel-hover);
       color: var(--text);
-      box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .24);
+      box-shadow: inset 0 0 0 1px var(--border);
     }
-    .radio-country-favorite-list {
+    .radio-country-tab[aria-selected="true"]::after {
       position: absolute;
-      inset: 3px;
-      pointer-events: none;
+      content: "";
+      left: 30%;
+      right: 30%;
+      bottom: 3px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    .radio-country-favorite-wrap {
+      flex: 0 0 auto;
+      height: 28px;
+      padding-left: 3px;
+      border-left: 1px solid var(--border);
+      display: flex;
+      align-items: center;
     }
     .radio-country-favorite {
-      pointer-events: auto;
-      justify-self: end;
-      align-self: center;
       display: grid;
       place-items: center;
+      flex: 0 0 30px;
       width: 30px;
       height: 36px;
-      margin-right: 2px;
       padding: 0;
       border: 0;
-      border-radius: 8px;
+      border-radius: 9px;
       background: transparent;
       color: var(--muted);
       cursor: pointer;
-      font-size: 15px;
-      opacity: .55;
+      font-size: 17px;
+      opacity: .58;
     }
     .radio-country-favorite:hover,
     .radio-country-favorite.active {
@@ -2416,36 +2431,30 @@
       outline-offset: 1px;
     }
 
-    /* Pas onder tabletbreedte wordt de zoekbalk onder de tabs geplaatst. */
+    /* Compact en uitgelijnd; op telefoon beide knoppenrijen even breed. */
     @media (max-width: 760px) {
       .station-toolbar {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         gap: 8px;
       }
       .radio-country-tabs {
         flex: none;
-        max-width: 100%;
+        width: min(100%, 370px);
       }
       .station-search {
         flex: none;
-        width: min(100%, 320px);
+        width: min(100%, 370px);
       }
     }
     @media (max-width: 420px) {
-      .radio-country-tabs {
+      .radio-country-tabs,
+      .station-search {
         width: 100%;
       }
       .radio-country-tab {
-        padding-left: 5px;
-        padding-right: 29px;
+        padding: 6px 3px;
         font-size: 12px;
-      }
-      .radio-country-favorite {
-        width: 27px;
-        height: 34px;
-        margin-right: 1px;
-        font-size: 14px;
       }
     }
     /* Alleen regionale zenderkaarten: provincie duidelijk zichtbaar. */
@@ -2993,13 +3002,10 @@
                   data-radio-tab="BE" aria-controls="radioPanel-BE"
                   aria-selected="false" tabindex="-1">BE</button>
         </div>
-        <div class="radio-country-favorite-list" role="group" aria-label="Favoriete zendergroepen">
+        <div class="radio-country-favorite-wrap">
           <button class="radio-country-favorite" type="button" data-country-favorite="NL"
-                  aria-label="Nederland toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
-          <button class="radio-country-favorite" type="button" data-country-favorite="LOCAL_NL"
-                  aria-label="NL Lokaal toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
-          <button class="radio-country-favorite" type="button" data-country-favorite="BE"
-                  aria-label="België toevoegen aan favorieten" aria-pressed="false" title="Favoriete zendergroep">☆</button>
+                  aria-label="Nederland toevoegen aan favorieten" aria-pressed="false"
+                  title="Favoriet voor geselecteerde zendergroep">☆</button>
         </div>
       </nav>
 
@@ -6520,19 +6526,23 @@ function toggleCountryFavorite(
 
 
 function updateCountryFavoriteButtons() {
-  for (const button of document.querySelectorAll("[data-country-favorite]")) {
-    const code = button.dataset.countryFavorite;
-    const country = COUNTRIES.find(item => item.code === code);
-    const active = favoriteCountries.has(code);
-    button.classList.toggle("active", active);
-    button.setAttribute("aria-pressed", String(active));
-    button.textContent = active ? "★" : "☆";
-    if (country) {
-      button.setAttribute("aria-label", active
-        ? `${country.name} uit favorieten`
-        : `${country.name} toevoegen aan favorieten`);
-    }
-  }
+  // De ster bedient alleen de geselecteerde regio, maar bewaart de
+  // bestaande aparte favorieten van NL, NL Lokaal en BE ongewijzigd.
+  const button = document.querySelector("[data-country-favorite]");
+  if (!button) return;
+  const storedCode = readRadioPreference("radio-country-tab");
+  const code = COUNTRIES.some(country => country.code === storedCode)
+    ? storedCode : "NL";
+  const country = COUNTRIES.find(item => item.code === code);
+  const active = favoriteCountries.has(code);
+
+  button.dataset.countryFavorite = code;
+  button.classList.toggle("active", active);
+  button.setAttribute("aria-pressed", String(active));
+  button.textContent = active ? "★" : "☆";
+  button.setAttribute("aria-label", active
+    ? `${country.name} uit favorieten`
+    : `${country.name} toevoegen aan favorieten`);
 }
 
 
@@ -12045,7 +12055,7 @@ initialise();
   if (!validTabs.has(activeTab)) activeTab = "NL";
 
   if (!input || !clear || !summary || !stationsRoot
-      || tabs.length !== 3 || countryFavoriteButtons.length !== 3) return;
+      || tabs.length !== 3 || countryFavoriteButtons.length !== 1) return;
 
   function updateTabs() {
     for (const tab of tabs) {
@@ -12067,6 +12077,7 @@ initialise();
       renderStations();
     }
     updateTabs();
+    updateCountryFavoriteButtons();
     applyFilter();
   }
 
