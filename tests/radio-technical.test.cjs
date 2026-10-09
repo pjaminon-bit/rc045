@@ -246,6 +246,93 @@ test('vertraagde Windows-mediakaart van vorig station wordt bij opnieuw wisselen
   assert.equal(session.playbackState,'playing');
 });
 
+
+test('Windows Media Session werkt voor alle 56 x 55 mogelijke zenderwissels', () => {
+  // Gebruik de werkelijke, ongewijzigde stationslijst uit radio.html.
+  const stationDefinitions=vm.runInNewContext(
+    part('const stations = [', '/* =========================================================\n   ELEMENTS')+
+    '\nstations'
+  );
+  assert.equal(stationDefinitions.length,56);
+  assert.equal(new Set(stationDefinitions.map(station => station.id)).size,56);
+  const {ctx,api,session,events,timers,assignments}=makeWindowsMediaSessionHarness();
+  ctx.stations=stationDefinitions;
+  ctx.audio.paused=false;
+
+  let transitions=0;
+  for (let source=0;source<stationDefinitions.length;source++) {
+    for (let destination=0;destination<stationDefinitions.length;destination++) {
+      if(source===destination) continue;
+
+      // De huidige mediasessie bevat echte gegevens van een andere zender.
+      ctx.currentIndex=source;
+      ctx.currentTrack={artist:'Artist '+source,title:'Song '+source};
+      ctx.currentProgram='Program '+source;
+      api.updateMediaSession();
+      assert.equal(session.metadata.album,stationDefinitions[source].name);
+
+      // Zenderwissel: het oude album, artwork en track mogen niet terugkomen.
+      ctx.currentIndex=destination;
+      ctx.currentTrack={artist:'',title:''};
+      ctx.currentProgram='';
+      api.resetMediaSessionForStationChange();
+      assert.equal(assignments.at(-1),null);
+      assert.equal(session.playbackState,'none');
+      assert.equal(timers.size,0);
+
+      api.updateMediaSession();
+      assert.equal(session.metadata.album,stationDefinitions[destination].name);
+      assert.equal(session.metadata.title,stationDefinitions[destination].name);
+      assert.equal(session.metadata.artist,'Live radio');
+      if(stationDefinitions[destination].logo) {
+        assert.equal(session.metadata.artwork[0].src,stationDefinitions[destination].logo);
+      }
+
+      events.get('play')();
+      events.get('playing')();
+      assert.equal(session.playbackState,'playing');
+      assert.equal(timers.size,1);
+      const [timerId, {fn}]=timers.entries().next().value;
+      timers.delete(timerId); // Simuleer het uitvoeren van de echte browser-timer.
+      fn();
+      assert.equal(session.metadata.album,stationDefinitions[destination].name);
+      assert.equal(session.playbackState,'playing');
+      transitions++;
+    }
+  }
+  assert.equal(transitions,56*55);
+});
+
+test('Windows Media Session voorkomt achterblijvende data bij snel meervoudig wisselen', () => {
+  const definitions=vm.runInNewContext(
+    part('const stations = [', '/* =========================================================\n   ELEMENTS')+
+    '\nstations'
+  );
+  const {ctx,api,session,events,timers}=makeWindowsMediaSessionHarness();
+  ctx.stations=definitions;
+  ctx.audio.paused=false;
+
+  // Met datavertraging: trackinfo van het eerste station mag nooit als
+  // artwork/title/album van het laatste station gebruikt worden.
+  const positions=[0,12,20,35,55,3,42,1];
+  for (const index of positions) {
+    ctx.currentIndex=index;
+    api.resetMediaSessionForStationChange();
+    ctx.currentTrack={title:'',artist:''};
+    ctx.currentProgram='';
+    api.updateMediaSession();
+    events.get('playing')();
+    assert.equal(timers.size,1);
+  }
+  const [{fn}]=[...timers.values()];
+  fn();
+  assert.equal(session.metadata.title,definitions[1].name);
+  assert.equal(session.metadata.album,definitions[1].name);
+  assert.equal(session.playbackState,'playing');
+  assert.equal(timers.size,1);
+});
+
+
 test('alle inline scripts zijn syntactisch geldig', () => {
   const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)]
     .filter(m => !m[1].includes('src='));
