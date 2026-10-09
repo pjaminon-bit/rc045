@@ -285,7 +285,7 @@ test('zenderkaarten houden het bestaande grid en breedte van vier kolommen', () 
   assert.match(css, /\.country-stations\s*\{\s*grid-template-columns: repeat\(\s*auto-fit,\s*minmax\(min\(100%, 235px\), 1fr\)/);
   assert.match(css, /\.station-select\s*\{\s*flex-direction: row/);
   assert.match(html, /class="station-groups"/);
-  assert.match(html, /class="country-stations"/);
+  assert.match(html, /grid\.className = "country-stations"/);
 });
 
 test('alle inline scripts zijn syntactisch geldig', () => {
