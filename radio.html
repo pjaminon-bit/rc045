@@ -2186,15 +2186,15 @@
     .station-toolbar {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 12px;
-      margin: 0 0 10px;
+      justify-content: flex-start;
+      gap: 14px;
+      margin: 0 0 12px;
     }
 
     .station-search {
       display: flex;
-      flex: 0 1 280px;
-      width: min(100%, 280px);
+      flex: 0 1 275px;
+      width: min(100%, 275px);
       min-width: 0;
       align-items: center;
       gap: 9px;
@@ -2343,64 +2343,53 @@
     /* Ook binnen CSS-grid moeten gefilterde zenders echt verborgen blijven. */
     #stations [hidden] { display: none !important; }
 
-    /* Eén samenhangende bedieningsgroep: tabs, actieve groepsfavoriet, zoeken. */
+    /* Lijn de bediening uit met de eerste zenderkaart, zonder zwevend kader. */
     .radio-country-tabs {
-      flex: 0 1 370px;
-      width: min(100%, 370px);
-      min-width: 0;
       display: flex;
+      flex: 0 0 auto;
       align-items: center;
-      gap: 3px;
-      padding: 3px;
+      gap: 10px;
+      width: max-content;
+      max-width: 100%;
+      padding: 0;
       margin: 0;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
+      border: 0;
+      background: transparent;
     }
     .radio-country-tab-list {
-      flex: 1 1 auto;
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 5px;
       min-width: 0;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 2px;
     }
     .radio-country-tab {
-      position: relative;
-      min-width: 0;
-      min-height: 36px;
-      width: 100%;
-      padding: 6px 5px;
-      border: 0;
-      border-radius: 10px;
+      min-width: 52px;
+      min-height: 42px;
+      padding: 8px 14px;
+      border: 1px solid transparent;
+      border-radius: 12px;
       font-size: 13px;
-      font-weight: 690;
+      font-weight: 700;
       color: var(--muted);
       background: transparent;
       cursor: pointer;
-      transition: background .16s ease, color .16s ease;
+      white-space: nowrap;
+      transition: background .16s ease, color .16s ease, border-color .16s ease;
     }
     .radio-country-tab:hover:not([aria-selected="true"]) {
-      background: var(--panel-hover);
+      color: var(--text);
+      background: var(--panel);
     }
     .radio-country-tab[aria-selected="true"] {
       background: var(--panel-hover);
       color: var(--text);
-      box-shadow: inset 0 0 0 1px var(--border);
-    }
-    .radio-country-tab[aria-selected="true"]::after {
-      position: absolute;
-      content: "";
-      left: 30%;
-      right: 30%;
-      bottom: 3px;
-      height: 2px;
-      background: var(--accent);
-      border-radius: 2px;
+      border-color: var(--border);
     }
     .radio-country-favorite-wrap {
       flex: 0 0 auto;
-      height: 28px;
-      padding-left: 3px;
+      height: 26px;
+      padding-left: 10px;
       border-left: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -2408,17 +2397,17 @@
     .radio-country-favorite {
       display: grid;
       place-items: center;
-      flex: 0 0 30px;
-      width: 30px;
-      height: 36px;
+      flex: 0 0 32px;
+      width: 32px;
+      height: 40px;
       padding: 0;
       border: 0;
       border-radius: 9px;
       background: transparent;
       color: var(--muted);
       cursor: pointer;
-      font-size: 17px;
-      opacity: .58;
+      font-size: 18px;
+      opacity: .65;
     }
     .radio-country-favorite:hover,
     .radio-country-favorite.active {
@@ -2431,20 +2420,20 @@
       outline-offset: 1px;
     }
 
-    /* Compact en uitgelijnd; op telefoon beide knoppenrijen even breed. */
+    /* Vanaf tabletbreedte blijft alles links uitgelijnd. */
     @media (max-width: 760px) {
       .station-toolbar {
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
         gap: 8px;
       }
       .radio-country-tabs {
-        flex: none;
-        width: min(100%, 370px);
+        flex: 0 0 auto;
+        max-width: 100%;
       }
       .station-search {
         flex: none;
-        width: min(100%, 370px);
+        width: min(100%, 340px);
       }
     }
     @media (max-width: 420px) {
@@ -2452,8 +2441,14 @@
       .station-search {
         width: 100%;
       }
+      .radio-country-tab-list {
+        flex: 1 1 auto;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
       .radio-country-tab {
-        padding: 6px 3px;
+        min-width: 0;
+        padding: 8px 4px;
         font-size: 12px;
       }
     }
