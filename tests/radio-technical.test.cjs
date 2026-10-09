@@ -291,19 +291,21 @@ test('navigatie en zoekfunctie vormen een compacte, gecentreerde bedieningsgroep
   assert.match(toolbar,/Zoek radiostation…/);
 });
 
-test('de twee bedieningselementen staan bij elkaar en zijn mobiel gelijk uitgelijnd', () => {
+test('navigatie en zoeken zijn links verankerd aan zendergrid zonder zwevend kader', () => {
   const css=part('/* =========================================================\n       ZENDERZOEKEN EN COMPACTE ZENDERLIJST','</style>');
   const row=css.slice(css.indexOf('.station-toolbar {'),css.indexOf('.station-search svg {'));
-  assert.match(row,/justify-content: center/);
-  assert.doesNotMatch(row,/justify-content: space-between/);
-  assert.match(row,/gap: 12px/);
-  assert.match(row,/width: min\(100%, 280px\)/);
-  const nav=css.slice(css.indexOf('/* Eén samenhangende bedieningsgroep'),css.indexOf('/* Alleen regionale zenderkaarten'));
-  assert.match(nav,/flex: 0 1 370px/);
-  assert.match(nav,/width: min\(100%, 370px\)/);
-  assert.match(nav,/class|\.radio-country-favorite-wrap/);
-  assert.match(nav,/background: var\(--panel-hover\)/);
-  assert.match(nav,/@media \(max-width: 760px\)[\s\S]*?flex-direction: column/);
+  assert.match(row,/justify-content: flex-start/);
+  assert.doesNotMatch(row,/justify-content: (?:center|space-between)/);
+  assert.match(row,/gap: 14px/);
+  assert.match(row,/width: min\(100%, 275px\)/);
+  const nav=css.slice(css.indexOf('/* Lijn de bediening uit met de eerste zenderkaart'),css.indexOf('/* Alleen regionale zenderkaarten'));
+  assert.match(nav,/width: max-content/);
+  assert.match(nav,/background: transparent/);
+  assert.match(nav,/\.radio-country-tab-list\s*\{\s*display: flex/);
+  assert.match(nav,/\.radio-country-tab\[aria-selected="true"\]/);
+  assert.doesNotMatch(nav,/\.radio-country-tab\[aria-selected="true"\]::after/);
+  assert.match(nav,/@media \(max-width: 760px\)[\s\S]*?align-items: flex-start/);
+  assert.match(nav,/@media \(max-width: 420px\)[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(nav,/\.radio-country-tabs,\s*\.station-search\s*\{\s*width: 100%/);
 });
 
