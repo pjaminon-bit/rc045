@@ -133,17 +133,49 @@ test('zendergroepen zijn direct zichtbaar en niet meer uitklapbaar', () => {
   assert.doesNotMatch(html, /van \$\{stations\.length\} radiostations/);
 });
 
-test('drie vaste tabs met afzonderlijke toegankelijke favorietsterren', () => {
+test('drie tabs en één contextafhankelijke favorietster zonder gegevensverlies', () => {
   const labels = [...html.matchAll(/data-radio-tab="(NL|BE|LOCAL_NL)"[^>]*>([^<]+)<\/button>/g)]
     .map(match => [match[1], match[2].trim()]);
   assert.deepEqual(labels, [['NL', 'NL'], ['LOCAL_NL', 'NL Lokaal'], ['BE', 'BE']]);
-  const favorites = [...html.matchAll(/data-country-favorite="([^"]+)"/g)].map(m => m[1]);
-  assert.deepEqual(favorites, ['NL', 'LOCAL_NL', 'BE']);
-  assert.match(html, /role="tablist"/);
-  assert.match(html, /role="group" aria-label="Favoriete zendergroepen"/);
+  assert.deepEqual([...html.matchAll(/data-country-favorite="([^"]+)"/g)].map(m => m[1]),['NL']);
+  assert.match(html, /class="radio-country-favorite-wrap"/);
   assert.match(html, /saveRadioPreference\("radio-country-favorites"/);
   assert.match(html, /toggleCountryFavorite\(favorite\.dataset\.countryFavorite\)/);
   assert.match(html, /updateCountryFavoriteButtons\(\)/);
+
+  // De ster verandert van regio, maar de volledige Set met
+  // opgeslagen favoriete landen blijft bestaan.
+  const code=part('function updateCountryFavoriteButtons()',
+    '/* =========================================================\n   RENDER STATIONS');
+  const storage=new Map([['radio-country-tab','NL']]);
+  const button={
+    dataset:{countryFavorite:'NL'},
+    attrs:{},
+    textContent:'',
+    classList:{toggle(){}},
+    setAttribute(key,value){this.attrs[key]=value;}
+  };
+  const favorites=new Set(['NL','BE']);
+  const context={
+    document:{querySelector(){return button;}},
+    favoriteCountries:favorites,
+    COUNTRIES:[{code:'NL',name:'Nederland'},{code:'LOCAL_NL',name:'NL Lokaal'},{code:'BE',name:'België'}],
+    readRadioPreference(key){return storage.get(key)||null;}
+  };
+  const update=new Function('ctx','with(ctx){'+code+
+    '\nreturn updateCountryFavoriteButtons;}')(context);
+  update();
+  assert.equal(button.dataset.countryFavorite,'NL');
+  assert.equal(button.attrs['aria-pressed'],'true');
+  storage.set('radio-country-tab','LOCAL_NL');
+  update();
+  assert.equal(button.dataset.countryFavorite,'LOCAL_NL');
+  assert.equal(button.attrs['aria-pressed'],'false');
+  storage.set('radio-country-tab','BE');
+  update();
+  assert.equal(button.dataset.countryFavorite,'BE');
+  assert.equal(button.attrs['aria-pressed'],'true');
+  assert.deepEqual([...favorites].sort(),['BE','NL']);
 });
 
 test('de originele 56 stations, metadata en programmaconfiguratie zijn beschermd', () => {
@@ -247,36 +279,32 @@ test('vertraagde Windows-mediakaart van vorig station wordt bij opnieuw wisselen
 });
 
 
-test('compacte radio-toolbar zet tabbladen links en zoeken rechts', () => {
+test('navigatie en zoekfunctie vormen een compacte, gecentreerde bedieningsgroep', () => {
   const toolbar=part('<!-- Compacte bediening:', '<div id="stationSearchSummary"');
   assert.match(toolbar, /class="station-toolbar"/);
   assert.ok(toolbar.indexOf('id="radioCountryTabs"') < toolbar.indexOf('class="station-search"'));
-  assert.match(toolbar, /id="stationSearchInput"/);
-  assert.match(toolbar, /role="tablist"/);
+  assert.match(toolbar,/id="stationSearchInput"/);
   assert.deepEqual([...toolbar.matchAll(/data-radio-tab="([^"]+)"/g)].map(m=>m[1]),
     ['NL','LOCAL_NL','BE']);
-  assert.deepEqual([...toolbar.matchAll(/data-country-favorite="([^"]+)"/g)].map(m=>m[1]),
-    ['NL','LOCAL_NL','BE']);
-  assert.match(toolbar, /aria-pressed="false"/);
-  assert.match(toolbar, /Zoek radiostation…/);
+  assert.equal([...toolbar.matchAll(/class="radio-country-favorite"/g)].length,1);
+  assert.match(toolbar,/class="radio-country-favorite-wrap"/);
+  assert.match(toolbar,/Zoek radiostation…/);
 });
 
-test('compacte toolbar gebruikt begrensde breedte en mobiele stapeling', () => {
-  const css=part('/* =========================================================\n       ZENDERZOEKEN EN COMPACTE ZENDERLIJST',
-                 '</style>');
-  const toolbar=css.slice(css.indexOf('.station-toolbar {'),css.indexOf('.station-search svg {'));
-  assert.match(toolbar, /display: flex/);
-  assert.match(toolbar, /justify-content: space-between/);
-  assert.match(toolbar, /margin: 0 0 9px/);
-  assert.match(toolbar, /width: min\(100%, 280px\)/);
-  const nav=css.slice(css.indexOf('/* Compacte tabs links'),css.indexOf('/* Alleen regionale zenderkaarten'));
-  assert.match(nav, /flex: 0 0 375px/);
-  assert.match(nav, /width: min\(100%, 375px\)/);
-  assert.match(nav, /font-size: 15px/);
-  assert.match(nav, /background: rgba\(var\(--accent-rgb\), \.075\)/);
-  assert.match(nav, /@media \(max-width: 760px\)[\s\S]*?flex-direction: column/);
-  assert.match(nav, /width: min\(100%, 320px\)/);
-  assert.match(nav, /@media \(max-width: 420px\)/);
+test('de twee bedieningselementen staan bij elkaar en zijn mobiel gelijk uitgelijnd', () => {
+  const css=part('/* =========================================================\n       ZENDERZOEKEN EN COMPACTE ZENDERLIJST','</style>');
+  const row=css.slice(css.indexOf('.station-toolbar {'),css.indexOf('.station-search svg {'));
+  assert.match(row,/justify-content: center/);
+  assert.doesNotMatch(row,/justify-content: space-between/);
+  assert.match(row,/gap: 12px/);
+  assert.match(row,/width: min\(100%, 280px\)/);
+  const nav=css.slice(css.indexOf('/* Eén samenhangende bedieningsgroep'),css.indexOf('/* Alleen regionale zenderkaarten'));
+  assert.match(nav,/flex: 0 1 370px/);
+  assert.match(nav,/width: min\(100%, 370px\)/);
+  assert.match(nav,/class|\.radio-country-favorite-wrap/);
+  assert.match(nav,/background: var\(--panel-hover\)/);
+  assert.match(nav,/@media \(max-width: 760px\)[\s\S]*?flex-direction: column/);
+  assert.match(nav,/\.radio-country-tabs,\s*\.station-search\s*\{\s*width: 100%/);
 });
 
 test('zenderkaarten houden het bestaande grid en breedte van vier kolommen', () => {
