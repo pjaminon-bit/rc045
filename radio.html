@@ -7377,8 +7377,9 @@ async function updateTrackArtwork(artist, title) {
     const result = safeArtworkResult(data);
     artworkCache.set(key, {
       result,
-      expires: Date.now() + (result ? 24 * 3600000 :
-        (data.status === "temporary_error" ? 30000 : 30 * 60000))
+      expires: Date.now() + (result
+        ? (result.kind === "artist" ? 30 * 60000 : 24 * 3600000)
+        : (data.status === "temporary_error" ? 30000 : 30 * 60000))
     });
     if (artworkCache.size > 80) {
       artworkCache.delete(artworkCache.keys().next().value);
