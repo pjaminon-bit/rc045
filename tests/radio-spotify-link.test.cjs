@@ -33,6 +33,8 @@ function harness() {
     appleMusicTrackLink: element(), deezerTrackLink: element(),
     tidalTrackLink: element(), wikipediaGeneration: 0,
     currentTrack: {artist:'', title:''}, currentTrackUpdatedAt: 0,
+    // Artwork is apart getest; deze fixture beoordeelt uitsluitend muzieklinks.
+    albumArtEnabled: false,
     blocked: false, mediaUpdates: 0, wikiUpdates: 0,
     isContentSuppressed() { return ctx.blocked; },
     cleanText(s) { return String(s || '').trim(); },
