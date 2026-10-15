@@ -3275,17 +3275,26 @@
     }
 
 
-    /* iOS Safari: geen niet-functionele HTMLMediaElement.volume-slider tonen.
-       Chromecast via hetzelfde menu blijft met de schuif bedienbaar. */
-    .volume-device-hint {
-      flex: 1 1 auto;
-      display: flex;
-      align-items: center;
-      min-width: 0;
-      padding: 4px 2px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.25;
+    /* Op iOS is systeemvolume niet zichtbaar voor JavaScript.
+       Toon daarom een compacte, gecentreerde iconenbalk in plaats van
+       een slider of een tekst die zonder context in de weg staat.
+       Bij Chromecast vervalt deze klasse en komt de slider terug. */
+    .control-row.native-volume-mode {
+      width: fit-content;
+      max-width: 100%;
+      justify-content: center;
+      gap: 0;
+      margin-inline: auto;
+      padding: 5px 7px;
+    }
+    .control-row.native-volume-mode .volume-group {
+      flex: 0 0 auto;
+      width: auto;
+      gap: 0;
+    }
+    .control-row.native-volume-mode .utility-group {
+      margin-left: 4px;
+      padding-left: 6px;
     }
 
   </style>
@@ -3654,10 +3663,6 @@
                 >
 
               </div>
-
-              <span id="volumeDeviceHint" class="volume-device-hint"
-                    title="Regel het volume met de volumeknoppen van je iPhone of iPad"
-                    hidden>Volume via toestel</span>
 
               </div><!-- volume-group -->
 
@@ -5704,7 +5709,7 @@ audio.muted = savedMuted === "true" || localVolume === 0;
 volume.value = localVolume;
 
 const volumeSlider = document.getElementById("volumeSlider");
-const volumeDeviceHint = document.getElementById("volumeDeviceHint");
+const volumeControlRow = volumeSlider.closest(".control-row");
 
 
 let metadataGeneration = 0;
@@ -9115,8 +9120,9 @@ function updateVolumeBar() {
 
   /* iOS Safari blokkeert lokale volumewijzigingen via HTMLMediaElement.volume.
      Toon geen schuif die niets doet. Chromecast-volume blijft wél regelbaar. */
-  volumeSlider.hidden = iosNativeVolume && !casting;
-  volumeDeviceHint.hidden = !iosNativeVolume || casting;
+  const nativeVolumeMode = iosNativeVolume && !casting;
+  volumeSlider.hidden = nativeVolumeMode;
+  volumeControlRow.classList.toggle("native-volume-mode", nativeVolumeMode);
 }
 
 muteButton.addEventListener("click", () => {
