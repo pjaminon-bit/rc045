@@ -48,7 +48,8 @@ if ($artist === '' || $title === '' || strlen($artist) < 2 || strlen($title) < 2
 require_once __DIR__ . '/radio-artwork-release-select.php';
 
 /** Per request work budget; trackinfo and radio playback are independent. */
-$GLOBALS['artworkDeadline'] = microtime(true) + 11;
+// Reserve a separate Wikimedia budget when MusicBrainz/CAA exhaust their time.
+$GLOBALS['artworkDeadline'] = microtime(true) + 14;
 $GLOBALS['artworkTemporaryFailure'] = false;
 $GLOBALS['artworkCounters'] = array('musicbrainz'=>0,'cover_checks'=>0);
 
@@ -287,74 +288,103 @@ function findAlbumArtwork($artist,$title,$cacheDir) {
 
 /** Artist photo only if Wikipedia resolves to the given artist and Commons
  * reports a freely licensed file. Avoid Wikipedia's non-free local images. */
-function findArtistArtwork($artist) {
-    $url = 'https://en.wikipedia.org/w/api.php?' . http_build_query(array(
-        'action' => 'query',
-        'format' => 'json',
-        'formatversion' => 2,
-        'redirects' => 1,
-        'titles' => $artist,
-        'prop' => 'pageimages',
-        'piprop' => 'thumbnail',
-        'pithumbsize' => 500
-    ), '', '&', PHP_QUERY_RFC3986);
-    $data = jsonArtworkRequest($url, 4);
-    $page = $data['query']['pages'][0] ?? array();
-    $src = $page['thumbnail']['source'] ?? '';
-    if (!matchArtworkName($page['title'] ?? '', $artist) ||
-        !is_string($src) ||
-        strpos($src, 'https://upload.wikimedia.org/wikipedia/commons/') !== 0) {
-        return null;
-    }
-    $path = parse_url($src, PHP_URL_PATH);
-    $parts = explode('/', (string)$path);
-    $thumb = array_search('thumb', $parts, true);
-    if ($thumb === false || count($parts) <= $thumb + 3) return null;
-    $filename = rawurldecode($parts[$thumb + 3]);
-    if (!preg_match('/\.(?:png|jpe?g|webp)$/i', $filename)) return null;
+require_once __DIR__ . '/radio-artwork-photo-select.php';
 
-    $infoUrl = 'https://commons.wikimedia.org/w/api.php?' . http_build_query(array(
-        'action' => 'query',
-        'format' => 'json',
-        'formatversion' => 2,
-        'titles' => 'File:' . $filename,
-        'prop' => 'imageinfo',
-        'iiprop' => 'extmetadata|url'
-    ), '', '&', PHP_QUERY_RFC3986);
-    $imageData = jsonArtworkRequest($infoUrl, 4);
-    $imageInfo = $imageData['query']['pages'][0]['imageinfo'][0] ?? array();
-    $licenseName = trim(html_entity_decode(strip_tags((string)(
-        $imageInfo['extmetadata']['LicenseShortName']['value'] ?? ''
-    )), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-    $license = strtolower($licenseName);
-    if (!preg_match('/^(?:cc ?(?:by|0)|public domain|pdm)/i', $license)) return null;
-    $rawArtist = $imageInfo['extmetadata']['Artist']['value'] ??
-        ($imageInfo['extmetadata']['Attribution']['value'] ?? '');
-    $photoAuthor = trim((string) preg_replace('/\\s+/', ' ',
-        html_entity_decode(strip_tags((string)$rawArtist), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
-    // Bij CC BY-varianten kan verplichte auteursvermelding niet worden weggelaten.
-    if (strpos($license, 'cc by') === 0 && $photoAuthor === '') return null;
-    $photoAuthor = substr($photoAuthor, 0, 65);
-    $description = $imageInfo['descriptionurl'] ?? '';
-    if (!is_string($description) ||
-        strpos($description, 'https://commons.wikimedia.org/wiki/File:') !== 0) {
-        return null;
+/** Two trusted Wikipedia languages, both requiring a verified Commons license.
+ * The second language is queried only if the first cannot produce an image.
+ */
+function findArtistArtwork($artist) {
+    foreach (array('en', 'nl') as $language) {
+        if (!artworkWithinBudget(1.1)) break;
+        $wikiHost = $language === 'en' ? 'https://en.wikipedia.org/w/api.php'
+            : 'https://nl.wikipedia.org/w/api.php';
+        $url = $wikiHost . '?' . http_build_query(array(
+            'action' => 'query', 'format' => 'json', 'formatversion' => 2,
+            'redirects' => 1, 'titles' => $artist,
+            'prop' => 'pageimages', 'piprop' => 'thumbnail', 'pithumbsize' => 500
+        ), '', '&', PHP_QUERY_RFC3986);
+        $data = jsonArtworkRequest($url, 2.3);
+        $page = $data['query']['pages'][0] ?? array();
+        if (!artworkWikipediaTitleMatchesArtist($page['title'] ?? '', $artist)) continue;
+        $filename = artworkCommonsFilename($page['thumbnail']['source'] ?? '');
+        if (!$filename || !artworkWithinBudget(1.0)) continue;
+
+        $infoUrl = 'https://commons.wikimedia.org/w/api.php?' . http_build_query(array(
+            'action' => 'query', 'format' => 'json', 'formatversion' => 2,
+            'titles' => 'File:' . $filename,
+            'prop' => 'imageinfo', 'iiprop' => 'extmetadata|url'
+        ), '', '&', PHP_QUERY_RFC3986);
+        $imageData = jsonArtworkRequest($infoUrl, 2.3);
+        $imageInfo = $imageData['query']['pages'][0]['imageinfo'][0] ?? array();
+        $photo = artworkLicensedArtistPhoto($artist, $page, $imageInfo);
+        if ($photo) return $photo;
     }
-    return array(
-        'image' => $src,
-        'kind' => 'artist',
-        'creditUrl' => $description,
-        'creditLabel' => 'Foto: ' . ($photoAuthor !== '' ? $photoAuthor : 'Wikimedia Commons') .
-            ' · ' . $licenseName
-    );
+    return null;
+}
+
+/** Reuse licensed artist photographs across tracks, stations and visitors.
+ * Never cache actual copyrighted image bytes on the site.
+ */
+function cachedArtistArtwork($artist, $cacheDir) {
+    if (!is_dir($cacheDir)) return findArtistArtwork($artist);
+    $file = $cacheDir . '/artist-' . hash('sha256', normalArtworkName($artist)) . '.json';
+    $read = function() use ($file) {
+        return is_file($file) ? json_decode((string)@file_get_contents($file), true) : null;
+    };
+    $cached = $read();
+    if (is_array($cached) && (int)($cached['expires'] ?? 0) > time()) {
+        if (($cached['status'] ?? '') === 'temporary_error') $GLOBALS['artworkTemporaryFailure'] = true;
+        return $cached['result'] ?? null;
+    }
+    $lock = @fopen($file . '.lock', 'c');
+    if ($lock) {
+        $acquired = false;
+        $started = microtime(true);
+        do {
+            $acquired = flock($lock, LOCK_EX | LOCK_NB);
+            if ($acquired) break;
+            usleep(50000);
+        } while (microtime(true) - $started < 0.65 && artworkWithinBudget(1.0));
+        if (!$acquired) {
+            fclose($lock);
+            // Concurrent callers do not create a burst of Wikimedia requests.
+            $GLOBALS['artworkTemporaryFailure'] = true;
+            return $cached['result'] ?? null;
+        }
+        $cached = $read();
+        if (is_array($cached) && (int)($cached['expires'] ?? 0) > time()) {
+            flock($lock, LOCK_UN); fclose($lock);
+            if (($cached['status'] ?? '') === 'temporary_error') $GLOBALS['artworkTemporaryFailure'] = true;
+            return $cached['result'] ?? null;
+        }
+    }
+
+    $previousError = !empty($GLOBALS['artworkTemporaryFailure']);
+    $GLOBALS['artworkTemporaryFailure'] = false;
+    $photo = findArtistArtwork($artist);
+    $photoError = !empty($GLOBALS['artworkTemporaryFailure']);
+    $GLOBALS['artworkTemporaryFailure'] = $previousError || $photoError;
+    $status = $photo ? 'ok' : ($photoError ? 'temporary_error' : 'not_found');
+    $ttl = $photo ? 12 * 3600 : ($photoError ? 30 : 45 * 60);
+    $payload = json_encode(array(
+        'expires' => time() + $ttl, 'status' => $status, 'result' => $photo
+    ));
+    $temp = @tempnam($cacheDir, 'photo-');
+    if ($temp && @file_put_contents($temp, $payload, LOCK_EX) !== false) @rename($temp, $file);
+    elseif ($temp) @unlink($temp);
+    if ($lock) {flock($lock, LOCK_UN);fclose($lock);}
+    return $photo;
 }
 
 // Shared, server-side cache. Key is independent of radio station and visitor.
 // Bump the namespace to invalidate older incorrect matches and six-hour errors.
-$dir = rtrim(sys_get_temp_dir(),'/').'/rc045-radio-artwork-v5';
+$dir = rtrim(sys_get_temp_dir(),'/').'/rc045-radio-artwork-v6';
 if (!is_dir($dir)) @mkdir($dir,0700,true);
-$hash=hash('sha256',normalArtworkName($artist).'|'.normalArtworkName($title).
-    '|'.artworkVersion($title));
+$artistOnly = ($_GET['fallback'] ?? '') === 'artist';
+$hash = $artistOnly
+    ? hash('sha256', 'photo-only|' . normalArtworkName($artist))
+    : hash('sha256', normalArtworkName($artist).'|'.normalArtworkName($title).
+        '|'.artworkVersion($title));
 $file=$dir.'/'.$hash.'.json';
 $lock=@fopen($file.'.lock','c');
 $cached=is_file($file) ? json_decode((string)@file_get_contents($file),true) : null;
@@ -388,8 +418,24 @@ if (is_array($cached) && (int)($cached['expires'] ?? 0)>time()) {
     if ($lock) {flock($lock,LOCK_UN);fclose($lock);}
     outputArtwork($cached['result']);
 }
-$result=findAlbumArtwork($artist,$title,$dir);
-if (!$result && artworkWithinBudget(1.5)) $result=findArtistArtwork($artist);
+if ($artistOnly) {
+    // Called only if an apparently valid album URL failed to load in the browser.
+    // No repeat MusicBrainz or Cover Art Archive lookups.
+    $result = cachedArtistArtwork($artist, $dir);
+} else {
+    $fullDeadline = $GLOBALS['artworkDeadline'];
+    $GLOBALS['artworkDeadline'] = min($fullDeadline - 4.5, microtime(true) + 9.5);
+    try {
+        $result = findAlbumArtwork($artist, $title, $dir);
+    } finally {
+        $GLOBALS['artworkDeadline'] = $fullDeadline;
+    }
+    // Always attempt the photo path after an album miss, even when a provider
+    // was slow or unavailable. Preserve the original station tile on failure.
+    if (!$result && artworkWithinBudget(1.1)) {
+        $result = cachedArtistArtwork($artist, $dir);
+    }
+}
 if (!$result) $result=array('image'=>null,
     'status'=>$GLOBALS['artworkTemporaryFailure'] ? 'temporary_error' : 'not_found');
 else $result['status']='ok';
