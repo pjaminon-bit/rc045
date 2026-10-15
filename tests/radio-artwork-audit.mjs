@@ -16,14 +16,16 @@ const regressions=[
   ['Rihanna','We Found Love'],['Daft Punk','Get Lucky'],
   ['Harry Styles','As It Was'],['Yeah Yeah Yeahs','Heads Will Roll']
 ];
-const ordered=[];
+// Test alternate spellings FIRST (cold cache), before the canonical names.
+// These are quality fixtures, not per-song rules in the production matcher.
+const ordered=[
+  {category:'alias',artist:'PINK',title:'Sober'},
+  {category:'unicode',artist:'Taylor Swift',title:'Anti–Hero'}
+];
 for(const [artist,title] of regressions) {
   const item=catalog.find(row=>row.artist===artist&&row.title===title);
   if(item) ordered.push(item);
 }
-// Alternate station spellings are input fixtures, never production exceptions.
-ordered.push({category:'alias',artist:'PINK',title:'Sober'});
-ordered.push({category:'unicode',artist:'Taylor Swift',title:'Anti–Hero'});
 for(const category of new Set(catalog.map(x=>x.category))) {
   for(const item of catalog.filter(x=>x.category===category)) {
     if(!ordered.includes(item)) ordered.push(item);
