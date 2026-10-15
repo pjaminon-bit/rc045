@@ -110,7 +110,10 @@ function artworkScoreRelease($recording, $release, $artist, $title, $artistId = 
     $releaseIdentity = artworkArtistConfidence($releaseCredit, $artist, $artistId);
     // MusicBrainz recording search sometimes omits release artist-credit.
     // No unverifiable compilations should outrank a verified artist release.
-    if (!$releaseIdentity) return null;
+    if ($releaseCredit && !$releaseIdentity) return null;
+    // Omitted credit in a search result is unknown, not proof of a mismatch.
+    // Keep it lower ranked; the recording artist and release type remain verified.
+    if (!$releaseCredit) $releaseIdentity = 10;
 
     $groupTitle = (string)($group['title'] ?? ($release['title'] ?? ''));
     if (preg_match('/\b(?:playlist|compilation|mixtape)\b/i', $groupTitle)) return null;
