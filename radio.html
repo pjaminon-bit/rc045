@@ -658,6 +658,51 @@
     }
 
 
+    /* Titel en Spotify-link delen een regel, zonder bestaande tracklinks te wijzigen. */
+    .track-title-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .track-title-row .track-title {
+      min-width: 0;
+    }
+
+    .spotify-track-link {
+      display: inline-flex;
+      flex: 0 0 22px;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      margin-top: 4px;
+      border-radius: 50%;
+      opacity: .84;
+      transition: opacity .16s ease;
+    }
+
+    .spotify-track-link[hidden] {
+      display: none;
+    }
+
+    .spotify-track-link img {
+      display: block;
+      width: 22px;
+      height: 22px;
+    }
+
+    .spotify-track-link:hover {
+      opacity: 1;
+    }
+
+    .spotify-track-link:focus-visible {
+      outline: 2px solid var(--text);
+      outline-offset: 4px;
+    }
+
     .track.single .track-artist {
       display: none;
     }
@@ -2013,6 +2058,15 @@
       }
 
 
+      .track-title-row {
+        justify-content: center;
+      }
+
+      .track-title-row .track-title {
+        margin-left: 0;
+        margin-right: 0;
+      }
+
       .controls {
         justify-content: center;
       }
@@ -2603,10 +2657,30 @@
             class="track-artist track-link"
           ></a>
 
-          <a
-            id="trackTitle"
-            class="track-title track-link"
-          ></a>
+          <span class="track-title-row">
+
+            <a
+              id="trackTitle"
+              class="track-title track-link"
+            ></a>
+
+            <a
+              id="spotifyTrackLink"
+              class="spotify-track-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              hidden
+            >
+              <img
+                src="/assets/radio/spotify.svg"
+                width="22"
+                height="22"
+                alt=""
+                decoding="async"
+              >
+            </a>
+
+          </span>
 
         </div>
 
@@ -4556,6 +4630,9 @@ const trackArtist =
 
 const trackTitle =
   document.getElementById("trackTitle");
+
+const spotifyTrackLink =
+  document.getElementById("spotifyTrackLink");
 
 const mainStationLogo =
   document.getElementById("mainStationLogo");
@@ -6802,11 +6879,34 @@ function resetWikipediaLinks() {
 }
 
 
+/* Alleen een zoeklink voor de reeds herkende track.
+   Geen Spotify-API, extra metadata-verzoek of wijziging aan de providers. */
+function updateSpotifyLink(artist, title) {
+  if (!title) {
+    spotifyTrackLink.hidden = true;
+    spotifyTrackLink.removeAttribute("href");
+    spotifyTrackLink.removeAttribute("aria-label");
+    spotifyTrackLink.removeAttribute("title");
+    return;
+  }
+
+  const search = [artist, title].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+  const label = artist ? `${artist} – ${title}` : title;
+
+  spotifyTrackLink.href =
+    "https://open.spotify.com/search/" + encodeURIComponent(search);
+  spotifyTrackLink.setAttribute("aria-label", "Zoek " + label + " op Spotify");
+  spotifyTrackLink.title = "Zoek op Spotify";
+  spotifyTrackLink.hidden = false;
+}
+
 function setTrackLoading() {
 
   wikipediaGeneration++;
 
   resetWikipediaLinks();
+  updateSpotifyLink("", "");
+
 
 
   trackInfo.hidden =
@@ -6828,6 +6928,8 @@ function clearTrack() {
   wikipediaGeneration++;
 
   resetWikipediaLinks();
+  updateSpotifyLink("", "");
+
 
 
   currentTrack = {
@@ -6895,6 +6997,7 @@ function setTrack(
   currentTrackUpdatedAt =
     Date.now();
 
+  updateSpotifyLink(artist, title);
 
   if (
     currentTrack.artist === artist &&
