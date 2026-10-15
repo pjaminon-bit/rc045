@@ -546,16 +546,22 @@ test('focus en zichtbaarheid halen updates in en publiceren actuele Windows-medi
   assert.deepEqual(calls, ['track', 'program', 'timer', 'media', 'playing']);
 });
 
-test('hoofdplayknop gebruikt een groter optisch gecentreerd SVG zonder de spelerlogica te wijzigen', () => {
+test('hoofdplayknop heeft gebalanceerde SVG met rustigere schaduw, zonder spelerlogica te wijzigen', () => {
   const button = part('id="playButton"', '</button>');
   const styles = part('    .play-button {', '    .play-button::after {');
   const icons = part('    .play-button svg {', '    body.is-playing .play-icon {');
-  assert.match(button, /class="play-icon"[\s\S]*?aria-hidden="true"[\s\S]*?<path d="M8 4\.75/);
-  assert.match(button, /class="pause-icon"[\s\S]*?aria-hidden="true"[\s\S]*?<path d="M7\.5 5\.25/);
+  const animation = part('    @keyframes play-attention {', '    @keyframes play-sweep {');
+  assert.match(button, /class="play-icon"[\s\S]*?viewBox="0 0 24 24"[\s\S]*?aria-hidden="true"[\s\S]*?<path d="M6\.15 3\.75/);
+  assert.match(button, /class="pause-icon"[\s\S]*?viewBox="0 0 24 24"[\s\S]*?aria-hidden="true"[\s\S]*?<path d="M5\.25 5\.25/);
   assert.match(styles, /width: 68px;[\s\S]*?height: 68px;/);
-  assert.match(icons, /width: 36px;[\s\S]*?height: 36px;/);
+  assert.match(styles, /0 8px 20px rgba\(0,0,0,\.13\)/);
+  assert.match(icons, /width: 38px;[\s\S]*?height: 38px;/);
   assert.match(icons, /transform: translateX\(1px\)/);
-  assert.match(icons, /\.pause-icon[\s\S]*?width: 30px;/);
+  assert.match(icons, /\.pause-icon[\s\S]*?width: 34px;/);
+  // SVG geometry: 15.37 viewBox units in a 38px icon => ~24.3px visible width.
+  const triangleWidth = (21.52 - 6.15) / 24 * 38;
+  assert.ok(triangleWidth >= 24 && triangleWidth <= 26);
+  assert.match(animation, /0 0 0 1\.5px rgba\(var\(--accent-rgb\), \.08\)/);
   assert.match(html, /body\.is-playing \.play-icon \{\s*display: none;/);
   assert.match(html, /body\.is-playing \.pause-icon \{\s*display: block;/);
   assert.match(html, /id="miniPlay"[\s\S]*?class="mini-play-icon"/);
