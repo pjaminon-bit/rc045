@@ -1,0 +1,44 @@
+name: Import lokale radiologo's
+
+on:
+  push:
+    branches:
+      - feat/radio-self-hosted-logos
+    paths:
+      - scripts/import-radio-logos.mjs
+      - .github/workflows/import-radio-logos.yml
+
+permissions:
+  contents: write
+
+jobs:
+  download-and-commit:
+    if: github.repository == 'pjaminon-bit/rc045'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Installeer afbeeldingsconversie
+        run: npm install --no-save --no-package-lock sharp@0.34.4
+      - name: Download en maak locale radiologo's
+        run: node scripts/import-radio-logos.mjs
+      - name: Controleer alle lokale assets en bestaande functies
+        run: |
+          node --test tests/radio-local-assets.test.cjs
+          node --test tests/radio-technical.test.cjs
+      - name: Commit logo's en verwijs vanuit radio.html
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add radio.html assets/radio/logos/
+          if git diff --cached --quiet; then
+            echo 'Geen wijzigingen'
+          else
+            git commit -m 'feat(radio): host station logos locally'
+            git push origin HEAD:feat/radio-self-hosted-logos
+          fi
