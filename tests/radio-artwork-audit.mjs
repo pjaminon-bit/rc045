@@ -64,7 +64,7 @@ for(const item of sample) {
   const result=await query(item);
   results.push(result);
   console.log([result.artist,result.title,result.status,result.elapsedMs+'ms',
-    result.kind||'none',result.cache].join(' | '));
+    result.kind||'none',result.cache,result.creditUrl||''].join(' | '));
   // Bounded music metadata lookups: sequential, no burst across this test client.
   await pause(1350);
 }
