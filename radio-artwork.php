@@ -218,7 +218,7 @@ function findArtistArtwork($artist) {
 }
 
 // Server-side cache: successful results seven days; misses six hours.
-$dir = rtrim(sys_get_temp_dir(), '/') . '/rc045-radio-artwork-v2';
+$dir = rtrim(sys_get_temp_dir(), '/') . '/rc045-radio-artwork-v3';
 if (!is_dir($dir)) @mkdir($dir, 0700, true);
 $hash = hash('sha256', normalArtworkName($artist) . '|' . normalArtworkName($title));
 $file = $dir . '/' . $hash . '.json';
@@ -231,8 +231,10 @@ if (is_file($file)) {
         outputArtwork($cached['result']);
     }
 }
-$result = findAlbumArtwork($artist, $title, $dir);
-if ($result === null) $result = findArtistArtwork($artist);
+// Normalize the artist name solely for artwork search, never for radio metadata.
+$lookupArtist = canonicalArtworkArtist($artist);
+$result = findAlbumArtwork($lookupArtist, $title, $dir);
+if ($result === null) $result = findArtistArtwork($lookupArtist);
 if ($result === null) $result = array('image' => null);
 $ttl = empty($result['image']) ? 6 * 3600 : 7 * 86400;
 if (is_dir($dir)) {

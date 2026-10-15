@@ -64,4 +64,15 @@ checkResult(artworkReleaseCandidates($wrong, 'Yeah Yeah Yeahs',
     'Heads Will Roll','sameArtistOrTitle') === array($properSingle),
     'Live album cannot override the original single.');
 
-echo "Artwork release matching OK: artist, original album, compilation exclusion and fallback.\n";
+checkResult(canonicalArtworkArtist('PINK') === 'P!nk',
+    'Uppercase PINK from Radio 538 must resolve to P!nk.');
+checkResult(canonicalArtworkArtist('Pink') === 'P!nk',
+    'Regular Pink spelling must resolve to P!nk for artwork.');
+checkResult(canonicalArtworkArtist('P!nk') === 'P!nk',
+    'Correct MusicBrainz stylization must remain unchanged.');
+checkResult(canonicalArtworkArtist('Pink Floyd') === 'Pink Floyd',
+    'Another artist containing Pink may not be rewritten.');
+checkResult(canonicalArtworkArtist('Coldplay') === 'Coldplay',
+    'Other artists must be untouched.');
+
+echo "Artwork release matching OK: artist, original album, compilation exclusion , fallback and aliases.\n";
