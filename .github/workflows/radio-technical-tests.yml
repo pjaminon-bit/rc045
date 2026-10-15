@@ -6,7 +6,9 @@ on:
       - 'radio.html'
       - 'radio-artwork.php'
       - 'radio-artwork-release-select.php'
+      - 'radio-artwork-photo-select.php'
       - 'tests/radio-artwork-release-select.php'
+      - 'tests/radio-artwork-photo-select.php'
       - 'tests/radio-artwork.test.cjs'
       - 'tests/radio-artwork-catalog.test.cjs'
       - 'tests/radio-artwork-catalog.json'
@@ -41,8 +43,11 @@ jobs:
         run: |
           php -l radio-artwork.php
           php -l radio-artwork-release-select.php
+          php -l radio-artwork-photo-select.php
           php -l tests/radio-artwork-release-select.php
+          php -l tests/radio-artwork-photo-select.php
           php tests/radio-artwork-release-select.php
+          php tests/radio-artwork-photo-select.php
       - name: Controleer foutloze fallback bij ontbreken van artist/title
         run: |
           php -r '$_SERVER["REQUEST_METHOD"]="GET"; include "radio-artwork.php";' | grep -F '"image":null'
