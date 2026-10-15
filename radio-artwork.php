@@ -212,10 +212,18 @@ function findArtistArtwork($artist) {
     ), '', '&', PHP_QUERY_RFC3986);
     $imageData = jsonArtworkRequest($infoUrl, 4);
     $imageInfo = $imageData['query']['pages'][0]['imageinfo'][0] ?? array();
-    $license = strtolower(strip_tags((string)(
+    $licenseName = trim(html_entity_decode(strip_tags((string)(
         $imageInfo['extmetadata']['LicenseShortName']['value'] ?? ''
-    )));
+    )), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    $license = strtolower($licenseName);
     if (!preg_match('/^(?:cc ?(?:by|0)|public domain|pdm)/i', $license)) return null;
+    $rawArtist = $imageInfo['extmetadata']['Artist']['value'] ??
+        ($imageInfo['extmetadata']['Attribution']['value'] ?? '');
+    $photoAuthor = trim((string) preg_replace('/\\s+/', ' ',
+        html_entity_decode(strip_tags((string)$rawArtist), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+    // Bij CC BY-varianten kan verplichte auteursvermelding niet worden weggelaten.
+    if (strpos($license, 'cc by') === 0 && $photoAuthor === '') return null;
+    $photoAuthor = substr($photoAuthor, 0, 65);
     $description = $imageInfo['descriptionurl'] ?? '';
     if (!is_string($description) ||
         strpos($description, 'https://commons.wikimedia.org/wiki/File:') !== 0) {
@@ -225,7 +233,8 @@ function findArtistArtwork($artist) {
         'image' => $src,
         'kind' => 'artist',
         'creditUrl' => $description,
-        'creditLabel' => 'Foto: Wikimedia Commons'
+        'creditLabel' => 'Foto: ' . ($photoAuthor !== '' ? $photoAuthor : 'Wikimedia Commons') .
+            ' · ' . $licenseName
     );
 }
 

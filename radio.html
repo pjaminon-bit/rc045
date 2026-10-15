@@ -262,6 +262,72 @@
     }
 
 
+    /* Compacte, onthouden keuze naast de bestaande themawissel. */
+    .artwork-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .artwork-toggle input {
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+      width: 34px;
+      height: 20px;
+      flex: 0 0 34px;
+      margin: 0;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(128,128,128,.27);
+      cursor: pointer;
+      transition: background .2s ease;
+    }
+
+    .artwork-toggle input::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.18);
+      transition: transform .2s ease;
+    }
+
+    .artwork-toggle input:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .artwork-toggle input:checked::before {
+      transform: translateX(14px);
+    }
+
+    .artwork-toggle input:focus-visible {
+      outline: 2px solid var(--text);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 420px) {
+      .header-tools {
+        gap: 9px;
+      }
+      .artwork-toggle {
+        gap: 6px;
+        font-size: 10px;
+      }
+    }
+
     .theme-switcher {
       position: relative;
 
@@ -433,14 +499,14 @@
     }
 
     .artwork.has-track-artwork .artwork-photo {
-      opacity: .78;
+      opacity: .91;
     }
 
     .artwork-tint {
       position: absolute;
       inset: 0;
       z-index: 1;
-      background: linear-gradient(135deg, rgba(0,0,0,.15), rgba(var(--accent-rgb), .30));
+      background: linear-gradient(135deg, rgba(0,0,0,.12), rgba(var(--accent-rgb), .14));
       opacity: 0;
       transition: opacity .55s ease;
       pointer-events: none;
@@ -492,6 +558,7 @@
 
       position: absolute;
       z-index: 1;
+      transition: opacity .3s ease;
 
       border-radius: 50%;
 
@@ -511,6 +578,11 @@
     .artwork::after {
       width: 48%;
       height: 48%;
+    }
+
+    .artwork.has-track-artwork::before,
+    .artwork.has-track-artwork::after {
+      opacity: 0;
     }
 
 
@@ -536,6 +608,20 @@
         inset 0 0 0 1px rgba(0,0,0,.04);
     }
 
+
+    /* Alleen bij een hoes: compact matglas in plaats van het grote witte vlak.
+       Zonder albumart blijft de oorspronkelijke logoweergave volledig behouden. */
+    .artwork.has-track-artwork .main-logo-surface {
+      width: 43%;
+      padding: 7%;
+      border-radius: 24%;
+      background: rgba(255,255,255,.78);
+      box-shadow:
+        0 10px 32px rgba(0,0,0,.14),
+        inset 0 0 0 1px rgba(255,255,255,.45);
+      backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    }
 
     .main-station-logo {
       width: 100%;
@@ -2627,6 +2713,11 @@
     </div>
 
     <div class="header-tools">
+
+      <label class="artwork-toggle">
+        <span>Albumart tonen</span>
+        <input id="albumArtToggle" type="checkbox" checked>
+      </label>
 
       <div
         id="stationCount"
@@ -4821,6 +4912,9 @@ const trackArtworkBackground =
 const artworkCredit =
   document.getElementById("artworkCredit");
 
+const albumArtToggle =
+  document.getElementById("albumArtToggle");
+
 const mainStationLogo =
   document.getElementById("mainStationLogo");
 
@@ -4904,6 +4998,11 @@ function saveRadioPreference(key, value) {
   try { localStorage.setItem(key, String(value)); return true; }
   catch { return false; }
 }
+
+// Afbeeldingen optioneel; de keuze blijft ook na herstart van de browser staan.
+let albumArtEnabled = readRadioPreference("radio-albumart-visible") !== "false";
+albumArtToggle.checked = albumArtEnabled;
+
 // KINK Classics werd in 2023 vervangen door KINK 80's.
 const previousStationId = readRadioPreference("radio-station-id");
 const storedStationId =
@@ -7136,8 +7235,10 @@ const artworkCache = new Map();
 let artworkGeneration = 0;
 let artworkRequest = null;
 let artworkPreload = null;
+let artworkCurrentKey = null;
 
 function clearTrackArtwork() {
+  artworkCurrentKey = null;
   artworkGeneration++;
   if (artworkRequest) {
     artworkRequest.abort();
@@ -7176,7 +7277,10 @@ function safeArtworkResult(data) {
     return {
       image: uri.href,
       creditUrl: creditUri.href,
-      creditLabel: data.kind === "artist" ? "Foto: Wikimedia Commons" : "Cover Art Archive"
+      kind: data.kind === "artist" ? "artist" : "album",
+      creditLabel: data.kind === "artist" && typeof data.creditLabel === "string"
+        ? data.creditLabel.slice(0, 180)
+        : ""
     };
   } catch {
     return null;
@@ -7192,10 +7296,18 @@ function showTrackArtwork(result, generation) {
     if (generation !== artworkGeneration || artworkPreload !== preload) return;
     artworkPreload = null;
     trackArtworkBackground.src = result.image;
-    artworkCredit.href = result.creditUrl;
-    artworkCredit.textContent = result.creditLabel;
-    artworkCredit.title = "Afbeeldingsbron openen";
-    artworkCredit.hidden = false;
+    if (result.kind === "artist") {
+      // Vrij gelicentieerde artiestenfoto: herkomst en licentie blijven zichtbaar.
+      artworkCredit.href = result.creditUrl;
+      artworkCredit.textContent = result.creditLabel;
+      artworkCredit.title = "Fotograaf, licentie en afbeeldingsbron bekijken";
+      artworkCredit.hidden = false;
+    } else {
+      // Cover Art Archive is geen verplichte badge over de albumhoes.
+      artworkCredit.hidden = true;
+      artworkCredit.removeAttribute("href");
+      artworkCredit.textContent = "";
+    }
     stationArtwork.classList.add("has-track-artwork");
   };
   preload.onerror = () => {
@@ -7207,9 +7319,10 @@ function showTrackArtwork(result, generation) {
 
 async function updateTrackArtwork(artist, title) {
   clearTrackArtwork();
-  if (!artist || !title) return;
+  if (!albumArtEnabled || !artist || !title) return;
   const generation = artworkGeneration;
   const key = [artist, title].join(" | ").toLocaleLowerCase();
+  artworkCurrentKey = key;
   const existing = artworkCache.get(key);
   if (existing && existing.expires > Date.now()) {
     showTrackArtwork(existing.result, generation);
@@ -7243,6 +7356,27 @@ async function updateTrackArtwork(artist, title) {
     if (artworkRequest === controller) artworkRequest = null;
   }
 }
+
+/* Deze keuze beïnvloedt uitsluitend de achtergrond, nooit metadata of audio. */
+function setAlbumArtEnabled(enabled) {
+  albumArtEnabled = Boolean(enabled);
+  albumArtToggle.checked = albumArtEnabled;
+  saveRadioPreference("radio-albumart-visible", albumArtEnabled);
+  if (!albumArtEnabled) {
+    clearTrackArtwork();
+  } else if (
+    !trackInfo.hidden &&
+    !isContentSuppressed() &&
+    currentTrack.artist &&
+    currentTrack.title
+  ) {
+    updateTrackArtwork(currentTrack.artist, currentTrack.title);
+  }
+}
+
+albumArtToggle.addEventListener("change", () => {
+  setAlbumArtEnabled(albumArtToggle.checked);
+});
 
 function setTrackLoading() {
 
@@ -7351,6 +7485,12 @@ function setTrack(
     currentTrack.artist === artist &&
     currentTrack.title === title
   ) {
+
+    // Na het wissen van de track-UI kan dezelfde track terugkomen.
+    // Herstel dan de optionele hoes zonder de metadata opnieuw op te vragen.
+    if (albumArtEnabled && !artworkCurrentKey && artist && title) {
+      updateTrackArtwork(artist, title);
+    }
 
     trackInfo.hidden =
       false;
