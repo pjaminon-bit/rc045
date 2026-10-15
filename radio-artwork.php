@@ -122,43 +122,22 @@ function paceArtworkMusicBrainz($cacheDir) {
     fclose($handle);
 }
 
+require_once __DIR__ . '/radio-artwork-release-select.php';
+
 function findAlbumArtwork($artist, $title, $cacheDir) {
     $search = 'recording:"' . str_replace(array('"', '\\'), ' ', $title) .
         '" AND artist:"' . str_replace(array('"', '\\'), ' ', $artist) . '"';
     paceArtworkMusicBrainz($cacheDir);
     $url = 'https://musicbrainz.org/ws/2/recording/?' . http_build_query(array(
-        'query' => $search, 'fmt' => 'json', 'limit' => 6
+        'query' => $search, 'fmt' => 'json', 'limit' => 15
     ), '', '&', PHP_QUERY_RFC3986);
     $data = jsonArtworkRequest($url, 5);
     if (!isset($data['recordings']) || !is_array($data['recordings'])) {
         return null;
     }
 
-    $groups = array();
-    foreach ($data['recordings'] as $recording) {
-        if ((int)($recording['score'] ?? 0) < 85 ||
-            !matchArtworkName($recording['title'] ?? '', $title)) {
-            continue;
-        }
-        $credited = array();
-        foreach (($recording['artist-credit'] ?? array()) as $credit) {
-            if (is_array($credit)) {
-                $credited[] = $credit['name'] ?? ($credit['artist']['name'] ?? '');
-            }
-        }
-        if (!matchArtworkName(implode(' ', $credited), $artist)) continue;
-
-        foreach (($recording['releases'] ?? array()) as $release) {
-            if (strtolower((string)($release['status'] ?? '')) !== 'official') continue;
-            $group = $release['release-group'] ?? array();
-            $id = $group['id'] ?? '';
-            if (!preg_match('/^[a-f0-9-]{36}$/i', $id)) continue;
-            $type = $group['primary-type'] ?? '';
-            if ($type === 'Broadcast' || $type === 'Other') continue;
-            $groups[$id] = $id;
-            if (count($groups) >= 4) break 2;
-        }
-    }
+    // Eerst rangschikken: oorspronkelijke artiestrelease vóór losse compilaties.
+    $groups = artworkReleaseCandidates($data['recordings'], $artist, $title, 'matchArtworkName');
 
     // A release group can have no approved cover; test before showing it.
     foreach ($groups as $id) {
@@ -239,7 +218,7 @@ function findArtistArtwork($artist) {
 }
 
 // Server-side cache: successful results seven days; misses six hours.
-$dir = rtrim(sys_get_temp_dir(), '/') . '/rc045-radio-artwork-v1';
+$dir = rtrim(sys_get_temp_dir(), '/') . '/rc045-radio-artwork-v2';
 if (!is_dir($dir)) @mkdir($dir, 0700, true);
 $hash = hash('sha256', normalArtworkName($artist) . '|' . normalArtworkName($title));
 $file = $dir . '/' . $hash . '.json';
