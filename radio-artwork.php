@@ -182,9 +182,9 @@ function availableCoverArtwork($groupId) {
 }
 
 /** Bounded, verified candidates; prioritise official artist albums over reissues. */
-function artworkCheckCandidates($candidates,&$seen) {
+function artworkCheckCandidates($candidates,&$seen,$maxChecks = 7) {
     foreach ($candidates as $item) {
-        if (count($seen) >= 7 || !artworkWithinBudget(1.4)) break;
+        if (count($seen) >= $maxChecks || !artworkWithinBudget(1.4)) break;
         $id = $item['id'] ?? '';
         if (!preg_match('/^[a-f0-9-]{36}$/i',(string)$id) || isset($seen[$id])) continue;
         $seen[$id]=true;
@@ -200,48 +200,72 @@ function artworkCheckCandidates($candidates,&$seen) {
     }
     return null;
 }
+function artworkOnlyAlbums($candidates) {
+    return array_values(array_filter($candidates,function($row) {
+        return ($row['primary'] ?? '') === 'album';
+    }));
+}
+function artworkOnlySingles($candidates) {
+    return array_values(array_filter($candidates,function($row) {
+        return in_array($row['primary'] ?? '',array('single','ep'),true);
+    }));
+}
 function findAlbumArtwork($artist,$title,$cacheDir) {
     $safeTitle = str_replace(array('"','\\'),' ',$title);
     $safeArtist = str_replace(array('"','\\'),' ',$artist);
     $query = 'recording:"'.$safeTitle.'" AND artist:"'.$safeArtist.'"';
     $data = musicBrainzArtwork('recording',array('query'=>$query,'limit'=>25),$cacheDir);
     $recordings = $data['recordings'] ?? array();
-    $seen=array();
-    $candidates=artworkRankedReleases($recordings,$artist,$title);
-    $result=artworkCheckCandidates($candidates,$seen);
+    $seen = array();
+    $candidates = artworkRankedReleases($recordings,$artist,$title);
+    // A studio album is preferred to a same-song single. Do NOT return the
+    // first available single while its canonical album may be one browse away.
+    $result = artworkCheckCandidates(artworkOnlyAlbums($candidates),$seen,3);
     if ($result) return $result;
 
-    // Relation-based route: browse all releases attached to the best exact
-    // MusicBrainz recording, not only the first page of search results.
+    // Browse releases attached to one confirmed recording; the search index
+    // often lists the single but omits the original studio album.
     foreach ($recordings as $recording) {
         if (!is_array($recording) || !isset($recording['id']) ||
             artworkBaseTitle($recording['title'] ?? '') !== artworkBaseTitle($title) ||
             !artworkVersionCompatible($title,$recording['title'] ?? '') ||
             !artworkArtistConfidence($recording['artist-credit'] ?? array(),$artist)) continue;
-        $browse=musicBrainzArtwork('release',array('recording'=>$recording['id'],
+        $browse = musicBrainzArtwork('release',array('recording'=>$recording['id'],
             'inc'=>'release-groups+artist-credits','limit'=>50),$cacheDir);
         $expanded = $recording;
-        $expanded['releases']=$browse['releases'] ?? array();
-        $result=artworkCheckCandidates(artworkRankedReleases(array($expanded),$artist,$title),$seen);
+        $expanded['releases'] = $browse['releases'] ?? array();
+        $related = artworkRankedReleases(array($expanded),$artist,$title);
+        $result = artworkCheckCandidates(artworkOnlyAlbums($related),$seen,5);
         if ($result) return $result;
-        break; // one verified recording only, to cap total external calls
+        $candidates = array_merge($candidates,$related);
+        break;
     }
 
-    // Exact artist MBID route resolves punctuation/case variants through MB aliases.
-    $artistId=artworkIdentifyArtist($artist,$cacheDir);
-    if ($artistId) {
-        $byId=musicBrainzArtwork('recording',array('query'=>'recording:"'.$safeTitle.
-            '" AND arid:'.$artistId,'limit'=>25),$cacheDir);
-        $result=artworkCheckCandidates(artworkRankedReleases($byId['recordings'] ?? array(),
-            $artist,$title,$artistId),$seen);
-        if ($result) return $result;
+    $artistId = null;
+    // Only spend additional MBID/alias queries if text search failed
+    // to identify a candidate; avoid 2 needless API calls for known songs.
+    if (!$candidates) {
+        $artistId = artworkIdentifyArtist($artist,$cacheDir);
+        if ($artistId) {
+            $byId = musicBrainzArtwork('recording',array('query'=>'recording:"'.$safeTitle.
+                '" AND arid:'.$artistId,'limit'=>25),$cacheDir);
+            $extra = artworkRankedReleases($byId['recordings'] ?? array(),
+                $artist,$title,$artistId);
+            $result = artworkCheckCandidates(artworkOnlyAlbums($extra),$seen,5);
+            if ($result) return $result;
+            $candidates = array_merge($candidates,$extra);
+        }
     }
+    // Only now consider a same-recording single or EP. Three album checks,
+    // then two via relations, reserve space for the strict single fallback.
+    $result = artworkCheckCandidates(artworkOnlySingles($candidates),$seen,7);
+    if ($result) return $result;
 
-    // Final strict route: real singles, including official soundtrack singles.
-    $search='releasegroup:"'.$safeTitle.'" AND '.($artistId ? 'arid:'.$artistId : 'artist:"'.$safeArtist.'"');
-    $singles=musicBrainzArtwork('release-group',array('query'=>$search,'limit'=>15),$cacheDir);
+    $search = 'releasegroup:"'.$safeTitle.'" AND '.
+        ($artistId ? 'arid:'.$artistId : 'artist:"'.$safeArtist.'"');
+    $singles = musicBrainzArtwork('release-group',array('query'=>$search,'limit'=>15),$cacheDir);
     return artworkCheckCandidates(artworkRankedSingles($singles['release-groups'] ?? array(),
-        $artist,$title,$artistId),$seen);
+        $artist,$title,$artistId),$seen,7);
 }
 
 /** Artist photo only if Wikipedia resolves to the given artist and Commons
