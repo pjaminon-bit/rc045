@@ -15,14 +15,17 @@ function artworkWikipediaTitleMatchesArtist($pageTitle, $artist) {
 }
 
 function artworkCommonsFilename($url) {
+    // MediaWiki pageimages returns either a resized /thumb/ URL or an
+    // original-size URL (when the source image is already <= 500 pixels).
+    // Accept both exact Commons path structures, never arbitrary hosts.
     if (!is_string($url) ||
-        strpos($url, 'https://upload.wikimedia.org/wikipedia/commons/thumb/') !== 0) return null;
+        strpos($url, 'https://upload.wikimedia.org/wikipedia/commons/') !== 0) return null;
     $path = parse_url($url, PHP_URL_PATH);
-    $parts = explode('/', (string)$path);
-    $thumb = array_search('thumb', $parts, true);
-    if ($thumb === false || count($parts) <= $thumb + 3) return null;
-    $filename = rawurldecode($parts[$thumb + 3]);
-    if (!preg_match('/\\.(?:png|jpe?g|webp)$/i', $filename)) return null;
+    $pattern = '#^/wikipedia/commons/(?:thumb/[0-9a-f]/[0-9a-f]{2}/([^/]+)/[^/]+|[0-9a-f]/[0-9a-f]{2}/([^/]+))$#i';
+    if (!is_string($path) || !preg_match($pattern, $path, $matches)) return null;
+    $filename = rawurldecode($matches[1] ?: ($matches[2] ?? ''));
+    if (strpos($filename, '/') !== false ||
+        !preg_match('/\\.(?:png|jpe?g|webp)$/i', $filename)) return null;
     return $filename;
 }
 
