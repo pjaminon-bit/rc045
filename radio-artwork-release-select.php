@@ -9,6 +9,10 @@ function artworkNormalize($value) {
     $value = (string)$value;
     if (class_exists('Normalizer')) $value = Normalizer::normalize($value, Normalizer::FORM_KC) ?: $value;
     $value = str_replace(array('–','—','−','‑','‐','’','‘','＇','＆'), array('-','-','-','-','-',"'", "'", "'",'&'), $value);
+    // Letter-shaped typography: only internal exclamation marks between
+    // letters can represent the letter i; do not do substring/fuzzy artist joins.
+    $typographic = preg_replace('/(\\p{L})!(\\p{L})/u','$1i$2',$value);
+    if ($typographic !== null) $value = $typographic;
     if (function_exists('iconv')) {
         $ascii = @iconv('UTF-8','ASCII//TRANSLIT//IGNORE',$value);
         if ($ascii !== false) $value = $ascii;
@@ -18,6 +22,19 @@ function artworkNormalize($value) {
 
 function normalArtworkName($value) {
     return str_replace(' ', '', artworkNormalize($value));
+}
+
+/** Bounded search spelling variants to recover stylised artist names.
+ * Variants must STILL pass exact verified recording/release artist matching.
+ * No names or stations are listed here.
+ */
+function artworkArtistSearchVariants($artist) {
+    $variants = array();
+    // Exclamation marks are sometimes letter shapes in music credits.
+    $styled = preg_replace('/(\\p{L})i(?=\\p{L})/iu','$1!',(string)$artist,1);
+    if (is_string($styled) && $styled !== $artist) $variants[] = $styled;
+    // Only a single low-cost broadening route is allowed.
+    return array_slice(array_unique($variants),0,1);
 }
 
 /** Strict: punctuation/transliteration and spacing, never a substring match. */
