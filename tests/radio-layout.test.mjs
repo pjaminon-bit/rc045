@@ -201,8 +201,19 @@ try {
     await page.waitForSelector('#muteButton');
     assert.equal(await page.locator('#volumeSlider').isVisible(),false,
       'iOS Safari should not show ineffective native HTMLMediaElement.volume slider');
-    assert.equal(await page.locator('#volumeDeviceHint').isVisible(),true,
-      'iOS Safari should explain hardware volume');
+    assert.equal(await page.locator('.control-row').evaluate(node =>
+      node.classList.contains('native-volume-mode')), true,
+      'iOS Safari should display a compact native-volume control row');
+    const buttons = await page.locator('.control-row').evaluate(row => {
+      const rect = row.getBoundingClientRect();
+      const player = document.querySelector('.secondary-controls').getBoundingClientRect();
+      return {
+        rowWidth: rect.width,
+        centered: Math.abs((rect.left + rect.right) / 2 - (player.left + player.right) / 2) < 2
+      };
+    });
+    assert.ok(buttons.rowWidth < 190, 'iOS volume control row should be compact');
+    assert.ok(buttons.centered, 'iOS compact controls should be centered');
     await page.locator('#muteButton').click();
     assert.equal(await page.locator('#audio').evaluate(a=>a.muted),true,
       'mute property should remain usable on iOS');
