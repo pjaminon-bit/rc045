@@ -39,8 +39,15 @@ function harness() {
     updateWikipediaLinks() { ctx.wikiUpdates++; },
     updateMediaSession() { ctx.mediaUpdates++; }
   };
-  const js = section('function resetWikipediaLinks()', '/* =========================================================\n   PROGRAM UI');
-  const api = new Function('ctx', 'with(ctx) {' + js +
+  // Het artworkdeel heeft eigen regressietests. Houd deze oude
+  // muzieklijntests gericht op de Spotify/Apple/Deezer/TIDAL logica.
+  const source = section('function resetWikipediaLinks()', '/* =========================================================\n   PROGRAM UI');
+  const from = source.indexOf('/* =========================================================\n   OPTIONAL ALBUM / ARTIST BACKGROUND');
+  const to = source.indexOf('function setTrackLoading()', from);
+  assert.ok(from > 0 && to > from);
+  const js = source.slice(0, from) + source.slice(to);
+  const api = new Function('ctx',
+    'with(ctx) { function clearTrackArtwork() {} function updateTrackArtwork() {} ' + js +
     '\nreturn {setTrack,setTrackLoading,clearTrack,updateSpotifyLink};}')(ctx);
   return {ctx,api};
 }
@@ -107,7 +114,7 @@ test('geen wijzigingen in providers, audio, stations of Wikipedia-links', () => 
   assert.match(html, /function refreshMetadata\(/);
   assert.match(html, /function refreshProgram\(/);
   assert.match(html, /src="\/assets\/radio\/spotify\.svg"/);
-  assert.doesNotMatch(section('function updateSpotifyLink(', 'function setTrackLoading()'),
+  assert.doesNotMatch(section('function updateSpotifyLink(', '/* =========================================================\n   OPTIONAL ALBUM / ARTIST BACKGROUND'),
     /fetch\s*\(|XMLHttpRequest|Spotify\.WebApi|access_token/);
 });
 
@@ -191,7 +198,7 @@ test('oude links verdwijnen bij nieuw station, talk, loading en onderdrukking', 
 });
 
 test('geen nieuwe metadata-API of wijziging van verversingsintervallen', () => {
-  const searchLogic = section('function updateOtherMusicLinks(', 'function setTrackLoading()');
+  const searchLogic = section('function updateOtherMusicLinks(', '/* =========================================================\n   OPTIONAL ALBUM / ARTIST BACKGROUND');
   assert.doesNotMatch(searchLogic, /\bfetch\s*\(|XMLHttpRequest|access_token|client_secret/);
   assert.match(html, /const METADATA_REFRESH = 15000;/);
   assert.match(html, /const PROGRAM_REFRESH = 60000;/);
