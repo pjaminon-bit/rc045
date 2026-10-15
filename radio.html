@@ -7295,7 +7295,7 @@ function safeArtworkResult(data) {
       const fallbackUrl = new URL(data.imageFallback);
       if (fallbackUrl.protocol === "https:" &&
           fallbackUrl.hostname === "coverartarchive.org" &&
-          /release-group\\/[a-f0-9-]{36}\\/front-250$/.test(fallbackUrl.pathname) &&
+          new RegExp("^/release-group/[a-f0-9-]{36}/front-250$").test(fallbackUrl.pathname) &&
           fallbackUrl.pathname.replace("/front-250", "/front-500") === uri.pathname) {
         fallback = fallbackUrl.href;
       }
