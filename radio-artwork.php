@@ -218,6 +218,23 @@ function findAlbumArtwork($artist,$title,$cacheDir) {
     $recordings = $data['recordings'] ?? array();
     $seen = array();
     $candidates = artworkRankedReleases($recordings,$artist,$title);
+    // A bounded typographic search broadens artist spelling, never identity.
+    // Example category: internal letter shapes in artist names, all checked
+    // against the same recording, artist-credit and release scoring rules.
+    if (!$candidates) {
+        foreach (artworkArtistSearchVariants($artist) as $styled) {
+            if (!artworkWithinBudget(2)) break;
+            $altQuery = 'recording:"'.$safeTitle.'" AND artist:"'.
+                str_replace(array('"','\\\\'),' ',$styled).'"';
+            $alternative = musicBrainzArtwork('recording',array('query'=>$altQuery,'limit'=>25),$cacheDir);
+            $ranked = artworkRankedReleases($alternative['recordings'] ?? array(),$artist,$title);
+            if ($ranked) {
+                $recordings = $alternative['recordings'];
+                $candidates = $ranked;
+                break;
+            }
+        }
+    }
     // A studio album is preferred to a same-song single. Do NOT return the
     // first available single while its canonical album may be one browse away.
     $result = artworkCheckCandidates(artworkOnlyAlbums($candidates),$seen,3);
