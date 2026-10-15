@@ -658,7 +658,7 @@
     }
 
 
-    /* Titel en Spotify-link delen een regel, zonder bestaande tracklinks te wijzigen. */
+    /* Muziekdiensten staan naast het bestaande tracktitelveld. */
     .track-title-row {
       display: flex;
       align-items: center;
@@ -671,34 +671,42 @@
       min-width: 0;
     }
 
-    .spotify-track-link {
+    .music-service-links {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 7px;
+      margin-top: 4px;
+    }
+
+    .music-service-links[hidden],
+    .music-service-link[hidden] {
+      display: none;
+    }
+
+    .music-service-link {
       display: inline-flex;
       flex: 0 0 22px;
       align-items: center;
       justify-content: center;
       width: 22px;
       height: 22px;
-      margin-top: 4px;
       border-radius: 50%;
-      opacity: .84;
+      opacity: .85;
       transition: opacity .16s ease;
     }
 
-    .spotify-track-link[hidden] {
-      display: none;
-    }
-
-    .spotify-track-link img {
+    .music-service-link img {
       display: block;
       width: 22px;
       height: 22px;
     }
 
-    .spotify-track-link:hover {
+    .music-service-link:hover {
       opacity: 1;
     }
 
-    .spotify-track-link:focus-visible {
+    .music-service-link:focus-visible {
       outline: 2px solid var(--text);
       outline-offset: 4px;
     }
@@ -2096,6 +2104,22 @@
 
 
     @media (max-width: 520px) {
+      /* Op smalle telefoons krijgen de vier iconen hun eigen regel. */
+      .track-title-row {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .track-title-row .track-title {
+        flex: 1 1 100%;
+        text-align: center;
+      }
+
+      .music-service-links {
+        margin-top: 0;
+      }
+
 
       .mini-player {
         bottom:
@@ -2664,21 +2688,73 @@
               class="track-title track-link"
             ></a>
 
-            <a
-              id="spotifyTrackLink"
-              class="spotify-track-link"
-              target="_blank"
-              rel="noopener noreferrer"
-              hidden
-            >
-              <img
-                src="/assets/radio/spotify.svg"
-                width="22"
-                height="22"
-                alt=""
-                decoding="async"
+            <span id="musicServiceLinks" class="music-service-links" hidden>
+
+              <a
+                id="spotifyTrackLink"
+                class="music-service-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                hidden
               >
-            </a>
+                <img
+                  src="/assets/radio/spotify.svg"
+                  width="22"
+                  height="22"
+                  alt=""
+                  decoding="async"
+                >
+              </a>
+
+              <a
+                id="appleMusicTrackLink"
+                class="music-service-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                hidden
+              >
+                <img
+                  src="/assets/radio/apple-music.svg"
+                  width="22"
+                  height="22"
+                  alt=""
+                  decoding="async"
+                >
+              </a>
+
+              <a
+                id="deezerTrackLink"
+                class="music-service-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                hidden
+              >
+                <img
+                  src="/assets/radio/deezer.svg"
+                  width="22"
+                  height="22"
+                  alt=""
+                  decoding="async"
+                >
+              </a>
+
+              <a
+                id="tidalTrackLink"
+                class="music-service-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                hidden
+              >
+                <img
+                  src="/assets/radio/tidal.svg"
+                  width="22"
+                  height="22"
+                  alt=""
+                  decoding="async"
+                >
+              </a>
+
+            </span>
 
           </span>
 
@@ -4633,6 +4709,18 @@ const trackTitle =
 
 const spotifyTrackLink =
   document.getElementById("spotifyTrackLink");
+
+const musicServiceLinks =
+  document.getElementById("musicServiceLinks");
+
+const appleMusicTrackLink =
+  document.getElementById("appleMusicTrackLink");
+
+const deezerTrackLink =
+  document.getElementById("deezerTrackLink");
+
+const tidalTrackLink =
+  document.getElementById("tidalTrackLink");
 
 const mainStationLogo =
   document.getElementById("mainStationLogo");
@@ -6900,12 +6988,50 @@ function updateSpotifyLink(artist, title) {
   spotifyTrackLink.hidden = false;
 }
 
+/* Gebruik uitsluitend al bestaande trackgegevens voor drie zoeklinks. */
+function updateOtherMusicLinks(artist, title) {
+  const links = [
+    [appleMusicTrackLink, "Apple Music", "https://music.apple.com/nl/search?term="],
+    [deezerTrackLink, "Deezer", "https://www.deezer.com/search/"],
+    [tidalTrackLink, "TIDAL", "https://tidal.com/search/tracks?q="]
+  ];
+
+  if (!title) {
+    musicServiceLinks.hidden = true;
+    for (const [link] of links) {
+      link.hidden = true;
+      link.removeAttribute("href");
+      link.removeAttribute("aria-label");
+      link.removeAttribute("title");
+    }
+    return;
+  }
+
+  const search = [artist, title].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+  const label = artist ? `${artist} – ${title}` : title;
+  const encoded = encodeURIComponent(search);
+
+  for (const [link, service, searchUrl] of links) {
+    link.href = searchUrl + encoded;
+    link.setAttribute("aria-label", "Zoek " + label + " op " + service);
+    link.title = "Zoek op " + service;
+    link.hidden = false;
+  }
+
+  musicServiceLinks.hidden = false;
+}
+
+function updateMusicServiceLinks(artist, title) {
+  updateSpotifyLink(artist, title);
+  updateOtherMusicLinks(artist, title);
+}
+
 function setTrackLoading() {
 
   wikipediaGeneration++;
 
   resetWikipediaLinks();
-  updateSpotifyLink("", "");
+  updateMusicServiceLinks("", "");
 
 
 
@@ -6928,7 +7054,7 @@ function clearTrack() {
   wikipediaGeneration++;
 
   resetWikipediaLinks();
-  updateSpotifyLink("", "");
+  updateMusicServiceLinks("", "");
 
 
 
@@ -6997,7 +7123,7 @@ function setTrack(
   currentTrackUpdatedAt =
     Date.now();
 
-  updateSpotifyLink(artist, title);
+  updateMusicServiceLinks(artist, title);
 
   if (
     currentTrack.artist === artist &&
