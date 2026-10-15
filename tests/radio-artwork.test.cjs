@@ -172,7 +172,7 @@ test('zonder artiest of titel wordt geen verzoek verzonden; misses worden gecach
 });
 
 test('php-server gebruikt vaste upstream-domeinen, cache en MusicBrainz-ratelimit', () => {
-  assert.match(php,/https:\/\/musicbrainz\.org\/ws\/2\/recording\//);
+  assert.ok(php.includes('https://musicbrainz.org/ws/2/'));
   assert.match(php,/https:\/\/coverartarchive\.org\/release-group\//);
   assert.match(php,/https:\/\/en\.wikipedia\.org\/w\/api\.php/);
   assert.match(php,/https:\/\/commons\.wikimedia\.org\/w\/api\.php/);
@@ -279,19 +279,56 @@ test('voorkeur wordt via bestaande veilige localStorage-helper gelezen en opgesl
 test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', () => {
   const selection = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
   assert.match(php, /require_once __DIR__ \. '\/radio-artwork-release-select\.php'/);
-  assert.match(php, /rc045-radio-artwork-v4/);
-  assert.match(php, /\$lookupArtist = canonicalArtworkArtist\(\$artist\)/);
-  assert.match(php, /findAlbumArtwork\(\$lookupArtist, \$title, \$dir\)/);
+  assert.match(php, /rc045-radio-artwork-v5/);
+  assert.ok(php.includes('function artworkIdentifyArtist('));
+  assert.ok(php.includes('findAlbumArtwork($artist,$title,$dir)'));
   assert.match(selection, /secondary-types/);
-  assert.match(selection, /compilation\|soundtrack\|remix\|live\|mixtape/i);
+  assert.ok(selection.includes("array('compilation','live','remix','mixtape'"));
   assert.match(selection, /release\['artist-credit'\]/);
 });
 
 test('soundtrack single artwork fallback only after normal cover lookup', () => {
-  assert.match(php, /https:\/\/musicbrainz\.org\/ws\/2\/release-group\//);
-  assert.match(php, /artworkSingleCandidates\(/);
-  assert.match(php, /\$singleData\['release-groups'\]/);
+  assert.ok(php.includes("musicBrainzArtwork('release-group'"));
+  assert.ok(php.includes('artworkRankedSingles('));
+  assert.ok(php.includes("$singles['release-groups']"));
   const helper = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
-  assert.match(helper, /strcasecmp\(\(string\)\$type, 'Soundtrack'\)/);
-  assert.match(helper, /strcasecmp\(\(string\)\(\$group\['primary-type'\]/);
+  assert.ok(helper.includes("array_diff($types,array('soundtrack'))"));
+  assert.ok(helper.includes("$group['primary-type']"));
+});
+
+test('500px-hoes wordt op 250px herprobeerd, zonder verkeerde afbeelding te tonen', async () => {
+  const a = env();
+  const hd = {...valid,
+    image: valid.image.replace('/front-250','/front-500'),
+    imageFallback: valid.image};
+  void a.update('ABBA','Dancing Queen');
+  await a.fulfill(hd);
+  assert.equal(a.pendingImages.length,1);
+  a.pendingImages[0].onerror();
+  assert.equal(a.pendingImages.length,2);
+  a.pendingImages[1].onload();
+  assert.equal(a.image.src,valid.image);
+  assert.equal(a.container.classList.contains('has-track-artwork'),true);
+});
+
+test('onbetrouwbare fallback-URL en andere hosts worden genegeerd', async () => {
+  const a = env();
+  void a.update('P!nk','Sober');
+  await a.fulfill({...valid, image:valid.image.replace('/front-250','/front-500'),
+    imageFallback:'https://example.com/unsafe.jpg'});
+  a.pendingImages[0].onerror();
+  assert.equal(a.pendingImages.length,1);
+  assert.equal(a.container.classList.contains('has-track-artwork'),false);
+});
+
+test('server onderscheidt tijdelijke fouten van echte missers en beperkt API-verzoeken', () => {
+  assert.match(php, /'status'=>'temporary_error'/);
+  assert.ok(php.includes("'not_found'"));
+  assert.ok(php.includes('7 * 86400'));
+  assert.ok(php.includes('45 * 60'));
+  assert.ok(php.includes("'temporary_error') ? 30"));
+  assert.ok(php.includes("['musicbrainz'] >= 5"));
+  assert.ok(php.includes('count($seen) >= $maxChecks'));
+  assert.ok(php.includes('LOCK_EX|LOCK_NB') || php.includes('LOCK_EX | LOCK_NB'));
+  assert.ok(html.includes('data.status === "temporary_error" ? 30000'));
 });

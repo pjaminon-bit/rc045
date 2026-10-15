@@ -7280,7 +7280,7 @@ function safeArtworkResult(data) {
       uri.protocol === "https:" &&
       (
         (uri.hostname === "coverartarchive.org" &&
-          /^\/release-group\/[a-f0-9-]{36}\/front-250$/.test(uri.pathname)) ||
+          /^\/release-group\/[a-f0-9-]{36}\/front-(?:250|500)$/.test(uri.pathname)) ||
         (uri.hostname === "upload.wikimedia.org" &&
           uri.pathname.startsWith("/wikipedia/commons/"))
       );
@@ -7290,8 +7290,19 @@ function safeArtworkResult(data) {
       creditUri.protocol !== "https:" ||
       !["musicbrainz.org", "commons.wikimedia.org"].includes(creditUri.hostname)
     ) return null;
+    let fallback = null;
+    if (data.imageFallback && typeof data.imageFallback === "string") {
+      const fallbackUrl = new URL(data.imageFallback);
+      if (fallbackUrl.protocol === "https:" &&
+          fallbackUrl.hostname === "coverartarchive.org" &&
+          new RegExp("^/release-group/[a-f0-9-]{36}/front-250$").test(fallbackUrl.pathname) &&
+          fallbackUrl.pathname.replace("/front-250", "/front-500") === uri.pathname) {
+        fallback = fallbackUrl.href;
+      }
+    }
     return {
       image: uri.href,
+      imageFallback: fallback,
       creditUrl: creditUri.href,
       kind: data.kind === "artist" ? "artist" : "album",
       creditLabel: data.kind === "artist" && typeof data.creditLabel === "string"
@@ -7311,7 +7322,7 @@ function showTrackArtwork(result, generation) {
   preload.onload = () => {
     if (generation !== artworkGeneration || artworkPreload !== preload) return;
     artworkPreload = null;
-    trackArtworkBackground.src = result.image;
+    trackArtworkBackground.src = preload.currentSrc || result.image;
     if (result.kind === "artist") {
       // Vrij gelicentieerde artiestenfoto: herkomst en licentie blijven zichtbaar.
       artworkCredit.href = result.creditUrl;
@@ -7327,7 +7338,13 @@ function showTrackArtwork(result, generation) {
     stationArtwork.classList.add("has-track-artwork");
   };
   preload.onerror = () => {
-    if (artworkPreload === preload) artworkPreload = null;
+    if (generation !== artworkGeneration || artworkPreload !== preload) return;
+    if (result.imageFallback && !preload.datasetArtworkFallback) {
+      preload.datasetArtworkFallback = true;
+      preload.src = result.imageFallback;
+      return;
+    }
+    artworkPreload = null;
     // Geen geldige foto? Bewaar de huidige kleurverloop-achtergrond.
   };
   preload.src = result.image;
@@ -7360,7 +7377,9 @@ async function updateTrackArtwork(artist, title) {
     const result = safeArtworkResult(data);
     artworkCache.set(key, {
       result,
-      expires: Date.now() + (result ? 24 * 3600000 : 30 * 60000)
+      expires: Date.now() + (result
+        ? (result.kind === "artist" ? 30 * 60000 : 24 * 3600000)
+        : (data.status === "temporary_error" ? 30000 : 30 * 60000))
     });
     if (artworkCache.size > 80) {
       artworkCache.delete(artworkCache.keys().next().value);

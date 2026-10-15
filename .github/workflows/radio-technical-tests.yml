@@ -8,6 +8,9 @@ on:
       - 'radio-artwork-release-select.php'
       - 'tests/radio-artwork-release-select.php'
       - 'tests/radio-artwork.test.cjs'
+      - 'tests/radio-artwork-catalog.test.cjs'
+      - 'tests/radio-artwork-catalog.json'
+      - 'tests/radio-artwork-audit.mjs'
       - 'assets/radio/spotify.svg'
       - 'tests/radio-spotify-link.test.cjs'
       - 'assets/radio/logos/**'
@@ -15,6 +18,10 @@ on:
       - 'tests/radio-local-assets.test.cjs'
       - '.github/workflows/radio-technical-tests.yml'
   workflow_dispatch:
+
+concurrency:
+  group: radio-technical-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -29,7 +36,7 @@ jobs:
         with:
           node-version: '22'
       - name: Controleer radio zonder metadata-aanroepen
-        run: node --test tests/radio-technical.test.cjs tests/radio-local-assets.test.cjs tests/radio-spotify-link.test.cjs tests/radio-artwork.test.cjs
+        run: node --test tests/radio-technical.test.cjs tests/radio-local-assets.test.cjs tests/radio-spotify-link.test.cjs tests/radio-artwork.test.cjs tests/radio-artwork-catalog.test.cjs
       - name: Controleer PHP artwork selectie en syntax
         run: |
           php -l radio-artwork.php
@@ -41,3 +48,19 @@ jobs:
           php -r '$_SERVER["REQUEST_METHOD"]="GET"; include "radio-artwork.php";' | grep -F '"image":null'
       - name: Controleer nieuw toegevoegde streamadressen
         run: node tests/radio-stream-probe.mjs
+      - name: Meet artworkdekking op tien regressies zonder batchaanvragen
+        run: |
+          php -S 127.0.0.1:8765 -t . >/tmp/radio-artwork-php-server.log 2>&1 &
+          sleep 2
+          ARTWORK_AUDIT_LIVE=1 ARTWORK_AUDIT_LIMIT=10 node tests/radio-artwork-audit.mjs
+      - name: Bewaar artwork-audit en webserver-log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radio-artwork-audit
+          path: |
+            radio-artwork-audit.json
+            /tmp/radio-artwork-php-server.log
+          if-no-files-found: ignore
+          retention-days: 10
+

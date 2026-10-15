@@ -1,0 +1,902 @@
+[
+  {
+    "category": "pop",
+    "artist": "P!nk",
+    "title": "Sober"
+  },
+  {
+    "category": "pop",
+    "artist": "Dua Lipa",
+    "title": "Dance the Night"
+  },
+  {
+    "category": "pop",
+    "artist": "Taylor Swift",
+    "title": "Anti-Hero"
+  },
+  {
+    "category": "pop",
+    "artist": "Rihanna",
+    "title": "We Found Love"
+  },
+  {
+    "category": "pop",
+    "artist": "Harry Styles",
+    "title": "As It Was"
+  },
+  {
+    "category": "pop",
+    "artist": "Adele",
+    "title": "Someone Like You"
+  },
+  {
+    "category": "pop",
+    "artist": "Billie Eilish",
+    "title": "Birds of a Feather"
+  },
+  {
+    "category": "pop",
+    "artist": "Sia",
+    "title": "Chandelier"
+  },
+  {
+    "category": "pop",
+    "artist": "Lady Gaga",
+    "title": "Bad Romance"
+  },
+  {
+    "category": "pop",
+    "artist": "Miley Cyrus",
+    "title": "Flowers"
+  },
+  {
+    "category": "pop",
+    "artist": "Olivia Rodrigo",
+    "title": "Vampire"
+  },
+  {
+    "category": "pop",
+    "artist": "Madonna",
+    "title": "Vogue"
+  },
+  {
+    "category": "pop",
+    "artist": "Katy Perry",
+    "title": "Teenage Dream"
+  },
+  {
+    "category": "pop",
+    "artist": "Britney Spears",
+    "title": "Toxic"
+  },
+  {
+    "category": "pop",
+    "artist": "The Weeknd",
+    "title": "Blinding Lights"
+  },
+  {
+    "category": "pop",
+    "artist": "Ariana Grande",
+    "title": "Into You"
+  },
+  {
+    "category": "pop",
+    "artist": "George Michael",
+    "title": "Careless Whisper"
+  },
+  {
+    "category": "pop",
+    "artist": "Ed Sheeran",
+    "title": "Bad Habits"
+  },
+  {
+    "category": "pop",
+    "artist": "Justin Timberlake",
+    "title": "Mirrors"
+  },
+  {
+    "category": "pop",
+    "artist": "Bruno Mars",
+    "title": "Locked Out of Heaven"
+  },
+  {
+    "category": "rock",
+    "artist": "Yeah Yeah Yeahs",
+    "title": "Heads Will Roll"
+  },
+  {
+    "category": "rock",
+    "artist": "Arctic Monkeys",
+    "title": "Do I Wanna Know?"
+  },
+  {
+    "category": "rock",
+    "artist": "Oasis",
+    "title": "Wonderwall"
+  },
+  {
+    "category": "rock",
+    "artist": "The Beatles",
+    "title": "Come Together"
+  },
+  {
+    "category": "rock",
+    "artist": "The Rolling Stones",
+    "title": "Paint It Black"
+  },
+  {
+    "category": "rock",
+    "artist": "Queen",
+    "title": "Bohemian Rhapsody"
+  },
+  {
+    "category": "rock",
+    "artist": "Nirvana",
+    "title": "Smells Like Teen Spirit"
+  },
+  {
+    "category": "rock",
+    "artist": "Foo Fighters",
+    "title": "Everlong"
+  },
+  {
+    "category": "rock",
+    "artist": "Radiohead",
+    "title": "Karma Police"
+  },
+  {
+    "category": "rock",
+    "artist": "Muse",
+    "title": "Uprising"
+  },
+  {
+    "category": "rock",
+    "artist": "The Killers",
+    "title": "Mr. Brightside"
+  },
+  {
+    "category": "rock",
+    "artist": "Red Hot Chili Peppers",
+    "title": "Californication"
+  },
+  {
+    "category": "rock",
+    "artist": "Pearl Jam",
+    "title": "Alive"
+  },
+  {
+    "category": "rock",
+    "artist": "U2",
+    "title": "With or Without You"
+  },
+  {
+    "category": "rock",
+    "artist": "The Cranberries",
+    "title": "Zombie"
+  },
+  {
+    "category": "rock",
+    "artist": "Metallica",
+    "title": "Nothing Else Matters"
+  },
+  {
+    "category": "rock",
+    "artist": "AC/DC",
+    "title": "Back in Black"
+  },
+  {
+    "category": "rock",
+    "artist": "The Strokes",
+    "title": "Last Nite"
+  },
+  {
+    "category": "rock",
+    "artist": "Fleetwood Mac",
+    "title": "Go Your Own Way"
+  },
+  {
+    "category": "rock",
+    "artist": "Kings of Leon",
+    "title": "Sex on Fire"
+  },
+  {
+    "category": "electronic",
+    "artist": "Daft Punk",
+    "title": "Get Lucky"
+  },
+  {
+    "category": "electronic",
+    "artist": "Calvin Harris",
+    "title": "Summer"
+  },
+  {
+    "category": "electronic",
+    "artist": "David Guetta",
+    "title": "Titanium"
+  },
+  {
+    "category": "electronic",
+    "artist": "Swedish House Mafia",
+    "title": "Don't You Worry Child"
+  },
+  {
+    "category": "electronic",
+    "artist": "Avicii",
+    "title": "Wake Me Up"
+  },
+  {
+    "category": "electronic",
+    "artist": "Fatboy Slim",
+    "title": "Praise You"
+  },
+  {
+    "category": "electronic",
+    "artist": "The Chemical Brothers",
+    "title": "Galvanize"
+  },
+  {
+    "category": "electronic",
+    "artist": "Faithless",
+    "title": "Insomnia"
+  },
+  {
+    "category": "electronic",
+    "artist": "Robin S.",
+    "title": "Show Me Love"
+  },
+  {
+    "category": "electronic",
+    "artist": "Benny Benassi",
+    "title": "Satisfaction"
+  },
+  {
+    "category": "electronic",
+    "artist": "Stardust",
+    "title": "Music Sounds Better with You"
+  },
+  {
+    "category": "electronic",
+    "artist": "Armin van Buuren",
+    "title": "This Is What It Feels Like"
+  },
+  {
+    "category": "electronic",
+    "artist": "Tiësto",
+    "title": "The Business"
+  },
+  {
+    "category": "electronic",
+    "artist": "Martin Garrix",
+    "title": "Animals"
+  },
+  {
+    "category": "electronic",
+    "artist": "Disclosure",
+    "title": "Latch"
+  },
+  {
+    "category": "electronic",
+    "artist": "Röyksopp",
+    "title": "Eple"
+  },
+  {
+    "category": "electronic",
+    "artist": "Underworld",
+    "title": "Born Slippy .NUXX"
+  },
+  {
+    "category": "electronic",
+    "artist": "Eric Prydz",
+    "title": "Call on Me"
+  },
+  {
+    "category": "electronic",
+    "artist": "Black Box",
+    "title": "Ride on Time"
+  },
+  {
+    "category": "electronic",
+    "artist": "Paul Kalkbrenner",
+    "title": "Sky and Sand"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Eminem",
+    "title": "Lose Yourself"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Kendrick Lamar",
+    "title": "HUMBLE."
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Dr. Dre",
+    "title": "Still D.R.E."
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Snoop Dogg",
+    "title": "Drop It Like It's Hot"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "2Pac",
+    "title": "California Love"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "The Notorious B.I.G.",
+    "title": "Juicy"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "OutKast",
+    "title": "Hey Ya!"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Missy Elliott",
+    "title": "Get Ur Freak On"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Jay-Z",
+    "title": "99 Problems"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Kanye West",
+    "title": "Stronger"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Travis Scott",
+    "title": "SICKO MODE"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Doja Cat",
+    "title": "Say So"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Lauryn Hill",
+    "title": "Doo Wop (That Thing)"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Usher",
+    "title": "Yeah!"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Alicia Keys",
+    "title": "No One"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Beyoncé",
+    "title": "Crazy in Love"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Frank Ocean",
+    "title": "Thinkin Bout You"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Mary J. Blige",
+    "title": "Family Affair"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "TLC",
+    "title": "No Scrubs"
+  },
+  {
+    "category": "hiphop_rnb",
+    "artist": "Destiny's Child",
+    "title": "Survivor"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Doe Maar",
+    "title": "Sinds 1 Dag of 2 (32 Jaar)"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Bløf",
+    "title": "Aan de Kust"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Acda en De Munnik",
+    "title": "Het Regent Zonnestralen"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Guus Meeuwis",
+    "title": "Brabant"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Marco Borsato",
+    "title": "Dromen Zijn Bedrog"
+  },
+  {
+    "category": "netherlands",
+    "artist": "André Hazes",
+    "title": "Zij Gelooft in Mij"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Golden Earring",
+    "title": "Radar Love"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Within Temptation",
+    "title": "Ice Queen"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Kensington",
+    "title": "War"
+  },
+  {
+    "category": "netherlands",
+    "artist": "DI-RECT",
+    "title": "Soldier On"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Anouk",
+    "title": "Nobody's Wife"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Ilse DeLange",
+    "title": "Miracle"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Racoon",
+    "title": "Oceaan"
+  },
+  {
+    "category": "netherlands",
+    "artist": "De Jeugd van Tegenwoordig",
+    "title": "Watskeburt?!"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Froukje",
+    "title": "Ik Wil Dansen"
+  },
+  {
+    "category": "netherlands",
+    "artist": "S10",
+    "title": "De Diepte"
+  },
+  {
+    "category": "netherlands",
+    "artist": "MEAU",
+    "title": "Dat Heb Jij Gedaan"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Suzan & Freek",
+    "title": "Als Het Avond Is"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Chef'Special",
+    "title": "Amigo"
+  },
+  {
+    "category": "netherlands",
+    "artist": "Nielson",
+    "title": "Sexy Als Ik Dans"
+  },
+  {
+    "category": "belgium",
+    "artist": "Stromae",
+    "title": "Alors on danse"
+  },
+  {
+    "category": "belgium",
+    "artist": "Angèle",
+    "title": "Balance ton quoi"
+  },
+  {
+    "category": "belgium",
+    "artist": "Lost Frequencies",
+    "title": "Are You with Me"
+  },
+  {
+    "category": "belgium",
+    "artist": "Milow",
+    "title": "Ayo Technology"
+  },
+  {
+    "category": "belgium",
+    "artist": "Selah Sue",
+    "title": "Raggamuffin"
+  },
+  {
+    "category": "belgium",
+    "artist": "Bazart",
+    "title": "Goud"
+  },
+  {
+    "category": "belgium",
+    "artist": "Clouseau",
+    "title": "Daar Gaat Ze"
+  },
+  {
+    "category": "belgium",
+    "artist": "K3",
+    "title": "Oya Lélé"
+  },
+  {
+    "category": "belgium",
+    "artist": "Oscar and the Wolf",
+    "title": "Strange Entity"
+  },
+  {
+    "category": "belgium",
+    "artist": "Soulwax",
+    "title": "NY Excuse"
+  },
+  {
+    "category": "belgium",
+    "artist": "dEUS",
+    "title": "Suds & Soda"
+  },
+  {
+    "category": "belgium",
+    "artist": "Balthazar",
+    "title": "Fever"
+  },
+  {
+    "category": "belgium",
+    "artist": "Compact Disk Dummies",
+    "title": "The Reeling"
+  },
+  {
+    "category": "belgium",
+    "artist": "The Subs",
+    "title": "The Face of the Planet"
+  },
+  {
+    "category": "belgium",
+    "artist": "Hooverphonic",
+    "title": "Mad About You"
+  },
+  {
+    "category": "belgium",
+    "artist": "Netsky",
+    "title": "Come Alive"
+  },
+  {
+    "category": "belgium",
+    "artist": "Tourist LeMC",
+    "title": "Horizon"
+  },
+  {
+    "category": "belgium",
+    "artist": "Willy Sommers",
+    "title": "Laat de Zon in Je Hart"
+  },
+  {
+    "category": "belgium",
+    "artist": "The Scabs",
+    "title": "Hard Times"
+  },
+  {
+    "category": "belgium",
+    "artist": "Arno",
+    "title": "Les yeux de ma mère"
+  },
+  {
+    "category": "oldies",
+    "artist": "ABBA",
+    "title": "Dancing Queen"
+  },
+  {
+    "category": "oldies",
+    "artist": "The Bee Gees",
+    "title": "Stayin' Alive"
+  },
+  {
+    "category": "oldies",
+    "artist": "Michael Jackson",
+    "title": "Billie Jean"
+  },
+  {
+    "category": "oldies",
+    "artist": "Prince",
+    "title": "Purple Rain"
+  },
+  {
+    "category": "oldies",
+    "artist": "Elton John",
+    "title": "Rocket Man"
+  },
+  {
+    "category": "oldies",
+    "artist": "David Bowie",
+    "title": "Heroes"
+  },
+  {
+    "category": "oldies",
+    "artist": "The Police",
+    "title": "Every Breath You Take"
+  },
+  {
+    "category": "oldies",
+    "artist": "Tina Turner",
+    "title": "The Best"
+  },
+  {
+    "category": "oldies",
+    "artist": "Whitney Houston",
+    "title": "I Wanna Dance with Somebody"
+  },
+  {
+    "category": "oldies",
+    "artist": "Cyndi Lauper",
+    "title": "Girls Just Want to Have Fun"
+  },
+  {
+    "category": "oldies",
+    "artist": "Bonnie Tyler",
+    "title": "Total Eclipse of the Heart"
+  },
+  {
+    "category": "oldies",
+    "artist": "Eurythmics",
+    "title": "Sweet Dreams (Are Made of This)"
+  },
+  {
+    "category": "oldies",
+    "artist": "The Beach Boys",
+    "title": "Good Vibrations"
+  },
+  {
+    "category": "oldies",
+    "artist": "Marvin Gaye",
+    "title": "What's Going On"
+  },
+  {
+    "category": "oldies",
+    "artist": "Stevie Wonder",
+    "title": "Superstition"
+  },
+  {
+    "category": "oldies",
+    "artist": "The Supremes",
+    "title": "You Can't Hurry Love"
+  },
+  {
+    "category": "oldies",
+    "artist": "Aretha Franklin",
+    "title": "Respect"
+  },
+  {
+    "category": "oldies",
+    "artist": "Otis Redding",
+    "title": "(Sittin' On) The Dock of the Bay"
+  },
+  {
+    "category": "oldies",
+    "artist": "Earth, Wind & Fire",
+    "title": "September"
+  },
+  {
+    "category": "oldies",
+    "artist": "Simon & Garfunkel",
+    "title": "The Sound of Silence"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Céline Dion",
+    "title": "My Heart Will Go On"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Eminem",
+    "title": "Lose Yourself (8 Mile Soundtrack)"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Adele",
+    "title": "Skyfall"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Billie Eilish",
+    "title": "What Was I Made For?"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Lady Gaga",
+    "title": "Shallow"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Whitney Houston",
+    "title": "I Will Always Love You"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Elton John",
+    "title": "Can You Feel the Love Tonight"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Phil Collins",
+    "title": "You'll Be in My Heart"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Survivor",
+    "title": "Eye of the Tiger"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Irene Cara",
+    "title": "Flashdance... What a Feeling"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Kenny Loggins",
+    "title": "Danger Zone"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Berlin",
+    "title": "Take My Breath Away"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Ray Parker Jr.",
+    "title": "Ghostbusters"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "John Travolta & Olivia Newton-John",
+    "title": "You're the One That I Want"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Idina Menzel",
+    "title": "Let It Go"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Lana Del Rey",
+    "title": "Young and Beautiful"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Bryan Adams",
+    "title": "Everything I Do (I Do It for You)"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Coolio",
+    "title": "Gangsta's Paradise"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Simple Minds",
+    "title": "Don't You (Forget About Me)"
+  },
+  {
+    "category": "soundtracks",
+    "artist": "Randy Newman",
+    "title": "You've Got a Friend in Me"
+  },
+  {
+    "category": "versions",
+    "artist": "Yeah Yeah Yeahs",
+    "title": "Heads Will Roll (A-Trak Remix)"
+  },
+  {
+    "category": "versions",
+    "artist": "New Order",
+    "title": "Blue Monday (1988 Remix)"
+  },
+  {
+    "category": "versions",
+    "artist": "The Weeknd",
+    "title": "Save Your Tears (Remix)"
+  },
+  {
+    "category": "versions",
+    "artist": "Nirvana",
+    "title": "Come As You Are (Live)"
+  },
+  {
+    "category": "versions",
+    "artist": "Linkin Park",
+    "title": "Numb (Live)"
+  },
+  {
+    "category": "versions",
+    "artist": "Fleetwood Mac",
+    "title": "Dreams (2004 Remaster)"
+  },
+  {
+    "category": "versions",
+    "artist": "Calvin Harris",
+    "title": "Feel So Close (Radio Edit)"
+  },
+  {
+    "category": "versions",
+    "artist": "Avicii",
+    "title": "Levels (Radio Edit)"
+  },
+  {
+    "category": "versions",
+    "artist": "Daft Punk",
+    "title": "One More Time (Radio Edit)"
+  },
+  {
+    "category": "versions",
+    "artist": "David Guetta",
+    "title": "Memories (Extended Mix)"
+  },
+  {
+    "category": "versions",
+    "artist": "Metallica",
+    "title": "Enter Sandman (Live)"
+  },
+  {
+    "category": "versions",
+    "artist": "Adele",
+    "title": "Rolling in the Deep (Live)"
+  },
+  {
+    "category": "versions",
+    "artist": "Coldplay",
+    "title": "Fix You (Live)"
+  },
+  {
+    "category": "versions",
+    "artist": "Dua Lipa",
+    "title": "Levitating (The Blessed Madonna Remix)"
+  },
+  {
+    "category": "versions",
+    "artist": "Beyoncé",
+    "title": "Break My Soul (Remix)"
+  },
+  {
+    "category": "versions",
+    "artist": "Eric Prydz",
+    "title": "Pjanoo (Club Mix)"
+  },
+  {
+    "category": "versions",
+    "artist": "Swedish House Mafia",
+    "title": "One (Your Name) (Radio Edit)"
+  },
+  {
+    "category": "versions",
+    "artist": "Arctic Monkeys",
+    "title": "505 (Live)"
+  },
+  {
+    "category": "versions",
+    "artist": "The Killers",
+    "title": "Human (Radio Edit)"
+  },
+  {
+    "category": "versions",
+    "artist": "Queen",
+    "title": "We Will Rock You (Live)"
+  }
+]
