@@ -17,6 +17,10 @@ header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
 
 function outputArtwork($data, $code = 200) {
+    // Bounded counters make live audit performance measurable without API keys.
+    header('X-Radio-Artwork-MusicBrainz: '.(int)($GLOBALS['artworkCounters']['musicbrainz'] ?? 0));
+    header('X-Radio-Artwork-CoverChecks: '.(int)($GLOBALS['artworkCounters']['cover_checks'] ?? 0));
+    header('X-Radio-Artwork-Cache: '.(!empty($GLOBALS['artworkCacheHit']) ? 'HIT' : 'MISS'));
     http_response_code($code);
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
@@ -314,6 +318,7 @@ $file=$dir.'/'.$hash.'.json';
 $lock=@fopen($file.'.lock','c');
 $cached=is_file($file) ? json_decode((string)@file_get_contents($file),true) : null;
 if (is_array($cached) && (int)($cached['expires'] ?? 0)>time()) {
+    $GLOBALS['artworkCacheHit']=true;
     if ($lock) fclose($lock);
     outputArtwork($cached['result']);
 }
@@ -329,12 +334,16 @@ if ($lock) {
     } while (microtime(true)-$waitStart<0.85);
     if (!$owned) {
         fclose($lock);
-        if (is_array($cached) && !empty($cached['result']['image'])) outputArtwork($cached['result']);
+        if (is_array($cached) && !empty($cached['result']['image'])) {
+            $GLOBALS['artworkCacheHit']=true;
+            outputArtwork($cached['result']);
+        }
         outputArtwork(array('image'=>null,'status'=>'temporary_error'));
     }
 }
 $cached=is_file($file) ? json_decode((string)@file_get_contents($file),true) : null;
 if (is_array($cached) && (int)($cached['expires'] ?? 0)>time()) {
+    $GLOBALS['artworkCacheHit']=true;
     if ($lock) {flock($lock,LOCK_UN);fclose($lock);}
     outputArtwork($cached['result']);
 }
