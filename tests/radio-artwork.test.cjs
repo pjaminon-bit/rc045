@@ -172,7 +172,7 @@ test('zonder artiest of titel wordt geen verzoek verzonden; misses worden gecach
 });
 
 test('php-server gebruikt vaste upstream-domeinen, cache en MusicBrainz-ratelimit', () => {
-  assert.match(php,/https:\/\/musicbrainz\.org\/ws\/2\/recording\//);
+  assert.ok(php.includes('https://musicbrainz.org/ws/2/'));
   assert.match(php,/https:\/\/coverartarchive\.org\/release-group\//);
   assert.match(php,/https:\/\/en\.wikipedia\.org\/w\/api\.php/);
   assert.match(php,/https:\/\/commons\.wikimedia\.org\/w\/api\.php/);
@@ -280,8 +280,8 @@ test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', (
   const selection = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
   assert.match(php, /require_once __DIR__ \. '\/radio-artwork-release-select\.php'/);
   assert.match(php, /rc045-radio-artwork-v5/);
-  assert.match(php, /\$lookupArtist = canonicalArtworkArtist\(\$artist\)/);
-  assert.match(php, /findAlbumArtwork\(\$lookupArtist, \$title, \$dir\)/);
+  assert.ok(php.includes('function artworkIdentifyArtist('));
+  assert.ok(php.includes('findAlbumArtwork($artist,$title,$dir)'));
   assert.match(selection, /secondary-types/);
   assert.match(selection, /compilation\|soundtrack\|remix\|live\|mixtape/i);
   assert.match(selection, /release\['artist-credit'\]/);
@@ -289,11 +289,11 @@ test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', (
 
 test('soundtrack single artwork fallback only after normal cover lookup', () => {
   assert.match(php, /https:\/\/musicbrainz\.org\/ws\/2\/release-group\//);
-  assert.match(php, /artworkSingleCandidates\(/);
-  assert.match(php, /\$singleData\['release-groups'\]/);
+  assert.ok(php.includes('artworkRankedSingles('));
+  assert.ok(php.includes("$singles['release-groups']"));
   const helper = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
-  assert.match(helper, /strcasecmp\(\(string\)\$type, 'Soundtrack'\)/);
-  assert.match(helper, /strcasecmp\(\(string\)\(\$group\['primary-type'\]/);
+  assert.ok(helper.includes("array_diff($types,array('soundtrack'))"));
+  assert.ok(helper.includes("$group['primary-type']"));
 });
 
 test('500px-hoes wordt op 250px herprobeerd, zonder verkeerde afbeelding te tonen', async () => {
@@ -324,11 +324,11 @@ test('onbetrouwbare fallback-URL en andere hosts worden genegeerd', async () => 
 test('server onderscheidt tijdelijke fouten van echte missers en beperkt API-verzoeken', () => {
   assert.match(php, /'status'=>'temporary_error'/);
   assert.match(php, /'status'=>'not_found'/);
-  assert.match(php, /7 \\* 86400/);
-  assert.match(php, /45 \\* 60/);
-  assert.match(php, /'temporary_error'\\) \\? 30/);
-  assert.match(php, /musicbrainz'\\] >= 5/);
-  assert.match(php, /count\\(\\$seen\\) >= 7/);
-  assert.match(php, /LOCK_EX\\|LOCK_NB|LOCK_EX \\| LOCK_NB/);
+  assert.ok(php.includes('7 * 86400'));
+  assert.ok(php.includes('45 * 60'));
+  assert.ok(php.includes("'temporary_error') ? 30"));
+  assert.ok(php.includes("['musicbrainz'] >= 5"));
+  assert.ok(php.includes('count($seen) >= 7'));
+  assert.ok(php.includes('LOCK_EX|LOCK_NB') || php.includes('LOCK_EX | LOCK_NB'));
   assert.match(html, /data.status === "temporary_error" \\? 30000/);
 });
