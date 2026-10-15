@@ -986,9 +986,9 @@
       isolation: isolate;
 
       --play-shadow:
-        0 12px 28px rgba(0,0,0,.20),
-        0 2px 7px rgba(0,0,0,.09),
-        inset 0 1px 0 rgba(255,255,255,.09);
+        0 8px 20px rgba(0,0,0,.13),
+        0 2px 5px rgba(0,0,0,.06),
+        inset 0 1px 0 rgba(255,255,255,.07);
 
       box-shadow: var(--play-shadow);
 
@@ -1017,10 +1017,10 @@
         linear-gradient(
           90deg,
           transparent,
-          rgba(var(--accent-rgb), .10),
-          rgba(var(--accent-rgb), .34),
-          rgba(255,255,255,.32),
-          rgba(var(--accent-rgb), .20),
+          rgba(var(--accent-rgb), .08),
+          rgba(var(--accent-rgb), .25),
+          rgba(255,255,255,.25),
+          rgba(var(--accent-rgb), .14),
           transparent
         );
 
@@ -1060,14 +1060,14 @@
       63% {
         box-shadow:
           var(--play-shadow),
-          0 0 0 2px rgba(var(--accent-rgb), .11),
-          0 0 14px rgba(var(--accent-rgb), .12);
+          0 0 0 1.5px rgba(var(--accent-rgb), .08),
+          0 0 10px rgba(var(--accent-rgb), .10);
       }
 
       79% {
         box-shadow:
           var(--play-shadow),
-          0 0 0 3px rgba(var(--accent-rgb), .04);
+          0 0 0 2px rgba(var(--accent-rgb), .03);
       }
     }
 
@@ -1083,11 +1083,11 @@
       }
 
       60% {
-        opacity: .9;
+        opacity: .65;
       }
 
       76% {
-        opacity: .95;
+        opacity: .72;
 
         transform:
           translateX(430%)
@@ -1124,21 +1124,21 @@
     .play-button svg {
       position: relative;
       z-index: 1;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       pointer-events: none;
     }
 
 
     .play-button .play-icon {
-      /* The path is optically centred, without a large CSS margin. */
+      /* Centre the visual weight of the triangle, not its bounding box. */
       transform: translateX(1px);
     }
 
 
     .play-button .pause-icon {
-      width: 30px;
-      height: 30px;
+      width: 34px;
+      height: 34px;
     }
 
 
@@ -3008,7 +3008,7 @@
               fill="currentColor"
               aria-hidden="true"
             >
-              <path d="M8 4.75c0-.82.9-1.31 1.59-.87l10.98 7.24a1.06 1.06 0 0 1 0 1.76L9.59 20.12A1.04 1.04 0 0 1 8 19.25V4.75Z"/>
+              <path d="M6.15 3.75C6.15 2.92 7.07 2.4 7.8 2.84L20.8 11.03C21.52 11.48 21.52 12.52 20.8 12.97L7.8 21.16C7.07 21.6 6.15 21.08 6.15 20.25Z"/>
             </svg>
 
             <svg
@@ -3017,7 +3017,7 @@
               fill="currentColor"
               aria-hidden="true"
             >
-              <path d="M7.5 5.25a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v13.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5.25Zm5.75 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v13.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5.25Z"/>
+              <path d="M5.25 5.25c0-.69.56-1.25 1.25-1.25h3.2c.69 0 1.25.56 1.25 1.25v13.5c0 .69-.56 1.25-1.25 1.25H6.5c-.69 0-1.25-.56-1.25-1.25V5.25Zm7.8 0c0-.69.56-1.25 1.25-1.25h3.2c.69 0 1.25.56 1.25 1.25v13.5c0 .69-.56 1.25-1.25 1.25h-3.2c-.69 0-1.25-.56-1.25-1.25V5.25Z"/>
             </svg>
 
           </button>
