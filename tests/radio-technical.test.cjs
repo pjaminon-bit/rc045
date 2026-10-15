@@ -437,3 +437,111 @@ test('handmatig pauzeren of offline gaan stopt herstel', async () => {
   sim.actions.scheduleReconnect('offline');
   assert.equal(sim.timers.size, 0);
 });
+
+
+function makeBackgroundRefreshHarness() {
+  const pendingMetadata = [], pendingProgram = [];
+  let playing = true;
+  const document = { visibilityState: 'hidden' };
+  const ctx = {
+    document, currentIndex: 0, metadataGeneration: 0, programGeneration: 0,
+    isPlaybackActive: () => playing,
+    performMetadataRefresh: () => new Promise(resolve => pendingMetadata.push(resolve)),
+    performProgramRefresh: () => new Promise(resolve => pendingProgram.push(resolve))
+  };
+  // Alleen de nieuwe scheduling-wrappers worden uitgevoerd, niet de
+  // bevroren metadata- of programmaproviders.
+  const js =
+    part('function shouldRefreshInBackground()', 'async function performMetadataRefresh()') +
+    part('let programRefreshFlight = null;', 'async function performProgramRefresh()');
+  const api = new Function('ctx', 'with(ctx) {' + js +
+    '\nreturn {refreshMetadata,refreshProgram};}')(ctx);
+  return {
+    ctx, document, api, pendingMetadata, pendingProgram,
+    setPlaying: value => { playing = value; }
+  };
+}
+
+test('trackinfo en programma verversen bij verborgen tab zolang radio speelt', async () => {
+  const sim = makeBackgroundRefreshHarness();
+  const firstTrack = sim.api.refreshMetadata();
+  const duplicateTrack = sim.api.refreshMetadata();
+  const firstProgram = sim.api.refreshProgram();
+  const duplicateProgram = sim.api.refreshProgram();
+  assert.strictEqual(firstTrack, duplicateTrack);
+  assert.strictEqual(firstProgram, duplicateProgram);
+  assert.equal(sim.pendingMetadata.length, 1);
+  assert.equal(sim.pendingProgram.length, 1);
+
+  sim.pendingMetadata.shift()();
+  sim.pendingProgram.shift()();
+  await Promise.all([firstTrack, firstProgram]);
+  sim.setPlaying(false);
+  await sim.api.refreshMetadata();
+  await sim.api.refreshProgram();
+  assert.equal(sim.pendingMetadata.length, 0);
+  assert.equal(sim.pendingProgram.length, 0);
+
+  sim.document.visibilityState = 'visible';
+  const foregroundTrack = sim.api.refreshMetadata();
+  const foregroundProgram = sim.api.refreshProgram();
+  assert.equal(sim.pendingMetadata.length, 1);
+  assert.equal(sim.pendingProgram.length, 1);
+  sim.pendingMetadata.shift()();
+  sim.pendingProgram.shift()();
+  await Promise.all([foregroundTrack, foregroundProgram]);
+});
+
+test('zenderwissel start nieuwe refresh en oude afronding wist deze niet', async () => {
+  const sim = makeBackgroundRefreshHarness();
+  const oldTrack = sim.api.refreshMetadata();
+  const oldProgram = sim.api.refreshProgram();
+  sim.ctx.currentIndex = 1;
+  sim.ctx.metadataGeneration++;
+  sim.ctx.programGeneration++;
+  const newTrack = sim.api.refreshMetadata();
+  const newProgram = sim.api.refreshProgram();
+  assert.equal(sim.pendingMetadata.length, 2);
+  assert.equal(sim.pendingProgram.length, 2);
+
+  sim.pendingMetadata.shift()();
+  sim.pendingProgram.shift()();
+  await Promise.all([oldTrack, oldProgram]);
+  assert.strictEqual(sim.api.refreshMetadata(), newTrack);
+  assert.strictEqual(sim.api.refreshProgram(), newProgram);
+  sim.pendingMetadata.shift()();
+  sim.pendingProgram.shift()();
+  await Promise.all([newTrack, newProgram]);
+});
+
+test('focus en zichtbaarheid halen updates in en publiceren actuele Windows-mediakaart', () => {
+  const events = {}, calls = [];
+  const ctx = {
+    document: {
+      visibilityState: 'hidden',
+      addEventListener(name, fn) { events['document:' + name] = fn; }
+    },
+    window: { addEventListener(name, fn) { events['window:' + name] = fn; } },
+    refreshMetadata() { calls.push('track'); },
+    refreshProgram() { calls.push('program'); },
+    updateSleepTimer() { calls.push('timer'); },
+    isPlaybackActive() { return true; },
+    isCasting() { return false; },
+    updateMediaSession() { calls.push('media'); },
+    setMediaSessionPlaybackState(state) { calls.push(state); }
+  };
+  const js = part('function refreshAfterForegroundResume()', 
+    '/* =========================================================\n   SLEEP TIMER');
+  new Function('ctx', 'with(ctx) {' + js + '}')(ctx);
+  assert.equal(typeof events['document:visibilitychange'], 'function');
+  assert.equal(typeof events['window:focus'], 'function');
+
+  events['window:focus']();
+  assert.deepEqual(calls, []);
+  ctx.document.visibilityState = 'visible';
+  events['window:focus']();
+  assert.deepEqual(calls, ['track', 'program', 'timer', 'media', 'playing']);
+  calls.length = 0;
+  events['document:visibilitychange']();
+  assert.deepEqual(calls, ['track', 'program', 'timer', 'media', 'playing']);
+});

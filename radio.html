@@ -9067,17 +9067,37 @@ async function resolveMetadataProvider(
    REFRESH TRACK
    ========================================================= */
 
-async function refreshMetadata() {
+// Houd de bestaande bronnen, validatie en intervallen intact.
+// Alleen achtergrondverversing tijdens afspelen; geen polling bij verborgen pauze.
+function shouldRefreshInBackground() {
+  return document.visibilityState !== "hidden" || isPlaybackActive();
+}
 
+// Eén verzoek per zender/generatie; een zenderwissel mag meteen verversen.
+let metadataRefreshFlight = null;
+function refreshMetadata() {
+  if (!shouldRefreshInBackground()) return Promise.resolve();
+
+  const flight = metadataRefreshFlight;
   if (
-    document.visibilityState ===
-    "hidden"
-  ) {
+    flight &&
+    flight.generation === metadataGeneration &&
+    flight.stationIndex === currentIndex
+  ) return flight.promise;
 
-    return;
+  const next = {
+    generation: metadataGeneration,
+    stationIndex: currentIndex,
+    promise: null
+  };
+  metadataRefreshFlight = next;
+  next.promise = performMetadataRefresh().finally(() => {
+    if (metadataRefreshFlight === next) metadataRefreshFlight = null;
+  });
+  return next.promise;
+}
 
-  }
-
+async function performMetadataRefresh() {
 
   if (
     isContentSuppressed()
@@ -9760,17 +9780,30 @@ async function resolveProgram(
    REFRESH PROGRAM
    ========================================================= */
 
-async function refreshProgram() {
+let programRefreshFlight = null;
+function refreshProgram() {
+  if (!shouldRefreshInBackground()) return Promise.resolve();
 
+  const flight = programRefreshFlight;
   if (
-    document.visibilityState ===
-    "hidden"
-  ) {
+    flight &&
+    flight.generation === programGeneration &&
+    flight.stationIndex === currentIndex
+  ) return flight.promise;
 
-    return;
+  const next = {
+    generation: programGeneration,
+    stationIndex: currentIndex,
+    promise: null
+  };
+  programRefreshFlight = next;
+  next.promise = performProgramRefresh().finally(() => {
+    if (programRefreshFlight === next) programRefreshFlight = null;
+  });
+  return next.promise;
+}
 
-  }
-
+async function performProgramRefresh() {
 
   if (
     isContentSuppressed()
@@ -10622,25 +10655,23 @@ window.setInterval(
 );
 
 
-document.addEventListener(
-  "visibilitychange",
-  () => {
+// Hervat na tabwissel of Windows-ontgrendeling, zonder een tweede polling-lus.
+function refreshAfterForegroundResume() {
+  if (document.visibilityState !== "visible") return;
 
-    if (
-      document.visibilityState ===
-      "visible"
-    ) {
+  refreshMetadata();
+  refreshProgram();
+  updateSleepTimer();
 
-      refreshMetadata();
-
-      refreshProgram();
-
-      updateSleepTimer();
-
-    }
-
+  // Publiceer de reeds bekende track opnieuw als Windows de mediakaart verloor.
+  if (isPlaybackActive() && !isCasting()) {
+    updateMediaSession();
+    setMediaSessionPlaybackState("playing");
   }
-);
+}
+
+document.addEventListener("visibilitychange", refreshAfterForegroundResume);
+window.addEventListener("focus", refreshAfterForegroundResume);
 
 
 /* =========================================================
