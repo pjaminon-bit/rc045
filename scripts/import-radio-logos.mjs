@@ -53,7 +53,7 @@ async function download(url) {
       return { bytes, mime, finalUrl: response.url };
     } catch (error) {
       last = error;
-      if (attempt < 3) await sleep(900 * attempt);
+      if (attempt < 3) await sleep(3500 * attempt);
     }
   }
   throw last;
@@ -61,19 +61,20 @@ async function download(url) {
 
 for (const [url, info] of assets) {
   try {
+    if (url.includes("commons.wikimedia.org")) await sleep(700);
     const source = await download(url);
     // PNG voorkomt het direct serveren van eventueel onveilige externe SVG-code.
     const isSvg = /\.svg(?:$|\?)/i.test(source.finalUrl) ||
       source.mime.includes("svg") || source.bytes.subarray(0, 500).toString().includes("<svg");
-    const image = sharp(source.bytes, { density: isSvg ? 450 : 72, limitInputPixels: 35000000 });
+    const image = sharp(source.bytes, { density: 72, limitInputPixels: 100000000 });
     const result = await image
       .resize({ width: 512, height: 512, fit: "inside", withoutEnlargement: !isSvg })
       .png({ compressionLevel: 9, effort: 7 })
       .toBuffer();
     await writeFile(info.file, result);
     // Alleen het logo-URL veld wordt gewijzigd; de overige HTML blijft identiek.
-    const needle = 'logo: "' + url + '"';
-    const replacement = 'logo: "/' + info.file + '"';
+    const needle = '"' + url + '"';
+    const replacement = '"/' + info.file + '"';
     if (!section.includes(needle)) throw Error("Logo-referentie onverwacht verdwenen: " + url);
     section = section.split(needle).join(replacement);
     records.push({ file: info.file, source: url, stations: info.stations, bytes: result.length });
