@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'radio.html'
+      - 'radio-artwork.php'
+      - 'tests/radio-artwork.test.cjs'
       - 'assets/radio/spotify.svg'
       - 'tests/radio-spotify-link.test.cjs'
       - 'assets/radio/logos/**'
@@ -25,6 +27,11 @@ jobs:
         with:
           node-version: '22'
       - name: Controleer radio zonder metadata-aanroepen
-        run: node --test tests/radio-technical.test.cjs tests/radio-local-assets.test.cjs tests/radio-spotify-link.test.cjs
+        run: node --test tests/radio-technical.test.cjs tests/radio-local-assets.test.cjs tests/radio-spotify-link.test.cjs tests/radio-artwork.test.cjs
+      - name: Controleer PHP endpoint op syntax
+        run: php -l radio-artwork.php
+      - name: Controleer foutloze fallback bij ontbreken van artist/title
+        run: |
+          php -r '$_SERVER["REQUEST_METHOD"]="GET"; include "radio-artwork.php";' | grep -F '"image":null'
       - name: Controleer nieuw toegevoegde streamadressen
         run: node tests/radio-stream-probe.mjs
