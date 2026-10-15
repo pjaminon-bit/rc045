@@ -279,7 +279,7 @@ test('voorkeur wordt via bestaande veilige localStorage-helper gelezen en opgesl
 test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', () => {
   const selection = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
   assert.match(php, /require_once __DIR__ \. '\/radio-artwork-release-select\.php'/);
-  assert.match(php, /rc045-radio-artwork-v4/);
+  assert.match(php, /rc045-radio-artwork-v5/);
   assert.match(php, /\$lookupArtist = canonicalArtworkArtist\(\$artist\)/);
   assert.match(php, /findAlbumArtwork\(\$lookupArtist, \$title, \$dir\)/);
   assert.match(selection, /secondary-types/);
@@ -294,4 +294,41 @@ test('soundtrack single artwork fallback only after normal cover lookup', () => 
   const helper = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
   assert.match(helper, /strcasecmp\(\(string\)\$type, 'Soundtrack'\)/);
   assert.match(helper, /strcasecmp\(\(string\)\(\$group\['primary-type'\]/);
+});
+
+test('500px-hoes wordt op 250px herprobeerd, zonder verkeerde afbeelding te tonen', async () => {
+  const a = env();
+  const hd = {...valid,
+    image: valid.image.replace('/front-250','/front-500'),
+    imageFallback: valid.image};
+  void a.update('ABBA','Dancing Queen');
+  await a.fulfill(hd);
+  assert.equal(a.pendingImages.length,1);
+  a.pendingImages[0].onerror();
+  assert.equal(a.pendingImages.length,2);
+  a.pendingImages[1].onload();
+  assert.equal(a.image.src,valid.image);
+  assert.equal(a.container.classList.contains('has-track-artwork'),true);
+});
+
+test('onbetrouwbare fallback-URL en andere hosts worden genegeerd', async () => {
+  const a = env();
+  void a.update('P!nk','Sober');
+  await a.fulfill({...valid, image:valid.image.replace('/front-250','/front-500'),
+    imageFallback:'https://example.com/unsafe.jpg'});
+  a.pendingImages[0].onerror();
+  assert.equal(a.pendingImages.length,1);
+  assert.equal(a.container.classList.contains('has-track-artwork'),false);
+});
+
+test('server onderscheidt tijdelijke fouten van echte missers en beperkt API-verzoeken', () => {
+  assert.match(php, /'status'=>'temporary_error'/);
+  assert.match(php, /'status'=>'not_found'/);
+  assert.match(php, /7 \\* 86400/);
+  assert.match(php, /45 \\* 60/);
+  assert.match(php, /'temporary_error'\\) \\? 30/);
+  assert.match(php, /musicbrainz'\\] >= 5/);
+  assert.match(php, /count\\(\\$seen\\) >= 7/);
+  assert.match(php, /LOCK_EX\\|LOCK_NB|LOCK_EX \\| LOCK_NB/);
+  assert.match(html, /data.status === "temporary_error" \\? 30000/);
 });
