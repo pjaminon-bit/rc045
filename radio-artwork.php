@@ -353,8 +353,11 @@ if (!$result) $result=array('image'=>null,
     'status'=>$GLOBALS['artworkTemporaryFailure'] ? 'temporary_error' : 'not_found');
 else $result['status']='ok';
 // Positive covers: week; definitive miss: 45 min; transient failure: 30 sec.
-$ttl= !empty($result['image']) ? 7 * 86400 :
-    (($result['status'] === 'temporary_error') ? 30 : 45 * 60);
+$ttl= !empty($result['image'])
+    ? (($result['kind'] ?? '') === 'artist'
+        ? ($GLOBALS['artworkTemporaryFailure'] ? 3600 : 12 * 3600)
+        : 7 * 86400)
+    : (($result['status'] === 'temporary_error') ? 30 : 45 * 60);
 if (is_dir($dir)) {
     $payload=json_encode(array('expires'=>time()+$ttl,'result'=>$result));
     $temp=@tempnam($dir,'art-');
