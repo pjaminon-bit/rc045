@@ -99,7 +99,7 @@ test('albumart is een laag achter het bestaande logo, zonder layoutverschuiving'
   assert.match(html, /id="mainStationLogo"/);
   assert.match(html, /id="artworkCredit"/);
   assert.match(html, /\.artwork \{\s*position: relative;\s*aspect-ratio: 1;/);
-  assert.match(html, /\.main-logo-surface \{\s*position: relative;\s*z-index: 2;/);
+  assert.match(html, /\.main-logo-surface \{\s*position: absolute;\s*z-index: 2;/);
   assert.match(html, /\.playing-indicator \{\s*position: absolute;[\s\S]*?z-index: 3;/);
   assert.match(html, /prefers-reduced-motion: reduce/);
 });
@@ -200,11 +200,13 @@ test('trackinfo-providers, intervals, logo, player links en audiorouting blijven
 });
 
 
-test('albumart gebruikt een kleiner matglaslogo en verbergt de decoratieve ringen', () => {
-  assert.match(html, /\.artwork\.has-track-artwork \.main-logo-surface \{\s*width: 43%;/);
-  assert.match(html, /\.artwork\.has-track-artwork \.main-logo-surface[\s\S]*?background: rgba\(255,255,255,\.78\)/);
+test('albumart vult de achtergrond met een klein zenderlogo linksboven', () => {
+  assert.match(html, /\.artwork\.has-track-artwork \.main-logo-surface \{\s*top: 12px;\s*left: 12px;/);
+  assert.match(html, /\.artwork\.has-track-artwork \.main-logo-surface[\s\S]*?width: clamp\(44px, 18%, 54px\)/);
+  assert.match(html, /\.artwork\.has-track-artwork \.main-logo-surface[\s\S]*?background: rgba\(255,255,255,\.89\)/);
   assert.match(html, /\.artwork\.has-track-artwork::before,[\s\S]*?opacity: 0;/);
-  assert.match(html, /backdrop-filter: blur\(16px\)/);
+  assert.match(html, /backdrop-filter: blur\(12px\)/);
+  assert.match(html, /\.artwork\.has-track-artwork \.artwork-photo \{\s*opacity: 1;/);
   assert.match(html, /\.main-logo-surface \{[\s\S]*?width: 58%;/);
   assert.match(html, /id="albumArtToggle" type="checkbox" checked/);
   assert.match(html, /<span>Albumart tonen<\/span>/);
@@ -271,4 +273,14 @@ test('voorkeur wordt via bestaande veilige localStorage-helper gelezen en opgesl
   assert.match(html,/let albumArtEnabled = readRadioPreference\("radio-albumart-visible"\) !== "false";/);
   assert.match(html,/saveRadioPreference\("radio-albumart-visible", albumArtEnabled\)/);
   assert.match(html,/albumArtToggle\.checked = albumArtEnabled/);
+});
+
+
+test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', () => {
+  const selection = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
+  assert.match(php, /require_once __DIR__ \. '\/radio-artwork-release-select\.php'/);
+  assert.match(php, /rc045-radio-artwork-v2/);
+  assert.match(selection, /secondary-types/);
+  assert.match(selection, /compilation\|soundtrack\|remix\|live\|mixtape/i);
+  assert.match(selection, /release\['artist-credit'\]/);
 });
