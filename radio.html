@@ -960,10 +960,10 @@
 
       position: relative;
 
-      width: 72px;
-      height: 72px;
+      width: 68px;
+      height: 68px;
 
-      flex: 0 0 72px;
+      flex: 0 0 68px;
 
       display: grid;
       place-items: center;
@@ -985,11 +985,16 @@
 
       isolation: isolate;
 
-      box-shadow:
-        var(--shadow);
+      --play-shadow:
+        0 12px 28px rgba(0,0,0,.20),
+        0 2px 7px rgba(0,0,0,.09),
+        inset 0 1px 0 rgba(255,255,255,.09);
+
+      box-shadow: var(--play-shadow);
 
       transition:
-        transform .16s ease;
+        transform .18s ease,
+        box-shadow .18s ease;
     }
 
 
@@ -1012,10 +1017,10 @@
         linear-gradient(
           90deg,
           transparent,
-          rgba(var(--accent-rgb), .15),
-          rgba(var(--accent-rgb), .58),
-          rgba(255,255,255,.48),
+          rgba(var(--accent-rgb), .10),
           rgba(var(--accent-rgb), .34),
+          rgba(255,255,255,.32),
+          rgba(var(--accent-rgb), .20),
           transparent
         );
 
@@ -1049,21 +1054,20 @@
       0%,
       54%,
       100% {
-        box-shadow:
-          var(--shadow);
+        box-shadow: var(--play-shadow);
       }
 
       63% {
         box-shadow:
-          var(--shadow),
-          0 0 0 2px rgba(var(--accent-rgb), .13),
-          0 0 24px rgba(var(--accent-rgb), .18);
+          var(--play-shadow),
+          0 0 0 2px rgba(var(--accent-rgb), .11),
+          0 0 14px rgba(var(--accent-rgb), .12);
       }
 
       79% {
         box-shadow:
-          var(--shadow),
-          0 0 0 5px rgba(var(--accent-rgb), .05);
+          var(--play-shadow),
+          0 0 0 3px rgba(var(--accent-rgb), .04);
       }
     }
 
@@ -1102,26 +1106,39 @@
 
 
     .play-button:hover {
-      transform: scale(1.055);
+      transform: scale(1.025);
     }
 
 
     .play-button:active {
-      transform: scale(.96);
+      transform: scale(.975);
+    }
+
+
+    .play-button:focus-visible {
+      outline: 3px solid rgba(var(--accent-rgb), .65);
+      outline-offset: 4px;
     }
 
 
     .play-button svg {
       position: relative;
       z-index: 1;
-
-      width: 27px;
-      height: 27px;
+      width: 36px;
+      height: 36px;
+      pointer-events: none;
     }
 
 
-    .play-icon {
-      margin-left: 4px;
+    .play-button .play-icon {
+      /* The path is optically centred, without a large CSS margin. */
+      transform: translateX(1px);
+    }
+
+
+    .play-button .pause-icon {
+      width: 30px;
+      height: 30px;
     }
 
 
@@ -2989,16 +3006,18 @@
               class="play-icon"
               viewBox="0 0 24 24"
               fill="currentColor"
+              aria-hidden="true"
             >
-              <path d="M8 5v14l11-7z"/>
+              <path d="M8 4.75c0-.82.9-1.31 1.59-.87l10.98 7.24a1.06 1.06 0 0 1 0 1.76L9.59 20.12A1.04 1.04 0 0 1 8 19.25V4.75Z"/>
             </svg>
 
             <svg
               class="pause-icon"
               viewBox="0 0 24 24"
               fill="currentColor"
+              aria-hidden="true"
             >
-              <path d="M7 5h4v14H7zm6 0h4v14h-4z"/>
+              <path d="M7.5 5.25a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v13.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5.25Zm5.75 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v13.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V5.25Z"/>
             </svg>
 
           </button>
