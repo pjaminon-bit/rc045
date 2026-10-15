@@ -282,7 +282,7 @@ test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', (
   assert.match(php, /require_once __DIR__ \. '\/radio-artwork-release-select\.php'/);
   assert.match(php, /rc045-radio-artwork-v6/);
   assert.ok(php.includes('function artworkIdentifyArtist('));
-  assert.ok(php.includes('findAlbumArtwork($artist,$title,$dir)'));
+  assert.match(php, /findAlbumArtwork\(\$artist,\s*\$title,\s*\$dir\)/);
   assert.match(selection, /secondary-types/);
   assert.ok(selection.includes("array('compilation','live','remix','mixtape'"));
   assert.match(selection, /release\['artist-credit'\]/);
