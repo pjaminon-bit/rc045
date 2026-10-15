@@ -87,6 +87,76 @@ try {
       ' columns, controls aligned, no overlap or horizontal overflow');
     await page.close();
   }
+
+  // UI-acceptatie: klein scherm, mobiele instellingen en bedieningsvlakken.
+  for (const width of [320, 360, 390, 430, 760, 1024, 1440]) {
+    const page = await browser.newPage({
+      viewport: {width, height: 850},
+      reducedMotion: 'reduce',
+    });
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.route(/^https?:\/\//, route => route.abort());
+    await page.goto(app, {waitUntil: 'domcontentloaded'});
+    await page.waitForSelector('.station', {timeout: 20000});
+
+    const dimensions = await page.evaluate(() => {
+      const box = selector => {
+        const r = document.querySelector(selector).getBoundingClientRect();
+        return {width:r.width, height:r.height, left:r.left, right:r.right};
+      };
+      return {
+        documentWidth: document.documentElement.scrollWidth,
+        controls: {
+          mute:box('#muteButton'),
+          sleep:box('#sleepButton'),
+          favorite:box('.station .favorite-button'),
+          countryFavorite:box('.radio-country-favorite')
+        }
+      };
+    });
+    assert.ok(dimensions.documentWidth <= width + 1,
+      'horizontal overflow in enhanced UI at ' + width);
+    for (const [name, r] of Object.entries(dimensions.controls)) {
+      assert.ok(r.width >= 43 && r.height >= 43,
+        name + ' must have at least a 44px touch target at ' + width);
+    }
+
+    const menu = page.locator('#displaySettingsButton');
+    const settingsPanel = page.locator('#displaySettingsPanel');
+    if (width <= 760) {
+      assert.ok(await menu.isVisible(), 'mobile display settings menu should be visible at ' + width);
+      assert.equal(await settingsPanel.isVisible(), false, 'settings should default closed');
+      await menu.click();
+      assert.equal(await menu.getAttribute('aria-expanded'), 'true');
+      assert.ok(await page.locator('#albumArtToggle').isVisible(), 'albumart toggle remains usable');
+      assert.ok(await page.locator('#themeSwitcher').isVisible(), 'theme controls remain usable');
+      const themeTargets = await page.locator('.theme-option').evaluateAll(nodes =>
+        nodes.map(n => ({width:n.getBoundingClientRect().width, height:n.getBoundingClientRect().height}))
+      );
+      for (const box of themeTargets)
+        assert.ok(box.width >= 43 && box.height >= 43, 'theme button must be 44px');
+      await page.locator('[data-theme-choice="dark"]').click();
+      assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark',
+        'theme selection should still work');
+      await page.keyboard.press('Escape');
+      assert.equal(await menu.getAttribute('aria-expanded'), 'false');
+      assert.equal(await settingsPanel.isVisible(), false, 'Escape closes mobile settings');
+    } else {
+      assert.equal(await menu.isVisible(), false, 'desktop settings menu button should be hidden');
+      assert.ok(await page.locator('#albumArtToggle').isVisible(), 'desktop albumart visible');
+      assert.ok(await page.locator('#themeSwitcher').isVisible(), 'desktop theme visible');
+    }
+
+    await page.locator('#status').evaluate(node => { node.textContent = 'Geen internetverbinding'; });
+    await page.waitForFunction(() => document.querySelector('#status')?.dataset.tone === 'error');
+    await page.locator('#status').evaluate(node => { node.textContent = 'Live'; });
+    await page.waitForFunction(() => document.querySelector('#status')?.classList.contains('status-live-only'));
+
+    if (pageErrors.length) throw Error('UI script errors at ' + width + ': ' + pageErrors.join('; '));
+    console.log('PASS UI ' + width + 'px: touch targets, settings and status');
+    await page.close();
+  }
 } finally {
   await browser.close();
 }
