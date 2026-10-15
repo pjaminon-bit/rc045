@@ -157,6 +157,62 @@ try {
     console.log('PASS UI ' + width + 'px: touch targets, settings and status');
     await page.close();
   }
+
+  // Volume regressies: 0% is mute, herstel vorige hoorbare stand,
+  // iOS toont geen misleidende native volumeschuif.
+  {
+    const page = await browser.newPage({viewport:{width:390,height:850}});
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await page.route(/^https?:\/\//, route => route.abort());
+    await page.goto(app, {waitUntil:'domcontentloaded'});
+    await page.waitForSelector('#muteButton');
+    const value = async v => page.locator('#volume').evaluate((input, n) => {
+      input.value = String(n);
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+    }, v);
+    await value(0.55);
+    assert.equal(await page.locator('#audio').evaluate(a => a.muted),false);
+    await value(0);
+    assert.equal(await page.locator('#audio').evaluate(a => a.muted),true,'zero volume must mute audio');
+    assert.equal(await page.locator('#muteButton').getAttribute('aria-pressed'),'true');
+    assert.equal(await page.locator('#muteButton').getAttribute('aria-label'),'Geluid inschakelen');
+    await page.locator('#muteButton').click();
+    assert.equal(await page.locator('#audio').evaluate(a => a.muted),false,'unmute should restore audio');
+    const restored=await page.locator('#volume').inputValue();
+    assert.equal(Number(restored),0.55,'unmute must restore last audible volume');
+    await value(0.2);
+    assert.equal(await page.locator('#audio').evaluate(a => a.muted),false,
+      'dragging above zero should clear mute');
+    assert.equal(await page.locator('#volumeDeviceHint').isVisible(),false);
+    assert.equal(await page.locator('#volumeSlider').isVisible(),true);
+    assert.equal(errors.length,0,'desktop volume should not create JS errors');
+    await page.close();
+  }
+  {
+    const page = await browser.newPage({
+      viewport:{width:390,height:850},
+      userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 27_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.0 Mobile/15E148 Safari/604.1'
+    });
+    const errors=[];
+    page.on('pageerror',e=>errors.push(e.message));
+    await page.route(/^https?:\/\//,route=>route.abort());
+    await page.goto(app,{waitUntil:'domcontentloaded'});
+    await page.waitForSelector('#muteButton');
+    assert.equal(await page.locator('#volumeSlider').isVisible(),false,
+      'iOS Safari should not show ineffective native HTMLMediaElement.volume slider');
+    assert.equal(await page.locator('#volumeDeviceHint').isVisible(),true,
+      'iOS Safari should explain hardware volume');
+    await page.locator('#muteButton').click();
+    assert.equal(await page.locator('#audio').evaluate(a=>a.muted),true,
+      'mute property should remain usable on iOS');
+    assert.equal(await page.locator('#muteButton').getAttribute('aria-pressed'),'true');
+    await page.locator('#muteButton').click();
+    assert.equal(await page.locator('#audio').evaluate(a=>a.muted),false);
+    assert.equal(errors.length,0,'iPhone UI smoke test must not produce script errors');
+    await page.close();
+  }
+
 } finally {
   await browser.close();
 }

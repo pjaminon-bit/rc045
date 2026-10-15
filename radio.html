@@ -3274,6 +3274,20 @@
       }
     }
 
+
+    /* iOS Safari: geen niet-functionele HTMLMediaElement.volume-slider tonen.
+       Chromecast via hetzelfde menu blijft met de schuif bedienbaar. */
+    .volume-device-hint {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      padding: 4px 2px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
   </style>
 </head>
 
@@ -3626,7 +3640,7 @@
               </button>
 
 
-              <div class="volume-slider">
+              <div id="volumeSlider" class="volume-slider">
 
                 <input
                   id="volume"
@@ -3641,6 +3655,9 @@
 
               </div>
 
+              <span id="volumeDeviceHint" class="volume-device-hint"
+                    title="Regel het volume met de volumeknoppen van je iPhone of iPad"
+                    hidden>Volume via toestel</span>
 
               </div><!-- volume-group -->
 
@@ -5668,16 +5685,26 @@ const storedVolume =
     ? .75
     : Number(savedVolume);
 
-audio.volume =
+/* iOS Safari laat audio.volume ongemoeid: houd het gewenste niveau
+   zelf bij. De standaard audiostream blijft zonder Web Audio/proxy werken. */
+const iosNativeVolume =
+  /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+let localVolume =
   Number.isFinite(storedVolume)
     ? Math.max(0, Math.min(1, storedVolume))
     : .75;
 
-audio.muted =
-  savedMuted === "true";
+let lastLocalAudibleVolume = localVolume > 0 ? localVolume : .75;
+let lastCastAudibleVolume = .75;
 
-volume.value =
-  audio.volume;
+audio.volume = localVolume;
+audio.muted = savedMuted === "true" || localVolume === 0;
+volume.value = localVolume;
+
+const volumeSlider = document.getElementById("volumeSlider");
+const volumeDeviceHint = document.getElementById("volumeDeviceHint");
 
 
 let metadataGeneration = 0;
@@ -9046,156 +9073,122 @@ audio.addEventListener(
    MUTE / VOLUME
    ========================================================= */
 
-function updateMuteUI() {
-
-  const muted =
-    isCasting() &&
-    castPlayer
-      ? castPlayer.isMuted
-      : audio.muted;
-
-
-  muteButton.classList.toggle(
-    "muted",
-    muted
-  );
-
-
-  muteButton.setAttribute(
-    "aria-label",
-
-    muted
-      ? "Geluid inschakelen"
-      : "Geluid dempen"
-  );
-
+function clampRadioVolume(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.min(1, Math.max(0, number)) : .75;
 }
 
-
-muteButton.addEventListener(
-  "click",
-  () => {
-
-    if (
-      isCasting() &&
-      castPlayerController
-    ) {
-
-      castPlayerController
-        .muteOrUnmute();
-
-
-      return;
-
-    }
-
-
-    audio.muted =
-      !audio.muted;
-
-    try {
-      localStorage.setItem(
-        "radio-muted",
-        String(audio.muted)
-      );
-    }
-    catch {}
-
-    updateMuteUI();
-
+function saveLocalVolumePreferences() {
+  try {
+    localStorage.setItem("radio-volume", String(localVolume));
+    localStorage.setItem("radio-muted", String(audio.muted));
   }
-);
+  catch {}
+}
 
+function isCastEffectivelyMuted() {
+  return Boolean(
+    castPlayer &&
+    (castPlayer.isMuted || clampRadioVolume(castPlayer.volumeLevel) === 0)
+  );
+}
+
+function updateMuteUI() {
+  const muted = isCasting() && castPlayer
+    ? isCastEffectivelyMuted()
+    : audio.muted || localVolume === 0;
+
+  muteButton.classList.toggle("muted", muted);
+  muteButton.setAttribute("aria-label",
+    muted ? "Geluid inschakelen" : "Geluid dempen");
+  muteButton.setAttribute("aria-pressed", String(muted));
+}
 
 function updateVolumeBar() {
+  const casting = isCasting() && castPlayer;
+  const level = casting
+    ? clampRadioVolume(castPlayer.volumeLevel)
+    : localVolume;
 
-  const level =
-    isCasting() &&
-    castPlayer
-      ? Math.max(
-          0,
-          Math.min(
-            1,
-            Number(
-              castPlayer.volumeLevel
-            ) || 0
-          )
-        )
-      : audio.volume;
+  volume.value = String(level);
+  volume.style.setProperty("--volume", `${level * 100}%`);
 
-
-  volume.value =
-    level;
-
-
-  volume.style.setProperty(
-    "--volume",
-    `${level * 100}%`
-  );
-
+  /* iOS Safari blokkeert lokale volumewijzigingen via HTMLMediaElement.volume.
+     Toon geen schuif die niets doet. Chromecast-volume blijft wél regelbaar. */
+  volumeSlider.hidden = iosNativeVolume && !casting;
+  volumeDeviceHint.hidden = !iosNativeVolume || casting;
 }
 
-
-volume.addEventListener(
-  "input",
-  () => {
-
-    const value =
-      Number(
-        volume.value
-      );
-
-
-    if (
-      isCasting() &&
-      castPlayer &&
-      castPlayerController
-    ) {
-
-      castPlayer.volumeLevel =
-        value;
-
-
-      castPlayerController
-        .setVolumeLevel();
-
-
-      updateVolumeBar();
-
-
-      return;
-
+muteButton.addEventListener("click", () => {
+  if (isCasting() && castPlayer && castPlayerController) {
+    if (isCastEffectivelyMuted()) {
+      if (clampRadioVolume(castPlayer.volumeLevel) === 0) {
+        castPlayer.volumeLevel = lastCastAudibleVolume;
+        castPlayerController.setVolumeLevel();
+      }
+      if (castPlayer.isMuted) castPlayerController.muteOrUnmute();
     }
-
-
-    audio.volume =
-      value;
-
-
-    audio.muted =
-      false;
-
-
-    try {
-      localStorage.setItem(
-        "radio-volume",
-        String(audio.volume)
-      );
-
-      localStorage.setItem(
-        "radio-muted",
-        "false"
-      );
+    else {
+      castPlayerController.muteOrUnmute();
     }
-    catch {}
-
     updateMuteUI();
-
     updateVolumeBar();
-
+    return;
   }
-);
 
+  if (audio.muted || localVolume === 0) {
+    if (localVolume === 0) {
+      localVolume = lastLocalAudibleVolume;
+      audio.volume = localVolume;
+    }
+    audio.muted = false;
+  }
+  else {
+    audio.muted = true;
+  }
+
+  saveLocalVolumePreferences();
+  updateMuteUI();
+  updateVolumeBar();
+});
+
+volume.addEventListener("input", () => {
+  const level = clampRadioVolume(volume.value);
+
+  if (isCasting() && castPlayer && castPlayerController) {
+    if (level > 0) {
+      lastCastAudibleVolume = level;
+      if (castPlayer.isMuted) castPlayerController.muteOrUnmute();
+    }
+    castPlayer.volumeLevel = level;
+    castPlayerController.setVolumeLevel();
+    updateMuteUI();
+    updateVolumeBar();
+    return;
+  }
+
+  /* Desktop/Android: daadwerkelijke volumeregeling.
+     Bij 0% wordt ook de mute-status actief en opgeslagen. */
+  localVolume = level;
+  if (level > 0) lastLocalAudibleVolume = level;
+  audio.volume = level;
+  audio.muted = level === 0;
+
+  saveLocalVolumePreferences();
+  updateMuteUI();
+  updateVolumeBar();
+});
+
+/* Ook wijzigingen vanuit apparaat-/browserbediening synchroniseren. */
+audio.addEventListener("volumechange", () => {
+  if (!isCasting()) {
+    updateMuteUI();
+    updateVolumeBar();
+  }
+});
+
+updateMuteUI();
+updateVolumeBar();
 
 /* =========================================================
    TRACK SPLIT
