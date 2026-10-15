@@ -328,7 +328,7 @@ test('server onderscheidt tijdelijke fouten van echte missers en beperkt API-ver
   assert.ok(php.includes('45 * 60'));
   assert.ok(php.includes("'temporary_error') ? 30"));
   assert.ok(php.includes("['musicbrainz'] >= 5"));
-  assert.ok(php.includes('count($seen) >= 7'));
+  assert.ok(php.includes('count($seen) >= $maxChecks'));
   assert.ok(php.includes('LOCK_EX|LOCK_NB') || php.includes('LOCK_EX | LOCK_NB'));
   assert.ok(html.includes('data.status === "temporary_error" ? 30000'));
 });
