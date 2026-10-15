@@ -560,5 +560,5 @@ test('hoofdplayknop gebruikt een groter optisch gecentreerd SVG zonder de speler
   assert.match(html, /body\.is-playing \.pause-icon \{\s*display: block;/);
   assert.match(html, /id="miniPlay"[\s\S]*?class="mini-play-icon"/);
   assert.match(html, /prefers-reduced-motion: reduce/);
-  assert.match(html, /playButton\.addEventListener\("click"/);
+  assert.match(html, /playButton\.addEventListener\(\s*"click"/);
 });
