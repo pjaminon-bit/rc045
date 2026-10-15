@@ -167,7 +167,7 @@ test('php-server gebruikt vaste upstream-domeinen, cache en MusicBrainz-ratelimi
   assert.match(php,/function paceArtworkMusicBrainz\(/);
   assert.match(php,/flock\(/);
   assert.match(php,/musicbrainz-rate\.lock/);
-  assert.match(php,/imageinfo.*extmetadata/);
+  assert.match(php,/imageinfo[\s\S]*?extmetadata/);
   assert.match(php,/7 \* 86400/);
   assert.doesNotMatch(php,/file_put_contents\(\s*\$result\['image'\]/);
 });
