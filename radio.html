@@ -499,14 +499,14 @@
     }
 
     .artwork.has-track-artwork .artwork-photo {
-      opacity: .91;
+      opacity: 1;
     }
 
     .artwork-tint {
       position: absolute;
       inset: 0;
       z-index: 1;
-      background: linear-gradient(135deg, rgba(0,0,0,.12), rgba(var(--accent-rgb), .14));
+      background: linear-gradient(180deg, rgba(0,0,0,.08), transparent 52%, rgba(0,0,0,.12));
       opacity: 0;
       transition: opacity .55s ease;
       pointer-events: none;
@@ -587,8 +587,11 @@
 
 
     .main-logo-surface {
-      position: relative;
+      position: absolute;
       z-index: 2;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
 
       width: 58%;
       aspect-ratio: 1;
@@ -606,21 +609,34 @@
       box-shadow:
         0 18px 45px rgba(0,0,0,.17),
         inset 0 0 0 1px rgba(0,0,0,.04);
+      transition:
+        top .38s ease,
+        left .38s ease,
+        transform .38s ease,
+        width .38s ease,
+        border-radius .38s ease,
+        background .38s ease;
     }
 
 
-    /* Alleen bij een hoes: compact matglas in plaats van het grote witte vlak.
-       Zonder albumart blijft de oorspronkelijke logoweergave volledig behouden. */
+    /* Tijdens albumart blijft de hoes centraal: alleen een klein zenderbadge
+       linksboven, zonder prominent wit vlak midden op de artwork. */
     .artwork.has-track-artwork .main-logo-surface {
-      width: 43%;
-      padding: 7%;
-      border-radius: 24%;
-      background: rgba(255,255,255,.78);
-      box-shadow:
-        0 10px 32px rgba(0,0,0,.14),
-        inset 0 0 0 1px rgba(255,255,255,.45);
-      backdrop-filter: blur(16px) saturate(1.1);
-      -webkit-backdrop-filter: blur(16px) saturate(1.1);
+      top: 12px;
+      left: 12px;
+      transform: none;
+      width: clamp(44px, 18%, 54px);
+      padding: 7px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.89);
+      box-shadow: 0 5px 18px rgba(0,0,0,.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .artwork.has-track-artwork .station-mark {
+      font-size: 18px;
+      letter-spacing: -.04em;
     }
 
     .main-station-logo {
