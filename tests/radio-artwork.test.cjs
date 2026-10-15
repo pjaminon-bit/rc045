@@ -288,7 +288,7 @@ test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', (
 });
 
 test('soundtrack single artwork fallback only after normal cover lookup', () => {
-  assert.match(php, /https:\/\/musicbrainz\.org\/ws\/2\/release-group\//);
+  assert.ok(php.includes("musicBrainzArtwork('release-group'"));
   assert.ok(php.includes('artworkRankedSingles('));
   assert.ok(php.includes("$singles['release-groups']"));
   const helper = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
