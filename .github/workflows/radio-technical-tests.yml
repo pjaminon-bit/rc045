@@ -58,6 +58,7 @@ jobs:
           php -S 127.0.0.1:8765 -t . >/tmp/radio-artwork-php-server.log 2>&1 &
           sleep 2
           ARTWORK_AUDIT_LIVE=1 ARTWORK_AUDIT_LIMIT=10 node tests/radio-artwork-audit.mjs
+          node -e '(async()=>{const u="http://127.0.0.1:8765/radio-artwork.php?artist=ABBA&title=Dancing%20Queen&fallback=artist";const r=await fetch(u,{signal:AbortSignal.timeout(17000)});const d=await r.json();const mb=Number(r.headers.get("x-radio-artwork-musicbrainz")||0);if(!r.ok||mb!==0||!("image" in d))process.exit(1);console.log("Artiestenfoto-only fallback: status="+(d.status||"onbekend")+", soort="+(d.kind||"none")+", MusicBrainz-aanvragen="+mb);})().catch(e=>{console.error(e);process.exit(1)})'
       - name: Bewaar artwork-audit en webserver-log
         if: always()
         uses: actions/upload-artifact@v4
