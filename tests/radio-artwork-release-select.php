@@ -42,8 +42,8 @@ requireArtwork(!artworkRankedReleases(array($bad),'Yeah Yeah Yeahs','Heads Will 
 $bad=$track;$bad['title']='Heads Will Roll (Radio Edit)';
 requireArtwork(count(artworkRankedReleases(array($bad),'Yeah Yeah Yeahs','Heads Will Roll'))===2,
     'A radio edit can use the release of the corresponding base title.');
-requireArtwork(matchArtworkName('PINK','P!nk'),
-    'Punctuation-insensitive matching must resolve radio spellings generically.');
+requireArtwork(!matchArtworkName('PINK','P!nk'),
+    'Stylistically distinct names need verified aliases, not unsafe fuzzy spelling.');
 requireArtwork(!matchArtworkName('Pink Floyd','P!nk'),
     'Substring matches between distinct artists must be forbidden.');
 requireArtwork(matchArtworkName('Anti–Hero','Anti-Hero') &&
