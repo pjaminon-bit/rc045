@@ -35,6 +35,12 @@ function env() {
   const image = element();
   const credit = element();
   const calls = [];
+  const saved = [];
+  const toggle = {
+    checked: true,
+    listeners: {},
+    addEventListener(type, cb) {this.listeners[type] = cb;}
+  };
   const pendingImages = [];
   const pendingRequests = [];
   class ImageStub {
@@ -47,6 +53,12 @@ function env() {
     stationArtwork: container,
     trackArtworkBackground: image,
     artworkCredit: credit,
+    albumArtEnabled: true,
+    albumArtToggle: toggle,
+    trackInfo: {hidden: true},
+    currentTrack: {artist: '', title: ''},
+    isContentSuppressed() {return false;},
+    saveRadioPreference(key, value) {saved.push({key,value});},
     Image: ImageStub,
     URL, URLSearchParams, AbortController,
     fetch(url, options) {
@@ -65,7 +77,7 @@ function env() {
     await tick();
     await tick();
   }
-  return {ctx,container,image,credit,calls,pendingImages,pendingRequests,
+  return {ctx,container,image,credit,toggle,saved,calls,pendingImages,pendingRequests,
     tick, fulfill,
     update(artist,title) {return vm.runInContext(
       'updateTrackArtwork('+JSON.stringify(artist)+','+JSON.stringify(title)+')',ctx);},
@@ -104,9 +116,9 @@ test('bestaande artiest en titel laden albumart, pas tonen na succesvolle afbeel
   assert.equal(a.container.classList.contains('has-track-artwork'), false);
   a.pendingImages[0].onload();
   assert.equal(a.image.src, valid.image);
-  assert.equal(a.credit.href, valid.creditUrl);
-  assert.equal(a.credit.textContent, 'Cover Art Archive');
-  assert.equal(a.credit.hidden, false);
+  assert.equal(a.credit.href, undefined);
+  assert.equal(a.credit.textContent, '');
+  assert.equal(a.credit.hidden, true);
   assert.equal(a.container.classList.contains('has-track-artwork'), true);
 });
 
@@ -185,4 +197,78 @@ test('trackinfo-providers, intervals, logo, player links en audiorouting blijven
   assert.match(html,/function setTrackLoading\(\) \{\s*clearTrackArtwork\(\);/);
   assert.match(html,/updateTrackArtwork\(artist, title\);/);
   assert.doesNotMatch(artworkLogic, /resolveMetadataProvider|METADATA_REFRESH|refreshMetadata\(\)/);
+});
+
+
+test('albumart gebruikt een kleiner matglaslogo en verbergt de decoratieve ringen', () => {
+  assert.match(html, /\.artwork\.has-track-artwork \.main-logo-surface \{\s*width: 43%;/);
+  assert.match(html, /\.artwork\.has-track-artwork \.main-logo-surface[\s\S]*?background: rgba\(255,255,255,\.78\)/);
+  assert.match(html, /\.artwork\.has-track-artwork::before,[\s\S]*?opacity: 0;/);
+  assert.match(html, /backdrop-filter: blur\(16px\)/);
+  assert.match(html, /\.main-logo-surface \{[\s\S]*?width: 58%;/);
+  assert.match(html, /id="albumArtToggle" type="checkbox" checked/);
+  assert.match(html, /<span>Albumart tonen<\/span>/);
+});
+
+test('albumart uit voorkomt elk verzoek en schakelt bestaande achtergrond onmiddellijk uit', async () => {
+  const a = env();
+  void a.update('Old artist', 'Old track');
+  const first = a.pendingRequests[0];
+  a.toggle.checked = false;
+  a.toggle.listeners.change();
+  assert.equal(a.ctx.albumArtEnabled, false);
+  assert.equal(first.options.signal.aborted, true);
+  assert.equal(a.container.classList.contains('has-track-artwork'), false);
+  assert.equal(a.image.src, undefined);
+  assert.equal(a.credit.hidden, true);
+  assert.deepEqual(a.saved.at(-1), {key:'radio-albumart-visible',value:false});
+
+  await a.update('Some artist','Some title');
+  assert.equal(a.calls.length, 1, 'geen nieuwe requests als de toggle uit is');
+});
+
+test('albumart aan haalt de hoes van het zichtbare nummer op zonder nieuwe trackherkenning', async () => {
+  const a = env();
+  a.toggle.checked = false;
+  a.toggle.listeners.change();
+  a.ctx.trackInfo.hidden = false;
+  a.ctx.currentTrack = {artist: 'Arctic Monkeys', title:'505'};
+  a.toggle.checked = true;
+  a.toggle.listeners.change();
+  assert.equal(a.ctx.albumArtEnabled, true);
+  assert.equal(a.calls.length, 1);
+  assert.equal(new URL('https://rc045.nl'+a.calls[0].url).searchParams.get('title'), '505');
+  assert.deepEqual(a.saved.at(-1), {key:'radio-albumart-visible',value:true});
+
+  await a.fulfill(valid);
+  a.pendingImages[0].onload();
+  assert.equal(a.container.classList.contains('has-track-artwork'),true);
+  a.toggle.checked = false;
+  a.toggle.listeners.change();
+  assert.equal(a.container.classList.contains('has-track-artwork'),false);
+});
+
+test('artiestenfoto toont auteur/licentie en heeft een klikbare Commons-vermelding', async () => {
+  const a = env();
+  const artistPhoto = {
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Band.jpg/500px-Band.jpg',
+    creditUrl: 'https://commons.wikimedia.org/wiki/File:Band.jpg',
+    kind: 'artist',
+    creditLabel: 'Foto: Jane Photographer · CC BY-SA 4.0'
+  };
+  void a.update('Artist','Track');
+  await a.fulfill(artistPhoto);
+  assert.equal(a.pendingImages.length,1);
+  a.pendingImages[0].onload();
+  assert.equal(a.credit.hidden,false);
+  assert.equal(a.credit.href,artistPhoto.creditUrl);
+  assert.equal(a.credit.textContent,artistPhoto.creditLabel);
+  assert.match(php, /extmetadata.*Artist|extmetadata'\]\['Artist'/);
+  assert.match(php, /creditLabel'\s*=>\s*'Foto: '/);
+});
+
+test('voorkeur wordt via bestaande veilige localStorage-helper gelezen en opgeslagen', () => {
+  assert.match(html,/let albumArtEnabled = readRadioPreference\("radio-albumart-visible"\) !== "false";/);
+  assert.match(html,/saveRadioPreference\("radio-albumart-visible", albumArtEnabled\)/);
+  assert.match(html,/albumArtToggle\.checked = albumArtEnabled/);
 });
