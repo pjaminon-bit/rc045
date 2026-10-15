@@ -418,11 +418,80 @@
     }
 
 
+    /* Album- of artiestenafbeelding is een aparte laag achter het logo. */
+    .artwork-photo {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity .55s ease;
+      pointer-events: none;
+    }
+
+    .artwork.has-track-artwork .artwork-photo {
+      opacity: .78;
+    }
+
+    .artwork-tint {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(135deg, rgba(0,0,0,.15), rgba(var(--accent-rgb), .30));
+      opacity: 0;
+      transition: opacity .55s ease;
+      pointer-events: none;
+    }
+
+    .artwork.has-track-artwork .artwork-tint {
+      opacity: 1;
+    }
+
+    .artwork-credit {
+      position: absolute;
+      bottom: 15px;
+      left: 15px;
+      z-index: 3;
+      max-width: calc(100% - 105px);
+      padding: 4px 7px;
+      border-radius: 8px;
+      background: rgba(0,0,0,.45);
+      color: white;
+      text-decoration: none;
+      font-size: 9px;
+      font-weight: 650;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .artwork-credit[hidden] {
+      display: none;
+    }
+
+    .artwork-credit:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .artwork-photo, .artwork-tint {
+        transition: none;
+      }
+    }
+
     .artwork::before,
     .artwork::after {
       content: "";
 
       position: absolute;
+      z-index: 1;
 
       border-radius: 50%;
 
@@ -2628,7 +2697,19 @@
 
     <section class="player" aria-label="Radioplayer">
 
-      <div class="artwork">
+      <div class="artwork" id="stationArtwork">
+
+        <img
+          id="trackArtworkBackground"
+          class="artwork-photo"
+          alt=""
+          aria-hidden="true"
+          width="285" height="285"
+          decoding="async"
+          referrerpolicy="no-referrer"
+        >
+
+        <div class="artwork-tint" aria-hidden="true"></div>
 
         <div class="main-logo-surface">
 
@@ -2646,6 +2727,14 @@
 
         </div>
 
+
+        <a
+          id="artworkCredit"
+          class="artwork-credit"
+          target="_blank"
+          rel="noopener noreferrer"
+          hidden
+        ></a>
 
         <div class="playing-indicator">
 
@@ -4722,6 +4811,15 @@ const deezerTrackLink =
 
 const tidalTrackLink =
   document.getElementById("tidalTrackLink");
+
+const stationArtwork =
+  document.getElementById("stationArtwork");
+
+const trackArtworkBackground =
+  document.getElementById("trackArtworkBackground");
+
+const artworkCredit =
+  document.getElementById("artworkCredit");
 
 const mainStationLogo =
   document.getElementById("mainStationLogo");
@@ -7027,7 +7125,128 @@ function updateMusicServiceLinks(artist, title) {
   updateOtherMusicLinks(artist, title);
 }
 
+
+/* =========================================================
+   OPTIONAL ALBUM / ARTIST BACKGROUND
+   =========================================================
+   Alleen een consument van reeds herkende artist/title; geen invloed
+   op de bevroren metadataproviders, stale-checks of verversingscyclus.
+*/
+const artworkCache = new Map();
+let artworkGeneration = 0;
+let artworkRequest = null;
+let artworkPreload = null;
+
+function clearTrackArtwork() {
+  artworkGeneration++;
+  if (artworkRequest) {
+    artworkRequest.abort();
+    artworkRequest = null;
+  }
+  if (artworkPreload) {
+    artworkPreload.onload = null;
+    artworkPreload.onerror = null;
+    artworkPreload = null;
+  }
+  stationArtwork.classList.remove("has-track-artwork");
+  trackArtworkBackground.removeAttribute("src");
+  artworkCredit.hidden = true;
+  artworkCredit.removeAttribute("href");
+  artworkCredit.textContent = "";
+}
+
+function safeArtworkResult(data) {
+  if (!data || typeof data.image !== "string") return null;
+  try {
+    const uri = new URL(data.image);
+    const allowed =
+      uri.protocol === "https:" &&
+      (
+        (uri.hostname === "coverartarchive.org" &&
+          /^\/release-group\/[a-f0-9-]{36}\/front-250$/.test(uri.pathname)) ||
+        (uri.hostname === "upload.wikimedia.org" &&
+          uri.pathname.startsWith("/wikipedia/commons/"))
+      );
+    if (!allowed) return null;
+    const creditUri = new URL(data.creditUrl);
+    if (
+      creditUri.protocol !== "https:" ||
+      !["musicbrainz.org", "commons.wikimedia.org"].includes(creditUri.hostname)
+    ) return null;
+    return {
+      image: uri.href,
+      creditUrl: creditUri.href,
+      creditLabel: data.kind === "artist" ? "Foto: Wikimedia Commons" : "Cover Art Archive"
+    };
+  } catch {
+    return null;
+  }
+}
+
+function showTrackArtwork(result, generation) {
+  if (generation !== artworkGeneration || !result) return;
+  const preload = new Image();
+  artworkPreload = preload;
+  preload.referrerPolicy = "no-referrer";
+  preload.onload = () => {
+    if (generation !== artworkGeneration || artworkPreload !== preload) return;
+    artworkPreload = null;
+    trackArtworkBackground.src = result.image;
+    artworkCredit.href = result.creditUrl;
+    artworkCredit.textContent = result.creditLabel;
+    artworkCredit.title = "Afbeeldingsbron openen";
+    artworkCredit.hidden = false;
+    stationArtwork.classList.add("has-track-artwork");
+  };
+  preload.onerror = () => {
+    if (artworkPreload === preload) artworkPreload = null;
+    // Geen geldige foto? Bewaar de huidige kleurverloop-achtergrond.
+  };
+  preload.src = result.image;
+}
+
+async function updateTrackArtwork(artist, title) {
+  clearTrackArtwork();
+  if (!artist || !title) return;
+  const generation = artworkGeneration;
+  const key = [artist, title].join(" | ").toLocaleLowerCase();
+  const existing = artworkCache.get(key);
+  if (existing && existing.expires > Date.now()) {
+    showTrackArtwork(existing.result, generation);
+    return;
+  }
+
+  const controller = new AbortController();
+  artworkRequest = controller;
+  try {
+    const url = "/radio-artwork.php?" + new URLSearchParams({artist, title});
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {"Accept": "application/json"},
+      cache: "no-store"
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    if (generation !== artworkGeneration) return;
+    const result = safeArtworkResult(data);
+    artworkCache.set(key, {
+      result,
+      expires: Date.now() + (result ? 24 * 3600000 : 30 * 60000)
+    });
+    if (artworkCache.size > 80) {
+      artworkCache.delete(artworkCache.keys().next().value);
+    }
+    showTrackArtwork(result, generation);
+  } catch {
+    // Externe service niet bereikbaar: speler en huidige stationskleur blijven werken.
+  } finally {
+    if (artworkRequest === controller) artworkRequest = null;
+  }
+}
+
 function setTrackLoading() {
+
+  clearTrackArtwork();
 
   wikipediaGeneration++;
 
@@ -7051,6 +7270,8 @@ function setTrackLoading() {
 
 
 function clearTrack() {
+
+  clearTrackArtwork();
 
   wikipediaGeneration++;
 
@@ -7145,6 +7366,7 @@ function setTrack(
     title
   };
 
+  updateTrackArtwork(artist, title);
 
   trackInfo.className =
     artist
