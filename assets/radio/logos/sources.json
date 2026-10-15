@@ -1,0 +1,363 @@
+{
+  "description": "Oorspronkelijke stationlogo-URLs; vaste lokale snapshots, niet periodiek opgehaald.",
+  "generatedAt": "2026-10-15T08:15:18.930Z",
+  "assets": [
+    {
+      "file": "assets/radio/logos/npo1.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%201%20logo%202014.svg",
+      "stations": [
+        "npo1"
+      ],
+      "bytes": 8010
+    },
+    {
+      "file": "assets/radio/logos/npo2.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%202%20logo.svg",
+      "stations": [
+        "npo2"
+      ],
+      "bytes": 8166
+    },
+    {
+      "file": "assets/radio/logos/3fm.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%203FM%20logo%202020.svg",
+      "stations": [
+        "3fm"
+      ],
+      "bytes": 10760
+    },
+    {
+      "file": "assets/radio/logos/npo5.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20Radio%205%20logo%202016.svg",
+      "stations": [
+        "npo5"
+      ],
+      "bytes": 8187
+    },
+    {
+      "file": "assets/radio/logos/funx.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPO%20FunX%20logo%202024.svg",
+      "stations": [
+        "funx"
+      ],
+      "bytes": 6363
+    },
+    {
+      "file": "assets/radio/logos/538.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Logo%20Radio538.svg",
+      "stations": [
+        "538"
+      ],
+      "bytes": 12718
+    },
+    {
+      "file": "assets/radio/logos/qmusic.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Qmusic%20logo.svg",
+      "stations": [
+        "qmusic",
+        "qmusicbe",
+        "qnonstop",
+        "qeasynl",
+        "qenergynl"
+      ],
+      "bytes": 11183
+    },
+    {
+      "file": "assets/radio/logos/joenl.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/JOE%20Logo%202023.png",
+      "stations": [
+        "joenl",
+        "joebe"
+      ],
+      "bytes": 11573
+    },
+    {
+      "file": "assets/radio/logos/skyradio.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sky%20Radio%20logo%202019.svg",
+      "stations": [
+        "skyradio",
+        "skyhits",
+        "skylovesongs"
+      ],
+      "bytes": 9702
+    },
+    {
+      "file": "assets/radio/logos/bnr.png",
+      "source": "https://static.bnr.nl/assets/bnr-next/logo.png",
+      "stations": [
+        "bnr"
+      ],
+      "bytes": 3525
+    },
+    {
+      "file": "assets/radio/logos/veronica.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Radio%20Veronica%20logo.svg",
+      "stations": [
+        "veronica"
+      ],
+      "bytes": 10310
+    },
+    {
+      "file": "assets/radio/logos/radio10.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Radio%2010%20logo%202019.svg",
+      "stations": [
+        "radio10",
+        "radio1080s",
+        "radio1090s",
+        "radio10nonstop"
+      ],
+      "bytes": 6492
+    },
+    {
+      "file": "assets/radio/logos/100nl.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/100p-nl-logo.svg",
+      "stations": [
+        "100nl"
+      ],
+      "bytes": 7380
+    },
+    {
+      "file": "assets/radio/logos/kink.png",
+      "source": "https://plug.kink.nl/img/top-logo.png",
+      "stations": [
+        "kink",
+        "kink80s",
+        "kink90s",
+        "kinkdistortion"
+      ],
+      "bytes": 2795
+    },
+    {
+      "file": "assets/radio/logos/slam.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Slam%21-logo.png",
+      "stations": [
+        "slam"
+      ],
+      "bytes": 3201
+    },
+    {
+      "file": "assets/radio/logos/arrow.png",
+      "source": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Arrow%20Classic%20Rock%20logo.svg",
+      "stations": [
+        "arrow"
+      ],
+      "bytes": 12363
+    },
+    {
+      "file": "assets/radio/logos/stubru.png",
+      "source": "https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-06.svg",
+      "stations": [
+        "stubru"
+      ],
+      "bytes": 13473
+    },
+    {
+      "file": "assets/radio/logos/tijdloze.png",
+      "source": "https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-11.svg",
+      "stations": [
+        "tijdloze"
+      ],
+      "bytes": 6351
+    },
+    {
+      "file": "assets/radio/logos/mnm.png",
+      "source": "https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-05.svg",
+      "stations": [
+        "mnm"
+      ],
+      "bytes": 12616
+    },
+    {
+      "file": "assets/radio/logos/willy.png",
+      "source": "https://images.seeklogo.com/logo-png/39/1/willy-music-matters-logo-png_seeklogo-392837.png",
+      "stations": [
+        "willy"
+      ],
+      "bytes": 13226
+    },
+    {
+      "file": "assets/radio/logos/klara.png",
+      "source": "https://www.vrt.be/nl/assets/images/2024-10/vrtweb-logos-08.svg",
+      "stations": [
+        "klara"
+      ],
+      "bytes": 8708
+    },
+    {
+      "file": "assets/radio/logos/vrt1.png",
+      "source": "https://www.vrt.be/nl/assets/images/2025-06/radio1.svg",
+      "stations": [
+        "vrt1"
+      ],
+      "bytes": 7894
+    },
+    {
+      "file": "assets/radio/logos/radio2limburg.png",
+      "source": "https://www.vrt.be/nl/assets/images/2025-06/color.svg",
+      "stations": [
+        "radio2limburg"
+      ],
+      "bytes": 10206
+    },
+    {
+      "file": "assets/radio/logos/npoklassiek.png",
+      "source": "https://www.google.com/s2/favicons?domain=npoklassiek.nl&sz=128",
+      "stations": [
+        "npoklassiek"
+      ],
+      "bytes": 2195
+    },
+    {
+      "file": "assets/radio/logos/npoblend.png",
+      "source": "https://www.google.com/s2/favicons?domain=npoblend.nl&sz=128",
+      "stations": [
+        "npoblend"
+      ],
+      "bytes": 2679
+    },
+    {
+      "file": "assets/radio/logos/sterrennl.png",
+      "source": "https://www.google.com/s2/favicons?domain=nporadio5.nl&sz=128",
+      "stations": [
+        "sterrennl"
+      ],
+      "bytes": 1303
+    },
+    {
+      "file": "assets/radio/logos/noordzee.png",
+      "source": "https://www.google.com/s2/favicons?domain=radionoordzee.nl&sz=128",
+      "stations": [
+        "noordzee"
+      ],
+      "bytes": 933
+    },
+    {
+      "file": "assets/radio/logos/sublime.png",
+      "source": "https://www.google.com/s2/favicons?domain=sublime.nl&sz=128",
+      "stations": [
+        "sublime"
+      ],
+      "bytes": 479
+    },
+    {
+      "file": "assets/radio/logos/gpradio.png",
+      "source": "https://www.google.com/s2/favicons?domain=grandprixradio.nl&sz=128",
+      "stations": [
+        "gpradio"
+      ],
+      "bytes": 2753
+    },
+    {
+      "file": "assets/radio/logos/radionl.png",
+      "source": "https://www.google.com/s2/favicons?domain=radionl.fm&sz=128",
+      "stations": [
+        "radionl"
+      ],
+      "bytes": 1938
+    },
+    {
+      "file": "assets/radio/logos/l1radio.png",
+      "source": "https://www.google.com/s2/favicons?domain=l1.nl&sz=128",
+      "stations": [
+        "l1radio"
+      ],
+      "bytes": 516
+    },
+    {
+      "file": "assets/radio/logos/omroepbrabant.png",
+      "source": "https://www.google.com/s2/favicons?domain=omroepbrabant.nl&sz=128",
+      "stations": [
+        "omroepbrabant"
+      ],
+      "bytes": 1572
+    },
+    {
+      "file": "assets/radio/logos/rtvnoord.png",
+      "source": "https://www.google.com/s2/favicons?domain=rtvnoord.nl&sz=128",
+      "stations": [
+        "rtvnoord"
+      ],
+      "bytes": 2348
+    },
+    {
+      "file": "assets/radio/logos/omropfryslan.png",
+      "source": "https://www.google.com/s2/favicons?domain=omropfryslan.nl&sz=128",
+      "stations": [
+        "omropfryslan"
+      ],
+      "bytes": 3177
+    },
+    {
+      "file": "assets/radio/logos/rtvdrenthe.png",
+      "source": "https://www.google.com/s2/favicons?domain=rtvdrenthe.nl&sz=128",
+      "stations": [
+        "rtvdrenthe"
+      ],
+      "bytes": 1968
+    },
+    {
+      "file": "assets/radio/logos/rtvoost.png",
+      "source": "https://www.google.com/s2/favicons?domain=rtvoost.nl&sz=128",
+      "stations": [
+        "rtvoost"
+      ],
+      "bytes": 840
+    },
+    {
+      "file": "assets/radio/logos/omroepflevoland.png",
+      "source": "https://www.google.com/s2/favicons?domain=omroepflevoland.nl&sz=128",
+      "stations": [
+        "omroepflevoland"
+      ],
+      "bytes": 1723
+    },
+    {
+      "file": "assets/radio/logos/omroepgelderland.png",
+      "source": "https://www.google.com/s2/favicons?domain=omroepgelderland.nl&sz=128",
+      "stations": [
+        "omroepgelderland"
+      ],
+      "bytes": 3133
+    },
+    {
+      "file": "assets/radio/logos/radiomutrecht.png",
+      "source": "https://www.google.com/s2/favicons?domain=rtvutrecht.nl&sz=128",
+      "stations": [
+        "radiomutrecht"
+      ],
+      "bytes": 1836
+    },
+    {
+      "file": "assets/radio/logos/nhradio.png",
+      "source": "https://www.google.com/s2/favicons?domain=nhradio.nl&sz=128",
+      "stations": [
+        "nhradio"
+      ],
+      "bytes": 4016
+    },
+    {
+      "file": "assets/radio/logos/omroepwest.png",
+      "source": "https://www.google.com/s2/favicons?domain=omroepwest.nl&sz=128",
+      "stations": [
+        "omroepwest"
+      ],
+      "bytes": 1780
+    },
+    {
+      "file": "assets/radio/logos/rtvrijnmond.png",
+      "source": "https://www.google.com/s2/favicons?domain=rijnmond.nl&sz=128",
+      "stations": [
+        "rtvrijnmond"
+      ],
+      "bytes": 1294
+    },
+    {
+      "file": "assets/radio/logos/omroepzeeland.png",
+      "source": "https://www.google.com/s2/favicons?domain=omroepzeeland.nl&sz=128",
+      "stations": [
+        "omroepzeeland"
+      ],
+      "bytes": 2033
+    }
+  ]
+}
