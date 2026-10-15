@@ -146,8 +146,10 @@ function artworkRankedReleases($recordings, $artist, $title, $artistId = null) {
         }
     }
     usort($found,function($a,$b){
+        $priority = array('album'=>0,'single'=>1,'ep'=>2);
         return ($b['score'] <=> $a['score']) ?: ($a['year'] <=> $b['year']) ?:
-            (strcmp($a['primary'],'album') === 0 ? -1 : 1);
+            (($priority[$a['primary']] ?? 3) <=> ($priority[$b['primary']] ?? 3)) ?:
+            strcmp($a['id'],$b['id']);
     });
     return $found;
 }
