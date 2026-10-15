@@ -8,6 +8,7 @@ const vm = require('node:vm');
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'radio.html'), 'utf8');
 const php = fs.readFileSync(path.join(root, 'radio-artwork.php'), 'utf8');
+const photoSelector = fs.readFileSync(path.join(root, 'radio-artwork-photo-select.php'), 'utf8');
 const start = html.indexOf('const artworkCache = new Map();');
 const end = html.indexOf('function setTrackLoading()', start);
 assert.ok(start > 0 && end > start, 'separate artwork-only helper block');
@@ -265,8 +266,8 @@ test('artiestenfoto toont auteur/licentie en heeft een klikbare Commons-vermeldi
   assert.equal(a.credit.hidden,false);
   assert.equal(a.credit.href,artistPhoto.creditUrl);
   assert.equal(a.credit.textContent,artistPhoto.creditLabel);
-  assert.match(php, /extmetadata.*Artist|extmetadata'\]\['Artist'/);
-  assert.match(php, /creditLabel'\s*=>\s*'Foto: '/);
+  assert.match(photoSelector, /extmetadata.*Artist|extmetadata'\]\['Artist'/);
+  assert.match(photoSelector, /creditLabel'\s*=>\s*'Foto: '/);
 });
 
 test('voorkeur wordt via bestaande veilige localStorage-helper gelezen en opgeslagen', () => {
@@ -279,9 +280,9 @@ test('voorkeur wordt via bestaande veilige localStorage-helper gelezen en opgesl
 test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', () => {
   const selection = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
   assert.match(php, /require_once __DIR__ \. '\/radio-artwork-release-select\.php'/);
-  assert.match(php, /rc045-radio-artwork-v5/);
+  assert.match(php, /rc045-radio-artwork-v6/);
   assert.ok(php.includes('function artworkIdentifyArtist('));
-  assert.ok(php.includes('findAlbumArtwork($artist,$title,$dir)'));
+  assert.match(php, /findAlbumArtwork\(\$artist,\s*\$title,\s*\$dir\)/);
   assert.match(selection, /secondary-types/);
   assert.ok(selection.includes("array('compilation','live','remix','mixtape'"));
   assert.match(selection, /release\['artist-credit'\]/);
@@ -331,4 +332,93 @@ test('server onderscheidt tijdelijke fouten van echte missers en beperkt API-ver
   assert.ok(php.includes('count($seen) >= $maxChecks'));
   assert.ok(php.includes('LOCK_EX|LOCK_NB') || php.includes('LOCK_EX | LOCK_NB'));
   assert.ok(html.includes('data.status === "temporary_error" ? 30000'));
+});
+
+test('LIVE is kleiner met album- of artiestenart; gewone tegel houdt oorspronkelijke afmetingen', () => {
+  assert.ok(html.includes('    .playing-indicator {') && html.includes('      height: 32px;'));
+  assert.ok(html.includes('    .artwork.has-track-artwork .playing-indicator {') && html.includes('      height: 24px;'));
+  assert.ok(html.includes('    .artwork.has-track-artwork .live-dot {') && html.includes('      width: 5px;'));
+});
+
+test('foto wordt direct getoond als de server geen geschikte albumhoes vond', async () => {
+  const a = env();
+  const photo = {
+    image:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Artist.jpg/500px-Artist.jpg',
+    kind:'artist',creditUrl:'https://commons.wikimedia.org/wiki/File:Artist.jpg',
+    creditLabel:'Foto: Photographer · CC BY-SA 4.0'
+  };
+  void a.update('Artist','Unknown recording');
+  await a.fulfill(photo);
+  assert.equal(a.calls.length,1,'geen herhaalde metadata- of albumzoektocht');
+  a.pendingImages[0].onload();
+  assert.equal(a.container.classList.contains('has-track-artwork'),true);
+  assert.equal(a.image.src,photo.image);
+  assert.equal(a.credit.textContent,photo.creditLabel);
+  assert.equal(a.credit.hidden,false);
+});
+
+test('kapotte albumhoes met mislukte 250px-fallback zoekt artiestenfoto zonder MusicBrainz', async () => {
+  const a = env();
+  void a.update('Example Artist','Example Song');
+  const cover = {...valid,image:valid.image.replace('front-250','front-500'),
+    imageFallback:valid.image};
+  await a.fulfill(cover);
+  a.pendingImages[0].onerror();
+  assert.equal(a.pendingImages.length,2,'250px wordt eerst geprobeerd');
+  a.pendingImages[1].onerror();
+  assert.equal(a.calls.length,2,'alleen artist-only verzoek bij falende albumimage');
+  const lookup=new URL('https://rc045.nl'+a.calls[1].url);
+  assert.equal(lookup.searchParams.get('fallback'),'artist');
+  assert.equal(lookup.searchParams.get('artist'),'Example Artist');
+  assert.equal(lookup.searchParams.get('title'),'Example Song');
+  assert.equal(a.container.classList.contains('has-track-artwork'),false);
+  const photo={image:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Artist.jpg/500px-Artist.jpg',
+    kind:'artist',creditUrl:'https://commons.wikimedia.org/wiki/File:Artist.jpg',
+    creditLabel:'Foto: Photographer · CC BY 4.0'};
+  await a.fulfill(photo);
+  assert.equal(a.pendingImages.length,3);
+  a.pendingImages[2].onload();
+  assert.equal(a.image.src,photo.image);
+  assert.equal(a.credit.hidden,false);
+  assert.equal(a.container.classList.contains('has-track-artwork'),true);
+});
+
+test('zonder geldige artiestenfoto blijft stationskleur zichtbaar en wordt niet gespamd', async () => {
+  const a=env();
+  void a.update('Unknown band','Unknown song');
+  await a.fulfill(valid);
+  a.pendingImages[0].onerror();
+  assert.equal(a.calls.length,2);
+  await a.fulfill({image:null,status:'not_found'});
+  assert.equal(a.image.src,undefined);
+  assert.equal(a.container.classList.contains('has-track-artwork'),false);
+  await a.update('Unknown band','Unknown song');
+  assert.equal(a.calls.length,2,'de artist-only misser wordt kort hergebruikt');
+});
+
+test('albumart uit stopt ook lopende artiestenfoto-fallback en toont geen oude foto', async () => {
+  const a=env();
+  void a.update('Band','Song');
+  await a.fulfill(valid);
+  a.pendingImages[0].onerror();
+  const request=a.pendingRequests.at(-1);
+  assert.ok(request);
+  a.toggle.checked=false;
+  a.toggle.listeners.change();
+  assert.equal(request.options.signal.aborted,true);
+  await a.fulfill({image:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Artist.jpg/500px-Artist.jpg',
+    kind:'artist',creditUrl:'https://commons.wikimedia.org/wiki/File:Artist.jpg',
+    creditLabel:'Foto: Photographer · CC BY 4.0'});
+  assert.equal(a.container.classList.contains('has-track-artwork'),false);
+  assert.equal(a.pendingImages.length,1,'late artiestenfoto mag niet gepreload worden');
+});
+
+test('PHP reserveert tijd voor artiestenfoto en hergebruikt artist-only cache', () => {
+  assert.ok(php.includes('function cachedArtistArtwork('));
+  assert.ok(php.includes('function findArtistArtwork('));
+  assert.ok(php.includes('https://nl.wikipedia.org/w/api.php'));
+  assert.ok(php.includes("$artistOnly = ($_GET['fallback'] ?? '') === 'artist';"));
+  assert.ok(php.includes('microtime(true) + 14'));
+  assert.ok(php.includes('microtime(true) + 9.5'));
+  assert.ok(php.includes('radio-artwork-photo-select.php'));
 });

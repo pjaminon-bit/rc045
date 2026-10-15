@@ -703,6 +703,24 @@
     }
 
 
+    /* Bij artwork is LIVE een compact label; de originele tegel behoudt
+       de normale indicator. Geen wijziging van de playerafmetingen. */
+    .artwork.has-track-artwork .playing-indicator {
+      right: 12px;
+      bottom: 12px;
+      height: 24px;
+      padding: 0 8px;
+      gap: 5px;
+      font-size: 9px;
+      letter-spacing: .05em;
+    }
+
+    .artwork.has-track-artwork .live-dot {
+      width: 5px;
+      height: 5px;
+    }
+
+
     .live-dot {
       width: 7px;
       height: 7px;
@@ -7314,7 +7332,45 @@ function safeArtworkResult(data) {
   }
 }
 
-function showTrackArtwork(result, generation) {
+async function loadArtistPhotoAfterCoverFailure(generation, artist, title, key) {
+  if (generation !== artworkGeneration || !albumArtEnabled || !artist || !title) return;
+  const controller = new AbortController();
+  artworkRequest = controller;
+  try {
+    // The cover was listed by CAA but cannot actually be displayed. Do not
+    // repeat the MusicBrainz lookup; retrieve only the licensed artist photo.
+    const url = "/radio-artwork.php?" +
+      new URLSearchParams({artist, title, fallback: "artist"});
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {"Accept": "application/json"},
+      cache: "no-store"
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    if (generation !== artworkGeneration || !albumArtEnabled) return;
+    const photo = safeArtworkResult(data);
+    if (!photo || photo.kind !== "artist" ||
+        new URL(photo.creditUrl).hostname !== "commons.wikimedia.org" ||
+        !photo.creditLabel.startsWith("Foto: ")) {
+      artworkCache.set(key, {result: null, expires: Date.now() + 60000});
+      return;
+    }
+    artworkCache.set(key, {
+      result: photo,
+      expires: Date.now() + 30 * 60000
+    });
+    showTrackArtwork(photo, generation, artist, title, key);
+  } catch {
+    if (generation === artworkGeneration) {
+      artworkCache.set(key, {result: null, expires: Date.now() + 30000});
+    }
+  } finally {
+    if (artworkRequest === controller) artworkRequest = null;
+  }
+}
+
+function showTrackArtwork(result, generation, artist, title, key) {
   if (generation !== artworkGeneration || !result) return;
   const preload = new Image();
   artworkPreload = preload;
@@ -7345,7 +7401,10 @@ function showTrackArtwork(result, generation) {
       return;
     }
     artworkPreload = null;
-    // Geen geldige foto? Bewaar de huidige kleurverloop-achtergrond.
+    if (result.kind === "album" && artist && title && key && albumArtEnabled) {
+      void loadArtistPhotoAfterCoverFailure(generation, artist, title, key);
+    }
+    // Geen geldige artiestenfoto? Bewaar de bestaande stationsachtergrond.
   };
   preload.src = result.image;
 }
@@ -7358,7 +7417,7 @@ async function updateTrackArtwork(artist, title) {
   artworkCurrentKey = key;
   const existing = artworkCache.get(key);
   if (existing && existing.expires > Date.now()) {
-    showTrackArtwork(existing.result, generation);
+    showTrackArtwork(existing.result, generation, artist, title, key);
     return;
   }
 
@@ -7384,7 +7443,7 @@ async function updateTrackArtwork(artist, title) {
     if (artworkCache.size > 80) {
       artworkCache.delete(artworkCache.keys().next().value);
     }
-    showTrackArtwork(result, generation);
+    showTrackArtwork(result, generation, artist, title, key);
   } catch {
     // Externe service niet bereikbaar: speler en huidige stationskleur blijven werken.
   } finally {
