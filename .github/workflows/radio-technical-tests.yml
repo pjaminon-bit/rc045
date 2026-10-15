@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'radio.html'
+      - 'assets/radio/spotify.svg'
+      - 'tests/radio-spotify-link.test.cjs'
       - 'assets/radio/logos/**'
       - 'tests/radio-technical.test.cjs'
       - 'tests/radio-local-assets.test.cjs'
@@ -23,6 +25,6 @@ jobs:
         with:
           node-version: '22'
       - name: Controleer radio zonder metadata-aanroepen
-        run: node --test tests/radio-technical.test.cjs tests/radio-local-assets.test.cjs
+        run: node --test tests/radio-technical.test.cjs tests/radio-local-assets.test.cjs tests/radio-spotify-link.test.cjs
       - name: Controleer nieuw toegevoegde streamadressen
         run: node tests/radio-stream-probe.mjs
