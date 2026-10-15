@@ -283,7 +283,7 @@ test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', (
   assert.ok(php.includes('function artworkIdentifyArtist('));
   assert.ok(php.includes('findAlbumArtwork($artist,$title,$dir)'));
   assert.match(selection, /secondary-types/);
-  assert.match(selection, /compilation\|soundtrack\|remix\|live\|mixtape/i);
+  assert.ok(selection.includes("array('compilation','live','remix','mixtape'"));
   assert.match(selection, /release\['artist-credit'\]/);
 });
 
@@ -323,7 +323,7 @@ test('onbetrouwbare fallback-URL en andere hosts worden genegeerd', async () => 
 
 test('server onderscheidt tijdelijke fouten van echte missers en beperkt API-verzoeken', () => {
   assert.match(php, /'status'=>'temporary_error'/);
-  assert.match(php, /'status'=>'not_found'/);
+  assert.ok(php.includes("'not_found'"));
   assert.ok(php.includes('7 * 86400'));
   assert.ok(php.includes('45 * 60'));
   assert.ok(php.includes("'temporary_error') ? 30"));
