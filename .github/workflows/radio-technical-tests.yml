@@ -32,6 +32,6 @@ jobs:
         run: php -l radio-artwork.php
       - name: Controleer foutloze fallback bij ontbreken van artist/title
         run: |
-          php -r '\$_SERVER["REQUEST_METHOD"]="GET"; include "radio-artwork.php";' | grep -F '"image":null'
+          php -r '$_SERVER["REQUEST_METHOD"]="GET"; include "radio-artwork.php";' | grep -F '"image":null'
       - name: Controleer nieuw toegevoegde streamadressen
         run: node tests/radio-stream-probe.mjs
