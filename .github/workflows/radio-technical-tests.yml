@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - 'radio.html'
+      - 'radio-sw.js'
       - 'tests/radio-technical.test.cjs'
+      - 'tests/radio-logo-cache.test.cjs'
       - '.github/workflows/radio-technical-tests.yml'
   workflow_dispatch:
 
@@ -21,6 +23,6 @@ jobs:
         with:
           node-version: '22'
       - name: Controleer radio zonder metadata-aanroepen
-        run: node --test tests/radio-technical.test.cjs
+        run: node --test tests/radio-technical.test.cjs tests/radio-logo-cache.test.cjs
       - name: Controleer nieuw toegevoegde streamadressen
         run: node tests/radio-stream-probe.mjs
