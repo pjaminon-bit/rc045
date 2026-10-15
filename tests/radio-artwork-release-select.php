@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../radio-artwork-release-select.php';
 
+// Dezelfde normalisatie als de live PHP endpoint voor exacte matches.
+function normalArtworkName($value) {
+    return strtolower((string)preg_replace('/[^a-zA-Z0-9]+/', '', (string)$value));
+}
 function sameArtistOrTitle($a, $b) {
     return strtolower(trim((string)$a)) === strtolower(trim((string)$b));
 }
@@ -75,4 +79,40 @@ checkResult(canonicalArtworkArtist('Pink Floyd') === 'Pink Floyd',
 checkResult(canonicalArtworkArtist('Coldplay') === 'Coldplay',
     'Other artists must be untouched.');
 
-echo "Artwork release matching OK: artist, original album, compilation exclusion , fallback and aliases.\n";
+
+$duasSingleId = '54d80d1a-d34e-40e1-968a-38368bfa4546';
+$singleGroups = array(
+    array('id'=>'11111111-1111-4111-8111-111111111111',
+        'score'=>100, 'title'=>'Barbie: The Album', 'primary-type'=>'Album',
+        'secondary-types'=>array('Soundtrack'),
+        'artist-credit'=>array(array('name'=>'Various Artists'))),
+    array('id'=>'22222222-2222-4222-8222-222222222222',
+        'score'=>100, 'title'=>'Dance the Night', 'primary-type'=>'Single',
+        'secondary-types'=>array('Remix'),
+        'artist-credit'=>array(array('name'=>'Dua Lipa'))),
+    array('id'=>'33333333-3333-4333-8333-333333333333',
+        'score'=>100, 'title'=>'Dance the Night', 'primary-type'=>'Single',
+        'secondary-types'=>array('Soundtrack'),
+        'artist-credit'=>array(array('name'=>'Other Singer'))),
+    array('id'=>$duasSingleId,
+        'score'=>100, 'title'=>'Dance the Night', 'primary-type'=>'Single',
+        'secondary-types'=>array('Soundtrack'),
+        'first-release-date'=>'2023-05-23',
+        'artist-credit'=>array(array('name'=>'Dua Lipa'))),
+    array('id'=>'44444444-4444-4444-8444-444444444444',
+        'score'=>100, 'title'=>'Dance the Night (Live)', 'primary-type'=>'Single',
+        'secondary-types'=>array(),
+        'artist-credit'=>array(array('name'=>'Dua Lipa')))
+);
+$duas = artworkSingleCandidates($singleGroups, 'Dua Lipa', 'Dance The Night',
+    'sameArtistOrTitle');
+checkResult($duas === array($duasSingleId),
+    'Dua Lipa soundtrack single must match without showing a compilation, remix or wrong artist.');
+
+$bad = $singleGroups;
+$bad[3]['secondary-types'] = array('Soundtrack', 'Compilation');
+checkResult(artworkSingleCandidates($bad, 'Dua Lipa', 'Dance The Night',
+    'sameArtistOrTitle') === array(),
+    'Soundtrack singles also marked Compilation must be rejected.');
+
+echo "Artwork release matching OK: canonical artist album, soundtrack single, no compilations.\n";

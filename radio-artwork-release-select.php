@@ -80,3 +80,50 @@ function artworkReleaseCandidates($recordings, $artist, $title, $matchesName) {
     uasort($found, function($a, $b) {return $a['rank'] <=> $b['rank'];});
     return array_slice(array_keys($found), 0, 4);
 }
+
+
+/**
+ * Tweede, strikte zoekroute als de opname-index geen geschikte originele
+ * release toont. Bijvoorbeeld "Dance the Night" van Dua Lipa: de officiële
+ * single staat als Single + Soundtrack geregistreerd. Dat is nadrukkelijk
+ * niet hetzelfde als een soundtrack-compilatie door Various Artists.
+ */
+function artworkSingleCandidates($groups, $artist, $title, $matchesName) {
+    if (!is_array($groups)) return array();
+    $found = array();
+    foreach ($groups as $group) {
+        if (!is_array($group) || (int)($group['score'] ?? 0) < 95) continue;
+        if (!$matchesName($group['title'] ?? '', $title)) continue;
+        if (strcasecmp((string)($group['primary-type'] ?? ''), 'Single') !== 0) continue;
+
+        $types = $group['secondary-types'] ?? array();
+        if (!is_array($types)) continue;
+        foreach ($types as $type) {
+            // Alleen het type Soundtrack is toegestaan voor een artiestensingle.
+            if (strcasecmp((string)$type, 'Soundtrack') !== 0) continue 2;
+        }
+
+        $names = array();
+        foreach (($group['artist-credit'] ?? array()) as $credit) {
+            if (is_array($credit)) {
+                $names[] = $credit['name'] ?? ($credit['artist']['name'] ?? '');
+            }
+        }
+        if (!$names || !$matchesName(implode(' ', $names), $artist)) continue;
+        // Bij de strikte route géén fuzzy substringmatches: voorkomt
+        // covers van andere nummers of gelijknamige artiesten.
+        if (!function_exists('normalArtworkName') ||
+            normalArtworkName($group['title'] ?? '') !== normalArtworkName($title) ||
+            normalArtworkName(implode(' ', $names)) !== normalArtworkName($artist)) {
+            continue;
+        }
+
+        $id = $group['id'] ?? '';
+        if (!is_string($id) || !preg_match('/^[a-f0-9-]{36}$/i', $id)) continue;
+        $found[] = array('id' => $id, 'date' => $group['first-release-date'] ?? '9999');
+    }
+    usort($found, function($a, $b) {
+        return strcmp((string)$a['date'], (string)$b['date']);
+    });
+    return array_slice(array_column($found, 'id'), 0, 3);
+}

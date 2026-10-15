@@ -150,6 +150,32 @@ function findAlbumArtwork($artist, $title, $cacheDir) {
             );
         }
     }
+
+    // Recording-indexing mist soms de originele single, vooral bij een
+    // filmsoundtrack (bv. Dua Lipa - Dance the Night). Zoek dan aanvullend
+    // naar de RELEASE-GROUP van de exacte single/artiest; een soundtrackalbum
+    // of compilatie blijft uitgesloten.
+    paceArtworkMusicBrainz($cacheDir);
+    $singleQuery = 'releasegroup:"' . str_replace(array('"', '\\'), ' ', $title) .
+        '" AND artist:"' . str_replace(array('"', '\\'), ' ', $artist) . '"';
+    $singleUrl = 'https://musicbrainz.org/ws/2/release-group/?' .
+        http_build_query(array(
+            'query' => $singleQuery, 'fmt' => 'json', 'limit' => 10
+        ), '', '&', PHP_QUERY_RFC3986);
+    $singleData = jsonArtworkRequest($singleUrl, 5);
+    $singles = artworkSingleCandidates(
+        $singleData['release-groups'] ?? array(), $artist, $title, 'matchArtworkName'
+    );
+    foreach ($singles as $id) {
+        if (availableCoverArtwork($id)) {
+            return array(
+                'image' => 'https://coverartarchive.org/release-group/' . $id . '/front-250',
+                'kind' => 'album',
+                'creditUrl' => 'https://musicbrainz.org/release-group/' . $id,
+                'creditLabel' => 'Cover Art Archive'
+            );
+        }
+    }
     return null;
 }
 
@@ -218,7 +244,7 @@ function findArtistArtwork($artist) {
 }
 
 // Server-side cache: successful results seven days; misses six hours.
-$dir = rtrim(sys_get_temp_dir(), '/') . '/rc045-radio-artwork-v3';
+$dir = rtrim(sys_get_temp_dir(), '/') . '/rc045-radio-artwork-v4';
 if (!is_dir($dir)) @mkdir($dir, 0700, true);
 $hash = hash('sha256', normalArtworkName($artist) . '|' . normalArtworkName($title));
 $file = $dir . '/' . $hash . '.json';
