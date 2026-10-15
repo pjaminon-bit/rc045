@@ -330,5 +330,5 @@ test('server onderscheidt tijdelijke fouten van echte missers en beperkt API-ver
   assert.ok(php.includes("['musicbrainz'] >= 5"));
   assert.ok(php.includes('count($seen) >= 7'));
   assert.ok(php.includes('LOCK_EX|LOCK_NB') || php.includes('LOCK_EX | LOCK_NB'));
-  assert.match(html, /data.status === "temporary_error" \\? 30000/);
+  assert.ok(html.includes('data.status === "temporary_error" ? 30000'));
 });
