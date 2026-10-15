@@ -24,7 +24,15 @@ ensurePhoto(!artworkWikipediaTitleMatchesArtist('Another Artist (singer)',$artis
 ensurePhoto(!artworkWikipediaTitleMatchesArtist('Example Artist (actor)',$artist),
     'Non-musical disambiguation must not be accepted.');
 ensurePhoto(artworkCommonsFilename($url)==='Example_Artist.jpg',
-    'Only Commons thumbnails are eligible.');
+    'Resized Commons thumbnails are eligible.');
+$originalUrl = 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Example_Artist.png?utm_source=en.wikipedia.org';
+ensurePhoto(artworkCommonsFilename($originalUrl)==='Example_Artist.png',
+    'Unscaled Commons photos with safe query parameters are eligible.');
+$original = $page;$original['thumbnail']['source'] = $originalUrl;
+ensurePhoto(artworkLicensedArtistPhoto($artist,$original,$info) !== null,
+    'A freely licensed small original should be accepted as an artist photo.');
+ensurePhoto(artworkCommonsFilename('https://upload.wikimedia.org/wikipedia/commons/evil/path/test.jpg') === null,
+    'Unverified Commons path patterns are rejected.');
 ensurePhoto(artworkCommonsFilename('https://example.com/photo.jpg')===null,
     'Unknown image hosts must be rejected.');
 ensurePhoto(artworkCommonsFilename('https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Photo.svg/500px-Photo.svg.png')===null,
