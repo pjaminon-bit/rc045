@@ -279,7 +279,9 @@ test('voorkeur wordt via bestaande veilige localStorage-helper gelezen en opgesl
 test('backend rangschikt uitsluitend echte artiestreleases, geen compilaties', () => {
   const selection = fs.readFileSync(path.join(root, 'radio-artwork-release-select.php'), 'utf8');
   assert.match(php, /require_once __DIR__ \. '\/radio-artwork-release-select\.php'/);
-  assert.match(php, /rc045-radio-artwork-v2/);
+  assert.match(php, /rc045-radio-artwork-v3/);
+  assert.match(php, /\$lookupArtist = canonicalArtworkArtist\(\$artist\)/);
+  assert.match(php, /findAlbumArtwork\(\$lookupArtist, \$title, \$dir\)/);
   assert.match(selection, /secondary-types/);
   assert.match(selection, /compilation\|soundtrack\|remix\|live\|mixtape/i);
   assert.match(selection, /release\['artist-credit'\]/);
