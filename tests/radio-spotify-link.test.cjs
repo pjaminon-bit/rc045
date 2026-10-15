@@ -29,7 +29,9 @@ function element() {
 function harness() {
   const ctx = {
     trackInfo: element(), trackArtist: element(), trackTitle: element(),
-    spotifyTrackLink: element(), wikipediaGeneration: 0,
+    spotifyTrackLink: element(), musicServiceLinks: element(),
+    appleMusicTrackLink: element(), deezerTrackLink: element(),
+    tidalTrackLink: element(), wikipediaGeneration: 0,
     currentTrack: {artist:'', title:''}, currentTrackUpdatedAt: 0,
     blocked: false, mediaUpdates: 0, wikiUpdates: 0,
     isContentSuppressed() { return ctx.blocked; },
@@ -107,4 +109,93 @@ test('geen wijzigingen in providers, audio, stations of Wikipedia-links', () => 
   assert.match(html, /src="\/assets\/radio\/spotify\.svg"/);
   assert.doesNotMatch(section('function updateSpotifyLink(', 'function setTrackLoading()'),
     /fetch\s*\(|XMLHttpRequest|Spotify\.WebApi|access_token/);
+});
+
+
+test('Apple Music, Deezer en TIDAL tonen lokaal gehoste SVG-iconen', () => {
+  for (const [id, file] of [
+    ['appleMusicTrackLink', 'apple-music.svg'],
+    ['deezerTrackLink', 'deezer.svg'],
+    ['tidalTrackLink', 'tidal.svg']
+  ]) {
+    assert.match(html, new RegExp('id="' + id + '"'));
+    assert.match(html, new RegExp('src="/assets/radio/' + file.replace('.', '\\.') + '"'));
+    const icon = fs.readFileSync(path.join(root, 'assets/radio', file), 'utf8');
+    assert.match(icon, /^<svg\b/);
+    assert.match(icon, /viewBox="0 0 24 24"/);
+    assert.match(icon, /<path\b/);
+    assert.doesNotMatch(icon, /<image\b|<script\b|href=["']https?:\/\//i);
+  }
+  assert.match(html, /id="musicServiceLinks"/);
+  assert.match(html, /\.music-service-links\[hidden\]/);
+  assert.match(html, /\.music-service-link\[hidden\]/);
+});
+
+test('alle vier diensten zoeken dezelfde herkende titel en artiest', () => {
+  const {ctx,api} = harness();
+  api.setTrackLoading();
+  assert.equal(ctx.musicServiceLinks.hidden, true);
+
+  api.setTrack('Beyoncé', 'Halo (Live) & More');
+  const query = 'Beyonc%C3%A9%20Halo%20(Live)%20%26%20More';
+  const expected = [
+    [ctx.spotifyTrackLink, 'Spotify', 'https://open.spotify.com/search/' + query],
+    [ctx.appleMusicTrackLink, 'Apple Music', 'https://music.apple.com/nl/search?term=' + query],
+    [ctx.deezerTrackLink, 'Deezer', 'https://www.deezer.com/search/' + query],
+    [ctx.tidalTrackLink, 'TIDAL', 'https://tidal.com/search/tracks?q=' + query]
+  ];
+  assert.equal(ctx.musicServiceLinks.hidden, false);
+  for (const [link, service, url] of expected) {
+    assert.equal(link.hidden, false, service);
+    assert.equal(link.href, url, service);
+    assert.equal(link.getAttribute('aria-label'), 'Zoek Beyoncé – Halo (Live) & More op ' + service);
+    assert.equal(link.title, 'Zoek op ' + service);
+  }
+
+  api.setTrack('', 'Instrumental');
+  for (const [link] of expected) {
+    assert.equal(link.hidden, false);
+    assert.match(link.href, /Instrumental$/);
+  }
+});
+
+test('oude links verdwijnen bij nieuw station, talk, loading en onderdrukking', () => {
+  const {ctx,api} = harness();
+  const all = [ctx.spotifyTrackLink, ctx.appleMusicTrackLink,
+    ctx.deezerTrackLink, ctx.tidalTrackLink];
+  function assertGone() {
+    assert.equal(ctx.musicServiceLinks.hidden, true);
+    for (const item of all) {
+      assert.equal(item.hidden, true);
+      assert.equal(item.href, undefined);
+      assert.equal(item.getAttribute('aria-label'), undefined);
+    }
+  }
+  api.setTrack('Old artist', 'Old title');
+  api.clearTrack();
+  assertGone();
+
+  api.setTrack('New artist', 'New title');
+  for (const item of all) {
+    assert.match(item.href, /New%20artist%20New%20title$/);
+  }
+  api.setTrackLoading();
+  assertGone();
+
+  // Ongewijzigde track na loading herstelt alle vier links.
+  api.setTrack('New artist', 'New title');
+  assert.equal(ctx.musicServiceLinks.hidden, false);
+  ctx.blocked = true;
+  api.setTrack('New artist', 'New title');
+  assertGone();
+});
+
+test('geen nieuwe metadata-API of wijziging van verversingsintervallen', () => {
+  const searchLogic = section('function updateOtherMusicLinks(', 'function setTrackLoading()');
+  assert.doesNotMatch(searchLogic, /\bfetch\s*\(|XMLHttpRequest|access_token|client_secret/);
+  assert.match(html, /const METADATA_REFRESH = 15000;/);
+  assert.match(html, /const PROGRAM_REFRESH = 60000;/);
+  assert.match(html, /function refreshMetadata\(/);
+  assert.match(html, /function refreshProgram\(/);
+  assert.match(html, /function updateWikipediaLinks\(/);
 });
