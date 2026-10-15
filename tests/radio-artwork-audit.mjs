@@ -21,6 +21,9 @@ for(const [artist,title] of regressions) {
   const item=catalog.find(row=>row.artist===artist&&row.title===title);
   if(item) ordered.push(item);
 }
+// Alternate station spellings are input fixtures, never production exceptions.
+ordered.push({category:'alias',artist:'PINK',title:'Sober'});
+ordered.push({category:'unicode',artist:'Taylor Swift',title:'Anti–Hero'});
 for(const category of new Set(catalog.map(x=>x.category))) {
   for(const item of catalog.filter(x=>x.category===category)) {
     if(!ordered.includes(item)) ordered.push(item);
