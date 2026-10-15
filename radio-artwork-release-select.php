@@ -3,6 +3,18 @@
  * Select canonical artist releases for the optional album-art background.
  * No HTTP calls here: deterministic and independently testable.
  */
+/**
+ * Stations kunnen de naam van een artiest zonder stilering doorgeven.
+ * MusicBrainz indexeert P!nk anders dan Pink/PINK. Houd die omzetting
+ * uitsluitend bij de artwork-lookup; verander NOOIT de radio-trackinfo.
+ */
+function canonicalArtworkArtist($artist) {
+    if (strcasecmp(trim((string)$artist), 'pink') === 0) {
+        return 'P!nk';
+    }
+    return $artist;
+}
+
 function artworkReleaseCandidates($recordings, $artist, $title, $matchesName) {
     if (!is_array($recordings)) return array();
     $found = array();
