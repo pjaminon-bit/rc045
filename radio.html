@@ -668,21 +668,22 @@
     }
 
 
+    /* LIVE behoudt altijd dezelfde compacte maat, met of zonder artwork. */
     .playing-indicator {
       position: absolute;
 
-      right: 16px;
-      bottom: 16px;
+      right: 12px;
+      bottom: 12px;
 
       z-index: 3;
 
-      height: 32px;
+      height: 24px;
 
-      padding: 0 12px;
+      padding: 0 8px;
 
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 5px;
 
       border-radius: 999px;
 
@@ -694,36 +695,18 @@
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
 
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 750;
 
-      letter-spacing: .08em;
+      letter-spacing: .05em;
 
       opacity: .72;
     }
 
 
-    /* Bij artwork is LIVE een compact label; de originele tegel behoudt
-       de normale indicator. Geen wijziging van de playerafmetingen. */
-    .artwork.has-track-artwork .playing-indicator {
-      right: 12px;
-      bottom: 12px;
-      height: 24px;
-      padding: 0 8px;
-      gap: 5px;
-      font-size: 9px;
-      letter-spacing: .05em;
-    }
-
-    .artwork.has-track-artwork .live-dot {
+    .live-dot {
       width: 5px;
       height: 5px;
-    }
-
-
-    .live-dot {
-      width: 7px;
-      height: 7px;
 
       border-radius: 50%;
 
