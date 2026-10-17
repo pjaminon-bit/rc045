@@ -3354,8 +3354,8 @@
               type="button"
               aria-expanded="false"
               aria-controls="displaySettingsPanel"
-              aria-label="Weergave-instellingen"
-              title="Weergave-instellingen">
+              aria-label="Instellingen"
+              title="Instellingen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.8" stroke-linecap="round"
              stroke-linejoin="round" aria-hidden="true">
@@ -3368,7 +3368,7 @@
 
       <div id="displaySettingsPanel"
            class="display-settings-panel"
-           aria-label="Instellingen voor de weergave">
+           aria-label="Instellingen">
 
       <label class="artwork-toggle">
         <span>Albumart tonen</span>
@@ -13577,6 +13577,8 @@ if ("serviceWorker" in navigator && window.isSecureContext) {
   window.addEventListener("offline", refreshOffline);
 
   window.addEventListener("beforeinstallprompt", (event) => {
+    // Op desktop de installatieknop van de browser niet onderscheppen.
+    if (!window.matchMedia("(max-width: 760px)").matches) return;
     event.preventDefault();
     pendingPrompt = event;
     refreshInstall();
