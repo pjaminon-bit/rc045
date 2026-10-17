@@ -3258,6 +3258,53 @@
     }
 
 
+    /* PWA-installatie blijft in het bestaande instellingenmenu, niet in de player. */
+    .pwa-install-area[hidden], .pwa-install-help[hidden], .radio-offline-notice[hidden] {
+      display: none !important;
+    }
+    .pwa-install-area { display: none; }
+    .pwa-install-action {
+      min-height: 44px;
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+      font-weight: 650;
+      text-align: left;
+      cursor: pointer;
+    }
+    .pwa-install-action:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .pwa-install-help {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .radio-offline-notice {
+      margin: 0 0 var(--ui-space-4);
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    @media (max-width: 760px) {
+      .pwa-install-area:not([hidden]) {
+        display: block;
+        width: 100%;
+        border-top: 1px solid var(--border);
+        padding-top: var(--ui-space-3);
+      }
+    }
+
     /* Op iOS is systeemvolume niet zichtbaar voor JavaScript.
        Toon daarom een compacte, gecentreerde iconenbalk in plaats van
        een slider of een tekst die zonder context in de weg staat.
@@ -3307,8 +3354,8 @@
               type="button"
               aria-expanded="false"
               aria-controls="displaySettingsPanel"
-              aria-label="Weergave-instellingen"
-              title="Weergave-instellingen">
+              aria-label="Instellingen"
+              title="Instellingen">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.8" stroke-linecap="round"
              stroke-linejoin="round" aria-hidden="true">
@@ -3321,7 +3368,7 @@
 
       <div id="displaySettingsPanel"
            class="display-settings-panel"
-           aria-label="Instellingen voor de weergave">
+           aria-label="Instellingen">
 
       <label class="artwork-toggle">
         <span>Albumart tonen</span>
@@ -3383,12 +3430,22 @@
 
       </div>
 
+        <div class="pwa-install-area" id="pwaInstallArea" hidden>
+          <button class="pwa-install-action" id="pwaInstallButton" type="button">
+            Installeer radio.
+          </button>
+          <p class="pwa-install-help" id="pwaInstallHelp" hidden></p>
+        </div>
+
       </div><!-- displaySettingsPanel -->
 
     </div>
 
   </header>
 
+  <div id="radioOfflineNotice" class="radio-offline-notice" role="status" aria-live="polite" hidden>
+    Geen internetverbinding. De radiozenders zijn weer beschikbaar zodra je online bent.
+  </div>
 
   <main>
 
@@ -13491,6 +13548,67 @@ if ("serviceWorker" in navigator && window.isSecureContext) {
 </script>
 
 
+<script>
+/* Afzonderlijke PWA-interface: raakt audio, zenders en metadata niet aan. */
+(() => {
+  const installArea = document.getElementById("pwaInstallArea");
+  const installButton = document.getElementById("pwaInstallButton");
+  const help = document.getElementById("pwaInstallHelp");
+  const offlineNotice = document.getElementById("radioOfflineNotice");
+  if (!installArea || !installButton || !help || !offlineNotice) return;
+
+  const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const standalone = () => window.matchMedia("(display-mode: standalone)").matches ||
+    navigator.standalone === true;
+
+  let pendingPrompt = null;
+  const refreshInstall = () => {
+    installArea.hidden = standalone() || (!isIOS && !pendingPrompt);
+    installButton.textContent = isIOS ? "Zet radio. op beginscherm" : "Installeer radio.";
+    if (installArea.hidden) help.hidden = true;
+  };
+
+  const refreshOffline = () => {
+    offlineNotice.hidden = navigator.onLine !== false;
+  };
+  refreshOffline();
+  window.addEventListener("online", refreshOffline);
+  window.addEventListener("offline", refreshOffline);
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    // Op desktop de installatieknop van de browser niet onderscheppen.
+    if (!window.matchMedia("(max-width: 760px)").matches) return;
+    event.preventDefault();
+    pendingPrompt = event;
+    refreshInstall();
+  });
+  window.addEventListener("appinstalled", () => {
+    pendingPrompt = null;
+    refreshInstall();
+  });
+
+  installButton.addEventListener("click", async () => {
+    if (isIOS) {
+      help.textContent = "Open de pagina in Safari. Kies Deel → Zet op beginscherm, schakel ‘Open als webapp’ in en tik op ‘Voeg toe’.";
+      help.hidden = false;
+      return;
+    }
+    if (!pendingPrompt) return;
+    const prompt = pendingPrompt;
+    pendingPrompt = null;
+    refreshInstall();
+    try {
+      await prompt.prompt();
+      await prompt.userChoice;
+    } catch (error) {
+      console.warn("Installeren van radio. niet gestart:", error);
+    }
+  });
+
+  refreshInstall();
+})();
+</script>
 
 <script>
 /* Mobiele weergave-instellingen: uitsluitend UI; thema- en artworkhandlers blijven bestaan. */
