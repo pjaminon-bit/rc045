@@ -1,5 +1,5 @@
 /* Alleen de radio-shell cachen; externe streams en trackinfo blijven live. */
-const CACHE_NAME = "radio-shell-v1";
+const CACHE_NAME = "radio-shell-v2";
 const SHELL_FILES = [
   "/radio.html",
   "/radio-manifest.json",
@@ -11,7 +11,15 @@ const SHELL_FILES = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(SHELL_FILES))
+      .then(async (cache) => {
+        // De offline radio-interface is essentieel, maar optionele iconen
+        // mogen een update van de serviceworker niet blokkeren.
+        await cache.add("/radio.html");
+        await Promise.allSettled(
+          SHELL_FILES.filter((path) => path !== "/radio.html")
+            .map((path) => cache.add(path))
+        );
+      })
       .then(() => self.skipWaiting())
   );
 });
@@ -42,8 +50,14 @@ self.addEventListener("fetch", (event) => {
       fetch(request)
         .then(async (response) => {
           if (response.ok) {
-            const cache = await caches.open(CACHE_NAME);
-            await cache.put("/radio.html", response.clone());
+            try {
+              const cache = await caches.open(CACHE_NAME);
+              await cache.put("/radio.html", response.clone());
+            } catch (error) {
+              // Een opslagfout mag een geslaagde online navigatie niet
+              // vervangen door de offline-versie.
+              console.warn("Radio PWA-cache kon niet worden bijgewerkt:", error);
+            }
           }
           return response;
         })
