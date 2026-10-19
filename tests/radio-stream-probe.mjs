@@ -1,4 +1,11 @@
 const urls = [
+  ["MNM Hits", "https://icecast.vrtcdn.be/mnm_hits-high.mp3"],
+  ["De Jaren Nul", "https://icecast.vrtcdn.be/stubru_dejarennul-high.mp3"],
+  ["Bruut", "https://icecast.vrtcdn.be/stubru_bruut-high.mp3"],
+  ["UNTZ", "https://icecast.vrtcdn.be/stubru_untz-high.mp3"],
+  ["Vuurland", "https://icecast.vrtcdn.be/stubru_tgs-high.mp3"],
+  ["Radio 2 Relax", "https://icecast.vrtcdn.be/radio2_relax-high.mp3"],
+  ["Ketnet Hits", "https://icecast.vrtcdn.be/ketnetradio-high.mp3"],
   ["Qmusic Non-Stop", "https://stream.qmusic.nl/nonstop/mp3"],
   ["Qmusic Easy", "https://streams.radio.dpgmedia.cloud/redirect/qnl_easy/mp3"],
   ["Qmusic Energy", "https://streams.radio.dpgmedia.cloud/redirect/qnl_energy/mp3"],
