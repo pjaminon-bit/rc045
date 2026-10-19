@@ -3076,6 +3076,10 @@
       margin-top: var(--ui-space-3);
       min-width: 0;
     }
+    /* Alleen de presentatie verbergen; metadata en albumart blijven doorlopen. */
+    :root[data-track-info-visible="false"] #trackInfo {
+      display: none !important;
+    }
     .track-artist {
       font-size: clamp(19px, 2vw, 22px);
       font-weight: 710;
@@ -3539,6 +3543,11 @@
       <label class="artwork-toggle settings-row">
         <span>Albumart tonen</span>
         <input id="albumArtToggle" type="checkbox" checked>
+      </label>
+
+      <label class="artwork-toggle settings-row">
+        <span>Trackinfo tonen</span>
+        <input id="trackInfoToggle" type="checkbox" checked>
       </label>
 
       <label class="artwork-toggle settings-row">
@@ -6210,6 +6219,9 @@ const artworkCredit =
 const albumArtToggle =
   document.getElementById("albumArtToggle");
 
+const trackInfoToggle =
+  document.getElementById("trackInfoToggle");
+
 const mainStationLogo =
   document.getElementById("mainStationLogo");
 
@@ -6288,6 +6300,17 @@ function saveRadioPreference(key, value) {
 // Afbeeldingen optioneel; de keuze blijft ook na herstart van de browser staan.
 let albumArtEnabled = readRadioPreference("radio-albumart-visible") !== "false";
 albumArtToggle.checked = albumArtEnabled;
+
+// Trackinfo is standaard zichtbaar. Deze instelling raakt de herkenning niet.
+let trackInfoEnabled = readRadioPreference("radio-trackinfo-visible") !== "false";
+trackInfoToggle.checked = trackInfoEnabled;
+document.documentElement.dataset.trackInfoVisible = String(trackInfoEnabled);
+
+trackInfoToggle.addEventListener("change", () => {
+  trackInfoEnabled = trackInfoToggle.checked;
+  document.documentElement.dataset.trackInfoVisible = String(trackInfoEnabled);
+  saveRadioPreference("radio-trackinfo-visible", trackInfoEnabled);
+});
 
 // KINK Classics werd in 2023 vervangen door KINK 80's.
 const previousStationId = readRadioPreference("radio-station-id");
@@ -13887,6 +13910,7 @@ initialise();
      */
 
     if (
+      document.documentElement.dataset.trackInfoVisible !== "false" &&
       sourceTrackInfo &&
       !sourceTrackInfo.hidden
     ) {
@@ -14177,6 +14201,15 @@ initialise();
       attributeFilter: [
         "class"
       ]
+    }
+  );
+
+  // Instelling in de grote player direct spiegelen in de miniplayer.
+  contentObserver.observe(
+    document.documentElement,
+    {
+      attributes: true,
+      attributeFilter: ["data-track-info-visible"]
     }
   );
 
