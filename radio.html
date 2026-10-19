@@ -1845,6 +1845,69 @@
     }
 
 
+
+    /* Geclusterde themakanalen: uitsluitend presentatie. */
+    .station.station-family { display:flex; flex-direction:column; min-height:126px; }
+    .station.station-family[hidden] { display:none; }
+    .station-family .station-select { flex:1 1 auto; min-height:86px; padding:12px 16px 9px; }
+    .station-family .station-name { margin-top:7px; }
+    .station-family-toggle {
+      display:flex; align-items:center; justify-content:space-between;
+      gap:8px; width:100%; min-height:36px; padding:7px 12px 7px 15px;
+      border:0; border-top:1px solid var(--border);
+      background:transparent; color:var(--muted); font:inherit;
+      font-size:11px; font-weight:650; text-align:left; cursor:pointer;
+    }
+    .station-family-toggle:hover,
+    .station-family-toggle[aria-expanded="true"] { color:var(--text); background:var(--panel-hover); }
+    .station-family-chevron { flex:0 0 auto; font-size:14px; line-height:1; }
+    .station-family-toggle-label { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .station-family-playing {
+      border-color:rgba(var(--accent-rgb),.52);
+      background:rgba(var(--accent-rgb),.09);
+    }
+    .station-theme-panel {
+      grid-column:1 / -1; min-width:0; padding:15px;
+      border:1px solid var(--border); border-radius:var(--radius-lg);
+      background:var(--panel);
+    }
+    .station-theme-panel[hidden] { display:none; }
+    .station-theme-heading {
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; margin:0 0 12px; color:var(--text);
+      font-size:13px; font-weight:750;
+    }
+    .station-theme-close {
+      appearance:none; border:0; border-radius:8px; background:transparent;
+      color:var(--muted); padding:5px 9px; font:inherit;
+      font-size:12px; cursor:pointer;
+    }
+    .station-theme-close:hover { color:var(--text); background:var(--panel-hover); }
+    .station-theme-grid {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));
+      gap:8px;
+    }
+    .station-theme-grid .station-select {
+      flex-direction:row; align-items:center; justify-content:flex-start;
+      min-height:52px; padding:10px 38px 10px 12px; gap:10px;
+    }
+    .station-theme-grid .station-select::before {
+      content:"▶"; flex:0 0 auto; color:var(--muted); font-size:11px;
+    }
+    .station-theme-grid .station.active .station-select::before { color:var(--accent); }
+    .station-theme-grid .station-logo-wrap { display:none; }
+    .station-theme-grid .station-name {
+      margin:0; padding:0; font-size:12px; font-weight:650;
+      white-space:normal; overflow-wrap:anywhere;
+    }
+    .station-theme-grid .favorite-button { top:10px; right:6px; opacity:.72; }
+    @media (max-width:420px) {
+      .station-family .station-select { min-height:77px; padding:11px 13px 8px; }
+      .station-family-toggle { padding-inline:12px; }
+      .station-theme-panel { padding:12px; }
+      .station-theme-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+
     /* =========================================================
        COMPACTE STICKY MINIPLAYER
        ========================================================= */
@@ -8092,9 +8155,180 @@ function updateCountryFavoriteButtons() {
    RENDER STATIONS
    ========================================================= */
 
+/* Radiofamilies beïnvloeden alleen het overzicht, nooit de audiobronnen. */
+const RADIO_FAMILIES = [
+  { id:"538", name:"Radio 538", main:"538", prefix:"538 ", themes:[
+    "538dance","538nonstop","538greatest","53890s","538ibiza","538party","538hitzone","538top50"
+  ] },
+  { id:"qmusic", name:"Qmusic", main:"qmusic", prefix:"Qmusic ", themes:[
+    "qnonstop","qeasynl","qenergynl","qfouteuur","qtop40","q90s00s","q10s","qsummer"
+  ] },
+  { id:"radio10", name:"Radio 10", main:"radio10", prefix:"Radio 10 ", themes:[
+    "radio1080s","radio1090s","radio10nonstop","radio10disco","radio10soul"
+  ] },
+  { id:"slam", name:"SLAM!", main:"slam", prefix:"SLAM! ", themes:[
+    "slammix","slamnonstop","slam00s","slam10s","slamboom","slamjuize"
+  ] },
+  { id:"100nl", name:"100% NL", main:"100nl", prefix:"100% NL ", themes:[
+    "100feest","100nonstop","1007080","1009000"
+  ] },
+  { id:"veronica", name:"Radio Veronica", main:"veronica", prefix:"Radio Veronica ",
+    themes:["veronicanonstop"] },
+  { id:"pinguin", name:"Pinguin Radio", main:null, prefix:"Pinguin ",
+    logo:"/assets/radio/logos/pinguin.svg",
+    themes:["pinguinpop","pinguinclassics","pinguingroove","pinguinblues"] },
+  { id:"kink", name:"KINK", main:"kink", prefix:"KINK ",
+    themes:["kink80s","kink90s","kinkdistortion"] },
+  { id:"skyradio", name:"Sky Radio", main:"skyradio", prefix:"Sky Radio ",
+    themes:["skyhits","skylovesongs"] }
+];
+const radioFamilyForStation = new Map();
+const radioFamilyById = new Map();
+for (const family of RADIO_FAMILIES) {
+  radioFamilyById.set(family.id, family);
+  for (const id of [family.main,...family.themes]) {
+    if (id) radioFamilyForStation.set(id,family);
+  }
+}
+let expandedRadioFamily = null;
+const searchCollapsedRadioFamilies = new Set();
+
+function shortRadioThemeName(station,family) {
+  return station.name.startsWith(family.prefix)
+    ? station.name.slice(family.prefix.length) : station.name;
+}
+
+function refreshRadioFamilyVisibility() {
+  if (typeof window.refreshGroupedRadioSearch === "function")
+    window.refreshGroupedRadioSearch();
+}
+
+function toggleRadioFamily(id,forceClose=false) {
+  const query = document.getElementById("stationSearchInput")?.value.trim();
+  if (query) {
+    const panel = document.getElementById("radioThemePanel-"+id);
+    if (forceClose || (panel && !panel.hidden)) searchCollapsedRadioFamilies.add(id);
+    else searchCollapsedRadioFamilies.delete(id);
+  } else {
+    expandedRadioFamily = forceClose || expandedRadioFamily===id ? null : id;
+  }
+  refreshRadioFamilyVisibility();
+}
+
+function positionRadioThemePanels() {
+  // Plaats paneel onder de betreffende volledige tegelrij, ook na resize.
+  for (const grid of document.querySelectorAll(".country-stations")) {
+    const panels = [...grid.children].filter(el =>
+      el.classList.contains("station-theme-panel") && !el.hidden);
+    for (const panel of panels) {
+      const anchor = [...grid.children].find(el =>
+        el.classList.contains("station") &&
+        el.dataset.radioFamily===panel.dataset.themePanel);
+      if (!anchor || anchor.hidden) continue;
+      const top = anchor.getBoundingClientRect().top;
+      const cards = [...grid.children].filter(el =>
+        el.classList.contains("station") && !el.hidden);
+      const row = cards.filter(el => Math.abs(el.getBoundingClientRect().top-top)<3);
+      const last = row[row.length-1] || anchor;
+      if (panel.previousElementSibling!==last) last.after(panel);
+    }
+  }
+}
+window.addEventListener("resize",() =>
+  window.requestAnimationFrame(positionRadioThemePanels));
+
+function decorateRadioFamilyCard(card,family) {
+  card.classList.add("station-family");
+  card.dataset.radioFamily=family.id;
+  card.dataset.searchName=family.name;
+  const toggle=document.createElement("button");
+  toggle.type="button";
+  toggle.className="station-family-toggle";
+  toggle.setAttribute("aria-controls","radioThemePanel-"+family.id);
+  toggle.setAttribute("aria-expanded","false");
+  toggle.setAttribute("aria-label",family.themes.length+
+    " themakanalen van "+family.name+" bekijken");
+  const label=document.createElement("span");
+  label.className="station-family-toggle-label";
+  label.textContent=family.themes.length+" themazenders";
+  const chevron=document.createElement("span");
+  chevron.className="station-family-chevron";
+  chevron.setAttribute("aria-hidden","true");
+  chevron.textContent="⌄";
+  toggle.append(label,chevron);
+  toggle.addEventListener("click",()=>toggleRadioFamily(family.id));
+  card.appendChild(toggle);
+  const active=stations[currentIndex];
+  if (family.themes.includes(active?.id)) {
+    card.classList.add("station-family-playing");
+    label.textContent="▶ "+shortRadioThemeName(active,family);
+  }
+  return card;
+}
+
+function createRadioFamilyDirectoryCard(family) {
+  const card=document.createElement("div");
+  card.className="station";
+  const select=document.createElement("button");
+  select.type="button";
+  select.className="station-select";
+  select.setAttribute("aria-label","Bekijk kanalen van "+family.name);
+  const surface=document.createElement("span");
+  surface.className="station-logo-wrap";
+  const logo=document.createElement("img");
+  logo.className="station-logo";
+  logo.src=family.logo;
+  logo.alt="";
+  logo.width=42; logo.height=42; logo.loading="lazy";
+  const fallback=document.createElement("span");
+  fallback.className="station-logo-fallback";
+  fallback.textContent="P";
+  logo.addEventListener("error",()=>{
+    logo.style.display="none"; fallback.style.display="flex";
+  });
+  surface.append(logo,fallback);
+  const name=document.createElement("span");
+  name.className="station-name";
+  name.textContent=family.name;
+  select.append(surface,name);
+  select.addEventListener("click",()=>toggleRadioFamily(family.id));
+  card.appendChild(select);
+  return decorateRadioFamilyCard(card,family);
+}
+
+function createRadioThemePanel(family,orderedItems) {
+  const panel=document.createElement("section");
+  panel.className="station-theme-panel";
+  panel.dataset.themePanel=family.id;
+  panel.id="radioThemePanel-"+family.id;
+  panel.setAttribute("aria-label","Themakanalen van "+family.name);
+  panel.hidden=true;
+  const heading=document.createElement("div");
+  heading.className="station-theme-heading";
+  const title=document.createElement("span");
+  title.textContent=family.name+" · themakanalen";
+  const close=document.createElement("button");
+  close.className="station-theme-close";
+  close.type="button";
+  close.textContent="Sluiten ×";
+  close.setAttribute("aria-label","Sluit themakanalen van "+family.name);
+  close.addEventListener("click",()=>toggleRadioFamily(family.id,true));
+  heading.append(title,close);
+  const themeGrid=document.createElement("div");
+  themeGrid.className="station-theme-grid";
+  for (const item of orderedItems) {
+    if (!family.themes.includes(item.station.id)) continue;
+    themeGrid.appendChild(createStationCard(
+      item.station,item.index,shortRadioThemeName(item.station,family)));
+  }
+  panel.append(heading,themeGrid);
+  return panel;
+}
+
 function createStationCard(
   station,
-  index
+  index,
+  displayName = station.name
 ) {
 
   const card =
@@ -8109,6 +8343,7 @@ function createStationCard(
 
   card.dataset.stationId =
     station.id;
+  card.dataset.searchName = station.name;
 
 
   card.classList.toggle(
@@ -8157,7 +8392,7 @@ function createStationCard(
 
 
     <span class="station-name">
-      ${station.name}
+      ${displayName}
       ${station.province
         ? `<span class="station-province">${station.province}</span>`
         : ""}
@@ -8275,39 +8510,49 @@ function createStationCard(
 
 
 function renderStations() {
-  // Alle groepen bestaan voor de zoekfunctie; tabs kiezen het zichtbare panel.
-  // Niet meer inklappen: alleen een tab selecteren is voldoende.
-  const stationFragment = document.createDocumentFragment();
-  const storedTab = readRadioPreference("radio-country-tab");
-  const selectedTab = COUNTRIES.some(country => country.code === storedTab)
-    ? storedTab : "NL";
+  // Thema's verdwijnen alleen uit het overzicht; hun eigen station-ID blijft bestaan.
+  const stationFragment=document.createDocumentFragment();
+  const storedTab=readRadioPreference("radio-country-tab");
+  const selectedTab=COUNTRIES.some(c=>c.code===storedTab)?storedTab:"NL";
 
   for (const country of COUNTRIES) {
-    const group = document.createElement("section");
-    group.className = "country-group";
-    group.dataset.country = country.code;
-    group.id = "radioPanel-" + country.code;
-    group.setAttribute("role", "tabpanel");
-    group.setAttribute("aria-labelledby", "radioTab-" + country.code);
-    group.hidden = country.code !== selectedTab;
+    const group=document.createElement("section");
+    group.className="country-group";
+    group.dataset.country=country.code;
+    group.id="radioPanel-"+country.code;
+    group.setAttribute("role","tabpanel");
+    group.setAttribute("aria-labelledby","radioTab-"+country.code);
+    group.hidden=country.code!==selectedTab;
+    const grid=document.createElement("div");
+    grid.className="country-stations";
+    const ordered=getCountryOrder(country.code);
+    const alreadyShown=new Set();
 
-    const grid = document.createElement("div");
-    grid.className = "country-stations";
-
-    for (const {station, index} of getCountryOrder(country.code)) {
-      grid.appendChild(createStationCard(station, index));
+    for (const {station,index} of ordered) {
+      const family=country.code==="NL"
+        ? radioFamilyForStation.get(station.id) : null;
+      if (!family) {
+        grid.appendChild(createStationCard(station,index));
+        continue;
+      }
+      if (alreadyShown.has(family.id)) continue;
+      alreadyShown.add(family.id);
+      const main=family.main
+        ? ordered.find(item=>item.station.id===family.main) : null;
+      const card=main
+        ? decorateRadioFamilyCard(createStationCard(main.station,main.index),family)
+        : createRadioFamilyDirectoryCard(family);
+      const panel=createRadioThemePanel(family,ordered);
+      grid.append(card,panel);
     }
-
     group.appendChild(grid);
     stationFragment.appendChild(group);
   }
-
   stationsContainer.replaceChildren(stationFragment);
-
-  // Geen aantallen radiostations meer in de kop; favorietenindicatie blijft.
-  const favs = favoriteIds.size;
-  stationCount.textContent =
-    favs ? `${favs} ${favs === 1 ? "favoriet" : "favorieten"}` : "";
+  const favs=favoriteIds.size;
+  stationCount.textContent=
+    favs ? `${favs} ${favs===1?"favoriet":"favorieten"}` : "";
+  refreshRadioFamilyVisibility();
 }
 
 /* =========================================================
@@ -8915,14 +9160,25 @@ function setProgram(
 
 /* Alleen actieve markering aanpassen; favorietwijzigingen mogen opnieuw sorteren. */
 function updateActiveStationCards() {
-  const activeId = stations[currentIndex].id;
+  const activeId=stations[currentIndex].id;
   for (const card of stationsContainer.querySelectorAll(".station")) {
-    const active = card.dataset.stationId === activeId;
-    card.classList.toggle("active", active);
-    const button = card.querySelector(".station-select");
-    if (button) {
-      if (active) button.setAttribute("aria-current", "true");
+    const active=card.dataset.stationId===activeId;
+    card.classList.toggle("active",active);
+    const button=card.querySelector(".station-select");
+    if (button && card.dataset.stationId) {
+      if (active) button.setAttribute("aria-current","true");
       else button.removeAttribute("aria-current");
+    }
+    if (card.dataset.radioFamily) {
+      const family=radioFamilyById.get(card.dataset.radioFamily);
+      const themePlaying=Boolean(family && family.themes.includes(activeId));
+      card.classList.toggle("station-family-playing",themePlaying);
+      const label=card.querySelector(".station-family-toggle-label");
+      if (label && family) {
+        label.textContent=themePlaying
+          ? "▶ "+shortRadioThemeName(stations[currentIndex],family)
+          : family.themes.length+" themazenders";
+      }
     }
   }
 }
@@ -13939,44 +14195,69 @@ initialise();
       .trim();
 
   function applyFilter() {
-    const query = normalise(input.value);
-    let totalMatches = 0;
-
+    const query=normalise(input.value);
+    let totalMatches=0;
     for (const group of stationsRoot.querySelectorAll(".country-group")) {
-      const country = normalise(
-        COUNTRIES.find(item => item.code === group.dataset.country)?.name
-      );
-      const entireCountry = Boolean(query && country.includes(query));
-      const cards = group.querySelectorAll(".station");
-      let visible = 0;
-
-      for (const card of cards) {
-        const name = normalise(
-          card.querySelector(".station-name")?.textContent
-        );
-        const matches = !query || entireCountry || name.includes(query);
-        card.hidden = !matches;
-        if (matches) visible++;
+      const country=normalise(
+        COUNTRIES.find(item=>item.code===group.dataset.country)?.name);
+      const entireCountry=Boolean(query && country.includes(query));
+      let visible=0;
+      const grid=group.querySelector(".country-stations");
+      if (!grid) continue;
+      // Alleen hoofdtegels direct onder het grid; themategels zijn genest.
+      for (const card of [...grid.children].filter(el =>
+        el.classList.contains("station"))) {
+        const familyId=card.dataset.radioFamily;
+        const name=normalise(card.dataset.searchName ||
+          card.querySelector(".station-name")?.textContent);
+        const matchesMain=!query || entireCountry || name.includes(query);
+        if (!familyId) {
+          card.hidden=!matchesMain;
+          if (matchesMain) visible++;
+          continue;
+        }
+        const family=radioFamilyById.get(familyId);
+        const panel=document.getElementById("radioThemePanel-"+familyId);
+        const themes=panel
+          ? [...panel.querySelectorAll(".station-theme-grid > .station")] : [];
+        let matchedThemes=0;
+        for (const theme of themes) {
+          const themeName=normalise(theme.dataset.searchName ||
+            theme.querySelector(".station-name")?.textContent);
+          const match=!query || matchesMain || themeName.includes(query);
+          theme.hidden=!match;
+          if (match) matchedThemes++;
+        }
+        const visibleFamily=matchesMain || matchedThemes>0;
+        card.hidden=!visibleFamily;
+        if (visibleFamily) {
+          visible+=(family?.main && matchesMain?1:0)+matchedThemes;
+        }
+        const expanded=query
+          ? visibleFamily && !searchCollapsedRadioFamilies.has(familyId)
+          : expandedRadioFamily===familyId;
+        if (panel) panel.hidden=!expanded || !visibleFamily;
+        const toggle=card.querySelector(".station-family-toggle");
+        if (toggle) {
+          toggle.setAttribute("aria-expanded",String(expanded && visibleFamily));
+          const arrow=toggle.querySelector(".station-family-chevron");
+          if (arrow) arrow.textContent=expanded?"⌃":"⌄";
+        }
       }
-
-      group.hidden = query
-        ? visible === 0
-        : group.dataset.country !== activeTab;
-      totalMatches += visible;
-
-
+      group.hidden=query?visible===0:group.dataset.country!==activeTab;
+      totalMatches+=visible;
     }
-
-    clear.hidden = !input.value;
-    summary.hidden = !query;
-    summary.textContent = !query
-      ? ""
-      : totalMatches === 0
-        ? "Geen radiostations gevonden"
-        : "Zoekresultaten uit alle zendergroepen";
+    clear.hidden=!input.value;
+    summary.hidden=!query;
+    summary.textContent=!query?"":totalMatches===0
+      ?"Geen radiostations gevonden"
+      :"Zoekresultaten uit alle zendergroepen";
+    window.requestAnimationFrame(positionRadioThemePanels);
   }
+  window.refreshGroupedRadioSearch=applyFilter;
 
   input.addEventListener("input", () => {
+    searchCollapsedRadioFamilies.clear();
     if (!normalise(input.value)) {
       // renderStations herstelt het gekozen tabblad.
       renderStations();
@@ -13985,6 +14266,7 @@ initialise();
   });
 
   clear.addEventListener("click", () => {
+    searchCollapsedRadioFamilies.clear();
     input.value = "";
     renderStations();
     applyFilter();
