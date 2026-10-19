@@ -55,3 +55,14 @@ test('trackinfo-configuratie en streams behouden hun oorspronkelijke referenties
   assert.match(html, /function refreshProgram\(/);
   assert.equal((stations.match(/\bstream:\s*"https:\/\//g)||[]).length, 63);
 });
+
+test('radio PWA ververst HTML na een deployment zonder offlinefunctie te verliezen', () => {
+  const sw = fs.readFileSync(path.join(root, 'radio-sw.js'), 'utf8');
+  const htaccess = fs.readFileSync(path.join(root, '.htaccess'), 'utf8');
+  assert.match(sw, /fetch\(request,\s*\{ cache: "no-store" \}\)/);
+  assert.match(sw, /cache\.put\("\/radio\.html", response\.clone\(\)\)/);
+  assert.match(sw, /caches\.match\("\/radio\.html"\)/);
+  assert.match(sw, /radio-shell-v3/);
+  assert.match(htaccess, /radio\\\.html\|radio-sw\\\.js\|radio-manifest\\\.json/);
+  assert.match(htaccess, /private, no-cache, max-age=0, must-revalidate/);
+});
