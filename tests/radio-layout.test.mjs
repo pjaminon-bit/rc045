@@ -284,12 +284,12 @@ try {
     assert.equal(await dialog.getAttribute('aria-labelledby'),'radioPrivacyTitle');
     assert.ok(await page.getByText('Externe verbindingen',{exact:true}).isVisible());
     assert.ok(await page.getByText('Lokale instellingen',{exact:true}).isVisible());
-    assert.equal(await page.locator('#radioPrivacyClose').isFocused(),true);
+    assert.equal(await page.locator('#radioPrivacyClose').evaluate(el => document.activeElement === el),true);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),
       'geen horizontale overflow door privacyvenster');
     await page.keyboard.press('Escape');
     assert.equal(await dialog.isVisible(),false,'Escape sluit de dialoog');
-    assert.equal(await trigger.isFocused(),true,'focus keert terug naar privacylink');
+    assert.equal(await trigger.evaluate(el => document.activeElement === el),true,'focus keert terug naar privacylink');
     await trigger.click();
     await page.locator('#radioPrivacyDismiss').click();
     assert.equal(await dialog.isVisible(),false,'Sluiten-knop werkt');
