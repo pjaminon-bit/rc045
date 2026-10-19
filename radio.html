@@ -3601,6 +3601,10 @@
     .radio-footer { display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
       gap:0 16px; opacity:1; text-align:center; }
     .radio-footer-shortcuts { opacity:.7; }
+    /* De sticky miniplayer mag de privacy-link niet overdekken bij scrollen. */
+    body.mini-player-visible .radio-footer {
+      padding-bottom: max(112px, calc(96px + env(safe-area-inset-bottom)));
+    }
     .radio-privacy-link { appearance:none; display:inline-flex; align-items:center; justify-content:center;
       min-height:44px; padding:5px; border:0; background:transparent; color:var(--muted);
       font:inherit; font-size:12px; font-weight:650; text-decoration:underline;
