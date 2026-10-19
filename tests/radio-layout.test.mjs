@@ -262,6 +262,44 @@ try {
     await page.close();
   }
 
+
+  // Privacy en opslag: goed bereikbaar, toetsenbordvriendelijk en zonder
+  // de playback, lokale voorkeuren of het scrollgedrag te veranderen.
+  for (const width of [390, 1440]) {
+    const page=await browser.newPage({
+      viewport:{width,height:850}, reducedMotion:'reduce'
+    });
+    const scriptErrors=[];
+    page.on('pageerror',error=>scriptErrors.push(error.message));
+    await page.route(/^https?:\/\//,route=>route.abort());
+    await page.goto(app,{waitUntil:'domcontentloaded'});
+    await page.waitForSelector('#radioPrivacyButton');
+
+    const stationId=await page.evaluate(()=>stations[currentIndex].id);
+    const trigger=page.locator('#radioPrivacyButton');
+    const dialog=page.locator('#radioPrivacyDialog');
+    assert.equal(await dialog.isVisible(),false,'privacyinformatie standaard gesloten');
+    await trigger.click();
+    assert.equal(await dialog.isVisible(),true,'privacyinformatie kan worden geopend');
+    assert.equal(await dialog.getAttribute('aria-labelledby'),'radioPrivacyTitle');
+    assert.ok(await page.getByText('Externe verbindingen',{exact:true}).isVisible());
+    assert.ok(await page.getByText('Lokale instellingen',{exact:true}).isVisible());
+    assert.equal(await page.locator('#radioPrivacyClose').evaluate(el => document.activeElement === el),true);
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),
+      'geen horizontale overflow door privacyvenster');
+    await page.keyboard.press('Escape');
+    assert.equal(await dialog.isVisible(),false,'Escape sluit de dialoog');
+    assert.equal(await trigger.evaluate(el => document.activeElement === el),true,'focus keert terug naar privacylink');
+    await trigger.click();
+    await page.locator('#radioPrivacyDismiss').click();
+    assert.equal(await dialog.isVisible(),false,'Sluiten-knop werkt');
+    assert.equal(await page.evaluate(()=>stations[currentIndex].id),stationId,
+      'privacyvenster wijzigt de gekozen zender niet');
+    assert.equal(scriptErrors.length,0,'geen JavaScript-fouten in privacyvenster');
+    console.log('PASS privacy '+width+'px: dialog en toetsenbord werken');
+    await page.close();
+  }
+
   // Volume regressies: 0% is mute, herstel vorige hoorbare stand,
   // iOS toont geen misleidende native volumeschuif.
   {

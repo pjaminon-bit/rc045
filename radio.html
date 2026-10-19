@@ -3596,6 +3596,51 @@
       .settings-details-summary svg { transition: none; }
     }
 
+
+    /* Discrete privacyvermelding zonder tracking of consent-overlay. */
+    .radio-footer { display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+      gap:0 16px; opacity:1; text-align:center; }
+    .radio-footer-shortcuts { opacity:.7; }
+    /* De sticky miniplayer mag de privacy-link niet overdekken bij scrollen. */
+    body.mini-player-visible .radio-footer {
+      padding-bottom: max(112px, calc(96px + env(safe-area-inset-bottom)));
+    }
+    .radio-privacy-link { appearance:none; display:inline-flex; align-items:center; justify-content:center;
+      min-height:44px; padding:5px; border:0; background:transparent; color:var(--muted);
+      font:inherit; font-size:12px; font-weight:650; text-decoration:underline;
+      text-underline-offset:3px; cursor:pointer; }
+    .radio-privacy-link:hover { color:var(--text); }
+    .radio-privacy-dialog { position:fixed; width:min(560px,calc(100vw - 28px));
+      max-height:min(82vh,720px); max-height:min(82dvh,720px); padding:0; margin:auto;
+      overflow:hidden; border:1px solid var(--border); border-radius:20px;
+      background:var(--menu-bg); color:var(--text); font:inherit; font-size:13px;
+      line-height:1.65; box-shadow:0 24px 75px rgba(0,0,0,.28); }
+    .radio-privacy-dialog::backdrop { background:rgba(0,0,0,.5); }
+    .radio-privacy-header { display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); }
+    .radio-privacy-header h2 { margin:0; color:var(--text); font-size:17px; font-weight:750; }
+    .radio-privacy-close { display:grid; place-items:center; width:44px; height:44px;
+      flex:0 0 44px; padding:0; border:0; border-radius:12px; background:transparent;
+      color:var(--muted); font-size:28px; cursor:pointer; }
+    .radio-privacy-close:hover { color:var(--text); background:var(--panel-hover); }
+    .radio-privacy-body { max-height:min(56vh,490px); max-height:min(56dvh,490px);
+      padding:12px 16px; overflow-y:auto; overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch; }
+    .radio-privacy-body h3 { margin:14px 0 5px; color:var(--text); font-size:13px; font-weight:750; }
+    .radio-privacy-body p { margin:0 0 11px; color:var(--muted); }
+    .radio-privacy-body code { overflow-wrap:anywhere; font-size:.94em; }
+    .radio-privacy-actions { padding:12px 16px; border-top:1px solid var(--border); text-align:right; }
+    .radio-privacy-dismiss { min-height:44px; padding:9px 16px; border:1px solid var(--border);
+      border-radius:11px; background:var(--panel); color:var(--text); font:inherit;
+      font-weight:700; cursor:pointer; }
+    .radio-privacy-dismiss:hover { background:var(--panel-hover); }
+    .radio-privacy-link:focus-visible,.radio-privacy-dialog button:focus-visible {
+      outline:2px solid var(--text); outline-offset:3px; }
+    @media (max-width:420px) {
+      .radio-privacy-header,.radio-privacy-actions { padding:9px 12px; }
+      .radio-privacy-body { padding:10px 12px; }
+    }
+
   </style>
 </head>
 
@@ -4304,11 +4349,60 @@
 
   </main>
 
-  <footer>
-    Spatie: play/pauze · ← →: zender wisselen
+  <footer class="radio-footer">
+    <span class="radio-footer-shortcuts">Spatie: play/pauze · ← →: zender wisselen</span>
+    <button id="radioPrivacyButton" class="radio-privacy-link" type="button"
+            aria-haspopup="dialog" aria-controls="radioPrivacyDialog">Privacy en opslag</button>
   </footer>
 
 </div>
+
+<dialog id="radioPrivacyDialog" class="radio-privacy-dialog"
+        aria-labelledby="radioPrivacyTitle" aria-describedby="radioPrivacyIntro">
+  <div class="radio-privacy-header">
+    <h2 id="radioPrivacyTitle">Privacy en opslag</h2>
+    <button id="radioPrivacyClose" type="button" class="radio-privacy-close"
+            aria-label="Sluit privacyinformatie">×</button>
+  </div>
+  <div class="radio-privacy-body">
+    <p id="radioPrivacyIntro">Deze radio-app onthoudt functionele voorkeuren op je apparaat.
+      Voor dergelijke opslag is doorgaans geen cookietoestemming nodig.</p>
+
+    <h3>Lokale instellingen</h3>
+    <p>Je laatst gekozen zender, favorieten, regio, volume, sleeptimer en weergave-instellingen
+      worden met <code>localStorage</code> in je browser opgeslagen.
+      De app stuurt deze opgeslagen voorkeuren niet als gebruikersprofiel naar de server.
+      Ze blijven bestaan totdat je de websitegegevens of de gegevens van de webapp wist.</p>
+
+    <h3>PWA en offline opslag</h3>
+    <p>De installeerbare webapp bewaart de radiopagina, het manifest en app-iconen
+      tijdelijk in een browsercache zodat de interface ook offline kan openen.
+      Radiostreams en actuele trackinformatie worden niet in die PWA-cache bewaard.</p>
+
+    <h3>Externe verbindingen</h3>
+    <p>Wanneer je luistert, maakt je browser verbinding met de gekozen radiozender
+      of streamingprovider. Track- en programma-informatie worden bij externe
+      bronnen opgehaald, soms via de server van deze site. Bij het tonen van
+      albumhoezen en artiestenfoto's kunnen ook verzoeken naar externe
+      afbeeldingsbronnen plaatsvinden. Bij rechtstreekse verbindingen ontvangen
+      die partijen mogelijk je IP-adres en technische verzoekgegevens.</p>
+    <p>De app laadt bij openen de Google Cast-bibliotheek vanaf
+      <code>www.gstatic.com</code>, ook als je Cast niet gebruikt.
+      Google kan daarbij technische verbindingsgegevens ontvangen.
+      Muziekdienstlinks naar Spotify, Apple Music, Deezer en Tidal worden
+      pas geopend wanneer je erop klikt.</p>
+
+    <h3>Cookies en verwijderen</h3>
+    <p>In de eigen radiopagina is geen advertentie- of analyticscode gevonden.
+      Van externe partijen kan niet alleen op basis van de radiocode worden
+      vastgesteld of zij cookies of vergelijkbare technieken gebruiken.
+      Je kunt je lokale gegevens wissen via de websitegegevens in de
+      browserinstellingen of door de webapp-gegevens te verwijderen.</p>
+  </div>
+  <div class="radio-privacy-actions">
+    <button id="radioPrivacyDismiss" class="radio-privacy-dismiss" type="button">Sluiten</button>
+  </div>
+</dialog>
 
 
 <div
@@ -14701,6 +14795,30 @@ if ("serviceWorker" in navigator && window.isSecureContext) {
     }
   });
   mobile.addEventListener("change", () => close());
+})();
+</script>
+
+
+<script>
+/* Informatieve dialoog: geen opslag en geen koppeling met radio/audio. */
+(() => {
+  const trigger=document.getElementById("radioPrivacyButton");
+  const dialog=document.getElementById("radioPrivacyDialog");
+  const close=document.getElementById("radioPrivacyClose");
+  const dismiss=document.getElementById("radioPrivacyDismiss");
+  if (!trigger || !dialog || !close || !dismiss) return;
+  trigger.addEventListener("click",()=>{
+    if (dialog.open) return;
+    dialog.showModal();
+    close.focus();
+  });
+  const hide=()=>dialog.close();
+  close.addEventListener("click",hide);
+  dismiss.addEventListener("click",hide);
+  dialog.addEventListener("click",event=>{
+    if (event.target===dialog) hide();
+  });
+  dialog.addEventListener("close",()=>trigger.focus());
 })();
 </script>
 
