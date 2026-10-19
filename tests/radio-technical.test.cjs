@@ -51,7 +51,7 @@ test('Licht/Donker: compacte knop volgt OS totdat er handmatig gekozen is', () =
   ]) assert.match(html, new RegExp('id="' + id + '"'));
 
   const themeJS = part('const THEME_KEY =',
-    '/* =========================================================\\n   FAVORITES / COUNTRIES\\n');
+    '/* =========================================================\n   FAVORITES / COUNTRIES\n');
   const storage = new Map(), query = {
     matches: true, addEventListener(_event, callback) { this.changed = callback; }
   };
@@ -73,7 +73,7 @@ test('Licht/Donker: compacte knop volgt OS totdat er handmatig gekozen is', () =
     }
   };
   const api = new Function('ctx',
-    'with(ctx){' + themeJS + '\\nreturn {applyTheme,getResolvedTheme};}'
+    'with(ctx){' + themeJS + '\nreturn {applyTheme,getResolvedTheme};}'
   )(ctx);
   assert.equal(themeModeButton.dataset.mode, 'light');
   assert.equal(themeModeLabel.textContent, 'Licht');
