@@ -130,42 +130,50 @@ try {
     assert.equal(await menu.getAttribute('aria-expanded'), 'true');
     assert.ok(await settingsPanel.isVisible(), 'instellingen openen op alle schermformaten');
 
-    // Drie gelijke instellingenrijen, met drie identieke schakelaars
-    // en hetzelfde uitlijningspunt, op iOS-formaat en desktop.
-    const settings = await page.locator('#displaySettingsPanel .settings-row').evaluateAll(rows => {
-      return rows.map(row => {
-        const input = row.querySelector('input');
-        const rowBox = row.getBoundingClientRect();
-        const inputBox = input.getBoundingClientRect();
-        return {
-          label: row.textContent.trim(),
-          rowWidth: rowBox.width,
-          height: rowBox.height,
-          inputWidth: inputBox.width,
-          inputHeight: inputBox.height,
-          right: inputBox.right
-        };
-      });
-    });
-    assert.deepEqual(settings.map(row => row.label),
-      ['Albumart tonen','Toon thema zenders','Donkere modus']);
-    assert.ok(settings.every(row => row.height >= 44 &&
-      row.inputWidth === 44 && row.inputHeight === 26),
-      'gelijke touchrijen en schakelaars');
-    assert.ok(settings.every(row => Math.abs(row.right-settings[0].right) < 1),
-      'schakelaars rechts op één lijn');
-
-    const darkMode=page.locator('#darkModeToggle');
-    await darkMode.check();
+    // Alleen de kleurkeuze, themakanalen en één uitklapbare optie zijn
+    // direct zichtbaar. De zeven bestaande voorkeuren blijven apart bruikbaar.
+    const advanced = page.locator('#settingsDisplayOptions');
+    assert.equal(await advanced.getAttribute('open'),null,
+      'weergaveopties standaard ingeklapt');
+    assert.equal(await page.locator('#displaySettingsPanel .settings-row input:visible').count(),1,
+      'standaard slechts één zichtbare schakelaar');
+    const themeChoice=page.locator('#themeModeButton');
+    assert.ok(await themeChoice.isVisible(), 'compacte licht/donker-keuze zichtbaar');
+    await themeChoice.click();
     assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
-    await darkMode.uncheck();
+    assert.equal(await page.locator('#themeModeLabel').innerText(),'Donker');
+    await themeChoice.click();
     assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
-    assert.ok(await page.locator('#albumArtToggle').isVisible());
+    assert.equal(await page.locator('#themeModeLabel').innerText(),'Licht');
+
+    await page.locator('#settingsDisplayOptions > summary').click();
+    assert.notEqual(await advanced.getAttribute('open'),null);
+    const prefs=await page.locator('#settingsDisplayOptions .settings-row').evaluateAll(rows=>
+      rows.map(row=>{
+        const input=row.querySelector('input');
+        const box=input.getBoundingClientRect();
+        return {name:row.textContent.trim(),width:box.width,height:box.height,right:box.right};
+      })
+    );
+    assert.deepEqual(prefs.map(x=>x.name),[
+      'Trackinfo tonen','Programma-info tonen','Muziekdiensten tonen',
+      'Albumart tonen','Artiestenfoto tonen','Miniplayer tonen','Animaties tonen'
+    ]);
+    assert.ok(prefs.every(x=>x.width===44 && x.height===26),
+      'alle bestaande schakelaars even groot');
+    assert.ok(prefs.every(x=>Math.abs(x.right-prefs[0].right)<1),
+      'gegroepeerde schakelaars netjes uitgelijnd');
+    const albumArt=page.locator('#albumArtToggle');
+    const artist=page.locator('#artistPhotoToggle');
+    assert.equal(await albumArt.isChecked(),true);
+    await artist.uncheck();
+    assert.equal(await albumArt.isChecked(),true,
+      'albumart en artiestenfoto blijven onafhankelijk');
+    await artist.check();
     assert.ok(await page.locator('#showThemeStationsToggle').isVisible());
     await page.keyboard.press('Escape');
     assert.equal(await menu.getAttribute('aria-expanded'), 'false');
     assert.equal(await settingsPanel.isVisible(), false);
-
 
     await page.locator('#status').evaluate(node => { node.textContent = 'Geen internetverbinding'; });
     await page.waitForFunction(() => document.querySelector('#status')?.dataset.tone === 'error');

@@ -41,48 +41,58 @@ test('geen technische diagnose, zonder andere playerfuncties te verliezen', () =
   assert.match(html, /async function play\(/);
 });
 
-test('Licht/Donker: één consistente schakelaar, OS volgen tot handmatige keuze', () => {
-  assert.match(html, /id="darkModeToggle" type="checkbox"/);
-  assert.doesNotMatch(html, /data-theme-choice=/);
+test('Licht/Donker: compacte knop volgt OS totdat er handmatig gekozen is', () => {
+  assert.match(html, /id="themeModeButton"/);
+  assert.doesNotMatch(html, /id="darkModeToggle"/);
+  assert.match(html, /id="settingsDisplayOptions"/);
+  for (const id of [
+    'trackInfoToggle','programInfoToggle','musicServicesToggle','albumArtToggle',
+    'artistPhotoToggle','miniPlayerToggle','animationsToggle','showThemeStationsToggle'
+  ]) assert.match(html, new RegExp('id="' + id + '"'));
+
   const themeJS = part('const THEME_KEY =',
     '/* =========================================================\n   FAVORITES / COUNTRIES\n');
   const storage = new Map(), query = {
     matches: true, addEventListener(_event, callback) { this.changed = callback; }
   };
   const events = new Map();
-  const darkModeToggle = {
-    checked: false, title: '',
-    addEventListener(event, callback) { events.set(event, callback); }
+  const themeModeButton = {
+    dataset:{}, attrs:{}, title:'',
+    setAttribute(k,v) { this.attrs[k]=v; },
+    addEventListener(event, callback) { events.set(event,callback); }
   };
-  const themeColor = {content: ''};
+  const themeModeLabel = {textContent:''};
+  const themeColor = {content:''};
   const ctx = {
-    document: {documentElement: {dataset: {theme: 'system'}}},
-    window: {matchMedia() {return query;}}, themeColor,
-    darkModeToggle,
-    localStorage: {
-      getItem(k) {return storage.get(k) ?? null;},
-      setItem(k,v) {storage.set(k,v);}
+    document:{documentElement:{dataset:{theme:'system'}}},
+    window:{matchMedia(){return query;}}, themeColor,
+    themeModeButton, themeModeLabel,
+    localStorage:{
+      getItem(k){return storage.get(k) ?? null;},
+      setItem(k,v){storage.set(k,v);}
     }
   };
   const api = new Function('ctx',
     'with(ctx){' + themeJS + '\nreturn {applyTheme,getResolvedTheme};}'
   )(ctx);
-  assert.equal(darkModeToggle.checked, false);
+  assert.equal(themeModeButton.dataset.mode, 'light');
+  assert.equal(themeModeLabel.textContent, 'Licht');
   assert.equal(storage.has('radio-theme'), false);
-  query.matches = false; query.changed();
-  assert.equal(darkModeToggle.checked, true);
-  assert.equal(themeColor.content, '#080a0f');
-  darkModeToggle.checked = false;
-  events.get('change')();
-  assert.equal(storage.get('radio-theme'), 'light');
-  query.matches = true; query.changed();
-  query.matches = false; query.changed();
-  assert.equal(darkModeToggle.checked, false);
-  assert.equal(ctx.document.documentElement.dataset.theme, 'light');
-  darkModeToggle.checked = true;
-  events.get('change')();
-  assert.equal(storage.get('radio-theme'), 'dark');
-  assert.equal(ctx.document.documentElement.dataset.theme, 'dark');
+
+  query.matches=false; query.changed();
+  assert.equal(themeModeLabel.textContent,'Donker');
+  assert.equal(themeColor.content,'#080a0f');
+  events.get('click')();
+  assert.equal(storage.get('radio-theme'),'light');
+  assert.equal(themeModeLabel.textContent,'Licht');
+  query.matches=true; query.changed();
+  query.matches=false; query.changed();
+  assert.equal(themeModeLabel.textContent,'Licht');
+  assert.equal(ctx.document.documentElement.dataset.theme,'light');
+  events.get('click')();
+  assert.equal(storage.get('radio-theme'),'dark');
+  assert.equal(themeModeLabel.textContent,'Donker');
+  assert.equal(themeModeButton.attrs['aria-pressed'],'true');
 });
 
 
