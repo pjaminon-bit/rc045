@@ -45,11 +45,12 @@ const checks = await Promise.all(urls.map(async ([name,url]) => {
   try {
     const response = await fetch(url, {
       method: "GET", redirect: "follow", signal: ac.signal,
-      headers: {"Range":"bytes=0-2048"}
+      headers: {"Range":"bytes=0-2048","Icy-MetaData":"1"}
     });
     const result = {
       name, status: response.status,
       type: response.headers.get("content-type"),
+      icyMetaInt: response.headers.get("icy-metaint"),
       finalUrl: response.url.replace(/\?.*$/, "")
     };
     console.log(JSON.stringify(result));
