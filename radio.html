@@ -3446,6 +3446,11 @@
         <input id="albumArtToggle" type="checkbox" checked>
       </label>
 
+      <label class="artwork-toggle">
+        <span>Toon thema zenders</span>
+        <input id="showThemeStationsToggle" type="checkbox" checked>
+      </label>
+
       <div
         id="themeSwitcher"
         class="theme-switcher"
@@ -8198,8 +8203,31 @@ for (const family of RADIO_FAMILIES) {
     if (id) radioFamilyForStation.set(id,family);
   }
 }
+/* Toon of verberg themakanalen in de zenderlijst. Standaard aan zodat
+   bestaande gebruikers dezelfde zenders blijven zien. Audio en metadata
+   blijven onafhankelijk van deze puur visuele voorkeur. */
+const RADIO_THEME_VISIBILITY_KEY = "radio-show-theme-stations";
+let showThemeStations = readRadioPreference(RADIO_THEME_VISIBILITY_KEY) !== "false";
+const showThemeStationsToggle = document.getElementById("showThemeStationsToggle");
+const BE_THEME_STATION_IDS = new Set([
+  "mnmhits", "dejarennul", "bruut", "untz",
+  "vuurland", "radio2relax", "ketnethits"
+]);
 let expandedRadioFamily = null;
 const searchCollapsedRadioFamilies = new Set();
+
+if (showThemeStationsToggle) {
+  showThemeStationsToggle.checked = showThemeStations;
+  showThemeStationsToggle.addEventListener("change", () => {
+    showThemeStations = showThemeStationsToggle.checked;
+    saveRadioPreference(RADIO_THEME_VISIBILITY_KEY, showThemeStations);
+    if (!showThemeStations) {
+      expandedRadioFamily = null;
+      searchCollapsedRadioFamilies.clear();
+    }
+    renderStations();
+  });
+}
 
 function shortRadioThemeName(station,family) {
   return station.name.startsWith(family.prefix)
@@ -8535,10 +8563,25 @@ function renderStations() {
     grid.className="country-stations";
     const ordered=getCountryOrder(country.code);
     const alreadyShown=new Set();
+    // De instelling geldt voor het normale overzicht, nooit voor de zoekfunctie.
+    // Zodra iemand zoekt zijn alle themakanalen doorzoekbaar, ook als de
+    // themakanalen in de standaardweergave uitgeschakeld zijn.
+    const includeThemeStations = showThemeStations ||
+      Boolean(document.getElementById("stationSearchInput")?.value.trim());
 
     for (const {station,index} of ordered) {
       const family=country.code==="NL"
         ? radioFamilyForStation.get(station.id) : null;
+
+      if (!includeThemeStations) {
+        // Alleen in het gewone overzicht: verberg alle thema's, behoud
+        // de hoofdzenders. Zoekresultaten gebruiken wél de complete lijst.
+        if (family && family.main !== station.id) continue;
+        if (country.code==="BE" && BE_THEME_STATION_IDS.has(station.id)) continue;
+        grid.appendChild(createStationCard(station,index));
+        continue;
+      }
+
       if (!family) {
         grid.appendChild(createStationCard(station,index));
         continue;
@@ -14266,8 +14309,9 @@ initialise();
 
   input.addEventListener("input", () => {
     searchCollapsedRadioFamilies.clear();
-    if (!normalise(input.value)) {
-      // renderStations herstelt het gekozen tabblad.
+    // Bij uitgeschakelde themakanalen moet de zoekfunctie de volledige lijst
+    // tijdelijk opnieuw opbouwen. De audioplayer en huidige zender veranderen niet.
+    if (!showThemeStations || !normalise(input.value)) {
       renderStations();
     }
     applyFilter();
