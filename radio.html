@@ -1887,25 +1887,33 @@
       display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));
       gap:8px;
     }
+    .station-theme-grid .station { min-width:0; }
     .station-theme-grid .station-select {
       flex-direction:row; align-items:center; justify-content:flex-start;
-      min-height:52px; padding:10px 38px 10px 12px; gap:10px;
+      min-height:70px; padding:10px 38px 10px 10px; gap:10px;
     }
-    .station-theme-grid .station-select::before {
-      content:"▶"; flex:0 0 auto; color:var(--muted); font-size:11px;
+    .station-theme-grid .station-logo-wrap {
+      display:grid; flex:0 0 42px; width:42px; height:42px;
+      min-width:42px; padding:2px; border-radius:9px; overflow:hidden;
     }
-    .station-theme-grid .station.active .station-select::before { color:var(--accent); }
-    .station-theme-grid .station-logo-wrap { display:none; }
+    .station-theme-grid .station-logo {
+      display:block; width:100%; height:100%; object-fit:contain;
+    }
     .station-theme-grid .station-name {
-      margin:0; padding:0; font-size:12px; font-weight:650;
+      flex:1 1 auto; width:auto; min-width:0; margin:0; padding:0;
+      font-size:12px; font-weight:650; line-height:1.3;
       white-space:normal; overflow-wrap:anywhere;
     }
-    .station-theme-grid .favorite-button { top:10px; right:6px; opacity:.72; }
+    .station-theme-grid .favorite-button { top:20px; right:5px; opacity:.72; }
+    .station-theme-grid .station.active { border-color:rgba(var(--accent-rgb),.52); }
     @media (max-width:420px) {
       .station-family .station-select { min-height:77px; padding:11px 13px 8px; }
       .station-family-toggle { padding-inline:12px; }
       .station-theme-panel { padding:12px; }
       .station-theme-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .station-theme-grid .station-select { min-height:66px; padding:9px 34px 9px 8px; gap:7px; }
+      .station-theme-grid .station-logo-wrap { flex-basis:35px; width:35px; height:35px; min-width:35px; }
+      .station-theme-grid .favorite-button { top:17px; }
     }
 
     /* =========================================================
@@ -5344,7 +5352,7 @@ const stations = [
     country: "NL",
     name: "KINK 80's",
     mark: "K80",
-    logo: "/assets/radio/logos/kink.png",
+    logo: "/assets/radio/logos/themes/kink80s.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_DNA.mp3",
     accent: "#ececec",
     rgb: "220,220,220",
@@ -5361,7 +5369,7 @@ const stations = [
     country: "NL",
     name: "KINK 90's",
     mark: "K90",
-    logo: "/assets/radio/logos/kink.png",
+    logo: "/assets/radio/logos/themes/kink90s.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_90S.mp3",
     accent: "#ececec",
     rgb: "220,220,220",
@@ -5378,7 +5386,7 @@ const stations = [
     country: "NL",
     name: "KINK Distortion",
     mark: "KD",
-    logo: "/assets/radio/logos/kink.png",
+    logo: "/assets/radio/logos/themes/kinkdistortion.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/KINK_DISTORTION.mp3",
     accent: "#e44946",
     rgb: "228,73,70",
@@ -5395,7 +5403,7 @@ const stations = [
     country: "NL",
     name: "Radio 10 80's Hits",
     mark: "80",
-    logo: "/assets/radio/logos/radio10.png",
+    logo: "/assets/radio/logos/themes/radio1080s.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR20.mp3",
     accent: "#e63252",
     rgb: "230,50,82",
@@ -5412,7 +5420,7 @@ const stations = [
     country: "NL",
     name: "Radio 10 90's Hits",
     mark: "90",
-    logo: "/assets/radio/logos/radio10.png",
+    logo: "/assets/radio/logos/themes/radio1090s.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR22.mp3",
     accent: "#d73255",
     rgb: "215,50,85",
@@ -5429,7 +5437,7 @@ const stations = [
     country: "NL",
     name: "Radio 10 Non-Stop",
     mark: "10",
-    logo: "/assets/radio/logos/radio10.png",
+    logo: "/assets/radio/logos/themes/radio10nonstop.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR15.mp3",
     accent: "#df3451",
     rgb: "223,52,81",
@@ -5446,7 +5454,7 @@ const stations = [
     country: "NL",
     name: "Sky Radio Hits",
     mark: "H",
-    logo: "/assets/radio/logos/skyradio.png",
+    logo: "/assets/radio/logos/themes/skyhits.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/SRGSTR01.mp3",
     accent: "#e53535",
     rgb: "229,53,53",
@@ -5463,7 +5471,7 @@ const stations = [
     country: "NL",
     name: "Sky Radio Love Songs",
     mark: "♥",
-    logo: "/assets/radio/logos/skyradio.png",
+    logo: "/assets/radio/logos/themes/skylovesongs.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/SRGSTR03.mp3",
     accent: "#c34076",
     rgb: "195,64,118",
@@ -5480,7 +5488,7 @@ const stations = [
     country: "NL",
     name: "Qmusic Non-Stop",
     mark: "QN",
-    logo: "/assets/radio/logos/qmusic.png",
+    logo: "/assets/radio/logos/themes/qnonstop.png",
     stream: "https://stream.qmusic.nl/nonstop/mp3",
     accent: "#e91e4f",
     rgb: "233,30,79"
@@ -5491,7 +5499,7 @@ const stations = [
     country: "NL",
     name: "Qmusic Easy",
     mark: "QE",
-    logo: "/assets/radio/logos/qmusic.png",
+    logo: "/assets/radio/logos/themes/qeasynl.png",
     stream: "https://streams.radio.dpgmedia.cloud/redirect/qnl_easy/mp3",
     accent: "#e84e80",
     rgb: "232,78,128"
@@ -5502,7 +5510,7 @@ const stations = [
     country: "NL",
     name: "Qmusic Energy",
     mark: "Q+",
-    logo: "/assets/radio/logos/qmusic.png",
+    logo: "/assets/radio/logos/themes/qenergynl.png",
     stream: "https://streams.radio.dpgmedia.cloud/redirect/qnl_energy/mp3",
     accent: "#e11d58",
     rgb: "225,29,88"
@@ -5526,7 +5534,7 @@ const stations = [
     country: "NL",
     name: "Radio Decibel",
     mark: "DB",
-    logo: "/assets/radio/logos/decibel.svg",
+    logo: "/assets/radio/logos/themes/radiodecibel.png",
     stream: "https://stream.decibel.nl/decibel.mp3",
     accent: "#fc382b",
     rgb: "252,56,43",
@@ -5538,7 +5546,7 @@ const stations = [
     country: "NL",
     name: "538 Dance Department",
     mark: "DNC",
-    logo: "/assets/radio/logos/538.png",
+    logo: "/assets/radio/logos/themes/538dance.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR01.mp3",
     accent: "#72c83e",
     rgb: "114,200,62",
@@ -5550,7 +5558,7 @@ const stations = [
     country: "NL",
     name: "SLAM! MixMarathon",
     mark: "MIX",
-    logo: "/assets/radio/logos/slam.png",
+    logo: "/assets/radio/logos/themes/slammix.png",
     stream: "https://stream.slam.nl/web13_mp3",
     accent: "#e50b8c",
     rgb: "229,11,140",
@@ -5562,7 +5570,7 @@ const stations = [
     country: "NL",
     name: "Efteling Kids Radio",
     mark: "EK",
-    logo: "/assets/radio/logos/efteling-kids.svg",
+    logo: "/assets/radio/logos/themes/eftelingkids.png",
     stream: "https://ice.cr2.streamzilla.xlcdn.com:8000/sz=efteling=hdstream",
     accent: "#ad2355",
     rgb: "173,35,85"
@@ -5573,7 +5581,7 @@ const stations = [
     country: "NL",
     name: "classicnl",
     mark: "CL",
-    logo: "/assets/radio/logos/classicnl.svg",
+    logo: "/assets/radio/logos/themes/classicnl.png",
     stream: "https://stream.classic.nl/classicnl.mp3",
     accent: "#6555b2",
     rgb: "101,85,178"
@@ -5584,7 +5592,7 @@ const stations = [
     country: "NL",
     name: "538 Non-Stop",
     mark: "NS",
-    logo: "/assets/radio/logos/538.png",
+    logo: "/assets/radio/logos/themes/538nonstop.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR09.mp3",
     accent: "#76bf42",
     rgb: "118,191,66",
@@ -5596,7 +5604,7 @@ const stations = [
     country: "NL",
     name: "538 Greatest Hits",
     mark: "GH",
-    logo: "/assets/radio/logos/538.png",
+    logo: "/assets/radio/logos/themes/538greatest.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR08.mp3",
     accent: "#70c445",
     rgb: "112,196,69",
@@ -5608,7 +5616,7 @@ const stations = [
     country: "NL",
     name: "538 90's",
     mark: "90",
-    logo: "/assets/radio/logos/538.png",
+    logo: "/assets/radio/logos/themes/53890s.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR21.mp3",
     accent: "#65b637",
     rgb: "101,182,55",
@@ -5620,7 +5628,7 @@ const stations = [
     country: "NL",
     name: "538 Ibiza",
     mark: "IB",
-    logo: "/assets/radio/logos/538.png",
+    logo: "/assets/radio/logos/themes/538ibiza.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR19.mp3",
     accent: "#55ba90",
     rgb: "85,186,144",
@@ -5632,7 +5640,7 @@ const stations = [
     country: "NL",
     name: "538 Party",
     mark: "PTY",
-    logo: "/assets/radio/logos/538.png",
+    logo: "/assets/radio/logos/themes/538party.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR16.mp3",
     accent: "#76c547",
     rgb: "118,197,71",
@@ -5644,7 +5652,7 @@ const stations = [
     country: "NL",
     name: "538 Hitzone",
     mark: "HZ",
-    logo: "/assets/radio/logos/538.png",
+    logo: "/assets/radio/logos/themes/538hitzone.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR11.mp3",
     accent: "#74ca3c",
     rgb: "116,202,60",
@@ -5656,7 +5664,7 @@ const stations = [
     country: "NL",
     name: "538 Top 50",
     mark: "50",
-    logo: "/assets/radio/logos/538.png",
+    logo: "/assets/radio/logos/themes/538top50.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR13.mp3",
     accent: "#7cb940",
     rgb: "124,185,64",
@@ -5668,7 +5676,7 @@ const stations = [
     country: "NL",
     name: "Qmusic Het Foute Uur",
     mark: "FU",
-    logo: "/assets/radio/logos/qmusic.png",
+    logo: "/assets/radio/logos/themes/qfouteuur.png",
     stream: "https://stream.qmusic.nl/fouteuur/mp3",
     accent: "#ed2855",
     rgb: "237,40,85"
@@ -5679,7 +5687,7 @@ const stations = [
     country: "NL",
     name: "Qmusic Top 40",
     mark: "40",
-    logo: "/assets/radio/logos/qmusic.png",
+    logo: "/assets/radio/logos/themes/qtop40.png",
     stream: "https://stream.qmusic.nl/top40/mp3",
     accent: "#e61e49",
     rgb: "230,30,73"
@@ -5690,7 +5698,7 @@ const stations = [
     country: "NL",
     name: "Qmusic 90s & 00s",
     mark: "00",
-    logo: "/assets/radio/logos/qmusic.png",
+    logo: "/assets/radio/logos/themes/q90s00s.png",
     stream: "https://stream.qmusic.nl/90s-00s/mp3",
     accent: "#dd2760",
     rgb: "221,39,96"
@@ -5701,7 +5709,7 @@ const stations = [
     country: "NL",
     name: "Qmusic 10s",
     mark: "10",
-    logo: "/assets/radio/logos/qmusic.png",
+    logo: "/assets/radio/logos/themes/q10s.png",
     stream: "https://stream.qmusic.nl/10s/aac",
     accent: "#e82d57",
     rgb: "232,45,87"
@@ -5712,7 +5720,7 @@ const stations = [
     country: "NL",
     name: "Qmusic Summer",
     mark: "SU",
-    logo: "/assets/radio/logos/qmusic.png",
+    logo: "/assets/radio/logos/themes/qsummer.png",
     stream: "https://stream.qmusic.nl/thema/mp3",
     accent: "#e2494d",
     rgb: "226,73,77"
@@ -5723,7 +5731,7 @@ const stations = [
     country: "NL",
     name: "Radio 10 Disco Classics",
     mark: "DC",
-    logo: "/assets/radio/logos/radio10.png",
+    logo: "/assets/radio/logos/themes/radio10disco.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR23.mp3",
     accent: "#26b16b",
     rgb: "38,177,107",
@@ -5735,7 +5743,7 @@ const stations = [
     country: "NL",
     name: "Radio 10 Soul & Jazz",
     mark: "SJ",
-    logo: "/assets/radio/logos/radio10.png",
+    logo: "/assets/radio/logos/themes/radio10soul.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/TLPSTR04.mp3",
     accent: "#2ca17a",
     rgb: "44,161,122",
@@ -5747,7 +5755,7 @@ const stations = [
     country: "NL",
     name: "SLAM! Non Stop",
     mark: "NS",
-    logo: "/assets/radio/logos/slam.png",
+    logo: "/assets/radio/logos/themes/slamnonstop.png",
     stream: "https://stream.slam.nl/web10_mp3",
     accent: "#ea0988",
     rgb: "234,9,136",
@@ -5759,7 +5767,7 @@ const stations = [
     country: "NL",
     name: "SLAM! 00's",
     mark: "00",
-    logo: "/assets/radio/logos/slam.png",
+    logo: "/assets/radio/logos/themes/slam00s.png",
     stream: "https://stream.slam.nl/web15_mp3",
     accent: "#d40a94",
     rgb: "212,10,148",
@@ -5771,7 +5779,7 @@ const stations = [
     country: "NL",
     name: "SLAM! 10's",
     mark: "10",
-    logo: "/assets/radio/logos/slam.png",
+    logo: "/assets/radio/logos/themes/slam10s.png",
     stream: "https://stream.slam.nl/web14_mp3",
     accent: "#d40a94",
     rgb: "212,10,148",
@@ -5783,7 +5791,7 @@ const stations = [
     country: "NL",
     name: "SLAM! The Boom Room",
     mark: "BR",
-    logo: "/assets/radio/logos/slam.png",
+    logo: "/assets/radio/logos/themes/slamboom.png",
     stream: "https://stream.slam.nl/web12_mp3",
     accent: "#e31688",
     rgb: "227,22,136",
@@ -5795,7 +5803,7 @@ const stations = [
     country: "NL",
     name: "SLAM! Juize",
     mark: "JZ",
-    logo: "/assets/radio/logos/slam.png",
+    logo: "/assets/radio/logos/themes/slamjuize.png",
     stream: "https://stream.slam.nl/web09_mp3",
     accent: "#df0b92",
     rgb: "223,11,146",
@@ -5807,7 +5815,7 @@ const stations = [
     country: "NL",
     name: "100% NL Feest",
     mark: "FS",
-    logo: "/assets/radio/logos/100nl.png",
+    logo: "/assets/radio/logos/themes/100feest.png",
     stream: "https://stream.100p.nl/web01_mp3",
     accent: "#ef6c19",
     rgb: "239,108,25",
@@ -5819,7 +5827,7 @@ const stations = [
     country: "NL",
     name: "100% NL Non-Stop",
     mark: "NS",
-    logo: "/assets/radio/logos/100nl.png",
+    logo: "/assets/radio/logos/themes/100nonstop.png",
     stream: "https://stream.100p.nl/web02_mp3",
     accent: "#ec6b21",
     rgb: "236,107,33",
@@ -5831,7 +5839,7 @@ const stations = [
     country: "NL",
     name: "100% NL 70s & 80s",
     mark: "80",
-    logo: "/assets/radio/logos/100nl.png",
+    logo: "/assets/radio/logos/themes/1007080.png",
     stream: "https://stream.100p.nl/web03_mp3",
     accent: "#f06d28",
     rgb: "240,109,40",
@@ -5843,7 +5851,7 @@ const stations = [
     country: "NL",
     name: "100% NL 90s & 00s",
     mark: "00",
-    logo: "/assets/radio/logos/100nl.png",
+    logo: "/assets/radio/logos/themes/1009000.png",
     stream: "https://stream.100p.nl/web04_mp3",
     accent: "#f3741d",
     rgb: "243,116,29",
@@ -5855,7 +5863,7 @@ const stations = [
     country: "NL",
     name: "Radio Veronica Non-Stop",
     mark: "NS",
-    logo: "/assets/radio/logos/veronica.png",
+    logo: "/assets/radio/logos/themes/veronicanonstop.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/SRGSTR09.mp3",
     accent: "#168cce",
     rgb: "22,140,206",
@@ -5867,7 +5875,7 @@ const stations = [
     country: "NL",
     name: "Pinguin Pop",
     mark: "POP",
-    logo: "/assets/radio/logos/pinguin.svg",
+    logo: "/assets/radio/logos/themes/pinguinpop.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/SP_R2591862_SC.mp3",
     accent: "#2697ae",
     rgb: "38,151,174",
@@ -5879,7 +5887,7 @@ const stations = [
     country: "NL",
     name: "Pinguin Classics",
     mark: "CL",
-    logo: "/assets/radio/logos/pinguin.svg",
+    logo: "/assets/radio/logos/themes/pinguinclassics.png",
     stream: "https://streams.pinguinradio.com/PinguinClassics192.mp3",
     accent: "#237e9b",
     rgb: "35,126,155"
@@ -5890,7 +5898,7 @@ const stations = [
     country: "NL",
     name: "Pinguin Groove",
     mark: "GR",
-    logo: "/assets/radio/logos/pinguin.svg",
+    logo: "/assets/radio/logos/themes/pinguingroove.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/SP_R2591867_SC.mp3",
     accent: "#20a2a2",
     rgb: "32,162,162",
@@ -5902,7 +5910,7 @@ const stations = [
     country: "NL",
     name: "Pinguin Blues",
     mark: "BL",
-    logo: "/assets/radio/logos/pinguin.svg",
+    logo: "/assets/radio/logos/themes/pinguinblues.png",
     stream: "https://playerservices.streamtheworld.com/api/livestream-redirect/SP_R2406394_SC.mp3",
     accent: "#316fa4",
     rgb: "49,111,164",
@@ -8175,7 +8183,7 @@ const RADIO_FAMILIES = [
   { id:"veronica", name:"Radio Veronica", main:"veronica", prefix:"Radio Veronica ",
     themes:["veronicanonstop"] },
   { id:"pinguin", name:"Pinguin Radio", main:null, prefix:"Pinguin ",
-    logo:"/assets/radio/logos/pinguin.svg",
+    logo:"/assets/radio/logos/themes/pinguin.png",
     themes:["pinguinpop","pinguinclassics","pinguingroove","pinguinblues"] },
   { id:"kink", name:"KINK", main:"kink", prefix:"KINK ",
     themes:["kink80s","kink90s","kinkdistortion"] },

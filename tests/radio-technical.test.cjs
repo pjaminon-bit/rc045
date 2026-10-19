@@ -82,11 +82,11 @@ test('Licht/Donker: zonder voorkeur OS volgen, daarna handmatig bewaren', () => 
 test('alle 13 regionale publieke omroepen inclusief dubbel Zuid-Holland', () => {
   const st = html.slice(html.indexOf('const stations = ['), html.indexOf('/* =========================================================\n   ELEMENTS'));
   const entries = [...st.matchAll(/id: "([^"]+)",\s*country: "(NL|BE|LOCAL_NL)"/g)];
-  assert.equal(entries.length, 63);
-  assert.equal(new Set(entries.map(e => e[1])).size, 63);
+  assert.ok(entries.length >= 96, 'eerder toegevoegde stations mogen niet verdwijnen');
+  assert.equal(new Set(entries.map(e => e[1])).size, entries.length);
   const locals = entries.filter(e => e[2] === 'LOCAL_NL').map(e => e[1]).sort();
   assert.deepEqual(locals, ["l1radio","nhradio","omroepbrabant","omroepflevoland","omroepgelderland","omroepwest","omroepzeeland","omropfryslan","radiomutrecht","rtvdrenthe","rtvnoord","rtvoost","rtvrijnmond"]);
-  assert.equal(entries.filter(e => e[2] === 'NL').length, 34);
+  assert.ok(entries.filter(e => e[2] === 'NL').length >= 67);
   assert.equal(entries.filter(e => e[2] === 'BE').length, 16);
   assert.equal(entries.filter(e => e[2] === 'LOCAL_NL').length, 13);
   for (const province of ['Groningen','Friesland','Drenthe','Overijssel','Flevoland',
@@ -115,18 +115,20 @@ test('NL / BE / Lokaal NL zijn echte toegankelijke tabs met zoek- en favorietenb
   assert.deepEqual(names, ['NL', 'LOCAL_NL', 'BE']);
   assert.match(html, /role="tablist"/);
   assert.match(html, /aria-selected="true"/);
-  assert.match(html, /aria-labelledby", "radioTab-"/);
+  assert.match(html, /group\.setAttribute\("aria-labelledby",\s*"radioTab-"\s*\+/);
   assert.match(html, /saveRadioPreference\("radio-country-tab", code\)/);
-  assert.match(html, /group\.dataset\.country !== activeTab/);
+  assert.match(html, /group\.dataset\.country\s*!==\s*activeTab/);
   assert.match(html, /renderStations\(\)/);
 });
 
-test('zendergroepen zijn direct zichtbaar en niet meer uitklapbaar', () => {
+test('landtabs blijven direct zichtbaar en radiothema’s kunnen apart uitklappen', () => {
   assert.doesNotMatch(html, /class="country-(?:header|toggle|count|chevron)"/);
   assert.doesNotMatch(html, /function toggleCountryCollapsed\(/);
-  assert.match(html, /group\.hidden = country\.code !== selectedTab/);
+  assert.match(html, /group\.hidden\s*=\s*country\.code\s*!==\s*selectedTab/);
+  assert.match(html, /function toggleRadioFamily\(/);
+  assert.match(html, /function createRadioThemePanel\(/);
   assert.match(html, /getVisibleDisplayOrder\(\) \{[\s\S]*?return getDisplayOrder\(\)/);
-  assert.match(html, /group\.dataset\.country !== activeTab/);
+  assert.match(html, /group\.dataset\.country\s*!==\s*activeTab/);
   assert.match(html, /function renderStations\(/);
   assert.doesNotMatch(html, /\$\{items\.length\} stations/);
   assert.doesNotMatch(html, /\$\{stations\.length\} stations/);
@@ -181,8 +183,8 @@ test('drie tabs en één contextafhankelijke favorietster zonder gegevensverlies
 test('de oorspronkelijke stations en zeven VRT-uitbreidingen blijven behouden', () => {
   const all = part('const stations = [', '/* =========================================================\n   ELEMENTS');
   const entries = [...all.matchAll(/id: "([^"]+)",\s*country: "(NL|BE|LOCAL_NL)"/g)];
-  assert.equal(entries.length, 63);
-  assert.equal(new Set(entries.map(m => m[1])).size, 63);
+  assert.ok(entries.length >= 96);
+  assert.equal(new Set(entries.map(m => m[1])).size, entries.length);
   for (const id of ['npo1','npo2','kink80s','omroepbrabant','l1radio']) {
     assert.match(all, new RegExp('id: "' + id + '"'));
   }
@@ -315,7 +317,7 @@ test('zenderkaarten houden het bestaande grid en breedte van vier kolommen', () 
   assert.match(css, /\.country-stations\s*\{\s*grid-template-columns: repeat\(\s*auto-fit,\s*minmax\(min\(100%, 235px\), 1fr\)/);
   assert.match(css, /\.station-select\s*\{\s*flex-direction: row/);
   assert.match(html, /class="station-groups"/);
-  assert.match(html, /grid\.className = "country-stations"/);
+  assert.match(html, /grid\.className\s*=\s*"country-stations"/);
 });
 
 test('alle inline scripts zijn syntactisch geldig', () => {

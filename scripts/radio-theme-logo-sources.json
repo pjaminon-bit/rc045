@@ -1,0 +1,275 @@
+{
+  "description": "Brand/logo source references; official broadcaster images prioritized, directory images used where official assets are inaccessible. Fallbacks visibly labeled, not represented as official themes.",
+  "assets": {
+    "1007080": {
+      "source": null,
+      "group": "100nl",
+      "title": "70s & 80s",
+      "base": "assets/radio/logos/100nl.png"
+    },
+    "1009000": {
+      "source": null,
+      "group": "100nl",
+      "title": "90s & 00s",
+      "base": "assets/radio/logos/100nl.png"
+    },
+    "538dance": {
+      "source": "https://www.radiozenders.fm/media/images/stations/538-dance-department.png",
+      "group": "538",
+      "title": "Dance",
+      "base": "assets/radio/logos/538.png"
+    },
+    "538nonstop": {
+      "source": "https://www.radiozenders.fm/media/images/stations/538-non-stop.png",
+      "group": "538",
+      "title": "Non-Stop",
+      "base": "assets/radio/logos/538.png"
+    },
+    "538greatest": {
+      "source": "https://www.radiozenders.fm/media/images/stations/538-greatest-hits.png",
+      "group": "538",
+      "title": "Greatest Hits",
+      "base": "assets/radio/logos/538.png"
+    },
+    "53890s": {
+      "source": "https://www.radiozenders.fm/media/images/stations/538-90s.png",
+      "group": "538",
+      "title": "90's",
+      "base": "assets/radio/logos/538.png"
+    },
+    "538ibiza": {
+      "source": "https://www.radiozenders.fm/media/images/stations/538-ibiza.png",
+      "group": "538",
+      "title": "Ibiza",
+      "base": "assets/radio/logos/538.png"
+    },
+    "538party": {
+      "source": "https://www.radiozenders.fm/media/images/stations/538-party.png",
+      "group": "538",
+      "title": "Party",
+      "base": "assets/radio/logos/538.png"
+    },
+    "538hitzone": {
+      "source": "https://www.radiozenders.fm/media/images/stations/538-hitzone.png",
+      "group": "538",
+      "title": "Hitzone",
+      "base": "assets/radio/logos/538.png"
+    },
+    "538top50": {
+      "source": "https://www.radiozenders.fm/media/images/stations/538-top-50.png",
+      "group": "538",
+      "title": "Top 50",
+      "base": "assets/radio/logos/538.png"
+    },
+    "qnonstop": {
+      "source": "https://www.radiozenders.fm/media/images/stations/qmusic-non-stop.png",
+      "group": "qmusic",
+      "title": "Non-Stop",
+      "base": "assets/radio/logos/qmusic.png"
+    },
+    "qeasynl": {
+      "source": null,
+      "group": "qmusic",
+      "title": "Easy",
+      "base": "assets/radio/logos/qmusic.png"
+    },
+    "qenergynl": {
+      "source": null,
+      "group": "qmusic",
+      "title": "Energy",
+      "base": "assets/radio/logos/qmusic.png"
+    },
+    "qfouteuur": {
+      "source": "https://www.radiozenders.fm/media/images/stations/qmusic-het-foute-uur.png",
+      "group": "qmusic",
+      "title": "Foute Uur",
+      "base": "assets/radio/logos/qmusic.png"
+    },
+    "qtop40": {
+      "source": "https://www.radiozenders.fm/media/images/stations/qmusic-top-40.png",
+      "group": "qmusic",
+      "title": "Top 40",
+      "base": "assets/radio/logos/qmusic.png"
+    },
+    "q90s00s": {
+      "source": "https://www.radiozenders.fm/media/images/stations/qmusic-90s-00s.png",
+      "group": "qmusic",
+      "title": "90s & 00s",
+      "base": "assets/radio/logos/qmusic.png"
+    },
+    "q10s": {
+      "source": "https://radioflow.nl/storage/stations/logos/01KMZJ6FFV3KX75SM5Y18DP3NC.webp",
+      "group": "qmusic",
+      "title": "10s",
+      "base": "assets/radio/logos/qmusic.png"
+    },
+    "qsummer": {
+      "source": "https://www.radiozenders.fm/media/images/stations/qmusic-summer.png",
+      "group": "qmusic",
+      "title": "Summer",
+      "base": "assets/radio/logos/qmusic.png"
+    },
+    "radio1080s": {
+      "source": "https://www.radiozenders.fm/media/images/stations/radio-10-80s-hits.png",
+      "group": "radio10",
+      "title": "80's Hits",
+      "base": "assets/radio/logos/radio10.png"
+    },
+    "radio1090s": {
+      "source": "https://www.radiozenders.fm/media/images/stations/radio-10-90s-hits.png",
+      "group": "radio10",
+      "title": "90's Hits",
+      "base": "assets/radio/logos/radio10.png"
+    },
+    "radio10nonstop": {
+      "source": "https://www.radiozenders.fm/media/images/stations/radio-10-non-stop.png",
+      "group": "radio10",
+      "title": "Non-Stop",
+      "base": "assets/radio/logos/radio10.png"
+    },
+    "radio10disco": {
+      "source": "https://www.radiozenders.fm/media/images/stations/radio-10-disco-classics.png",
+      "group": "radio10",
+      "title": "Disco Classics",
+      "base": "assets/radio/logos/radio10.png"
+    },
+    "radio10soul": {
+      "source": "https://www.radiozenders.fm/media/images/stations/radio-10-soul-jazz.png",
+      "group": "radio10",
+      "title": "Soul & Jazz",
+      "base": "assets/radio/logos/radio10.png"
+    },
+    "slammix": {
+      "source": "https://api.mediahuisradio.nl/media/bqwidfxt/slam-mixmarathon_2000x2000.jpg?format=webp&width=600",
+      "group": "slam",
+      "title": "MixMarathon",
+      "base": "assets/radio/logos/slam.png"
+    },
+    "slamnonstop": {
+      "source": "https://api.mediahuisradio.nl/media/f52ogrkf/slam-non-stop_2000x2000.jpg?format=webp&width=600",
+      "group": "slam",
+      "title": "Non Stop",
+      "base": "assets/radio/logos/slam.png"
+    },
+    "slam00s": {
+      "source": "https://api.mediahuisradio.nl/media/xvlhldgm/slam-00s_2000x2000.jpg?format=webp&width=600",
+      "group": "slam",
+      "title": "00's",
+      "base": "assets/radio/logos/slam.png"
+    },
+    "slam10s": {
+      "source": "https://api.mediahuisradio.nl/media/jrqau3kf/slam-10s_2000x2000.jpg?format=webp&width=600",
+      "group": "slam",
+      "title": "10's",
+      "base": "assets/radio/logos/slam.png"
+    },
+    "slamboom": {
+      "source": "https://api.mediahuisradio.nl/media/dwrni0iz/slam-tbr_2000x2000.jpg?format=webp&width=600",
+      "group": "slam",
+      "title": "The Boom Room",
+      "base": "assets/radio/logos/slam.png"
+    },
+    "slamjuize": {
+      "source": "https://api.mediahuisradio.nl/media/micgeukd/slam-juize_2000x2000.jpg?format=webp&width=600",
+      "group": "slam",
+      "title": "Juize",
+      "base": "assets/radio/logos/slam.png"
+    },
+    "100feest": {
+      "source": "https://www.radiozenders.fm/media/images/stations/100p-nl-feest.png",
+      "group": "100nl",
+      "title": "Feest",
+      "base": "assets/radio/logos/100nl.png"
+    },
+    "100nonstop": {
+      "source": "https://www.radiozenders.fm/media/images/stations/100p-nl-non-stop.png",
+      "group": "100nl",
+      "title": "Non-Stop",
+      "base": "assets/radio/logos/100nl.png"
+    },
+    "veronicanonstop": {
+      "source": "https://radioflow.nl/storage/stations/logos/veronica-non-stop.webp",
+      "group": "veronica",
+      "title": "Non-Stop",
+      "base": "assets/radio/logos/veronica.png"
+    },
+    "pinguinpop": {
+      "source": null,
+      "group": "pinguin",
+      "title": "Pop",
+      "base": "assets/radio/logos/pinguin.svg"
+    },
+    "pinguinclassics": {
+      "source": null,
+      "group": "pinguin",
+      "title": "Classics",
+      "base": "assets/radio/logos/pinguin.svg"
+    },
+    "pinguingroove": {
+      "source": null,
+      "group": "pinguin",
+      "title": "Groove",
+      "base": "assets/radio/logos/pinguin.svg"
+    },
+    "pinguinblues": {
+      "source": null,
+      "group": "pinguin",
+      "title": "Blues",
+      "base": "assets/radio/logos/pinguin.svg"
+    },
+    "kink80s": {
+      "source": "https://www.radiozenders.fm/media/images/stations/kink-80s.png",
+      "group": "kink",
+      "title": "80's",
+      "base": "assets/radio/logos/kink.png"
+    },
+    "kink90s": {
+      "source": "https://www.radiozenders.fm/media/images/stations/kink-90s.png",
+      "group": "kink",
+      "title": "90's",
+      "base": "assets/radio/logos/kink.png"
+    },
+    "kinkdistortion": {
+      "source": "https://radioflow.nl/storage/stations/logos/kink-distortion.webp",
+      "group": "kink",
+      "title": "Distortion",
+      "base": "assets/radio/logos/kink.png"
+    },
+    "skyhits": {
+      "source": "https://www.radiozenders.fm/media/images/stations/sky-radio-hits.png",
+      "group": "skyradio",
+      "title": "Hits",
+      "base": "assets/radio/logos/skyradio.png"
+    },
+    "skylovesongs": {
+      "source": "https://www.radiozenders.fm/media/images/stations/sky-radio-love-songs.png",
+      "group": "skyradio",
+      "title": "Love Songs",
+      "base": "assets/radio/logos/skyradio.png"
+    },
+    "radiodecibel": {
+      "source": "https://www.radiozenders.fm/media/images/stations/radio-decibel.png",
+      "group": "decibel",
+      "title": "Radio Decibel",
+      "base": "assets/radio/logos/decibel.svg"
+    },
+    "classicnl": {
+      "source": "https://www.radiozenders.fm/media/images/stations/classicnl.png",
+      "group": "classicnl",
+      "title": "classicnl",
+      "base": "assets/radio/logos/classicnl.svg"
+    },
+    "eftelingkids": {
+      "source": "https://www.efteling.com/content/img/generic/kids/logo-kids-radio.svg",
+      "group": "efteling",
+      "title": "Kids Radio",
+      "base": "assets/radio/logos/efteling-kids.svg"
+    },
+    "pinguin": {
+      "source": "https://pinguinradio.com/assets/img/logo/logo-pinguin.svg",
+      "group": "pinguin",
+      "title": "Pinguin Radio",
+      "base": "assets/radio/logos/pinguin.svg"
+    }
+  }
+}

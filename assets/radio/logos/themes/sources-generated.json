@@ -1,0 +1,272 @@
+{
+  "1007080": {
+    "type": "fallback",
+    "file": "1007080.png",
+    "sha256": "06aff3b49c40c7813e2fae95c3ee7f1523a6cce9c0cc7ff6898f71276fa168c7",
+    "bytes": 27876
+  },
+  "1009000": {
+    "type": "fallback",
+    "file": "1009000.png",
+    "sha256": "7a67964b8ee8e471053d7b2c6e5e32163ced44b45d8e7e0cd2eb373116fa3514",
+    "bytes": 27479
+  },
+  "538dance": {
+    "type": "source",
+    "file": "538dance.png",
+    "sha256": "d966feb7376717ece8bfbffbb7cdbaa87d971c2c375ec470b6e46731e9e5f2ad",
+    "bytes": 62552
+  },
+  "538nonstop": {
+    "type": "source",
+    "file": "538nonstop.png",
+    "sha256": "def6566d567143283ebb4f73567a71b458f92541d2b1241c823d4c0005a2557f",
+    "bytes": 62122
+  },
+  "538greatest": {
+    "type": "source",
+    "file": "538greatest.png",
+    "sha256": "fbf3d2cc01a9cb3a59989d87b0793eed0aa0de2a94f282d708cb221101535be7",
+    "bytes": 66182
+  },
+  "53890s": {
+    "type": "source",
+    "file": "53890s.png",
+    "sha256": "5cc2a5b0223c93d3395c31cdbc90451f13873ee8c6cfce89020811f630769da8",
+    "bytes": 52440
+  },
+  "538ibiza": {
+    "type": "source",
+    "file": "538ibiza.png",
+    "sha256": "d984c27a38adf33eac364bb0230a53d91292105f592d8cead5ca643eff04f0c2",
+    "bytes": 51491
+  },
+  "538party": {
+    "type": "source",
+    "file": "538party.png",
+    "sha256": "96e5bd089b9a62f4f121e7dae1af59986aac7b85753135de5105e3ac62fd070d",
+    "bytes": 53024
+  },
+  "538hitzone": {
+    "type": "source",
+    "file": "538hitzone.png",
+    "sha256": "08ff0d35bcda293994727ecb7351506715d71f7dd3bbedf92b29c6107be589ce",
+    "bytes": 55752
+  },
+  "538top50": {
+    "type": "source",
+    "file": "538top50.png",
+    "sha256": "e6ffec1e652b1c0c3060642b10015355b59a4d94731c137198e8bc5fd8bce2f4",
+    "bytes": 55427
+  },
+  "qnonstop": {
+    "type": "source",
+    "file": "qnonstop.png",
+    "sha256": "5d068f3ddc4b2da085e2ecb5e5f9a0b855caa47990f1137a2650e7aa71a28ae8",
+    "bytes": 64478
+  },
+  "qeasynl": {
+    "type": "fallback",
+    "file": "qeasynl.png",
+    "sha256": "42e87266d1d3686595cfe283d85666f452e5cdabc808b40a2f04587fce2fcc13",
+    "bytes": 31747
+  },
+  "qenergynl": {
+    "type": "fallback",
+    "file": "qenergynl.png",
+    "sha256": "5fda99f69a5151c0102c6dc3f4743e05510beae3472c67f45f51ee0d560e7911",
+    "bytes": 32755
+  },
+  "qfouteuur": {
+    "type": "source",
+    "file": "qfouteuur.png",
+    "sha256": "d754cbd39baff6f029b38bc108b5ceb095c2bca989c083987977f8fa3e06bb26",
+    "bytes": 293867
+  },
+  "qtop40": {
+    "type": "source",
+    "file": "qtop40.png",
+    "sha256": "5cd536fc32be0598acff135275eecbeec832719ec7b6781e57f51a3d173bd5d6",
+    "bytes": 95240
+  },
+  "q90s00s": {
+    "type": "source",
+    "file": "q90s00s.png",
+    "sha256": "8eec9090fbb7a7a149c916a9600598c9df0f719cc826569a4a8ab1dc010c7dbf",
+    "bytes": 57134
+  },
+  "q10s": {
+    "type": "source",
+    "file": "q10s.png",
+    "sha256": "97385674ad043481ad247b08d5dd460bf2932788252263c0e7130b0b630850fd",
+    "bytes": 66108
+  },
+  "qsummer": {
+    "type": "source",
+    "file": "qsummer.png",
+    "sha256": "cbefa37381eccd24725a5bac546022785c54bb71ab9055aa2f2dfcb9c6a5ee3b",
+    "bytes": 69454
+  },
+  "radio1080s": {
+    "type": "source",
+    "file": "radio1080s.png",
+    "sha256": "87e3529fd816edfbd09d28a0ae1e548c857b9596aef869afd23ab8bb32e4fcc0",
+    "bytes": 68669
+  },
+  "radio1090s": {
+    "type": "source",
+    "file": "radio1090s.png",
+    "sha256": "c33ddd7f1b8a5b92cb6a1389e5bc31401ff0cec3f29e06cfda2eab05e4e41b35",
+    "bytes": 68695
+  },
+  "radio10nonstop": {
+    "type": "source",
+    "file": "radio10nonstop.png",
+    "sha256": "10cfb8618bccb5b4b364eb65f81294fb38de8185e78485236ca4303e18bd3e72",
+    "bytes": 69946
+  },
+  "radio10disco": {
+    "type": "source",
+    "file": "radio10disco.png",
+    "sha256": "948f191c9aab59579cfa635530cddedc9037d9b0eeef3288a7dce1925fca18a7",
+    "bytes": 76919
+  },
+  "radio10soul": {
+    "type": "source",
+    "file": "radio10soul.png",
+    "sha256": "b18a3de0ce1332832e70c42a805c4cca980780386532d14300ed28d15fa0eb4a",
+    "bytes": 75618
+  },
+  "slammix": {
+    "type": "source",
+    "file": "slammix.png",
+    "sha256": "2ef4664006b454015de27bb40e53a856abe31a7ffafae71230f9bab0f9abeac7",
+    "bytes": 187829
+  },
+  "slamnonstop": {
+    "type": "source",
+    "file": "slamnonstop.png",
+    "sha256": "159fe8ffda275f5b5a3cde821cd27aa2aa9d2dd5459176af1cb984b0c98323a7",
+    "bytes": 185220
+  },
+  "slam00s": {
+    "type": "source",
+    "file": "slam00s.png",
+    "sha256": "f150c5e5904340c15cbeea912ec2aec755ddecce49b8adaa56090d0991847bdb",
+    "bytes": 191791
+  },
+  "slam10s": {
+    "type": "source",
+    "file": "slam10s.png",
+    "sha256": "fdde703a4ee1afcf7fd3f818dc66fe0a5ab6a8eddc7989e0d5462343fbd9c669",
+    "bytes": 188324
+  },
+  "slamboom": {
+    "type": "source",
+    "file": "slamboom.png",
+    "sha256": "62917ce963a90381b1ea404328a21a1ea17617496a6984ecbc6fdfceff099e9a",
+    "bytes": 218154
+  },
+  "slamjuize": {
+    "type": "source",
+    "file": "slamjuize.png",
+    "sha256": "69b24ad459b86f44aef8ef0cd3be5b24d9773e640294dfb283482f496242762a",
+    "bytes": 186029
+  },
+  "100feest": {
+    "type": "source",
+    "file": "100feest.png",
+    "sha256": "0063d56ee9288ab028e07dc5cb3733eb8fe46a012a3641e0fd503bb9284fc83f",
+    "bytes": 53481
+  },
+  "100nonstop": {
+    "type": "source",
+    "file": "100nonstop.png",
+    "sha256": "e362503e645e19e8b554e35ae5b89e7b36b23e567d5b528678e01984583b2739",
+    "bytes": 62459
+  },
+  "veronicanonstop": {
+    "type": "source",
+    "file": "veronicanonstop.png",
+    "sha256": "b2e7af555673aa101621f16664c3cf10e2d4f1a00d4935ab8fe29110242aa9aa",
+    "bytes": 268524
+  },
+  "pinguinpop": {
+    "type": "fallback",
+    "file": "pinguinpop.png",
+    "sha256": "05afdecac2f48e9f2d34b63d4bbcfb98bce780257234dbcc2d9796d380bacc86",
+    "bytes": 26168
+  },
+  "pinguinclassics": {
+    "type": "fallback",
+    "file": "pinguinclassics.png",
+    "sha256": "69a7358c2c4a9a3471072b3f916ef99b9bbeaa7d58156ede3e0fa48f5dee88ec",
+    "bytes": 27645
+  },
+  "pinguingroove": {
+    "type": "fallback",
+    "file": "pinguingroove.png",
+    "sha256": "c6ca30eac606cfcf2d2694aab21ed8e72b5d44ec36dc3bfbcc447559cfa64a6b",
+    "bytes": 27787
+  },
+  "pinguinblues": {
+    "type": "fallback",
+    "file": "pinguinblues.png",
+    "sha256": "c3f337997c83ab41d7b9c93251509d316c019a518f4cb00a08aebf98466c630b",
+    "bytes": 26877
+  },
+  "kink80s": {
+    "type": "source",
+    "file": "kink80s.png",
+    "sha256": "d155c8e35d73a596e7f0a39c80b57ac0c2c9dc6fbecbaf3f885d7a5da472d76b",
+    "bytes": 56026
+  },
+  "kink90s": {
+    "type": "source",
+    "file": "kink90s.png",
+    "sha256": "bf6af02dd8d5149f9392d1065207eaf18d4807ff1f3c75580c0a3b912032a81e",
+    "bytes": 67119
+  },
+  "kinkdistortion": {
+    "type": "source",
+    "file": "kinkdistortion.png",
+    "sha256": "0213d817634a97872904b5341fc0a4fde0ac04712f99bb66ecaa141ed989c67d",
+    "bytes": 96607
+  },
+  "skyhits": {
+    "type": "source",
+    "file": "skyhits.png",
+    "sha256": "5dc920023beb7b04b7eee0810f25d079e2bf00e6038aef7b85e17eead4f3723c",
+    "bytes": 99418
+  },
+  "skylovesongs": {
+    "type": "source",
+    "file": "skylovesongs.png",
+    "sha256": "333ccd00d1c765cd9ac61ea133562c050f5d5d111f853e0b7617b452b5479b39",
+    "bytes": 116486
+  },
+  "radiodecibel": {
+    "type": "source",
+    "file": "radiodecibel.png",
+    "sha256": "44b342c772f43a934791469c14a5ab75b380ef2711a941ecf9bc3a9067329baf",
+    "bytes": 72445
+  },
+  "classicnl": {
+    "type": "source",
+    "file": "classicnl.png",
+    "sha256": "bafe1cc531cd715bcd4566ee19c29dc5c41b04c0eabf1627737baf27e4297d73",
+    "bytes": 79569
+  },
+  "eftelingkids": {
+    "type": "source",
+    "file": "eftelingkids.png",
+    "sha256": "8fb626e62285402f0e96f49d291463f5b028b6ebad5be1be3ca7dc9cb98c00d7",
+    "bytes": 53559
+  },
+  "pinguin": {
+    "type": "source",
+    "file": "pinguin.png",
+    "sha256": "bf386b283c311473bea8f20c9960b2b12061ad7746f9396afc48c2f5d11c5092",
+    "bytes": 18399
+  }
+}
