@@ -158,6 +158,71 @@ try {
     await page.close();
   }
 
+  // Zoekresultaten zijn onafhankelijk van de zichtbaarheid van themakanalen.
+  // Het uitschakelen van de instelling mag noch streams noch favorieten wissen.
+  for (const width of [390, 1024]) {
+    const page = await browser.newPage({viewport:{width,height:850}});
+    const errors=[];
+    page.on('pageerror', error=>errors.push(error.message));
+    await page.route(/^https?:\/\//, route=>route.abort());
+    await page.goto(app,{waitUntil:'domcontentloaded'});
+    await page.waitForSelector('.station');
+    const toggle=page.locator('#showThemeStationsToggle');
+    assert.equal(await toggle.isChecked(),true,'thema-zenders default zichtbaar');
+    const selectedBefore=await page.evaluate(()=>({
+      station:stations[currentIndex].id,
+      src:document.getElementById('audio').src
+    }));
+    if (width<=760) await page.locator('#displaySettingsButton').click();
+    await toggle.uncheck();
+    assert.equal(await toggle.isChecked(),false);
+    assert.equal(await page.locator('.station[data-station-id="538"]').count(),1,
+      '538 hoofdzender blijft bestaan');
+    assert.equal(await page.locator('.station[data-station-id="538ibiza"]').count(),0,
+      '538 Ibiza verborgen in normale lijst');
+
+    const input=page.locator('#stationSearchInput');
+    await input.fill('538 Ibiza');
+    assert.ok(await page.locator('.station[data-station-id="538ibiza"]').isVisible(),
+      '538 Ibiza verschijnt altijd bij zoeken');
+    assert.ok(await page.locator('#radioThemePanel-538').isVisible(),
+      'relevante groep opent automatisch');
+    await input.fill('Pinguin Groove');
+    assert.ok(await page.locator('.station[data-station-id="pinguingroove"]').isVisible(),
+      'Pinguin thema verschijnt ook zonder hoofdzender');
+    await input.fill('Radio 2 Relax');
+    assert.ok(await page.locator('.station[data-station-id="radio2relax"]').isVisible(),
+      'ook Belgische themakanalen verschijnen in zoekresultaten');
+    await input.fill('538');
+    assert.equal(await page.locator('#radioThemePanel-538 .station:visible').count(),8,
+      'zoeken op hoofdomroep toont alle acht 538 thema-kanalen');
+    await input.fill('');
+    assert.equal(await page.locator('.station[data-station-id="538ibiza"]').count(),0,
+      'thema-zenders zijn na wissen zoekterm weer verborgen');
+
+    const selectedAfter=await page.evaluate(()=>({
+      station:stations[currentIndex].id,
+      src:document.getElementById('audio').src
+    }));
+    assert.deepEqual(selectedAfter,selectedBefore,
+      'toon-thema-toggle raakt huidige zender en audio niet');
+
+    await page.reload({waitUntil:'domcontentloaded'});
+    assert.equal(await toggle.isChecked(),false,'instelling blijft bewaard na herladen');
+    await input.fill('SLAM! MixMarathon');
+    assert.ok(await page.locator('.station[data-station-id="slammix"]').isVisible(),
+      'de zoekfunctie toont nog steeds thema na herladen');
+
+    if (width<=760) await page.locator('#displaySettingsButton').click();
+    await toggle.check();
+    await input.fill('');
+    assert.ok(await page.locator('[data-radio-family="538"]').isVisible(),
+      'inschakelen toont de radiofamilies weer');
+    assert.equal(errors.length,0,'geen JavaScript-fouten tijdens thema-toggle test');
+    console.log('PASS thema-toggle '+width+'px: gewone lijst, zoeken, opslag en audio');
+    await page.close();
+  }
+
   // Volume regressies: 0% is mute, herstel vorige hoorbare stand,
   // iOS toont geen misleidende native volumeschuif.
   {
