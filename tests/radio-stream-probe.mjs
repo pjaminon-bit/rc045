@@ -1,4 +1,11 @@
 const urls = [
+  ["MNM Hits", "https://icecast.vrtcdn.be/mnm_hits-high.mp3"],
+  ["De Jaren Nul", "https://icecast.vrtcdn.be/stubru_dejarennul-high.mp3"],
+  ["Bruut", "https://icecast.vrtcdn.be/stubru_bruut-high.mp3"],
+  ["UNTZ", "https://icecast.vrtcdn.be/stubru_untz-high.mp3"],
+  ["Vuurland", "https://icecast.vrtcdn.be/stubru_tgs-high.mp3"],
+  ["Radio 2 Relax", "https://icecast.vrtcdn.be/radio2_relax-high.mp3"],
+  ["Ketnet Hits", "https://icecast.vrtcdn.be/ketnetradio-high.mp3"],
   ["Qmusic Non-Stop", "https://stream.qmusic.nl/nonstop/mp3"],
   ["Qmusic Easy", "https://streams.radio.dpgmedia.cloud/redirect/qnl_easy/mp3"],
   ["Qmusic Energy", "https://streams.radio.dpgmedia.cloud/redirect/qnl_energy/mp3"],
@@ -38,11 +45,12 @@ const checks = await Promise.all(urls.map(async ([name,url]) => {
   try {
     const response = await fetch(url, {
       method: "GET", redirect: "follow", signal: ac.signal,
-      headers: {"Range":"bytes=0-2048"}
+      headers: {"Range":"bytes=0-2048","Icy-MetaData":"1"}
     });
     const result = {
       name, status: response.status,
       type: response.headers.get("content-type"),
+      icyMetaInt: response.headers.get("icy-metaint"),
       finalUrl: response.url.replace(/\?.*$/, "")
     };
     console.log(JSON.stringify(result));

@@ -82,12 +82,12 @@ test('Licht/Donker: zonder voorkeur OS volgen, daarna handmatig bewaren', () => 
 test('alle 13 regionale publieke omroepen inclusief dubbel Zuid-Holland', () => {
   const st = html.slice(html.indexOf('const stations = ['), html.indexOf('/* =========================================================\n   ELEMENTS'));
   const entries = [...st.matchAll(/id: "([^"]+)",\s*country: "(NL|BE|LOCAL_NL)"/g)];
-  assert.equal(entries.length, 56);
-  assert.equal(new Set(entries.map(e => e[1])).size, 56);
+  assert.equal(entries.length, 63);
+  assert.equal(new Set(entries.map(e => e[1])).size, 63);
   const locals = entries.filter(e => e[2] === 'LOCAL_NL').map(e => e[1]).sort();
   assert.deepEqual(locals, ["l1radio","nhradio","omroepbrabant","omroepflevoland","omroepgelderland","omroepwest","omroepzeeland","omropfryslan","radiomutrecht","rtvdrenthe","rtvnoord","rtvoost","rtvrijnmond"]);
   assert.equal(entries.filter(e => e[2] === 'NL').length, 34);
-  assert.equal(entries.filter(e => e[2] === 'BE').length, 9);
+  assert.equal(entries.filter(e => e[2] === 'BE').length, 16);
   assert.equal(entries.filter(e => e[2] === 'LOCAL_NL').length, 13);
   for (const province of ['Groningen','Friesland','Drenthe','Overijssel','Flevoland',
    'Gelderland','Utrecht','Noord-Holland','Zuid-Holland','Zeeland','Noord-Brabant','Limburg']) {
@@ -178,11 +178,11 @@ test('drie tabs en één contextafhankelijke favorietster zonder gegevensverlies
   assert.deepEqual([...favorites].sort(),['BE','NL']);
 });
 
-test('de originele 56 stations, metadata en programmaconfiguratie zijn beschermd', () => {
+test('de oorspronkelijke stations en zeven VRT-uitbreidingen blijven behouden', () => {
   const all = part('const stations = [', '/* =========================================================\n   ELEMENTS');
   const entries = [...all.matchAll(/id: "([^"]+)",\s*country: "(NL|BE|LOCAL_NL)"/g)];
-  assert.equal(entries.length, 56);
-  assert.equal(new Set(entries.map(m => m[1])).size, 56);
+  assert.equal(entries.length, 63);
+  assert.equal(new Set(entries.map(m => m[1])).size, 63);
   for (const id of ['npo1','npo2','kink80s','omroepbrabant','l1radio']) {
     assert.match(all, new RegExp('id: "' + id + '"'));
   }

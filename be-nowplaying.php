@@ -91,6 +91,48 @@ $stations = array(
         )
     ),
 
+    'mnmhits' => array(
+        'kind' => 'vrt-icy',
+        'stream' => 'https://icecast.vrtcdn.be/mnm_hits-high.mp3',
+        'label' => 'MNM Hits'
+    ),
+
+    'dejarennul' => array(
+        'kind' => 'vrt-icy',
+        'stream' => 'https://icecast.vrtcdn.be/stubru_dejarennul-high.mp3',
+        'label' => 'De Jaren Nul'
+    ),
+
+    'bruut' => array(
+        'kind' => 'vrt-icy',
+        'stream' => 'https://icecast.vrtcdn.be/stubru_bruut-high.mp3',
+        'label' => 'Bruut'
+    ),
+
+    'untz' => array(
+        'kind' => 'vrt-icy',
+        'stream' => 'https://icecast.vrtcdn.be/stubru_untz-high.mp3',
+        'label' => 'UNTZ'
+    ),
+
+    'vuurland' => array(
+        'kind' => 'vrt-icy',
+        'stream' => 'https://icecast.vrtcdn.be/stubru_tgs-high.mp3',
+        'label' => 'Vuurland'
+    ),
+
+    'radio2relax' => array(
+        'kind' => 'vrt-icy',
+        'stream' => 'https://icecast.vrtcdn.be/radio2_relax-high.mp3',
+        'label' => 'Radio 2 Relax'
+    ),
+
+    'ketnethits' => array(
+        'kind' => 'vrt-icy',
+        'stream' => 'https://icecast.vrtcdn.be/ketnetradio-high.mp3',
+        'label' => 'Ketnet Hits'
+    ),
+
     'joebe' => array(
         'kind' => 'dpg',
         'track_url' => 'https://api.joe.be/2.4/tracks/plays?limit=1&next=true',
@@ -125,7 +167,7 @@ $trackSource = '';
 $errors = array();
 $attempts = array();
 
-if (strpos($config['kind'], 'vrt-') === 0) {
+if ($config['kind'] === 'vrt-html' || $config['kind'] === 'vrt-radiomenu') {
     $vrt = fetchVrtChannel($config['page']);
 
     if (isset($vrt['program'])) {
@@ -162,6 +204,16 @@ if (strpos($config['kind'], 'vrt-') === 0) {
         $trackSource = 'vrt-graphql';
     }
 
+} elseif ($config['kind'] === 'vrt-icy') {
+    /* Losstaande ICY-bron voor nieuwe digitale muziekkanalen.
+     * De bestaande VRT-playlistlogica blijft ongewijzigd. */
+    $result = fetchVrtIcyTrack($config['stream'], $config['label']);
+    if (isset($result['artist'], $result['title'])) {
+        $track = array('artist' => $result['artist'], 'title' => $result['title']);
+        $trackSource = 'vrt-icy';
+    } elseif (isset($result['error'])) {
+        $errors[] = $result['error'];
+    }
 } else {
     $result = fetchDpgTrack(
         $config['track_url'],
@@ -873,6 +925,96 @@ function fetchHtmlPage($url)
     );
 }
 
+
+
+/* VRT digitale streams: lees hoogstens één actueel ICY-metadatablok.
+ * Geen bruikbaar StreamTitle => noTrack; nooit een oude playlist teruggeven. */
+function fetchVrtIcyTrack($url, $stationLabel)
+{
+    if (!function_exists('curl_init')) {
+        return array('error' => 'icy_curl_unavailable');
+    }
+
+    $interval = 0;
+    $payload = '';
+    $complete = false;
+    $ch = curl_init($url);
+    if ($ch === false) {
+        return array('error' => 'icy_init_failed');
+    }
+
+    curl_setopt_array($ch, array(
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 3,
+        CURLOPT_CONNECTTIMEOUT => 4,
+        CURLOPT_TIMEOUT => 7,
+        CURLOPT_HTTPHEADER => array('Icy-MetaData: 1', 'Accept: */*'),
+        CURLOPT_USERAGENT => 'rc045-radio/1.0',
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_HEADERFUNCTION => function ($ch, $line) use (&$interval) {
+            if (preg_match('/^icy-metaint:\s*(\d+)/i', trim($line), $match)) {
+                $interval = (int) $match[1];
+            }
+            return strlen($line);
+        },
+        CURLOPT_WRITEFUNCTION => function ($ch, $chunk) use (&$interval, &$payload, &$complete) {
+            if ($interval < 1 || $interval > 262144) {
+                return 0;
+            }
+            $limit = $interval + 1 + 4080;
+            $payload .= substr($chunk, 0, max(0, $limit - strlen($payload)));
+            if (strlen($payload) > $interval) {
+                $length = ord($payload[$interval]) * 16;
+                if (strlen($payload) >= $interval + 1 + $length) {
+                    $complete = true;
+                    return 0;
+                }
+            }
+            if (strlen($payload) >= $limit) {
+                return 0;
+            }
+            return strlen($chunk);
+        }
+    ));
+
+    /* De schrijfcallback stopt de stream bewust na het eerste metadatablok. */
+    curl_exec($ch);
+    $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($status !== 200 || !$complete) {
+        return array('error' => 'icy_unavailable');
+    }
+
+    $length = ord($payload[$interval]) * 16;
+    if ($length === 0) {
+        return array('error' => 'icy_empty');
+    }
+    $block = substr($payload, $interval + 1, $length);
+    if (!preg_match("/StreamTitle\s*=\s*'([^']*)'/i", $block, $match)) {
+        return array('error' => 'icy_missing_title');
+    }
+    $raw = cleanText($match[1]);
+    if ($raw === '' || strlen($raw) > 240 ||
+        preg_match('~https?://|www\.|\b(advert|reclame|jingle|promo)\b~i', $raw)) {
+        return array('error' => 'icy_non_music');
+    }
+
+    $track = splitTrack($raw);
+    if ($track === null) {
+        return array('error' => 'icy_not_artist_title');
+    }
+
+    /* Stationnamen en jingles vormen geen artiest/titel-combinatie. */
+    $artist = strtolower($track['artist']);
+    $label = strtolower(cleanText($stationLabel));
+    if ($artist === $label || $artist === 'vrt' ||
+        preg_match('/^(vrt\s+)?(studio brussel|radio\s*2|mnm(?:\s+hits)?|ketnet(?:\s+hits)?)$/i', $artist)) {
+        return array('error' => 'icy_station_ident');
+    }
+    return $track;
+}
 
 function httpRequest($url, $method, $headers, $body, $timeout)
 {

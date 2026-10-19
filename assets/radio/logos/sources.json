@@ -358,6 +358,62 @@
         "omroepzeeland"
       ],
       "bytes": 2033
+    },
+    {
+      "file": "assets/radio/logos/mnmhits.svg",
+      "source": "https://www.vrt.be/nl/ons-aanbod/streamingslinks-radio",
+      "stations": [
+        "mnmhits"
+      ],
+      "note": "Zelf ontworpen lokaal SVG-woordmerk, geen officieel VRT-logo."
+    },
+    {
+      "file": "assets/radio/logos/dejarennul.svg",
+      "source": "https://www.vrt.be/nl/ons-aanbod/streamingslinks-radio",
+      "stations": [
+        "dejarennul"
+      ],
+      "note": "Zelf ontworpen lokaal SVG-woordmerk, geen officieel VRT-logo."
+    },
+    {
+      "file": "assets/radio/logos/bruut.svg",
+      "source": "https://www.vrt.be/nl/ons-aanbod/streamingslinks-radio",
+      "stations": [
+        "bruut"
+      ],
+      "note": "Zelf ontworpen lokaal SVG-woordmerk, geen officieel VRT-logo."
+    },
+    {
+      "file": "assets/radio/logos/untz.svg",
+      "source": "https://www.vrt.be/nl/ons-aanbod/streamingslinks-radio",
+      "stations": [
+        "untz"
+      ],
+      "note": "Zelf ontworpen lokaal SVG-woordmerk, geen officieel VRT-logo."
+    },
+    {
+      "file": "assets/radio/logos/vuurland.svg",
+      "source": "https://www.vrt.be/nl/ons-aanbod/streamingslinks-radio",
+      "stations": [
+        "vuurland"
+      ],
+      "note": "Zelf ontworpen lokaal SVG-woordmerk, geen officieel VRT-logo."
+    },
+    {
+      "file": "assets/radio/logos/radio2relax.svg",
+      "source": "https://www.vrt.be/nl/ons-aanbod/streamingslinks-radio",
+      "stations": [
+        "radio2relax"
+      ],
+      "note": "Zelf ontworpen lokaal SVG-woordmerk, geen officieel VRT-logo."
+    },
+    {
+      "file": "assets/radio/logos/ketnethits.svg",
+      "source": "https://www.vrt.be/nl/ons-aanbod/streamingslinks-radio",
+      "stations": [
+        "ketnethits"
+      ],
+      "note": "Zelf ontworpen lokaal SVG-woordmerk, geen officieel VRT-logo."
     }
   ]
 }
