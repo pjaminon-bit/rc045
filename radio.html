@@ -3080,6 +3080,22 @@
     :root[data-track-info-visible="false"] #trackInfo {
       display: none !important;
     }
+    /* Alleen de presentatie; programmeer-/trackstatus blijft beschikbaar. */
+    :root[data-program-info-visible="false"] #programTitle,
+    :root[data-music-services-visible="false"] #musicServiceLinks {
+      display: none !important;
+    }
+    :root[data-mini-player-visible="false"] #miniPlayer {
+      display: none !important;
+    }
+    /* Optionele visuele effecten, onafhankelijk van play/metadata. */
+    :root[data-animations-visible="false"] *,
+    :root[data-animations-visible="false"] *::before,
+    :root[data-animations-visible="false"] *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
     .track-artist {
       font-size: clamp(19px, 2vw, 22px);
       font-weight: 710;
@@ -3437,6 +3453,26 @@
       align-items: stretch;
       gap: 0;
     }
+    .display-settings-panel {
+      max-height: min(76vh, 680px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+    .display-settings-panel .settings-group-label {
+      margin: 7px 3px 5px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+      font-weight: 750;
+      letter-spacing: .055em;
+      text-transform: uppercase;
+    }
+    .display-settings-panel .settings-group-secondary {
+      margin-top: 15px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
     .display-settings-panel .settings-row {
       display: flex;
       align-items: center;
@@ -3540,6 +3576,8 @@
            class="display-settings-panel"
            aria-label="Instellingen">
 
+      <h2 class="settings-group-label">Weergave</h2>
+
       <label class="artwork-toggle settings-row">
         <span>Albumart tonen</span>
         <input id="albumArtToggle" type="checkbox" checked>
@@ -3551,7 +3589,34 @@
       </label>
 
       <label class="artwork-toggle settings-row">
-        <span>Toon thema zenders</span>
+        <span>Programma-info tonen</span>
+        <input id="programInfoToggle" type="checkbox" checked>
+      </label>
+
+      <label class="artwork-toggle settings-row">
+        <span>Muziekdiensten tonen</span>
+        <input id="musicServicesToggle" type="checkbox" checked>
+      </label>
+
+      <label class="artwork-toggle settings-row">
+        <span>Miniplayer tonen</span>
+        <input id="miniPlayerToggle" type="checkbox" checked>
+      </label>
+
+      <label class="artwork-toggle settings-row">
+        <span>Artiestenfoto tonen</span>
+        <input id="artistPhotoToggle" type="checkbox" checked>
+      </label>
+
+      <label class="artwork-toggle settings-row">
+        <span>Animaties tonen</span>
+        <input id="animationsToggle" type="checkbox" checked>
+      </label>
+
+      <h2 class="settings-group-label settings-group-secondary">Zenders en thema</h2>
+
+      <label class="artwork-toggle settings-row">
+        <span>Themazenders tonen</span>
         <input id="showThemeStationsToggle" type="checkbox" checked>
       </label>
 
@@ -6222,6 +6287,21 @@ const albumArtToggle =
 const trackInfoToggle =
   document.getElementById("trackInfoToggle");
 
+const programInfoToggle =
+  document.getElementById("programInfoToggle");
+
+const musicServicesToggle =
+  document.getElementById("musicServicesToggle");
+
+const miniPlayerToggle =
+  document.getElementById("miniPlayerToggle");
+
+const artistPhotoToggle =
+  document.getElementById("artistPhotoToggle");
+
+const animationsToggle =
+  document.getElementById("animationsToggle");
+
 const mainStationLogo =
   document.getElementById("mainStationLogo");
 
@@ -6310,6 +6390,29 @@ trackInfoToggle.addEventListener("change", () => {
   trackInfoEnabled = trackInfoToggle.checked;
   document.documentElement.dataset.trackInfoVisible = String(trackInfoEnabled);
   saveRadioPreference("radio-trackinfo-visible", trackInfoEnabled);
+});
+
+// Presentatievoorkeuren: standaard aan, los van track- en programmaopvraging.
+function bindVisibilityToggle(toggle, storageKey, dataName) {
+  let enabled = readRadioPreference(storageKey) !== "false";
+  toggle.checked = enabled;
+  document.documentElement.dataset[dataName] = String(enabled);
+  toggle.addEventListener("change", () => {
+    enabled = toggle.checked;
+    document.documentElement.dataset[dataName] = String(enabled);
+    saveRadioPreference(storageKey, enabled);
+  });
+}
+bindVisibilityToggle(programInfoToggle, "radio-program-info-visible", "programInfoVisible");
+bindVisibilityToggle(musicServicesToggle, "radio-music-services-visible", "musicServicesVisible");
+bindVisibilityToggle(miniPlayerToggle, "radio-mini-player-visible", "miniPlayerVisible");
+bindVisibilityToggle(animationsToggle, "radio-animations-visible", "animationsVisible");
+
+// Bij ontbreken van een albumhoes mag de bestaande artiestenfallback apart uit.
+let artistPhotoEnabled = readRadioPreference("radio-artist-photo-visible") !== "false";
+artistPhotoToggle.checked = artistPhotoEnabled;
+artistPhotoToggle.addEventListener("change", () => {
+  setArtistPhotoEnabled(artistPhotoToggle.checked);
 });
 
 // KINK Classics werd in 2023 vervangen door KINK 80's.
@@ -8813,7 +8916,7 @@ function safeArtworkResult(data) {
 }
 
 async function loadArtistPhotoAfterCoverFailure(generation, artist, title, key) {
-  if (generation !== artworkGeneration || !albumArtEnabled || !artist || !title) return;
+  if (generation !== artworkGeneration || !albumArtEnabled || !artistPhotoEnabled || !artist || !title) return;
   const controller = new AbortController();
   artworkRequest = controller;
   try {
@@ -8828,7 +8931,7 @@ async function loadArtistPhotoAfterCoverFailure(generation, artist, title, key) 
     });
     if (!response.ok) return;
     const data = await response.json();
-    if (generation !== artworkGeneration || !albumArtEnabled) return;
+    if (generation !== artworkGeneration || !albumArtEnabled || !artistPhotoEnabled) return;
     const photo = safeArtworkResult(data);
     if (!photo || photo.kind !== "artist" ||
         new URL(photo.creditUrl).hostname !== "commons.wikimedia.org" ||
@@ -8852,11 +8955,16 @@ async function loadArtistPhotoAfterCoverFailure(generation, artist, title, key) 
 
 function showTrackArtwork(result, generation, artist, title, key) {
   if (generation !== artworkGeneration || !result) return;
+  if (result.kind === "artist" && !artistPhotoEnabled) return;
   const preload = new Image();
   artworkPreload = preload;
   preload.referrerPolicy = "no-referrer";
   preload.onload = () => {
     if (generation !== artworkGeneration || artworkPreload !== preload) return;
+    if (result.kind === "artist" && !artistPhotoEnabled) {
+      artworkPreload = null;
+      return;
+    }
     artworkPreload = null;
     trackArtworkBackground.src = preload.currentSrc || result.image;
     if (result.kind === "artist") {
@@ -8881,7 +8989,7 @@ function showTrackArtwork(result, generation, artist, title, key) {
       return;
     }
     artworkPreload = null;
-    if (result.kind === "album" && artist && title && key && albumArtEnabled) {
+    if (result.kind === "album" && artist && title && key && albumArtEnabled && artistPhotoEnabled) {
       void loadArtistPhotoAfterCoverFailure(generation, artist, title, key);
     }
     // Geen geldige artiestenfoto? Bewaar de bestaande stationsachtergrond.
@@ -8928,6 +9036,27 @@ async function updateTrackArtwork(artist, title) {
     // Externe service niet bereikbaar: speler en huidige stationskleur blijven werken.
   } finally {
     if (artworkRequest === controller) artworkRequest = null;
+  }
+}
+
+/* Alleen artiestenfoto's uitschakelen; albumhoezen en bestaande herkenning blijven werken. */
+function setArtistPhotoEnabled(enabled) {
+  artistPhotoEnabled = Boolean(enabled);
+  artistPhotoToggle.checked = artistPhotoEnabled;
+  saveRadioPreference("radio-artist-photo-visible", artistPhotoEnabled);
+
+  if (!albumArtEnabled || isContentSuppressed() ||
+      !currentTrack.artist || !currentTrack.title) {
+    if (!artistPhotoEnabled && !artworkCredit.hidden) clearTrackArtwork();
+    return;
+  }
+  // Een huidige albumhoes niet opnieuw laden; bij een artiestenfoto
+  // of bij herinschakeling zonder afbeelding de bestaande cache hergebruiken.
+  const showingArtistPhoto = !artworkCredit.hidden;
+  const artworkVisible = stationArtwork.classList.contains("has-track-artwork");
+  if ((!artistPhotoEnabled && showingArtistPhoto) ||
+      (artistPhotoEnabled && !artworkVisible)) {
+    void updateTrackArtwork(currentTrack.artist, currentTrack.title);
   }
 }
 
@@ -13947,6 +14076,7 @@ initialise();
 
     if (
       !meta &&
+      document.documentElement.dataset.programInfoVisible !== "false" &&
       sourceProgramTitle &&
       !sourceProgramTitle.hidden
     ) {
@@ -14016,6 +14146,7 @@ initialise();
     () => {
 
       const reducedMotion =
+        document.documentElement.dataset.animationsVisible === "false" ||
         window.matchMedia(
           "(prefers-reduced-motion: reduce)"
         )
@@ -14071,10 +14202,19 @@ initialise();
 
 
   /*
-   * De miniplayer verschijnt pas zodra
-   * de grote player volledig uit het
-   * zicht is gescrold.
+   * De miniplayer verschijnt pas zodra de grote player uit beeld is,
+   * en alleen als de opgeslagen gebruikersvoorkeur dat toestaat.
    */
+  let largePlayerVisible = true;
+  function applyMiniPlayerVisibility() {
+    const visible = !largePlayerVisible &&
+      document.documentElement.dataset.miniPlayerVisible !== "false";
+
+    document.body.classList.toggle("mini-player-visible", visible);
+    miniPlayer.setAttribute("aria-hidden", String(!visible));
+    miniPlayer.inert = !visible;
+    if (visible) syncMiniPlayer();
+  }
 
   const playerObserver =
     new IntersectionObserver(
@@ -14091,37 +14231,8 @@ initialise();
         }
 
 
-        const largePlayerVisible =
-          entry.isIntersecting;
-
-
-        document.body
-          .classList
-          .toggle(
-            "mini-player-visible",
-            !largePlayerVisible
-          );
-
-
-        miniPlayer.setAttribute(
-          "aria-hidden",
-          largePlayerVisible
-            ? "true"
-            : "false"
-        );
-
-
-        miniPlayer.inert =
-          largePlayerVisible;
-
-
-        if (
-          !largePlayerVisible
-        ) {
-
-          syncMiniPlayer();
-
-        }
+        largePlayerVisible = entry.isIntersecting;
+        applyMiniPlayerVisibility();
 
       },
       {
@@ -14204,12 +14315,20 @@ initialise();
     }
   );
 
-  // Instelling in de grote player direct spiegelen in de miniplayer.
-  contentObserver.observe(
+  // Instellingen direct spiegelen zonder de track- of programmabron te wijzigen.
+  const settingsObserver = new MutationObserver(() => {
+    applyMiniPlayerVisibility();
+    syncMiniPlayer();
+  });
+  settingsObserver.observe(
     document.documentElement,
     {
       attributes: true,
-      attributeFilter: ["data-track-info-visible"]
+      attributeFilter: [
+        "data-track-info-visible",
+        "data-program-info-visible",
+        "data-mini-player-visible"
+      ]
     }
   );
 
