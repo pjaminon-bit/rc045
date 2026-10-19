@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'radio.html'
+      - 'be-nowplaying.php'
       - 'radio-artwork.php'
       - 'radio-artwork-release-select.php'
       - 'radio-artwork-photo-select.php'
@@ -41,6 +42,7 @@ jobs:
         run: node --test tests/radio-technical.test.cjs tests/radio-local-assets.test.cjs tests/radio-spotify-link.test.cjs tests/radio-artwork.test.cjs tests/radio-artwork-catalog.test.cjs
       - name: Controleer PHP artwork selectie en syntax
         run: |
+          php -l be-nowplaying.php
           php -l radio-artwork.php
           php -l radio-artwork-release-select.php
           php -l radio-artwork-photo-select.php
