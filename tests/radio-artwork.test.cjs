@@ -55,6 +55,7 @@ function env() {
     trackArtworkBackground: image,
     artworkCredit: credit,
     albumArtEnabled: true,
+    artistPhotoEnabled: true, // De testsimulatie gebruikt de standaard actieve artiestenfallback.
     albumArtToggle: toggle,
     trackInfo: {hidden: true},
     currentTrack: {artist: '', title: ''},
