@@ -130,21 +130,33 @@ try {
     assert.equal(await menu.getAttribute('aria-expanded'), 'true');
     assert.ok(await settingsPanel.isVisible(), 'instellingen openen op alle schermformaten');
 
-    // Alleen de kleurkeuze, themakanalen en één uitklapbare optie zijn
-    // direct zichtbaar. De zeven bestaande voorkeuren blijven apart bruikbaar.
+    // Compact blijft compact, maar beide direct zichtbare instellingen
+    // gebruiken dezelfde checkbox, dezelfde maat en rechter uitlijning.
     const advanced = page.locator('#settingsDisplayOptions');
     assert.equal(await advanced.getAttribute('open'),null,
       'weergaveopties standaard ingeklapt');
-    assert.equal(await page.locator('#displaySettingsPanel .settings-row input:visible').count(),1,
-      'standaard slechts één zichtbare schakelaar');
-    const themeChoice=page.locator('#themeModeButton');
-    assert.ok(await themeChoice.isVisible(), 'compacte licht/donker-keuze zichtbaar');
-    await themeChoice.click();
+    const primarySwitches = await page.locator(
+      '#displaySettingsPanel .settings-main-row input[type="checkbox"]'
+    ).evaluateAll(inputs => inputs.map(input => {
+      const b=input.getBoundingClientRect();
+      return {id:input.id,width:b.width,height:b.height,right:b.right};
+    }));
+    assert.deepEqual(primarySwitches.map(x=>x.id), [
+      'darkModeToggle','showThemeStationsToggle'
+    ]);
+    assert.ok(primarySwitches.every(x=>x.width===44 && x.height===26),
+      'beide hoofdschakelaars hebben identieke afmetingen');
+    assert.ok(Math.abs(primarySwitches[0].right-primarySwitches[1].right)<1,
+      'hoofdschakelaars zijn rechts uitgelijnd');
+    assert.equal(await page.locator(
+      '#displaySettingsPanel .settings-row input:visible').count(),2,
+      'standaard slechts twee zichtbare schakelaars');
+
+    const darkMode=page.locator('#darkModeToggle');
+    await darkMode.check();
     assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
-    assert.equal(await page.locator('#themeModeLabel').innerText(),'Donker');
-    await themeChoice.click();
+    await darkMode.uncheck();
     assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
-    assert.equal(await page.locator('#themeModeLabel').innerText(),'Licht');
 
     await page.locator('#settingsDisplayOptions > summary').click();
     assert.notEqual(await advanced.getAttribute('open'),null);
