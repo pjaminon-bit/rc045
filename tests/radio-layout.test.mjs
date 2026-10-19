@@ -124,29 +124,48 @@ try {
 
     const menu = page.locator('#displaySettingsButton');
     const settingsPanel = page.locator('#displaySettingsPanel');
-    if (width <= 760) {
-      assert.ok(await menu.isVisible(), 'mobile display settings menu should be visible at ' + width);
-      assert.equal(await settingsPanel.isVisible(), false, 'settings should default closed');
-      await menu.click();
-      assert.equal(await menu.getAttribute('aria-expanded'), 'true');
-      assert.ok(await page.locator('#albumArtToggle').isVisible(), 'albumart toggle remains usable');
-      assert.ok(await page.locator('#themeSwitcher').isVisible(), 'theme controls remain usable');
-      const themeTargets = await page.locator('.theme-option').evaluateAll(nodes =>
-        nodes.map(n => ({width:n.getBoundingClientRect().width, height:n.getBoundingClientRect().height}))
-      );
-      for (const box of themeTargets)
-        assert.ok(box.width >= 43 && box.height >= 43, 'theme button must be 44px');
-      await page.locator('[data-theme-choice="dark"]').click();
-      assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark',
-        'theme selection should still work');
-      await page.keyboard.press('Escape');
-      assert.equal(await menu.getAttribute('aria-expanded'), 'false');
-      assert.equal(await settingsPanel.isVisible(), false, 'Escape closes mobile settings');
-    } else {
-      assert.equal(await menu.isVisible(), false, 'desktop settings menu button should be hidden');
-      assert.ok(await page.locator('#albumArtToggle').isVisible(), 'desktop albumart visible');
-      assert.ok(await page.locator('#themeSwitcher').isVisible(), 'desktop theme visible');
-    }
+    assert.ok(await menu.isVisible(), 'instellingenknop ook op desktop zichtbaar');
+    assert.equal(await settingsPanel.isVisible(), false, 'instellingen standaard gesloten');
+    await menu.click();
+    assert.equal(await menu.getAttribute('aria-expanded'), 'true');
+    assert.ok(await settingsPanel.isVisible(), 'instellingen openen op alle schermformaten');
+
+    // Drie gelijke instellingenrijen, met drie identieke schakelaars
+    // en hetzelfde uitlijningspunt, op iOS-formaat en desktop.
+    const settings = await page.locator('#displaySettingsPanel .settings-row').evaluateAll(rows => {
+      return rows.map(row => {
+        const input = row.querySelector('input');
+        const rowBox = row.getBoundingClientRect();
+        const inputBox = input.getBoundingClientRect();
+        return {
+          label: row.textContent.trim(),
+          rowWidth: rowBox.width,
+          height: rowBox.height,
+          inputWidth: inputBox.width,
+          inputHeight: inputBox.height,
+          right: inputBox.right
+        };
+      });
+    });
+    assert.deepEqual(settings.map(row => row.label),
+      ['Albumart tonen','Toon thema zenders','Donkere modus']);
+    assert.ok(settings.every(row => row.height >= 44 &&
+      row.inputWidth === 44 && row.inputHeight === 26),
+      'gelijke touchrijen en schakelaars');
+    assert.ok(settings.every(row => Math.abs(row.right-settings[0].right) < 1),
+      'schakelaars rechts op één lijn');
+
+    const darkMode=page.locator('#darkModeToggle');
+    await darkMode.check();
+    assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+    await darkMode.uncheck();
+    assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
+    assert.ok(await page.locator('#albumArtToggle').isVisible());
+    assert.ok(await page.locator('#showThemeStationsToggle').isVisible());
+    await page.keyboard.press('Escape');
+    assert.equal(await menu.getAttribute('aria-expanded'), 'false');
+    assert.equal(await settingsPanel.isVisible(), false);
+
 
     await page.locator('#status').evaluate(node => { node.textContent = 'Geen internetverbinding'; });
     await page.waitForFunction(() => document.querySelector('#status')?.dataset.tone === 'error');
@@ -173,7 +192,7 @@ try {
       station:stations[currentIndex].id,
       src:document.getElementById('audio').src
     }));
-    if (width<=760) await page.locator('#displaySettingsButton').click();
+    await page.locator('#displaySettingsButton').click();
     await toggle.uncheck();
     assert.equal(await toggle.isChecked(),false);
     assert.equal(await page.locator('.station[data-station-id="538"]').count(),1,
@@ -213,7 +232,7 @@ try {
     assert.ok(await page.locator('.station[data-station-id="slammix"]').isVisible(),
       'de zoekfunctie toont nog steeds thema na herladen');
 
-    if (width<=760) await page.locator('#displaySettingsButton').click();
+    await page.locator('#displaySettingsButton').click();
     await toggle.check();
     await input.fill('');
     assert.ok(await page.locator('[data-radio-family="538"]').isVisible(),
