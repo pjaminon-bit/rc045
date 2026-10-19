@@ -41,43 +41,50 @@ test('geen technische diagnose, zonder andere playerfuncties te verliezen', () =
   assert.match(html, /async function play\(/);
 });
 
-test('Licht/Donker: zonder voorkeur OS volgen, daarna handmatig bewaren', () => {
-  const choices = [...html.matchAll(/data-theme-choice="([^"]+)"/g)].map(m => m[1]);
-  assert.deepEqual(choices, ['light', 'dark']);
-  assert.doesNotMatch(html, /theme-option-system/);
+test('Licht/Donker: één consistente schakelaar, OS volgen tot handmatige keuze', () => {
+  assert.match(html, /id="darkModeToggle" type="checkbox"/);
+  assert.doesNotMatch(html, /data-theme-choice=/);
   const themeJS = part('const THEME_KEY =',
     '/* =========================================================\n   FAVORITES / COUNTRIES\n');
   const storage = new Map(), query = {
     matches: true, addEventListener(_event, callback) { this.changed = callback; }
   };
-  const buttons = choices.map(choice => ({
-    dataset: {themeChoice: choice}, attrs: {},
-    addEventListener() {}, classList: {toggle() {}},
-    setAttribute(key,val) {this.attrs[key] = val;}
-  }));
-  const switcher = { dataset: {}, setAttribute() {} }, themeColor = {content: ''};
+  const events = new Map();
+  const darkModeToggle = {
+    checked: false, title: '',
+    addEventListener(event, callback) { events.set(event, callback); }
+  };
+  const themeColor = {content: ''};
   const ctx = {
     document: {documentElement: {dataset: {theme: 'system'}}},
     window: {matchMedia() {return query;}}, themeColor,
-    themeSwitcher: switcher, themeButtons: buttons,
-    localStorage: {getItem(k) {return storage.get(k) ?? null;},
-      setItem(k,v) {storage.set(k,v);}}
+    darkModeToggle,
+    localStorage: {
+      getItem(k) {return storage.get(k) ?? null;},
+      setItem(k,v) {storage.set(k,v);}
+    }
   };
   const api = new Function('ctx',
     'with(ctx){' + themeJS + '\nreturn {applyTheme,getResolvedTheme};}'
   )(ctx);
-  assert.equal(switcher.dataset.state, 'light');
+  assert.equal(darkModeToggle.checked, false);
   assert.equal(storage.has('radio-theme'), false);
   query.matches = false; query.changed();
-  assert.equal(switcher.dataset.state, 'dark');
+  assert.equal(darkModeToggle.checked, true);
   assert.equal(themeColor.content, '#080a0f');
-  api.applyTheme('light');
+  darkModeToggle.checked = false;
+  events.get('change')();
   assert.equal(storage.get('radio-theme'), 'light');
   query.matches = true; query.changed();
   query.matches = false; query.changed();
-  assert.equal(switcher.dataset.state, 'light');
-  assert.equal(buttons[0].attrs['aria-pressed'], 'true');
+  assert.equal(darkModeToggle.checked, false);
+  assert.equal(ctx.document.documentElement.dataset.theme, 'light');
+  darkModeToggle.checked = true;
+  events.get('change')();
+  assert.equal(storage.get('radio-theme'), 'dark');
+  assert.equal(ctx.document.documentElement.dataset.theme, 'dark');
 });
+
 
 test('alle 13 regionale publieke omroepen inclusief dubbel Zuid-Holland', () => {
   const st = html.slice(html.indexOf('const stations = ['), html.indexOf('/* =========================================================\n   ELEMENTS'));
