@@ -60,6 +60,15 @@ RewriteRule ^ https://rc045.nl%{REQUEST_URI} [R=301,L]
 </IfModule>
 
 
+# ===== Radiopagina en PWA-updates altijd opnieuw valideren =====
+# Alleen deze drie radio-shell-bestanden: overige RC045-pagina's en
+# afbeeldingen behouden hun bestaande cachegedrag.
+<IfModule mod_headers.c>
+<FilesMatch "^(radio\.html|radio-sw\.js|radio-manifest\.json)$">
+  Header always set Cache-Control "private, no-cache, max-age=0, must-revalidate"
+</FilesMatch>
+</IfModule>
+
 # ===== Standaard homepage =====
 DirectoryIndex index.php index.html
 
