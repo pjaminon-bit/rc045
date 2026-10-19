@@ -1,5 +1,5 @@
 /* Alleen de radio-shell cachen; externe streams en trackinfo blijven live. */
-const CACHE_NAME = "radio-shell-v2";
+const CACHE_NAME = "radio-shell-v3";
 const SHELL_FILES = [
   "/radio.html",
   "/radio-manifest.json",
@@ -14,7 +14,7 @@ self.addEventListener("install", (event) => {
       .then(async (cache) => {
         // De offline radio-interface is essentieel, maar optionele iconen
         // mogen een update van de serviceworker niet blokkeren.
-        await cache.add("/radio.html");
+        await cache.add(new Request("/radio.html", { cache: "reload" }));
         await Promise.allSettled(
           SHELL_FILES.filter((path) => path !== "/radio.html")
             .map((path) => cache.add(path))
@@ -47,7 +47,9 @@ self.addEventListener("fetch", (event) => {
   // offline de laatst opgehaalde versie van de radio-shell.
   if (request.mode === "navigate" && url.pathname === "/radio.html") {
     event.respondWith(
-      fetch(request)
+      // Sla de HTTP-cache over: na een merge nooit stilzwijgend een oude HTML-shell.
+      // De Cache Storage-kopie blijft beschikbaar als offline-fallback.
+      fetch(request, { cache: "no-store" })
         .then(async (response) => {
           if (response.ok) {
             try {
