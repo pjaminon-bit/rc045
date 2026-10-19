@@ -197,25 +197,25 @@
       "source": null,
       "group": "pinguin",
       "title": "Pop",
-      "base": "assets/radio/logos/pinguin.png"
+      "base": "assets/radio/logos/pinguin.svg"
     },
     "pinguinclassics": {
       "source": null,
       "group": "pinguin",
       "title": "Classics",
-      "base": "assets/radio/logos/pinguin.png"
+      "base": "assets/radio/logos/pinguin.svg"
     },
     "pinguingroove": {
       "source": null,
       "group": "pinguin",
       "title": "Groove",
-      "base": "assets/radio/logos/pinguin.png"
+      "base": "assets/radio/logos/pinguin.svg"
     },
     "pinguinblues": {
       "source": null,
       "group": "pinguin",
       "title": "Blues",
-      "base": "assets/radio/logos/pinguin.png"
+      "base": "assets/radio/logos/pinguin.svg"
     },
     "kink80s": {
       "source": "https://www.radiozenders.fm/media/images/stations/kink-80s.png",
