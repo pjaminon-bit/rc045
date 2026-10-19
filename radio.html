@@ -8563,14 +8563,19 @@ function renderStations() {
     grid.className="country-stations";
     const ordered=getCountryOrder(country.code);
     const alreadyShown=new Set();
+    // De instelling geldt voor het normale overzicht, nooit voor de zoekfunctie.
+    // Zodra iemand zoekt zijn alle themakanalen doorzoekbaar, ook als de
+    // themakanalen in de standaardweergave uitgeschakeld zijn.
+    const includeThemeStations = showThemeStations ||
+      Boolean(document.getElementById("stationSearchInput")?.value.trim());
 
     for (const {station,index} of ordered) {
       const family=country.code==="NL"
         ? radioFamilyForStation.get(station.id) : null;
 
-      if (!showThemeStations) {
-        // Alleen hoofdzenders blijven zichtbaar. Pinguin heeft geen
-        // hoofdstation en wordt daarom volledig uit de lijst weggelaten.
+      if (!includeThemeStations) {
+        // Alleen in het gewone overzicht: verberg alle thema's, behoud
+        // de hoofdzenders. Zoekresultaten gebruiken wél de complete lijst.
         if (family && family.main !== station.id) continue;
         if (country.code==="BE" && BE_THEME_STATION_IDS.has(station.id)) continue;
         grid.appendChild(createStationCard(station,index));
@@ -14304,8 +14309,9 @@ initialise();
 
   input.addEventListener("input", () => {
     searchCollapsedRadioFamilies.clear();
-    if (!normalise(input.value)) {
-      // renderStations herstelt het gekozen tabblad.
+    // Bij uitgeschakelde themakanalen moet de zoekfunctie de volledige lijst
+    // tijdelijk opnieuw opbouwen. De audioplayer en huidige zender veranderen niet.
+    if (!showThemeStations || !normalise(input.value)) {
       renderStations();
     }
     applyFilter();
