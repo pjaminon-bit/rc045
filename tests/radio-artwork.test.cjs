@@ -334,10 +334,10 @@ test('server onderscheidt tijdelijke fouten van echte missers en beperkt API-ver
   assert.ok(html.includes('data.status === "temporary_error" ? 30000'));
 });
 
-test('LIVE is kleiner met album- of artiestenart; gewone tegel houdt oorspronkelijke afmetingen', () => {
-  assert.ok(html.includes('    .playing-indicator {') && html.includes('      height: 32px;'));
-  assert.ok(html.includes('    .artwork.has-track-artwork .playing-indicator {') && html.includes('      height: 24px;'));
-  assert.ok(html.includes('    .artwork.has-track-artwork .live-dot {') && html.includes('      width: 5px;'));
+test('LIVE blijft altijd compact met of zonder album- of artiestenart', () => {
+  assert.ok(html.includes('LIVE behoudt altijd dezelfde compacte maat'));
+  assert.match(html, /\.playing-indicator\s*\{[^}]*height:\s*24px;/s);
+  assert.match(html, /\.live-dot\s*\{[^}]*width:\s*5px;/s);
 });
 
 test('foto wordt direct getoond als de server geen geschikte albumhoes vond', async () => {
