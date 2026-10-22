@@ -1859,32 +1859,42 @@
       flex:1 1 0; width:auto; min-width:0; padding:10px 0 10px 12px;
     }
     .station-family .station-name { position:static; margin:0; }
+    /* Disclosure-knop (WAI-ARIA): dezelfde visuele rust als de favorietenster.
+       Het klikvlak blijft 44px, ook zonder permanente knopachtergrond. */
     .station-family-toggle {
       appearance:none; flex:0 0 44px; align-self:center;
       display:grid; place-items:center;
       width:44px; height:44px; margin:0 2px 0 0; padding:0;
-      border:1px solid var(--border); border-radius:12px;
-      background:rgba(128,128,128,.09); color:var(--muted);
-      cursor:pointer;
+      border:0; border-radius:12px;
+      background:transparent; color:var(--muted);
+      cursor:pointer; opacity:.82;
+      transition:background .18s ease, color .18s ease, opacity .18s ease;
     }
-    .station-family-toggle:hover,
+    @media (hover:hover) {
+      .station-family-toggle:hover {
+        background:rgba(128,128,128,.08); color:var(--text); opacity:1;
+      }
+    }
     .station-family-toggle[aria-expanded="true"] {
-      color:var(--text); background:rgba(128,128,128,.17);
+      color:var(--text); opacity:1;
     }
     .station-family-toggle:focus-visible {
-      outline:2px solid var(--text); outline-offset:2px;
+      outline:2px solid var(--text); outline-offset:1px;
     }
     .station-family-chevron {
-      display:grid; place-items:center; width:24px; height:24px;
+      display:grid; place-items:center; width:20px; height:20px;
       transition:transform .18s ease;
     }
     .station-family-chevron svg {
-      width:24px; height:24px; display:block;
-      fill:none; stroke:currentColor; stroke-width:2.7;
+      width:20px; height:20px; display:block;
+      fill:none; stroke:currentColor; stroke-width:2.2;
       stroke-linecap:round; stroke-linejoin:round;
     }
     .station-family-toggle[aria-expanded="true"] .station-family-chevron {
       transform:rotate(180deg);
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .station-family-toggle,.station-family-chevron { transition:none; }
     }
     .station-family .favorite-button {
       position:static; flex:0 0 44px; transform:none; margin:0 8px 0 0;
@@ -8622,7 +8632,7 @@ function decorateRadioFamilyCard(card,family) {
   const chevron=document.createElement("span");
   chevron.className="station-family-chevron";
   chevron.setAttribute("aria-hidden","true");
-  chevron.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 9 7 7 7-7"/></svg>';
+  chevron.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
   toggle.append(chevron);
   toggle.addEventListener("click",()=>toggleRadioFamily(family.id));
   // Knoppenvolgorde: zender afspelen, themazenders uitklappen, favoriet.
