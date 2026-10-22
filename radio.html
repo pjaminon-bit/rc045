@@ -3196,6 +3196,11 @@
         background var(--ui-motion-fast);
     }
     .station-search { border-radius: var(--ui-radius-control); }
+    /* Het zoekveld mag nooit breder zijn dan de complete landkeuze met ster.
+       De werkelijke breedte wordt responsief bijgehouden via ResizeObserver. */
+    .station-toolbar .station-search {
+      max-width: min(100%, var(--radio-country-tabs-width, 100%));
+    }
     .station-search-clear {
       width: 44px;
       height: 44px;
@@ -14555,6 +14560,26 @@ initialise();
 
   if (!input || !clear || !summary || !stationsRoot
       || tabs.length !== 3 || countryFavoriteButtons.length !== 1) return;
+
+  // Maximaal zo breed als NL | NL Lokaal | BE | favoriet, ook bij
+  // mobiel, browserzoom, grotere tekst of gewijzigde schermbreedte.
+  const toolbar = document.querySelector(".station-toolbar");
+  const countryTabs = document.getElementById("radioCountryTabs");
+  if (toolbar && countryTabs) {
+    const syncSearchWidth = () => {
+      const width = countryTabs.getBoundingClientRect().width;
+      if (width > 0) {
+        toolbar.style.setProperty("--radio-country-tabs-width",
+          Math.floor(width * 100) / 100 + "px");
+      }
+    };
+    syncSearchWidth();
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(syncSearchWidth).observe(countryTabs);
+    } else {
+      window.addEventListener("resize", syncSearchWidth);
+    }
+  }
 
   function updateTabs() {
     for (const tab of tabs) {
