@@ -1650,6 +1650,8 @@
 
     .country-stations {
       display: grid;
+      /* Voorkom dat kaarten zonder themazenders uitrekken tot de rijhoogte. */
+      align-items: start;
 
       grid-template-columns:
         repeat(
