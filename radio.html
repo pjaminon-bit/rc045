@@ -3196,10 +3196,11 @@
         background var(--ui-motion-fast);
     }
     .station-search { border-radius: var(--ui-radius-control); }
-    /* Het zoekveld mag nooit breder zijn dan de complete landkeuze met ster.
-       De werkelijke breedte wordt responsief bijgehouden via ResizeObserver. */
+    /* Zoekveld bewust 16px smaller dan de landkeuze inclusief favorietenster.
+       Reserve voorkomt optisch gelijke/bredere velden door subpixelafronding. */
     .station-toolbar .station-search {
       max-width: min(100%, var(--radio-country-tabs-width, 100%));
+      box-sizing: border-box;
     }
     .station-search-clear {
       width: 44px;
@@ -14569,8 +14570,10 @@ initialise();
     const syncSearchWidth = () => {
       const width = countryTabs.getBoundingClientRect().width;
       if (width > 0) {
+        // Ruimte houden zodat het zoekveld zichtbaar smaller blijft.
+        // Afronden naar beneden voorkomt een breder veld op hoge zoom/DPR.
         toolbar.style.setProperty("--radio-country-tabs-width",
-          Math.floor(width * 100) / 100 + "px");
+          Math.max(0, Math.floor(width) - 16) + "px");
       }
     };
     syncSearchWidth();
