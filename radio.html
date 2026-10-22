@@ -1650,8 +1650,8 @@
 
     .country-stations {
       display: grid;
-      /* Voorkom dat kaarten zonder themazenders uitrekken tot de rijhoogte. */
-      align-items: start;
+      /* Alle zendertegels even hoog, zodat de gridrijen aansluiten. */
+      align-items: stretch;
 
       grid-template-columns:
         repeat(
@@ -1849,19 +1849,26 @@
 
 
     /* Geclusterde themakanalen: uitsluitend presentatie. */
-    .station.station-family { display:flex; flex-direction:column; min-height:126px; }
+    /* Hoofdkaarten zijn overal even hoog. Het thema-aantal staat als tweede
+       tekstregel in dezelfde kaart in plaats van als extra footer eronder. */
+    .country-stations > .station > .station-select { min-height:82px; }
+    .station.station-family { display:block; }
     .station.station-family[hidden] { display:none; }
-    .station-family .station-select { flex:1 1 auto; min-height:86px; padding:12px 16px 9px; }
-    .station-family .station-name { margin-top:7px; }
+    .station-family .station-select { padding:10px 60px 10px 12px; }
+    .station-family .station-name {
+      position:absolute; top:12px; left:66px; right:60px; margin:0;
+    }
     .station-family-toggle {
-      display:flex; align-items:center; justify-content:space-between;
-      gap:8px; width:100%; min-height:36px; padding:7px 12px 7px 15px;
-      border:0; border-top:1px solid var(--border);
+      position:absolute; z-index:2; left:66px; right:60px; bottom:8px;
+      display:flex; align-items:center; justify-content:flex-start;
+      gap:5px; width:auto; min-height:26px; padding:2px 0;
+      border:0; border-radius:5px;
       background:transparent; color:var(--muted); font:inherit;
       font-size:11px; font-weight:650; text-align:left; cursor:pointer;
     }
     .station-family-toggle:hover,
     .station-family-toggle[aria-expanded="true"] { color:var(--text); background:var(--panel-hover); }
+    .station-family-toggle:focus-visible { outline:2px solid var(--text); outline-offset:2px; }
     .station-family-chevron { flex:0 0 auto; font-size:14px; line-height:1; }
     .station-family-toggle-label { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
     .station-family-playing {
@@ -1909,8 +1916,9 @@
     .station-theme-grid .favorite-button { top:20px; right:5px; opacity:.72; }
     .station-theme-grid .station.active { border-color:rgba(var(--accent-rgb),.52); }
     @media (max-width:420px) {
-      .station-family .station-select { min-height:77px; padding:11px 13px 8px; }
-      .station-family-toggle { padding-inline:12px; }
+      .station-family .station-select { padding:8px 54px 8px 10px; }
+      .station-family .station-name,
+      .station-family-toggle { left:60px; }
       .station-theme-panel { padding:12px; }
       .station-theme-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .station-theme-grid .station-select { min-height:66px; padding:9px 34px 9px 8px; gap:7px; }
