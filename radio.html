@@ -1848,29 +1848,47 @@
 
 
 
-    /* Geclusterde themakanalen: uitsluitend presentatie. */
-    /* Compacter formaat: alle hoofdzenders hebben dezelfde hoogte.
-       Namen blijven op de middellijn; de themaregel sluit direct eronder aan. */
+    /* Geclusterde themakanalen: één compacte kaarthoogte zonder tweede tekstregel.
+       De uitklappijl is een eigen 44px-knop tussen de zendernaam en favoriet. */
     .country-stations > .station > .station-select { min-height:78px; }
-    .station.station-family { display:block; }
+    .station.station-family {
+      display:flex; align-items:center; min-height:78px;
+    }
     .station.station-family[hidden] { display:none; }
-    .station-family .station-select { padding:10px 60px 10px 12px; }
-    /* De titel blijft bij ieder station verticaal gecentreerd.
-       Plaats de themaregel op een vaste afstand van de titel, niet van de onderrand. */
+    .station-family .station-select {
+      flex:1 1 0; width:auto; min-width:0; padding:10px 0 10px 12px;
+    }
     .station-family .station-name { position:static; margin:0; }
     .station-family-toggle {
-      position:absolute; z-index:2; left:66px; right:60px; top:calc(50% + 11px);
-      display:flex; align-items:center; justify-content:flex-start;
-      gap:6px; width:auto; min-height:20px; padding:0;
-      border:0; border-radius:5px;
-      background:transparent; color:var(--muted); font:inherit;
-      font-size:12px; font-weight:650; text-align:left; cursor:pointer;
+      appearance:none; flex:0 0 44px; align-self:center;
+      display:grid; place-items:center;
+      width:44px; height:44px; margin:0 2px 0 0; padding:0;
+      border:1px solid var(--border); border-radius:12px;
+      background:rgba(128,128,128,.09); color:var(--muted);
+      cursor:pointer;
     }
     .station-family-toggle:hover,
-    .station-family-toggle[aria-expanded="true"] { color:var(--text); background:var(--panel-hover); }
-    .station-family-toggle:focus-visible { outline:2px solid var(--text); outline-offset:2px; }
-    .station-family-chevron { flex:0 0 auto; font-size:14px; line-height:1; }
-    .station-family-toggle-label { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .station-family-toggle[aria-expanded="true"] {
+      color:var(--text); background:rgba(128,128,128,.17);
+    }
+    .station-family-toggle:focus-visible {
+      outline:2px solid var(--text); outline-offset:2px;
+    }
+    .station-family-chevron {
+      display:grid; place-items:center; width:24px; height:24px;
+      transition:transform .18s ease;
+    }
+    .station-family-chevron svg {
+      width:24px; height:24px; display:block;
+      fill:none; stroke:currentColor; stroke-width:2.7;
+      stroke-linecap:round; stroke-linejoin:round;
+    }
+    .station-family-toggle[aria-expanded="true"] .station-family-chevron {
+      transform:rotate(180deg);
+    }
+    .station-family .favorite-button {
+      position:static; flex:0 0 44px; transform:none; margin:0 8px 0 0;
+    }
     .station-family-playing {
       border-color:rgba(var(--accent-rgb),.52);
       background:rgba(var(--accent-rgb),.09);
@@ -8599,23 +8617,19 @@ function decorateRadioFamilyCard(card,family) {
   toggle.className="station-family-toggle";
   toggle.setAttribute("aria-controls","radioThemePanel-"+family.id);
   toggle.setAttribute("aria-expanded","false");
-  toggle.setAttribute("aria-label",family.themes.length+
-    (family.themes.length===1?" themakanaal van ":" themakanalen van ")+
-    family.name+" bekijken");
-  const label=document.createElement("span");
-  label.className="station-family-toggle-label";
-  label.textContent=radioThemeCountLabel(family.themes.length);
+  toggle.setAttribute("aria-label",
+    "Toon "+radioThemeCountLabel(family.themes.length)+" van "+family.name);
   const chevron=document.createElement("span");
   chevron.className="station-family-chevron";
   chevron.setAttribute("aria-hidden","true");
-  chevron.textContent="⌄";
-  toggle.append(label,chevron);
+  chevron.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 9 7 7 7-7"/></svg>';
+  toggle.append(chevron);
   toggle.addEventListener("click",()=>toggleRadioFamily(family.id));
-  card.appendChild(toggle);
+  // Knoppenvolgorde: zender afspelen, themazenders uitklappen, favoriet.
+  card.insertBefore(toggle,card.querySelector(".favorite-button"));
   const active=stations[currentIndex];
   if (family.themes.includes(active?.id)) {
     card.classList.add("station-family-playing");
-    label.textContent="▶ "+shortRadioThemeName(active,family);
   }
   return card;
 }
@@ -9568,12 +9582,7 @@ function updateActiveStationCards() {
       const family=radioFamilyById.get(card.dataset.radioFamily);
       const themePlaying=Boolean(family && family.themes.includes(activeId));
       card.classList.toggle("station-family-playing",themePlaying);
-      const label=card.querySelector(".station-family-toggle-label");
-      if (label && family) {
-        label.textContent=themePlaying
-          ? "▶ "+shortRadioThemeName(stations[currentIndex],family)
-          : radioThemeCountLabel(family.themes.length);
-      }
+      // Geen tweede themaregel meer; de actieve familie blijft wel gemarkeerd.
     }
   }
 }
@@ -14635,8 +14644,9 @@ initialise();
         const toggle=card.querySelector(".station-family-toggle");
         if (toggle) {
           toggle.setAttribute("aria-expanded",String(expanded && visibleFamily));
-          const arrow=toggle.querySelector(".station-family-chevron");
-          if (arrow) arrow.textContent=expanded?"⌃":"⌄";
+          toggle.setAttribute("aria-label",
+            (expanded?"Verberg ":"Toon ")+
+            radioThemeCountLabel(family.themes.length)+" van "+family.name);
         }
       }
       group.hidden=query?visible===0:group.dataset.country!==activeTab;
