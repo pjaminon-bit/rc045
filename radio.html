@@ -1851,20 +1851,20 @@
     /* Geclusterde themakanalen: uitsluitend presentatie. */
     /* Hoofdkaarten zijn overal even hoog. Het thema-aantal staat als tweede
        tekstregel in dezelfde kaart in plaats van als extra footer eronder. */
-    .country-stations > .station > .station-select { min-height:82px; }
+    .country-stations > .station > .station-select { min-height:90px; }
     .station.station-family { display:block; }
     .station.station-family[hidden] { display:none; }
     .station-family .station-select { padding:10px 60px 10px 12px; }
-    .station-family .station-name {
-      position:absolute; top:12px; left:66px; right:60px; margin:0;
-    }
+    /* De zendernaam blijft, net als bij gewone kaarten, naast het logo
+       verticaal gecentreerd. Alleen de themaregel staat er los onder. */
+    .station-family .station-name { position:static; margin:0; }
     .station-family-toggle {
-      position:absolute; z-index:2; left:66px; right:60px; bottom:8px;
+      position:absolute; z-index:2; left:66px; right:60px; bottom:5px;
       display:flex; align-items:center; justify-content:flex-start;
-      gap:5px; width:auto; min-height:26px; padding:2px 0;
+      gap:6px; width:auto; min-height:20px; padding:0;
       border:0; border-radius:5px;
       background:transparent; color:var(--muted); font:inherit;
-      font-size:11px; font-weight:650; text-align:left; cursor:pointer;
+      font-size:12px; font-weight:650; text-align:left; cursor:pointer;
     }
     .station-family-toggle:hover,
     .station-family-toggle[aria-expanded="true"] { color:var(--text); background:var(--panel-hover); }
@@ -1917,7 +1917,6 @@
     .station-theme-grid .station.active { border-color:rgba(var(--accent-rgb),.52); }
     @media (max-width:420px) {
       .station-family .station-select { padding:8px 54px 8px 10px; }
-      .station-family .station-name,
       .station-family-toggle { left:60px; }
       .station-theme-panel { padding:12px; }
       .station-theme-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -8588,6 +8587,10 @@ function positionRadioThemePanels() {
 window.addEventListener("resize",() =>
   window.requestAnimationFrame(positionRadioThemePanels));
 
+function radioThemeCountLabel(count) {
+  return count+" "+(count===1?"themazender":"themazenders");
+}
+
 function decorateRadioFamilyCard(card,family) {
   card.classList.add("station-family");
   card.dataset.radioFamily=family.id;
@@ -8598,10 +8601,11 @@ function decorateRadioFamilyCard(card,family) {
   toggle.setAttribute("aria-controls","radioThemePanel-"+family.id);
   toggle.setAttribute("aria-expanded","false");
   toggle.setAttribute("aria-label",family.themes.length+
-    " themakanalen van "+family.name+" bekijken");
+    (family.themes.length===1?" themakanaal van ":" themakanalen van ")+
+    family.name+" bekijken");
   const label=document.createElement("span");
   label.className="station-family-toggle-label";
-  label.textContent=family.themes.length+" themazenders";
+  label.textContent=radioThemeCountLabel(family.themes.length);
   const chevron=document.createElement("span");
   chevron.className="station-family-chevron";
   chevron.setAttribute("aria-hidden","true");
@@ -9569,7 +9573,7 @@ function updateActiveStationCards() {
       if (label && family) {
         label.textContent=themePlaying
           ? "▶ "+shortRadioThemeName(stations[currentIndex],family)
-          : family.themes.length+" themazenders";
+          : radioThemeCountLabel(family.themes.length);
       }
     }
   }
