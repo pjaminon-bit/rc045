@@ -1,8 +1,11 @@
-name: RC045 - FTPS deployment (test)
+name: RC045 - FTPS deployment (dry-run)
 
-# Migratie naar nieuwe host: pas na geslaagde test push-trigger en dry-run aanpassen.
+# Migratie naar nieuwe host: eerst volledige dry-run, daarna echte deployment.
 # FTP-account begint direct in public_html; server-dir is daarom ./, niet public_html/.
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -15,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Controleer FTP-deployment zonder te uploaden
+      - name: Controleer FTPS-deployment zonder te uploaden
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ams101.yourwebhoster.com
@@ -26,6 +29,7 @@ jobs:
           local-dir: ./
           server-dir: ./
           dry-run: true
+          security: strict
           dangerous-clean-slate: false
           exclude: |
             **/.git*
@@ -35,6 +39,7 @@ jobs:
             docs/**
             scripts/**
             tests/**
+            ftp-test/**
             README.md
             .htaccess
             .user.ini
