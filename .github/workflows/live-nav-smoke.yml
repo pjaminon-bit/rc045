@@ -1,0 +1,30 @@
+name: Controleer live publieke menu-CSS
+
+on:
+  push:
+    branches:
+      - test/live-public-menu-css
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Controleer daadwerkelijke live HTML en CSS
+        run: |
+          set -euo pipefail
+          curl -fsSL --max-time 30 -H 'Cache-Control: no-cache' -D /tmp/rc045-css-headers -o /tmp/rc045-css-body https://rc045.nl/site-styles.php
+          grep -qi '^Content-Type: text/css' /tmp/rc045-css-headers
+          grep -qi '^Cache-Control: .*no-store' /tmp/rc045-css-headers
+          grep -Fq 'navJoinGlow' /tmp/rc045-css-body
+          grep -Fq '.nav-links .nav-lid.nav-active a' /tmp/rc045-css-body
+          for url in https://rc045.nl/ https://rc045.nl/aanmelden.html; do
+            echo "Controleer $url"
+            curl -fsSL --max-time 30 -H 'Cache-Control: no-cache' -o /tmp/rc045-page.html "$url"
+            grep -Fq 'href="site-styles.php"' /tmp/rc045-page.html
+            grep -Fq 'id="nav-join"' /tmp/rc045-page.html
+            echo "CSS-koppeling en menu aanwezig op $url"
+          done
