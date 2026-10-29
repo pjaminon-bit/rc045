@@ -1195,7 +1195,7 @@
 </footer>
 
 <script src="site-i18n.js"></script>
-<script src="homepage.js?v=20261029-weekendmelding"></script>
+<script src="homepage.js?v=20261029-weekendmelding-zonder-icoon"></script>
 
 
 </body>

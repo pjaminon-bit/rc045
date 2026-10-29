@@ -943,7 +943,7 @@
     var statusSleutels = { animo: 'hours.animo', animo_leden: 'hours.animo.members', leden: 'hours.members', bekend_vrijdag: 'hours.unknown', gesloten: 'hours.closed', onderhoud: 'hours.closed.maintenance', weer: 'hours.closed.weather' };
     // Het icoon staat los van de vertalingen, zodat het maar op één plek hoeft
     // te staan en in alle drie de talen hetzelfde is.
-    var statusIconen = { animo: '🤝', animo_leden: '🤝', leden: '👥', bekend_vrijdag: '📣', gesloten: '⛔', onderhoud: '🔧', weer: '🌧️' };
+    var statusIconen = { animo: '🤝', animo_leden: '🤝', leden: '👥', gesloten: '⛔', onderhoud: '🔧', weer: '🌧️' };
     // Alleen deze standen betekenen dat de baan dicht is. 'leden' hoort daar
     // bewust niet bij: die dag telt gewoon als open, met een melding erbij.
     function isDicht(status) {
