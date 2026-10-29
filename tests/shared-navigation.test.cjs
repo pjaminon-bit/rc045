@@ -35,20 +35,21 @@ test('alle menu-items, taalkeuze en mobiel menu staan één keer centraal', () =
   assert.ok(shared.includes("$rc045NavPage === 'index'"));
 });
 
-test('alle zeven publieke pagina\'s laden exact dezelfde CSS zonder versies', () => {
+
+test('alle zeven publieke pagina\'s gebruiken de centrale CSS zonder versienummers', () => {
   for (const page of publicPages) {
     const file = read(page + '.php');
-    assert.equal((file.match(/href="site-styles\\.php"/g) || []).length, 1, 'Geen gedeeld CSS endpoint in ' + page);
-    assert.doesNotMatch(file, /href="styles\\.css(?:\\?[^"]*)?"/);
+    assert.equal(file.split('href="site-styles.php"').length - 1, 1, 'CSS-link ontbreekt in ' + page);
+    assert.ok(!file.includes('href="styles.css'), 'Oude CSS-link in ' + page);
   }
 });
 
-test('gedeeld CSS endpoint leest alleen styles.css en voorkomt oude browsercache', () => {
-  const server = read('site-styles.php');
+test('het CSS-endpoint levert styles.css zonder verouderde cache', () => {
+  const endpoint = read('site-styles.php');
   const stylesheet = read('styles.css');
-  assert.match(server, /readfile\\(\\$bestand\\)/);
-  assert.match(server, /Cache-Control: no-store/);
-  assert.match(server, /Content-Type: text\\/css/);
-  assert.match(stylesheet, /\\.nav-links \\.nav-lid\\.nav-active a/);
-  assert.match(stylesheet, /@keyframes navJoinGlow/);
+  assert.ok(endpoint.includes('readfile($bestand)'));
+  assert.ok(endpoint.includes('Cache-Control: no-store'));
+  assert.ok(endpoint.includes('Content-Type: text/css'));
+  assert.ok(stylesheet.includes('.nav-links .nav-lid.nav-active a'));
+  assert.ok(stylesheet.includes('@keyframes navJoinGlow'));
 });
