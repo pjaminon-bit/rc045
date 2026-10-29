@@ -336,11 +336,10 @@ function renderSponsorCta() {
 
 // ===== NAVIGATIEMENU & FOOTER (data/homepage.json, bijwerken via beheer.php:
 // tabblad Homepage, groepen "Navigatiemenu" en "Footer") =====
-// Het menu en de footer staan op elke pagina apart in de HTML (links en
-// "actief"-status verschillen per pagina), maar de teksten zelf komen van
-// hier uit een centrale plek, zodat je ze maar op één plek hoeft aan te
-// passen in plaats van in alle zeven bestanden. Leeg gelaten EN/DE valt
-// terug op de Nederlandse tekst, net als bij de rest van het CMS.
+// Het publieke navigatiemenu staat centraal in site-nav.php. Iedere
+// publieke pagina geeft alleen haar paginanaam door voor de actieve link
+// en de juiste homepage-ankers. De teksten van menu en footer komen uit
+// data/homepage.json. Lege EN/DE-waarden vallen terug op het Nederlands.
 var navFooterData = null;
 var navFooterVelden = {
   'nav-about': 'nav_about', 'footer-link-about': 'nav_about',
