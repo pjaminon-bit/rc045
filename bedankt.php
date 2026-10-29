@@ -17,12 +17,9 @@
   <link rel="stylesheet" href="styles.css">
   <style>body { min-height: 100vh; display: flex; flex-direction: column; }
     
-    h1, h2, h3 { font-family: 'Poppins', sans-serif; line-height: 1.2; }.nav { position: static; }
+    h1, h2, h3 { font-family: 'Poppins', sans-serif; line-height: 1.2; }
     
-    .nav-back { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--muted); transition: background 0.15s, color 0.15s; }
-    
-    .nav-back:hover { background: var(--teal-light); color: var(--teal-dark); }
-    
+
     .main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 24px; }
     
     .bedankt-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 56px 48px; box-shadow: var(--shadow); max-width: 600px; width: 100%; text-align: center; }
@@ -83,29 +80,7 @@
 
 <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Terug naar boven">↑</button>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="nav-logo">
-      <img width="400" height="423" src="rc045-logo.png" alt="RC045 logo">
-      <div><span class="nav-logo-text">RC045</span></div>
-    </a>
-    <div style="display:flex; align-items:center; gap:12px;">
-    <div class="lang-switch" id="lang-switch">
-      <button class="lang-trigger" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Taal / Language / Sprache">
-        <span class="lang-trigger-flag" aria-hidden="true"><svg viewBox="0 0 30 20" width="20" height="14"><rect width="30" height="6.67" fill="#AE1C28"/><rect y="6.67" width="30" height="6.66" fill="#fff"/><rect y="13.33" width="30" height="6.67" fill="#21468B"/></svg></span>
-        <span class="lang-trigger-code">NL</span>
-        <span class="lang-chevron" aria-hidden="true"></span>
-      </button>
-      <div class="lang-menu">
-        <button class="lang-flag active" onclick="setLang('nl')" data-code="NL" title="Nederlands" aria-label="Nederlands" aria-pressed="true"><span class="lang-menu-flag" aria-hidden="true"><svg viewBox="0 0 30 20" width="20" height="14"><rect width="30" height="6.67" fill="#AE1C28"/><rect y="6.67" width="30" height="6.66" fill="#fff"/><rect y="13.33" width="30" height="6.67" fill="#21468B"/></svg></span>Nederlands</button>
-        <button class="lang-flag" onclick="setLang('en')" data-code="EN" title="English" aria-label="English" aria-pressed="false"><span class="lang-menu-flag" aria-hidden="true"><svg viewBox="0 0 30 20" width="20" height="14"><rect width="30" height="20" fill="#00247d"/><path d="M0,0 30,20 M30,0 0,20" stroke="#fff" stroke-width="4"/><path d="M0,0 30,20 M30,0 0,20" stroke="#cf142b" stroke-width="2"/><path d="M15,0 15,20 M0,10 30,10" stroke="#fff" stroke-width="7"/><path d="M15,0 15,20 M0,10 30,10" stroke="#cf142b" stroke-width="4"/></svg></span>English</button>
-        <button class="lang-flag" onclick="setLang('de')" data-code="DE" title="Deutsch" aria-label="Deutsch" aria-pressed="false"><span class="lang-menu-flag" aria-hidden="true"><svg viewBox="0 0 30 20" width="20" height="14"><rect width="30" height="6.67" fill="#000"/><rect y="6.67" width="30" height="6.66" fill="#DD0000"/><rect y="13.33" width="30" height="6.67" fill="#FFCE00"/></svg></span>Deutsch</button>
-      </div>
-    </div>
-      <a href="index.html" class="nav-back" data-i18n="nav.back">← Terug naar de site</a>
-    </div>
-  </div>
-</nav>
+<?php $rc045NavPage = 'bedankt'; require __DIR__ . '/site-nav.php'; ?>
 
 <main class="main" id="main-content">
   <div class="bedankt-card">
@@ -257,6 +232,7 @@
     document.documentElement.lang = lang;
     localStorage.setItem('rc045_lang', lang);
     updateInternalLinks(lang);
+    renderNavFooterTeksten();
     renderBedanktGegevens();
   }
 
