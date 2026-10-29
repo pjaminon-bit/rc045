@@ -1,0 +1,3 @@
+RC045 FTP verbindingstest
+Datum: 29 oktober 2026
+Dit bestand is door een aparte GitHub Actions FTP-test geupload naar de nieuwe hosting van rc045.nl.
