@@ -1,6 +1,6 @@
-name: RC045 - FTPS deployment (dry-run)
+name: RC045 - FTPS deployment
 
-# Migratie naar nieuwe host: eerst volledige dry-run, daarna echte deployment.
+# FTPS-upload naar de nieuwe host; beschermde serverbestanden zijn uitgesloten.
 # FTP-account begint direct in public_html; server-dir is daarom ./, niet public_html/.
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Controleer FTPS-deployment zonder te uploaden
+      - name: Publiceer RC045 website via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ams101.yourwebhoster.com
@@ -28,7 +28,7 @@ jobs:
           port: 21
           local-dir: ./
           server-dir: ./
-          dry-run: true
+          dry-run: false
           security: strict
           dangerous-clean-slate: false
           exclude: |
