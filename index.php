@@ -434,6 +434,12 @@
        tijd wordt gedempt getoond omdat juist die tijd nog niet vaststaat.
        Geen doorhaling, want er is niets afgelast. */
     .hours-row.is-onbekend .hours-time { opacity: 0.55; }
+
+    /* Als beide weekenddagen nog onbekend zijn, verschijnt één gezamenlijke
+       melding onder beide dagen in plaats van twee badges. */
+    .hours-row.is-weekend-samen .hours-closed-note { display: none; }
+    .hours-weekend-note { display: none; width: fit-content; max-width: 100%; margin: 10px 0 8px; padding: 7px 11px; box-sizing: border-box; font-size: 12px; font-weight: 600; line-height: 1.5; border: 1px solid var(--gold); border-radius: 10px; color: var(--text); }
+    .hours-weekend-note.is-visible { display: block; }
     
     /* Zelfde melding in de info-balk bovenaan. Daar is bewust geen achtergrond
        en randje gebruikt: dat blok is een smalle strook van drie kolommen en
@@ -1026,6 +1032,7 @@
               <span class="hours-closed-note" id="hours-sun-closed">⛔ Deze zondag gesloten</span>
             </span>
           </div>
+          <div class="hours-weekend-note" id="hours-weekend-unknown" role="status"></div>
           <ul class="hours-note">
             <li><strong id="hp-hours-note-attention" data-i18n="hours.note.attention">Let op:</strong> <span id="hp-hours-note-text" data-i18n="hours.note.text">We zijn de eerste zaterdag of zondag van de maand gesloten wegens onderhoud.</span></li>
             <li id="hp-hours-weather" data-i18n="hours.weather">Bij slecht weer kunnen we besluiten eerder te sluiten of helemaal niet open te gaan.</li>

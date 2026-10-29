@@ -1013,7 +1013,7 @@
     // Vult een regel in de info-balk: "Zaterdag 10:00 – 15:00". Is de dag dicht,
     // dan wordt de tijd doorgestreept en komt de melding eronder te staan. Bij
     // 'alleen leden' blijft de tijd normaal staan en komt alleen de melding erbij.
-    function zetInfoTijd(id, dagSleutel, tijdTekst, status, t) {
+    function zetInfoTijd(id, dagSleutel, tijdTekst, status, t, beideDagenOnbekend) {
       var el = document.getElementById(id);
       if (!el || !tijdTekst) return;
       var dicht = isDicht(status);
@@ -1024,7 +1024,9 @@
       if (dicht) tijd.className = 'tijd-gesloten';
       else if (isOnbekend(status)) tijd.className = 'tijd-onbekend';
       el.appendChild(tijd);
-      if (status !== 'open') {
+      // De gezamenlijke weekendmelding wordt in de openingstijdenkaart getoond.
+      // In de informatiebalk blijft de datum/tijd zichtbaar, zonder duplicaat.
+      if (status !== 'open' && !(beideDagenOnbekend && isOnbekend(status))) {
         var melding = document.createElement('span');
         melding.className = 'info-closed-note' + (status === 'leden' ? ' is-leden' : isAnimo(status) || isOnbekend(status) ? ' is-animo' : '');
         melding.textContent = statusTekst(status, dagSleutel, t);
@@ -1032,13 +1034,14 @@
       }
     }
     // Zet de markering en de melding op een regel in de openingstijden-kaart.
-    function zetHoursRij(rijId, meldingId, dagSleutel, status, t) {
+    function zetHoursRij(rijId, meldingId, dagSleutel, status, t, beideDagenOnbekend) {
       var rij = document.getElementById(rijId);
       if (rij) {
         rij.classList.toggle('is-gesloten', isDicht(status));
         rij.classList.toggle('is-leden', status === 'leden');
         rij.classList.toggle('is-animo', isAnimo(status) || isOnbekend(status));
         rij.classList.toggle('is-onbekend', isOnbekend(status));
+        rij.classList.toggle('is-weekend-samen', !!beideDagenOnbekend && isOnbekend(status));
       }
       var melding = document.getElementById(meldingId);
       if (melding && status !== 'open') melding.textContent = statusTekst(status, dagSleutel, t);
@@ -1075,9 +1078,12 @@
       var woensdagStatus = dagStatus(oh.woensdag, 'animo');
       var zaterdagStatus = dagStatus(oh.zaterdag);
       var zondagStatus = dagStatus(oh.zondag);
+      // Gebruik de effectieve standen (inclusief vervaltijd uit beheer.php).
+      // Alleen als beide dagen onbekend zijn, combineren we hun meldingen.
+      var beideDagenOnbekend = isOnbekend(zaterdagStatus) && isOnbekend(zondagStatus);
 
-      zetInfoTijd('info-sat-value', 'sat', zaterdagTekst, zaterdagStatus, t);
-      zetInfoTijd('info-sun-value', 'sun', zondagTekst, zondagStatus, t);
+      zetInfoTijd('info-sat-value', 'sat', zaterdagTekst, zaterdagStatus, t, beideDagenOnbekend);
+      zetInfoTijd('info-sun-value', 'sun', zondagTekst, zondagStatus, t, beideDagenOnbekend);
 
       var elWed = document.getElementById('hours-wed-time');
       // Woensdag was eerder vrije tekst. Staat er in een oud contact.json nog een
@@ -1092,8 +1098,15 @@
       if (elHoursSun && zondagTekst) elHoursSun.textContent = zondagTekst;
 
       zetHoursRij('hours-wed-row', 'hours-wed-closed', 'wed', woensdagTekst ? woensdagStatus : 'open', t);
-      zetHoursRij('hours-sat-row', 'hours-sat-closed', 'sat', zaterdagStatus, t);
-      zetHoursRij('hours-sun-row', 'hours-sun-closed', 'sun', zondagStatus, t);
+      zetHoursRij('hours-sat-row', 'hours-sat-closed', 'sat', zaterdagStatus, t, beideDagenOnbekend);
+      zetHoursRij('hours-sun-row', 'hours-sun-closed', 'sun', zondagStatus, t, beideDagenOnbekend);
+      var weekendMelding = document.getElementById('hours-weekend-unknown');
+      if (weekendMelding) {
+        weekendMelding.classList.toggle('is-visible', beideDagenOnbekend);
+        if (beideDagenOnbekend) {
+          weekendMelding.textContent = statusTekst('bekend_vrijdag', 'sat', t);
+        }
+      }
 
       if (contactData.adres_straat) {
         ['info-adres-straat', 'addr-straat'].forEach(function(id) {
