@@ -28,3 +28,20 @@ jobs:
             grep -Fq 'id="nav-join"' /tmp/rc045-page.html
             echo "CSS-koppeling en menu aanwezig op $url"
           done
+
+      - name: Bereken menustijlen met echte Chrome-browser
+        uses: actions/checkout@v4
+
+      - name: Node 22 beschikbaar maken
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Computed CSS controle homepage en aanmelden
+        run: |
+          set -euo pipefail
+          google-chrome --version
+          google-chrome --headless --no-sandbox --disable-gpu --remote-allow-origins='*' --remote-debugging-port=9222 --user-data-dir=/tmp/rc045-cdp about:blank >/tmp/rc045-chrome.log 2>&1 &
+          chrome_pid=$!
+          trap 'kill "$chrome_pid" 2>/dev/null || true' EXIT
+          node tests/live-menu-computed.mjs
