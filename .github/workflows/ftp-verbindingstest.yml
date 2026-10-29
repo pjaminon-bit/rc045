@@ -1,0 +1,36 @@
+name: RC045 - FTP verbindingstest
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ftp-test/rc045-ftp-verificatietest-20261029.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ftp-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout testbestand
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Upload uitsluitend testbestand via FTP
+        env:
+          RC045_FTP_USERNAME: ${{ secrets.RC045_FTP_USERNAME }}
+          RC045_FTP_PASSWORD: ${{ secrets.RC045_FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$RC045_FTP_USERNAME" || -z "$RC045_FTP_PASSWORD" ]]; then
+            echo "Fout: RC045_FTP_USERNAME of RC045_FTP_PASSWORD is niet ingevuld."
+            exit 1
+          fi
+          curl --fail --show-error --silent --ftp-pasv \
+            --connect-timeout 30 --max-time 120 \
+            --user "$RC045_FTP_USERNAME:$RC045_FTP_PASSWORD" \
+            --upload-file "ftp-test/rc045-ftp-verificatietest-20261029.txt" \
+            "ftp://ams101.yourwebhoster.com/rc045-ftp-verificatietest-20261029.txt"
+          echo "FTP-upload voltooid: /rc045-ftp-verificatietest-20261029.txt"
