@@ -14,7 +14,7 @@
   <meta name="theme-color" content="#1E2C13">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="site-styles.php">
   <style>body { min-height: 100vh; display: flex; flex-direction: column; }
     
     h1, h2, h3 { font-family: 'Poppins', sans-serif; line-height: 1.2; }
