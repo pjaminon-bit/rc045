@@ -1,0 +1,35 @@
+name: RC045 publieke navigatie testen
+
+on:
+  push:
+    branches:
+      - main
+      - feature/shared-public-navigation-20261029
+    paths:
+      - 'site-nav.php'
+      - '*.php'
+      - 'site-i18n.js'
+      - 'tests/shared-navigation.test.cjs'
+      - '.github/workflows/site-navigation-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: PHP syntaxis controleren
+        run: |
+          set -euo pipefail
+          php -l site-nav.php
+          for file in index.php aanmelden.php baanreglement.php fotoboek.php media.php ontstaan.php bedankt.php; do
+            php -l "$file"
+          done
+
+      - name: Gedeelde menustructuur testen
+        run: node --test tests/shared-navigation.test.cjs
