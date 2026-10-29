@@ -13,7 +13,7 @@
   <meta name="theme-color" content="#1E2C13">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="site-styles.php">
   <style>.page-hero { min-height: 320px; }
     
     .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/hero-achtergrond.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
