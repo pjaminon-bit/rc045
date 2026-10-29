@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'ftp-test/rc045-ftp-verificatietest-20261029.txt'
+      - '.github/workflows/ftp-verbindingstest.yml'
   workflow_dispatch:
 
 permissions:
@@ -18,19 +19,44 @@ jobs:
       - name: Checkout testbestand
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Upload uitsluitend testbestand via FTP
+      - name: Upload uitsluitend testbestand naar FTP-hoofdmap
         env:
           RC045_FTP_USERNAME: ${{ secrets.RC045_FTP_USERNAME }}
           RC045_FTP_PASSWORD: ${{ secrets.RC045_FTP_PASSWORD }}
         run: |
-          set -euo pipefail
-          if [[ -z "$RC045_FTP_USERNAME" || -z "$RC045_FTP_PASSWORD" ]]; then
-            echo "Fout: RC045_FTP_USERNAME of RC045_FTP_PASSWORD is niet ingevuld."
-            exit 1
-          fi
-          curl --fail --show-error --silent --ftp-pasv \
-            --connect-timeout 30 --max-time 120 \
-            --user "$RC045_FTP_USERNAME:$RC045_FTP_PASSWORD" \
-            --upload-file "ftp-test/rc045-ftp-verificatietest-20261029.txt" \
-            "ftp://ams101.yourwebhoster.com/rc045-ftp-verificatietest-20261029.txt"
-          echo "FTP-upload voltooid: /rc045-ftp-verificatietest-20261029.txt"
+          python3 - <<'PY'
+          import ftplib
+          import os
+          import socket
+          import sys
+          from pathlib import Path
+
+          host = "ams101.yourwebhoster.com"
+          username = os.environ.get("RC045_FTP_USERNAME", "")
+          password = os.environ.get("RC045_FTP_PASSWORD", "")
+          filename = "rc045-ftp-verificatietest-20261029.txt"
+          local_file = Path("ftp-test") / filename
+
+          if not username or not password:
+              sys.exit("Niet uitgevoerd: RC045_FTP_USERNAME of RC045_FTP_PASSWORD ontbreekt.")
+
+          ftp = ftplib.FTP()
+          try:
+              print("Stap 1/4: DNS-controle", flush=True)
+              socket.getaddrinfo(host, 21, family=socket.AF_INET, type=socket.SOCK_STREAM)
+              print("Stap 2/4: verbinding met FTP-poort 21", flush=True)
+              ftp.connect(host, 21, timeout=20, source_address=None)
+              print("Stap 3/4: aanmelden", flush=True)
+              ftp.login(username, password)
+              ftp.set_pasv(True)
+              print("Stap 4/4: upload van één testbestand", flush=True)
+              with local_file.open("rb") as src:
+                  ftp.storbinary("STOR " + filename, src)
+              print("GESLAAGD: " + filename + " staat in de FTP-hoofdmap.", flush=True)
+              ftp.quit()
+          except Exception as exc:
+              print("FTP-test mislukt: " + type(exc).__name__ + ": " + str(exc), flush=True)
+              sys.exit(1)
+          finally:
+              ftp.close()
+          PY
