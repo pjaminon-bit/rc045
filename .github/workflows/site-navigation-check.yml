@@ -5,8 +5,11 @@ on:
     branches:
       - main
       - feature/shared-public-navigation-20261029
+      - fix/unified-css-no-cache-20261029
     paths:
       - 'site-nav.php'
+      - 'site-styles.php'
+      - 'styles.css'
       - '*.php'
       - 'site-i18n.js'
       - 'tests/shared-navigation.test.cjs'
@@ -27,9 +30,23 @@ jobs:
         run: |
           set -euo pipefail
           php -l site-nav.php
+          php -l site-styles.php
           for file in index.php aanmelden.php baanreglement.php fotoboek.php media.php ontstaan.php bedankt.php; do
             php -l "$file"
           done
 
       - name: Gedeelde menustructuur testen
         run: node --test tests/shared-navigation.test.cjs
+
+      - name: HTTP-headers en glow van stylesheet controleren
+        run: |
+          set -euo pipefail
+          php -S 127.0.0.1:8123 -t . >/tmp/rc045-php.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 1
+          curl --fail --silent --show-error -D /tmp/rc045-css-headers -o /tmp/rc045-css-body http://127.0.0.1:8123/site-styles.php
+          grep -qi '^Content-Type: text/css' /tmp/rc045-css-headers
+          grep -qi '^Cache-Control: .*no-store' /tmp/rc045-css-headers
+          grep -Fq '.nav-links .nav-lid.nav-active a' /tmp/rc045-css-body
+          grep -Fq '@keyframes navJoinGlow' /tmp/rc045-css-body
