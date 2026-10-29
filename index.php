@@ -451,6 +451,9 @@
     .info-closed-note.is-leden { background: var(--teal); }
     
     .info-closed-note.is-animo { background: transparent; color: var(--text); border: 1px solid var(--gold); font-weight: 600; }
+    /* Eén gedeelde melding bovenaan wanneer zaterdag en zondag beide nog onbekend zijn. */
+    .info-weekend-unknown { display: none; max-width: 100%; box-sizing: border-box; }
+    .info-weekend-unknown.is-visible { display: block; }
     
     .info-value .tijd-onbekend { opacity: 0.55; }
     
@@ -663,6 +666,7 @@
         <div class="info-label" id="hp-info-hours" data-i18n="info.hours">Openingstijden</div>
         <div class="info-value" id="info-sat-value">Zaterdag 11:00 – 15:00</div>
         <div class="info-value" id="info-sun-value">Zondag 10:00 – 17:00</div>
+        <div class="info-closed-note is-animo info-weekend-unknown" id="info-weekend-unknown" role="status"></div>
         <div id="status-indicator"></div>
         <div class="info-hours-note" id="info-hours-note">
           <span data-i18n="info.hours.note">Op vrijdag passen we onze actuele openingstijden aan.</span>
@@ -1195,7 +1199,7 @@
 </footer>
 
 <script src="site-i18n.js"></script>
-<script src="homepage.js?v=20261029-weekendmelding-zonder-icoon"></script>
+<script src="homepage.js?v=20261029-weekendmelding-boven-onder"></script>
 
 
 </body>

@@ -1024,8 +1024,8 @@
       if (dicht) tijd.className = 'tijd-gesloten';
       else if (isOnbekend(status)) tijd.className = 'tijd-onbekend';
       el.appendChild(tijd);
-      // De gezamenlijke weekendmelding wordt in de openingstijdenkaart getoond.
-      // In de informatiebalk blijft de datum/tijd zichtbaar, zonder duplicaat.
+      // Bij gelijke weekendstatus komt er één gezamenlijke melding per openingstijdenblok.
+      // De dagen en tijden blijven wel afzonderlijk zichtbaar.
       if (status !== 'open' && !(beideDagenOnbekend && isOnbekend(status))) {
         var melding = document.createElement('span');
         melding.className = 'info-closed-note' + (status === 'leden' ? ' is-leden' : isAnimo(status) || isOnbekend(status) ? ' is-animo' : '');
@@ -1100,13 +1100,14 @@
       zetHoursRij('hours-wed-row', 'hours-wed-closed', 'wed', woensdagTekst ? woensdagStatus : 'open', t);
       zetHoursRij('hours-sat-row', 'hours-sat-closed', 'sat', zaterdagStatus, t, beideDagenOnbekend);
       zetHoursRij('hours-sun-row', 'hours-sun-closed', 'sun', zondagStatus, t, beideDagenOnbekend);
-      var weekendMelding = document.getElementById('hours-weekend-unknown');
-      if (weekendMelding) {
+      // Iedere locatie toont de melding één keer, ook na een taalwissel.
+      ['info-weekend-unknown', 'hours-weekend-unknown'].forEach(function(id) {
+        var weekendMelding = document.getElementById(id);
+        if (!weekendMelding) return;
         weekendMelding.classList.toggle('is-visible', beideDagenOnbekend);
-        if (beideDagenOnbekend) {
-          weekendMelding.textContent = statusTekst('bekend_vrijdag', 'sat', t);
-        }
-      }
+        weekendMelding.textContent = beideDagenOnbekend
+          ? statusTekst('bekend_vrijdag', 'sat', t) : '';
+      });
 
       if (contactData.adres_straat) {
         ['info-adres-straat', 'addr-straat'].forEach(function(id) {
