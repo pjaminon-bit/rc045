@@ -115,35 +115,64 @@ img { max-width: 100%; height: auto; display: block; }
 
 .nav-links .nav-cta a:hover { background: var(--teal-light); color: var(--teal-dark); }
 
-/* 'Lid worden' behoudt de gewone menukleuren en typografie;
-   een zachte glow maakt de link net iets opvallender, zonder gevulde knop. */
+/* 'Lid worden' blijft een normaal menu-item, met een duidelijkere
+   groenblauwe gloed. Een rustige ademende animatie benadrukt de link. */
 .nav-links .nav-lid a {
+  --nav-join-glow-rgb: 58, 122, 119;
   background: transparent;
   color: var(--text);
   font-weight: 500;
-  box-shadow: 0 0 0 1px rgba(58,122,119,0.14), 0 0 12px rgba(58,122,119,0.13);
+  box-shadow: 0 0 0 1px rgba(var(--nav-join-glow-rgb),0.5),
+              0 0 16px rgba(var(--nav-join-glow-rgb),0.38),
+              0 0 30px rgba(var(--nav-join-glow-rgb),0.22);
+  animation: navJoinGlow 3.6s ease-in-out infinite;
   transition: background 0.15s, color 0.15s, box-shadow 0.2s;
+}
+
+@keyframes navJoinGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(var(--nav-join-glow-rgb),0.5),
+                0 0 16px rgba(var(--nav-join-glow-rgb),0.38),
+                0 0 30px rgba(var(--nav-join-glow-rgb),0.22);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(var(--nav-join-glow-rgb),0.7),
+                0 0 24px rgba(var(--nav-join-glow-rgb),0.52),
+                0 0 40px rgba(var(--nav-join-glow-rgb),0.28);
+  }
+}
+
+:root[data-thema="donker"] .nav-links .nav-lid a {
+  --nav-join-glow-rgb: 127, 194, 190;
 }
 
 .nav-links .nav-lid a:hover,
 .nav-links .nav-lid a:focus-visible {
+  animation: none;
   background: var(--teal-light);
   color: var(--teal-dark);
-  box-shadow: 0 0 0 1px rgba(58,122,119,0.22), 0 0 18px rgba(58,122,119,0.20);
+  box-shadow: 0 0 0 1px rgba(var(--nav-join-glow-rgb),0.75),
+              0 0 26px rgba(var(--nav-join-glow-rgb),0.58),
+              0 0 46px rgba(var(--nav-join-glow-rgb),0.30);
 }
 
 .nav-links li.nav-active > a { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
 
 .nav-links .nav-lid.nav-active a {
+  animation: none;
   background: var(--teal-light);
   color: var(--teal-dark);
   font-weight: 700;
-  box-shadow: inset 0 -2px 0 var(--teal), 0 0 12px rgba(58,122,119,0.13);
+  box-shadow: inset 0 -2px 0 var(--teal),
+              0 0 20px rgba(var(--nav-join-glow-rgb),0.45),
+              0 0 32px rgba(var(--nav-join-glow-rgb),0.23);
 }
 
 .nav-links .nav-lid.nav-active a:hover,
 .nav-links .nav-lid.nav-active a:focus-visible {
-  box-shadow: inset 0 -2px 0 var(--teal), 0 0 18px rgba(58,122,119,0.20);
+  box-shadow: inset 0 -2px 0 var(--teal),
+              0 0 27px rgba(var(--nav-join-glow-rgb),0.58),
+              0 0 45px rgba(var(--nav-join-glow-rgb),0.30);
 }
 
 .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; margin-left: 8px; }
