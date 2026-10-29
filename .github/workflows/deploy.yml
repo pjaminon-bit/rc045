@@ -1,9 +1,8 @@
-name: Deploy naar Strato
+name: RC045 - FTP deployment (test)
 
+# Migratie naar nieuwe host: pas na geslaagde test push-trigger en dry-run aanpassen.
+# FTP-account begint direct in public_html; server-dir is daarom ./, niet public_html/.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
@@ -16,13 +15,41 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Upload via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@a5ccb9c6211a94cc59404f0fdb2a9936a6dfee64 # v1.2.6
+      - name: Controleer FTP-deployment zonder te uploaden
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
-          username: ${{ secrets.FTP_USERNAME }}
-          server: ${{ secrets.FTP_SERVER }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: 22
-          sftp_only: true
-          local_path: './*'
-          remote_path: '/'
+          server: ams101.yourwebhoster.com
+          username: ${{ secrets.RC045_FTP_USERNAME }}
+          password: ${{ secrets.RC045_FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          local-dir: ./
+          server-dir: ./
+          dry-run: true
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .github/**
+            docs/**
+            scripts/**
+            tests/**
+            README.md
+            .htaccess
+            .user.ini
+            .well-known/**
+            data/**
+            data-backups/**
+            images/fotoboek/**
+            images/sponsors/**
+            beheer-config.php
+            beheer-users.json
+            beheer-log.json
+            beheer-login-pogingen.json
+            vertaal-config.php
+            leden-data.php
+            vergaderingen-data.php
+            taken-data.php
+            operationele-taken-data.php
+            evenementen-data.php
