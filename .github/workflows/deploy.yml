@@ -1,4 +1,4 @@
-name: RC045 - FTP deployment (test)
+name: RC045 - FTPS deployment (test)
 
 # Migratie naar nieuwe host: pas na geslaagde test push-trigger en dry-run aanpassen.
 # FTP-account begint direct in public_html; server-dir is daarom ./, niet public_html/.
@@ -21,7 +21,7 @@ jobs:
           server: ams101.yourwebhoster.com
           username: ${{ secrets.RC045_FTP_USERNAME }}
           password: ${{ secrets.RC045_FTP_PASSWORD }}
-          protocol: ftp
+          protocol: ftps
           port: 21
           local-dir: ./
           server-dir: ./
