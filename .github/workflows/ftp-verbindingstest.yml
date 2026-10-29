@@ -19,7 +19,7 @@ jobs:
       - name: Checkout testbestand
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Upload uitsluitend testbestand naar FTP-hoofdmap
+      - name: Upload uitsluitend testbestand naar FTP-hoofdmap via FTPS
         env:
           RC045_FTP_USERNAME: ${{ secrets.RC045_FTP_USERNAME }}
           RC045_FTP_PASSWORD: ${{ secrets.RC045_FTP_PASSWORD }}
@@ -28,6 +28,7 @@ jobs:
           import ftplib
           import os
           import socket
+          import ssl
           import sys
           from pathlib import Path
 
@@ -40,14 +41,16 @@ jobs:
           if not username or not password:
               sys.exit("Niet uitgevoerd: RC045_FTP_USERNAME of RC045_FTP_PASSWORD ontbreekt.")
 
-          ftp = ftplib.FTP()
+          ftp = ftplib.FTP_TLS(context=ssl.create_default_context())
           try:
               print("Stap 1/4: DNS-controle", flush=True)
               socket.getaddrinfo(host, 21, family=socket.AF_INET, type=socket.SOCK_STREAM)
               print("Stap 2/4: verbinding met FTP-poort 21", flush=True)
               ftp.connect(host, 21, timeout=20, source_address=None)
-              print("Stap 3/4: aanmelden", flush=True)
+              print("Stap 3/4: beveiligde FTPS-sessie en aanmelden", flush=True)
+              ftp.auth()
               ftp.login(username, password)
+              ftp.prot_p()
               ftp.set_pasv(True)
               print("Stap 4/4: upload van één testbestand", flush=True)
               with local_file.open("rb") as src:
