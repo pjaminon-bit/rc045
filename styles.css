@@ -115,15 +115,36 @@ img { max-width: 100%; height: auto; display: block; }
 
 .nav-links .nav-cta a:hover { background: var(--teal-light); color: var(--teal-dark); }
 
-.nav-links .nav-lid a { background: var(--teal); color: white; font-weight: 600; border-radius: 8px; }
+/* 'Lid worden' behoudt de gewone menukleuren en typografie;
+   een zachte glow maakt de link net iets opvallender, zonder gevulde knop. */
+.nav-links .nav-lid a {
+  background: transparent;
+  color: var(--text);
+  font-weight: 500;
+  box-shadow: 0 0 0 1px rgba(58,122,119,0.14), 0 0 12px rgba(58,122,119,0.13);
+  transition: background 0.15s, color 0.15s, box-shadow 0.2s;
+}
 
-.nav-links .nav-lid a:hover { background: var(--teal-dark); }
+.nav-links .nav-lid a:hover,
+.nav-links .nav-lid a:focus-visible {
+  background: var(--teal-light);
+  color: var(--teal-dark);
+  box-shadow: 0 0 0 1px rgba(58,122,119,0.22), 0 0 18px rgba(58,122,119,0.20);
+}
 
 .nav-links li.nav-active > a { background: var(--teal-light); color: var(--teal-dark); font-weight: 700; box-shadow: inset 0 -2px 0 var(--teal); }
 
-.nav-links .nav-lid.nav-active a { background: var(--teal); color: white; box-shadow: none; }
+.nav-links .nav-lid.nav-active a {
+  background: var(--teal-light);
+  color: var(--teal-dark);
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--teal), 0 0 12px rgba(58,122,119,0.13);
+}
 
-.nav-links .nav-lid.nav-active a:hover { background: var(--teal-dark); }
+.nav-links .nav-lid.nav-active a:hover,
+.nav-links .nav-lid.nav-active a:focus-visible {
+  box-shadow: inset 0 -2px 0 var(--teal), 0 0 18px rgba(58,122,119,0.20);
+}
 
 .nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; border: none; background: none; margin-left: 8px; }
 
@@ -324,8 +345,6 @@ body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; colo
    plaats van lichter, anders wordt witte tekst onleesbaar. */
 :root[data-thema="donker"] .btn-primary:hover,
 :root[data-thema="donker"] .modal-btn-primary:hover,
-:root[data-thema="donker"] .nav-links .nav-lid a:hover,
-:root[data-thema="donker"] .nav-links .nav-lid.nav-active a:hover,
 :root[data-thema="donker"] .back-to-top:hover { background: #2F6A66; }
 
 /* De sponsorkaartjes in de footer blijven licht: de meeste logo's zijn
