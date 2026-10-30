@@ -24,5 +24,5 @@ if (!is_file($bestand) || !is_readable($bestand)) {
 
 // Identieke versiehash geeft een jaar immutable cache; anders no-store.
 require_once __DIR__ . '/site-css-version.php';
-rc045CssCacheHeaders('page-styles/' . $pagina . '.css);
+rc045CssCacheHeaders('page-styles/' . $pagina . '.css');
 readfile($bestand);
