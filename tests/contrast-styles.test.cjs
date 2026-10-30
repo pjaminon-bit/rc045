@@ -66,8 +66,8 @@ test('beheerknoppen en ledenbadges donker',()=>{
   contrast('Beheerknop hover','#FFFFFF',token(css,':root[data-thema="donker"] {','--button-bg-hover'));
   contrast('Ledenbadge goud','#E5C25A','#262112');
   contrast('Ledenbadge persoonlijk','#2A2000','#D3A72B');
-  assert.ok(block(css,'button {').includes('var(--button-bg)'));
-  assert.ok(block(css,'button:hover {').includes('var(--button-bg-hover)'));
+  assert.ok(block(css,'\n    button {').includes('var(--button-bg)'));
+  assert.ok(block(css,'\n    button:hover {').includes('var(--button-bg-hover)'));
   for(const selector of ['.label.goud','.label.rood','.label.grijs']){
     assert.ok(css.includes(':root[data-thema="donker"] #tab-mijn '+selector));
   }
