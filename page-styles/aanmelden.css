@@ -194,3 +194,6 @@
           .modal-card .iban-number { font-size: 17px; letter-spacing: 0.05em; }
           .modal-btns { flex-direction: column; margin-top: 18px; }
         }
+
+/* Verplichte velden in instemmingsverklaringen. */
+.agreement-required-mark { color: var(--teal); font-weight: 700; }
