@@ -34,3 +34,6 @@
           .artikel-num { font-size: 28px; }
           .artikel-title { font-size: 17px; }
         }
+
+/* Eerste subartikelen hebben geen bovenrand. */
+.sub-artikel-no-divider { padding-top: 0; border-top: none; }
