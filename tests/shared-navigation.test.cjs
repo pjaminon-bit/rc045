@@ -36,20 +36,23 @@ test('alle menu-items, taalkeuze en mobiel menu staan één keer centraal', () =
 });
 
 
-test('alle zeven publieke pagina\'s gebruiken de centrale CSS zonder versienummers', () => {
+test('alle zeven pagina\'s laden de gedeelde CSS met een inhoudshash', () => {
   for (const page of publicPages) {
     const file = read(page + '.php');
-    assert.equal(file.split('href="site-styles.php"').length - 1, 1, 'CSS-link ontbreekt in ' + page);
+    assert.ok(file.includes('href="site-styles.php?v='), page + ' CSS-link ontbreekt');
+    assert.ok(file.includes("rc045CssVersion('styles.css')"), page + ' gedeelde versie ontbreekt');
     assert.ok(!file.includes('href="styles.css'), 'Oude CSS-link in ' + page);
   }
 });
 
-test('het CSS-endpoint levert styles.css zonder verouderde cache', () => {
+test('alleen CSS met de huidige inhoudshash wordt lang gecachet', () => {
   const endpoint = read('site-styles.php');
+  const cache = read('site-css-version.php');
   const stylesheet = read('styles.css');
-  assert.ok(endpoint.includes('readfile($bestand)'));
-  assert.ok(endpoint.includes('Cache-Control: no-store'));
-  assert.ok(endpoint.includes('Content-Type: text/css'));
+  assert.ok(endpoint.includes('rc045CssCacheHeaders'));
+  assert.ok(cache.includes('Cache-Control: public, max-age=31536000, immutable'));
+  assert.ok(cache.includes('Cache-Control: no-store'));
+  assert.ok(cache.includes('Content-Type: text/css'));
   assert.ok(stylesheet.includes('.nav-links .nav-lid.nav-active a'));
   assert.ok(stylesheet.includes('@keyframes navJoinGlow'));
 });
