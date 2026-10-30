@@ -40,7 +40,7 @@
     
     .form-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 36px; box-shadow: var(--shadow); }
     
-    .form-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin: 28px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .form-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-text); margin: 28px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
     
     .form-section-title:first-child { margin-top: 0; }
     
