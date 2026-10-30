@@ -307,6 +307,7 @@ body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; colo
 @media (max-width: 1200px) {
   .nav-inner { gap: 10px; }
   .nav-logo { flex-shrink: 0; }
+  .nav-tools { margin-left: auto; }
   .nav-links { display: none; }
   .nav-links.open {
     display: flex; flex-direction: column; position: absolute;
