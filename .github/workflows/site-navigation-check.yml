@@ -76,7 +76,7 @@ jobs:
           google-chrome --version
           php -S 127.0.0.1:8123 -t . >/tmp/rc045-responsive-php.log 2>&1 &
           php_pid=$!
-          google-chrome --headless --no-sandbox --disable-gpu --remote-allow-origins='*' --remote-debugging-port=9222 --user-data-dir=/tmp/rc045-nav-cdp about:blank >/tmp/rc045-responsive-chrome.log 2>&1 &
+          google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --remote-allow-origins='*' --remote-debugging-port=9222 --user-data-dir=/tmp/rc045-nav-cdp about:blank >/tmp/rc045-responsive-chrome.log 2>&1 &
           chrome_pid=$!
-          trap 'kill "$php_pid" "$chrome_pid" 2>/dev/null || true' EXIT
+          trap 'status=$?; if [ "$status" -ne 0 ]; then tail -60 /tmp/rc045-responsive-chrome.log || true; tail -40 /tmp/rc045-responsive-php.log || true; fi; kill "$php_pid" "$chrome_pid" 2>/dev/null || true' EXIT
           node tests/responsive-navigation.mjs
