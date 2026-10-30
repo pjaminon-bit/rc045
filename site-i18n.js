@@ -214,7 +214,7 @@ function updateInternalLinks(lang) {
     }, { passive: true });
 
     // Niet opnieuw openvallen bij het terugschalen van desktop naar mobiel.
-    var desktop = window.matchMedia('(min-width: 1101px)');
+    var desktop = window.matchMedia('(min-width: 1201px)');
     if (desktop.addEventListener) desktop.addEventListener('change', sluit);
     else if (desktop.addListener) desktop.addListener(sluit);
 
