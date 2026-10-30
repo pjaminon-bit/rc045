@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 /**
  * Gedeelde CSS voor alle publieke RC045-pagina's.
- * De opmaak blijft uitsluitend in styles.css staan.
+ * Gedeelde opmaak staat in styles.css; pagina-eigen CSS in page-styles/.
  * No-store voorkomt dat een oude stylesheet de actieve navigatie overschrijft.
  * Er zijn geen versienummers of datumparameters nodig.
  */
