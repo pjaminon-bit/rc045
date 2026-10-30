@@ -146,13 +146,13 @@
       <div class="akkoord-group">
         <input type="checkbox" id="akkoord-reglement" name="akkoord_reglement" value="ja">
         <label for="akkoord-reglement">
-          <span data-i18n="form.agree1a">Ik ga akkoord met het</span> <a href="baanreglement.html" data-i18n="form.agree1link">baanreglement</a> <span data-i18n="form.agree1b">van RC045 en verklaar dit gelezen en begrepen te hebben.</span> <span style="color:var(--teal); font-weight:700;">*</span>
+          <span data-i18n="form.agree1a">Ik ga akkoord met het</span> <a href="baanreglement.html" data-i18n="form.agree1link">baanreglement</a> <span data-i18n="form.agree1b">van RC045 en verklaar dit gelezen en begrepen te hebben.</span> <span class="agreement-required-mark">*</span>
         </label>
       </div>
       <div class="akkoord-group" style="margin-top: 10px;">
         <input type="checkbox" id="akkoord-betaling" name="akkoord_betaling" value="ja">
         <label for="akkoord-betaling">
-          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong id="am-iban-number-inline">NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button" data-i18n="iban.copy">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".</span> <span style="color:var(--teal); font-weight:700;">*</span>
+          <span data-i18n="form.agree2">Ik ga akkoord met de contributieverplichting en zal het verschuldigde bedrag z.s.m. overmaken naar</span> <span class="iban-copy-wrap"><strong id="am-iban-number-inline">NL51 RABO 0367 6153 63</strong><button class="iban-copy-btn" type="button" data-i18n="iban.copy">📋 Kopieer</button></span> <span data-i18n="form.agree2b">t.n.v. RC045, onder vermelding van mijn voor- en achternaam + "contributie RC045 {jaar}".</span> <span class="agreement-required-mark">*</span>
         </label>
       </div>
 
