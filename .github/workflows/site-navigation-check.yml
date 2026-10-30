@@ -10,12 +10,16 @@ on:
       - fix/responsive-public-nav-20261030
       - fix/mobile-page-overflow-20261030
       - fix/registration-mobile-faq-accessibility-20261030
+      - refactor/centralized-public-page-css-20261030
     paths:
       - 'site-nav.php'
       - 'site-styles.php'
       - 'styles.css'
+      - 'page-styles/**'
+      - 'page-styles.php'
       - 'paneel.css'
       - 'tests/contrast-styles.test.cjs'
+      - 'tests/public-css-centralization.test.cjs'
       - '*.php'
       - 'site-i18n.js'
       - 'tests/shared-navigation.test.cjs'
@@ -40,12 +44,16 @@ jobs:
           set -euo pipefail
           php -l site-nav.php
           php -l site-styles.php
+          php -l page-styles.php
           for file in index.php aanmelden.php baanreglement.php fotoboek.php media.php ontstaan.php bedankt.php; do
             php -l "$file"
           done
 
       - name: Gedeelde menustructuur testen
         run: node --test tests/shared-navigation.test.cjs
+
+      - name: Centrale pagina-CSS en stylesheetvolgorde toetsen
+        run: node --test tests/public-css-centralization.test.cjs
 
       - name: WCAG AA contrastwaarden en gedeelde opmaak testen
         run: node --test tests/contrast-styles.test.cjs
@@ -62,6 +70,14 @@ jobs:
           grep -qi '^Cache-Control: .*no-store' /tmp/rc045-css-headers
           grep -Fq '.nav-links .nav-lid.nav-active a' /tmp/rc045-css-body
           grep -Fq '@keyframes navJoinGlow' /tmp/rc045-css-body
+          for page in index aanmelden baanreglement fotoboek media ontstaan bedankt; do
+            curl --fail --silent --show-error -D /tmp/rc045-page-css-headers \
+              -o /tmp/rc045-page-css-body "http://127.0.0.1:8123/page-styles.php?page=$page"
+            grep -qi '^Content-Type: text/css' /tmp/rc045-page-css-headers
+            grep -qi '^Cache-Control: .*no-store' /tmp/rc045-page-css-headers
+            test -s /tmp/rc045-page-css-body
+          done
+          test "$(curl -s -o /dev/null -w '%{http_code}' 'http://127.0.0.1:8123/page-styles.php?page=../../../etc/passwd')" = 404
 
   viewport:
     runs-on: ubuntu-latest
