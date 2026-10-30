@@ -304,7 +304,7 @@ body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; colo
 /* De volledige desktopnavigatie (zeven links + taal/thema) heeft meer
    ruimte nodig dan 700px. Bij tablets houden we het menu compact en
    kan het geopend menu binnen de schermhoogte scrollen. */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .nav-inner { gap: 10px; }
   .nav-logo { flex-shrink: 0; }
   .nav-links { display: none; }
