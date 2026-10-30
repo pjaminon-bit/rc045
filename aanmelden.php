@@ -62,7 +62,7 @@
     
     .phone-row select { width: 120px; flex-shrink: 0; }
     
-    .phone-row input { flex: 1; }
+    .phone-row input { flex: 1; min-width: 0; }
     
     .jeugdlid-badge { display: none; margin-top: 8px; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
     
@@ -116,21 +116,25 @@
     
     .faq-title { font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 24px; }
     
-    .faq-item { border-bottom: 1px solid var(--border); padding: 16px 0; cursor: pointer; }
-    
+    .faq-item { border-bottom: 1px solid var(--border); padding: 16px 0; }
+
     .faq-item:last-child { border-bottom: none; padding-bottom: 0; }
-    
-    .faq-question { font-size: 15px; font-weight: 600; color: var(--text); display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-    
+
+    /* Semantische knoppen: via Tab bereikbaar, Enter en spatie werken native. */
+    .faq-question { width: 100%; border: none; background: transparent; text-align: left; padding: 4px 0; font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1.5; color: var(--text); display: flex; justify-content: space-between; align-items: center; gap: 16px; cursor: pointer; }
+
+    .faq-question:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 4px; }
+
     .faq-question::after { content: '+'; font-size: 20px; color: var(--teal); flex-shrink: 0; transition: transform 0.2s; }
-    
+
     .faq-item.open .faq-question::after { transform: rotate(45deg); }
-    
-    .faq-answer { font-size: 14px; color: var(--muted); line-height: 1.7; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; }
-    
-    .faq-item.open .faq-answer { max-height: 600px; padding-top: 12px; }
-    
-    .btn-primary { width: 100%; justify-content: center; margin-top: 24px; font-size: 17px; padding: 16px; }
+
+    /* Geen max-height: lange antwoorden worden nooit afgekapt. */
+    .faq-answer { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+    .faq-item.open .faq-answer { padding-top: 12px; }
+
+        .btn-primary { width: 100%; justify-content: center; margin-top: 24px; font-size: 17px; padding: 16px; }
     
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     
@@ -138,6 +142,13 @@
           .form-grid { grid-template-columns: 1fr; }
           .form-card { padding: 24px 20px; }
         }
+
+    /* Safari op iPhone: minimaal 16px voorkomt automatisch inzoomen.
+       (pointer: coarse) vangt ook landschapsstand met bredere viewport op. */
+    @media (max-width: 1000px), (pointer: coarse) {
+      .form-group input:not([type="hidden"]):not([type="checkbox"]),
+      .form-group select { font-size: 16px; }
+    }
     
     /* ===== BEDANKT-OVERLAY (verschijnt na een geslaagde aanmelding) ===== */
     /* Dit is een laag binnen de pagina zelf, geen nieuw browservenster,
@@ -1012,11 +1023,16 @@
       btn.disabled = false;
     }
   });
-  // ===== FAQ (openklappen, werkt ook voor dynamisch toegevoegde vragen) =====
+  // ===== FAQ (native knop: klik, Enter en spatie) =====
   document.getElementById('faq-card').addEventListener('click', function(e) {
-    var vraag = e.target.closest('.faq-question');
-    if (!vraag) return;
-    vraag.closest('.faq-item').classList.toggle('open');
+    var vraag = e.target.closest('button.faq-question');
+    if (!vraag || !this.contains(vraag)) return;
+    var antwoord = document.getElementById(vraag.getAttribute('aria-controls'));
+    if (!antwoord) return;
+    var open = vraag.getAttribute('aria-expanded') !== 'true';
+    vraag.setAttribute('aria-expanded', String(open));
+    antwoord.hidden = !open;
+    vraag.closest('.faq-item').classList.toggle('open', open);
   });
 
   // ===== VEELGESTELDE VRAGEN (data/faq.json, bijwerken via beheer.php) =====
@@ -1028,8 +1044,12 @@
   function renderFaq() {
     if (!faqData) return;
     var container = document.getElementById('faq-items');
+    // Behoud opengeklapte vragen bij taalwissels (zelfde itemindex).
+    var openIndices = new Set(Array.from(container.querySelectorAll('.faq-question[aria-expanded="true"]'), function(btn) {
+      return btn.dataset.faqIndex;
+    }));
     container.innerHTML = ''; // eigen container, alleen door onszelf gevuld
-    faqData.forEach(function(item) {
+    faqData.forEach(function(item, index) {
       if (!item || !item.q) return;
 
       // Ondersteunt zowel het oude platte formaat (q/a als tekst, van vóór
@@ -1048,13 +1068,21 @@
         antwoordTekst = (antwoordBron[currentLang] && String(antwoordBron[currentLang]).trim()) ? antwoordBron[currentLang] : (antwoordBron.nl || '');
       }
 
+      var open = openIndices.has(String(index));
       var wrap = document.createElement('div');
-      wrap.className = 'faq-item';
-      var vraag = document.createElement('div');
+      wrap.className = open ? 'faq-item open' : 'faq-item';
+      var vraag = document.createElement('button');
+      vraag.type = 'button'; // niet het aanmeldformulier verzenden
       vraag.className = 'faq-question';
+      vraag.id = 'faq-question-' + index;
+      vraag.dataset.faqIndex = String(index);
+      vraag.setAttribute('aria-expanded', String(open));
+      vraag.setAttribute('aria-controls', 'faq-answer-' + index);
       vraag.textContent = vraagTekst;
       var antwoord = document.createElement('div');
       antwoord.className = 'faq-answer';
+      antwoord.id = 'faq-answer-' + index;
+      antwoord.hidden = !open;
       antwoord.textContent = antwoordTekst;
       wrap.appendChild(vraag);
       wrap.appendChild(antwoord);
