@@ -70,7 +70,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Responsive menu met Chrome testen op 19 schermbreedtes
+      - name: Responsive navigatie met Chrome testen op 20 schermbreedtes en zeven pagina's
         run: |
           set -euo pipefail
           google-chrome --version
