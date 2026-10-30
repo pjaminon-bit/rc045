@@ -22,9 +22,7 @@ if (!is_file($bestand) || !is_readable($bestand)) {
     exit('Stylesheet niet beschikbaar.');
 }
 
-// Zelfde cachegedrag als site-styles.php; cachebeleid wordt apart beoordeeld.
-header('Content-Type: text/css; charset=UTF-8');
-header('Cache-Control: no-store, no-cache, max-age=0, must-revalidate');
-header('Pragma: no-cache');
-header('Expires: 0');
+// Identieke versiehash geeft een jaar immutable cache; anders no-store.
+require_once __DIR__ . '/site-css-version.php';
+rc045CssCacheHeaders('page-styles/' . $pagina . '.css);
 readfile($bestand);
