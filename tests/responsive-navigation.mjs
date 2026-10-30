@@ -135,7 +135,7 @@ if(!diagnostic){
     let ready=false;
     for(let i=0;i<50;i++){
       await delay(150);
-      ready=await evaluate("!!document.querySelector('#nav-join') && !!document.querySelector('.nav-tools') && !!document.querySelector('link[href=\\\"site-styles.php\\\"]')?.sheet && !!document.querySelector(" + JSON.stringify('link[href="page-styles.php?page='+page+'"]') + ")?.sheet");
+      ready=await evaluate(`!!document.querySelector('#nav-join') && !!document.querySelector('.nav-tools') && !!document.querySelector('link[href="site-styles.php"]')?.sheet && !!document.querySelector('link[href="page-styles.php?page=${page}"]')?.sheet`);
       if(ready)break;
     }
     assert.ok(ready,'Gedeelde navigatie niet geladen op '+page);
