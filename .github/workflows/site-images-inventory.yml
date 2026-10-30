@@ -1,0 +1,25 @@
+name: RC045 vaste afbeeldingen inventariseren (eenmalig)
+
+on:
+  push:
+    branches:
+      - fix/static-site-images-20261030
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Vaste afbeeldingen inventariseren via beveiligde FTPS-verbinding
+        env:
+          RC045_FTP_USERNAME: ${{ secrets.RC045_FTP_USERNAME }}
+          RC045_FTP_PASSWORD: ${{ secrets.RC045_FTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          python3 scripts/static-image-inventory.py --mode inventory
