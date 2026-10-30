@@ -503,7 +503,7 @@
     
     .channel-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
     
-    .channel-value { font-size: 15px; font-weight: 600; color: var(--text); }
+    .channel-value { font-size: 15px; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
     
     .contact-form { display: flex; flex-direction: column; gap: 16px; }
     
@@ -522,6 +522,11 @@
              op een smalle telefoon. Laat de kolom en beide kinderen krimpen. */
           .about-grid { grid-template-columns: minmax(0, 1fr); }
           .about-grid > * { min-width: 0; }
+          /* Lange contactgegevens mogen de min-content-breedte van het
+             contact-grid of de flexkaart niet groter dan het scherm maken. */
+          .contact-grid { grid-template-columns: minmax(0, 1fr); }
+          .contact-grid > * { min-width: 0; }
+          .channel > div:last-child { min-width: 0; }
           .info-bar-inner { grid-template-columns: 1fr; }
           .info-item { border-right: none; border-bottom: 1px solid var(--border); padding: 20px 0 !important; }
           .info-item:last-child { border-bottom: none; }
