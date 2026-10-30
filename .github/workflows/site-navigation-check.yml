@@ -11,9 +11,11 @@ on:
       - fix/mobile-page-overflow-20261030
       - fix/registration-mobile-faq-accessibility-20261030
       - refactor/centralized-public-page-css-20261030
+      - fix/bedankt-footer-css-version-cache-20261030
     paths:
       - 'site-nav.php'
       - 'site-styles.php'
+      - 'site-css-version.php'
       - 'styles.css'
       - 'page-styles/**'
       - 'page-styles.php'
@@ -44,6 +46,7 @@ jobs:
           set -euo pipefail
           php -l site-nav.php
           php -l site-styles.php
+          php -l site-css-version.php
           php -l page-styles.php
           for file in index.php aanmelden.php baanreglement.php fotoboek.php media.php ontstaan.php bedankt.php; do
             php -l "$file"
@@ -70,12 +73,26 @@ jobs:
           grep -qi '^Cache-Control: .*no-store' /tmp/rc045-css-headers
           grep -Fq '.nav-links .nav-lid.nav-active a' /tmp/rc045-css-body
           grep -Fq '@keyframes navJoinGlow' /tmp/rc045-css-body
+          css_version=$(php -r "require 'site-css-version.php'; echo rc045CssVersion('styles.css');")
+          test "${#css_version}" = 16
+          curl --fail --silent --show-error -D /tmp/rc045-css-version-headers -o /tmp/rc045-versioned-css-body "http://127.0.0.1:8123/site-styles.php?v=$css_version"
+          grep -qi '^Cache-Control: public, max-age=31536000, immutable' /tmp/rc045-css-version-headers
+          cmp /tmp/rc045-css-body /tmp/rc045-versioned-css-body
+          curl --fail --silent --show-error -D /tmp/rc045-css-stale-headers -o /dev/null "http://127.0.0.1:8123/site-styles.php?v=0000000000000000"
+          grep -qi '^Cache-Control: .*no-store' /tmp/rc045-css-stale-headers
           for page in index aanmelden baanreglement fotoboek media ontstaan bedankt; do
             curl --fail --silent --show-error -D /tmp/rc045-page-css-headers \
               -o /tmp/rc045-page-css-body "http://127.0.0.1:8123/page-styles.php?page=$page"
             grep -qi '^Content-Type: text/css' /tmp/rc045-page-css-headers
             grep -qi '^Cache-Control: .*no-store' /tmp/rc045-page-css-headers
             test -s /tmp/rc045-page-css-body
+            page_version=$(PAGE="$page" php -r "require 'site-css-version.php'; echo rc045CssVersion('page-styles/' . getenv('PAGE') . '.css');")
+            test "${#page_version}" = 16
+            curl --fail --silent --show-error -D /tmp/rc045-page-version-headers -o /tmp/rc045-page-version-body "http://127.0.0.1:8123/page-styles.php?page=$page&v=$page_version"
+            grep -qi '^Cache-Control: public, max-age=31536000, immutable' /tmp/rc045-page-version-headers
+            cmp /tmp/rc045-page-css-body /tmp/rc045-page-version-body
+            curl --fail --silent --show-error -D /tmp/rc045-page-stale-headers -o /dev/null "http://127.0.0.1:8123/page-styles.php?page=$page&v=0000000000000000"
+            grep -qi '^Cache-Control: .*no-store' /tmp/rc045-page-stale-headers
           done
           test "$(curl -s -o /dev/null -w '%{http_code}' 'http://127.0.0.1:8123/page-styles.php?page=../../../etc/passwd')" = 404
 
