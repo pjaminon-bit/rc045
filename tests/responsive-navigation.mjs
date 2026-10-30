@@ -67,7 +67,7 @@ await cmd('Page.navigate',{url:'http://127.0.0.1:8123/index.php'});
 let loaded=false;
 for(let i=0;i<70;i++){
   await delay(200);
-  loaded=await evaluate("!!document.querySelector('#nav-join') && !!document.querySelector('.nav-tools') && !!document.querySelector('link[href=\"site-styles.php\"]')?.sheet");
+  loaded=await evaluate(`!!document.querySelector('#nav-join') && !!document.querySelector('.nav-tools') && !!document.querySelector("link[href^='site-styles.php?v=']")?.sheet`);
   if(loaded)break;
 }
 assert.ok(loaded,'Lokale site of CSS niet geladen');
@@ -135,11 +135,11 @@ if(!diagnostic){
     let ready=false;
     for(let i=0;i<50;i++){
       await delay(150);
-      ready=await evaluate(`!!document.querySelector('#nav-join') && !!document.querySelector('.nav-tools') && !!document.querySelector('link[href="site-styles.php"]')?.sheet && !!document.querySelector('link[href="page-styles.php?page=${page}"]')?.sheet`);
+      ready=await evaluate(`!!document.querySelector('#nav-join') && !!document.querySelector('.nav-tools') && !!document.querySelector("link[href^='site-styles.php?v=']")?.sheet && !!document.querySelector("link[href^='page-styles.php?page=${page}&v=']")?.sheet`);
       if(ready)break;
     }
     assert.ok(ready,'Gedeelde navigatie of pagina-CSS niet geladen op '+page);
-    const cssCount=await evaluate(`document.querySelector('link[href="page-styles.php?page=${page}"]').sheet.cssRules.length`);
+    const cssCount=await evaluate(`document.querySelector("link[href^='page-styles.php?page=${page}&v=']").sheet.cssRules.length`);
     assert.ok(cssCount>5,page+': pagina-stylesheet bevat te weinig CSS-regels');
     const spotchecks={
       index:['.track-feature-list','display','flex'],
@@ -184,6 +184,32 @@ if(!diagnostic){
     console.log('Gedeelde navigatie getest: '+page);
   }
 }
+// Controleer ook de volledige bedanktpagina, inclusief uniforme footer,
+// betaalkaart en leesbare IBAN in beide thema's en alle drie de talen.
+await cmd('Page.navigate',{url:'http://127.0.0.1:8123/bedankt.php'});
+let thanksReady=false;
+for(let i=0;i<75;i++){
+  await delay(150);
+  thanksReady=await evaluate("!!document.querySelector('.bedankt-card') && !!document.querySelector('.footer-sponsors') && !!document.querySelector(\"link[href^='page-styles.php?page=bedankt&v=']\")?.sheet");
+  if(thanksReady)break;
+}
+assert.ok(thanksReady,'Bedanktpagina met volledige footer/CSS is niet geladen');
+for(const lang of ['nl','en','de']){
+  await evaluate("setLang("+JSON.stringify(lang)+")");
+  for(const theme of ['licht','donker']){
+    await evaluate("document.documentElement.setAttribute('data-thema',"+JSON.stringify(theme)+")");
+    for(const width of [320,375,390,600,768,1200,1440]){
+      await viewport(width);
+      const data=await evaluate("(() => {const $=s=>document.querySelector(s);const css=s=>getComputedStyle($(s));const r=$('.iban-number').getBoundingClientRect();const foot=$('.footer-inner').getBoundingClientRect();return {scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth,footerVisible:foot.width>0,numberLeft:r.left,numberRight:r.right,cardBg:css('.iban-card').backgroundColor,goldLight:css('html').getPropertyValue('--gold-light').trim(),goldBorder:css('.iban-card').borderTopColor,btnBg:css('.btn-primary').backgroundColor,footerCols:css('.footer-top').display,logo:!!$('.footer-brand img'),sponsors:!!$('#sponsors-grid'),credit:!!$('#footer-credit-text')}})()");
+      assert.ok(data.scroll<=data.client+1,'Bedankt heeft horizontale overflow '+lang+'/'+theme+'/'+width+': '+JSON.stringify(data));
+      assert.ok(data.numberLeft>=-1 && data.numberRight<=data.client+1,'IBAN buiten scherm '+lang+'/'+theme+'/'+width);
+      assert.ok(data.footerVisible && data.logo && data.sponsors && data.credit && data.footerCols==='grid','Footer niet gelijk aan publieke pagina: '+JSON.stringify(data));
+      assert.ok(data.btnBg!=='rgba(0, 0, 0, 0)','Primaire knop zonder achtergrond '+lang+'/'+theme);
+    }
+  }
+}
+console.log('Bedanktpagina: uniforme footer, responsieve IBAN en licht/donker in NL/EN/DE geslaagd');
+
 // Regressietest: de volledige homepage mag nooit horizontaal scrollen.
 await cmd('Page.navigate',{url:'http://127.0.0.1:8123/index.php'});
 let homeReady=false;
