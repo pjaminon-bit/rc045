@@ -86,6 +86,7 @@ for(const width of widths){
   if(!diagnostic){
     assert.equal(broken,false,'Overlap/overflow op '+width+'px');
     assert.equal(desktop,width>1200,'Onjuist breakpoint op '+width+'px');
+    if(!desktop)assert.ok(after<=16,'Taal/thema en menuknop staan te ver uiteen: '+width+'px');
     assert.ok(m.joinGlow!=='none','Lid worden glow ontbreekt bij '+width+'px');
   }
 }
@@ -124,6 +125,47 @@ if(!diagnostic){
     await viewport(1440);
     const wide=await metrics();
     assert.ok(wide['.nav-logo'].right<=wide['.nav-links'].left+0.5,'Logo raakt menu op groot scherm in '+lang);
+  }
+
+  // Alle publieke templates delen het menu. Test de daadwerkelijke rendering,
+  // inclusief de actieve menu-items, in plaats van alleen de include-string.
+  const pages=['index','aanmelden','baanreglement','fotoboek','media','ontstaan','bedankt'];
+  for(const page of pages){
+    await cmd('Page.navigate',{url:'http://127.0.0.1:8123/'+page+'.php'});
+    let ready=false;
+    for(let i=0;i<50;i++){
+      await delay(150);
+      ready=await evaluate("!!document.querySelector('#nav-join') && !!document.querySelector('.nav-tools') && !!document.querySelector('link[href=\"site-styles.php\"]')?.sheet");
+      if(ready)break;
+    }
+    assert.ok(ready,'Gedeelde navigatie niet geladen op '+page);
+    for(const width of [320,768,1200,1201,1440]){
+      await viewport(width);
+      const m=await metrics();
+      const desktop=m['.nav-links'].display!=='none';
+      assert.equal(desktop,width>1200,page+': verkeerd omslagpunt '+width);
+      assert.ok(m.navScrollWidth<=m.navClientWidth+1,page+': menu te breed '+width);
+      assert.ok(m.joinGlow!=='none',page+': gloed ontbreekt '+width);
+      if(desktop){
+        assert.ok(m['.nav-logo'].right<=m['.nav-links'].left+0.5,page+': logo overlapt '+width);
+        assert.ok(m['.nav-links'].right<=m['.nav-tools'].left+0.5,page+': tools overlappen '+width);
+      }else{
+        assert.ok(m['#hamburger'].left-m['.nav-tools'].right<=16,page+': te grote knoppengroepafstand '+width);
+      }
+    }
+    await viewport(375);
+    for(const theme of ['licht','donker']){
+      await evaluate("document.documentElement.setAttribute('data-thema',"+JSON.stringify(theme)+")");
+      await evaluate("document.querySelector('#hamburger').click()");
+      const opened=await metrics();
+      assert.ok(opened.open&&opened.expanded==='true',page+': menu opent niet in '+theme);
+      await evaluate("document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");
+      const closed=await metrics();
+      assert.ok(!closed.open&&closed.expanded==='false',page+': Escape sluit niet in '+theme);
+    }
+    const active=await evaluate("document.querySelector('#nav-join').parentElement.classList.contains('nav-active')");
+    assert.equal(active,page==='aanmelden',page+': verkeerde Lid worden actieve status');
+    console.log('Gedeelde navigatie getest: '+page);
   }
 }
 ws.close();
