@@ -8,6 +8,7 @@ on:
       - fix/unified-css-no-cache-20261029
       - fix/contrast-wcag-public-panel-20261030
       - fix/responsive-public-nav-20261030
+      - fix/mobile-page-overflow-20261030
     paths:
       - 'site-nav.php'
       - 'site-styles.php'
@@ -71,6 +72,8 @@ jobs:
           node-version: 22
 
       - name: Responsive navigatie met Chrome testen op 20 schermbreedtes en zeven pagina's
+        env:
+          MOBILE_OVERFLOW_DIAG: '1'
         run: |
           set -euo pipefail
           google-chrome --version
