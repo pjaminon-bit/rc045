@@ -1,6 +1,7 @@
 :root {
       --teal: #3A7A77; --teal-dark: #2D6260; --teal-light: #EAF4F3;
       --gold: #C89A1A; --gold-light: #FBF4DF; --rust: #8B3319;
+      --button-bg: var(--teal); --button-bg-hover: var(--teal-dark);
       --dark: #1E2C13; --text: #2A3818; --muted: #6A7560;
       --border: #DDD8C0; --bg: #FAF6EC; --white: #FFFFFF;
     }
@@ -19,6 +20,7 @@
       color-scheme: dark;
       --teal: #458E8A; --teal-dark: #7FC2BE; --teal-light: #1B2C2B;
       --gold: #D3A72B; --gold-light: #262112; --rust: #C25A3B;
+      --button-bg: #2F6A66; --button-bg-hover: #245451;
       --dark: #F2EEE2; --text: #E3DFD1; --muted: #98A18C;
       --border: #2E3626; --bg: #14180F; --white: #1C2116;
     }
@@ -69,8 +71,8 @@
     textarea:focus, input:focus, select:focus { outline: none; border-color: var(--teal); }
     .veld { margin-bottom: 18px; }
     .hint { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
-    button { width: 100%; background: var(--teal); color: white; font-size: 16px; font-weight: 700; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
-    button:hover { background: var(--teal-dark); }
+    button { width: 100%; background: var(--button-bg); color: white; font-size: 16px; font-weight: 700; padding: 12px; border: none; border-radius: 8px; cursor: pointer; }
+    button:hover { background: var(--button-bg-hover); }
     .thema-switch { position: fixed; top: 16px; right: 16px; z-index: 50; width: 36px; height: 33px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; line-height: 1; border: 1px solid var(--border); background: var(--white); font-size: 15px; color: var(--text); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.12); transition: background 0.15s, border-color 0.15s; }
     .thema-switch:hover { background: var(--teal-light); border-color: var(--teal); }
     @media (max-width: 420px) { .thema-switch { top: 10px; right: 10px; width: 33px; } }
@@ -89,7 +91,7 @@
     #logboek-tabel th { position: relative; }
     .logboek-filter-knop { font-size: 12px; font-weight: 400; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; cursor: pointer; margin-left: 4px; }
     .logboek-filter-knop:hover { background: var(--teal-light); color: var(--teal-dark); }
-    .logboek-filter-knop.actief { background: var(--teal); color: white; border-color: var(--teal); }
+    .logboek-filter-knop.actief { background: var(--button-bg); color: white; border-color: var(--teal); }
     .logboek-filter-paneel { position: absolute; top: 100%; left: 0; z-index: 20; max-width: calc(100vw - 40px); background: var(--white); border: 1.5px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 10px; min-width: 200px; max-height: 260px; overflow-y: auto; font-weight: 400; font-size: 13px; }
     .logboek-filter-paneel-acties { display: flex; gap: 10px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
     .logboek-filter-paneel-acties button { width: auto; background: none; color: var(--teal); font-size: 12px; font-weight: 700; padding: 0; }
@@ -224,7 +226,7 @@
       color: var(--muted); transition: background 0.15s, border-color 0.15s, color 0.15s;
       white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;
     }
-    .taal-toggle-mini .taal-toggle-btn[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: white; }
+    .taal-toggle-mini .taal-toggle-btn[aria-pressed="true"] { background: var(--button-bg); border-color: var(--teal); color: white; }
     .taal-toggle-mini .auto-vertaal-btn { background: var(--teal-light); color: var(--teal-dark); border-color: var(--teal); }
     .taal-toggle-mini .auto-vertaal-btn:disabled { opacity: 0.6; cursor: default; }
     /* Blijft verborgen tot je EN of DE openklikt: in de standaardstand zie je
@@ -650,6 +652,13 @@
 #tab-mijn .label.goud { background: var(--gold-light); color: #8A6A10; }
 #tab-mijn .label.rood { background: #FDECEA; color: var(--rust); }
 #tab-mijn .label.jij { background: var(--gold); color: #2A2000; }
+
+/* De ledenbadges gebruiken in donker thema dezelfde warme statuskleuren,
+   maar niet de lichte achtergronden of te donkere tekst van het lichte thema. */
+:root[data-thema="donker"] #tab-mijn .label.grijs { background: rgba(255,255,255,0.10); color: var(--muted); }
+:root[data-thema="donker"] #tab-mijn .label.goud { background: var(--gold-light); color: #E5C25A; }
+:root[data-thema="donker"] #tab-mijn .label.rood { background: rgba(194,90,59,0.22); color: #E9A78F; }
+:root[data-thema="donker"] .knop-toevoegen { color: #2A2000; }
 #tab-mijn .agenda { margin-top: 10px; padding-left: 18px; }
 #tab-mijn .agenda li { margin-bottom: 8px; }
 #tab-mijn .agenda .toel { font-size: 14px; color: var(--muted); white-space: pre-wrap; }
