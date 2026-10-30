@@ -10,8 +10,8 @@ const pages=['index','aanmelden','baanreglement','fotoboek','media','ontstaan','
 test('alle publieke pagina’s hebben één gedeelde en één eigen externe CSS-bron',()=>{
   for(const page of pages){
     const html=read(page+'.php');
-    const shared='href="site-styles.php"';
-    const own='href="page-styles.php?page='+page+'"';
+    const shared='href="site-styles.php?v=';
+    const own='href="page-styles.php?page='+page+'&amp;v=';
     assert.equal(html.split(shared).length-1,1,page+': geen unieke gedeelde stylesheet');
     assert.equal(html.split(own).length-1,1,page+': geen unieke pagina-CSS');
     assert.ok(html.indexOf(shared)<html.indexOf(own),page+': onjuiste cascadevolgorde');
@@ -27,8 +27,11 @@ test('alleen bestaande publieke pagina’s zijn opvraagbaar via de veilige CSS-r
   for(const page of pages) assert.ok(endpoint.includes("'"+page+"'"),'Pagina niet op whitelist: '+page);
   assert.match(endpoint,/in_array\(\$pagina,\s*\$toegestaan,\s*true\)/);
   assert.match(endpoint,/'\/page-styles\/'\s*\.\s*\$pagina/);
-  assert.match(endpoint,/Content-Type: text\/css/);
-  assert.match(endpoint,/Cache-Control: no-store/);
+  assert.match(endpoint,/rc045CssCacheHeaders/);
+  const cache=read('site-css-version.php');
+  assert.match(cache,/Content-Type: text\/css/);
+  assert.match(cache,/Cache-Control: public, max-age=31536000, immutable/);
+  assert.match(cache,/Cache-Control: no-store/);
   assert.match(endpoint,/readfile\(\$bestand\)/);
 });
 
@@ -64,4 +67,22 @@ test('functionele toestandsstijlen zijn behouden',()=>{
   assert.match(fotoboek,/\.photo-grid/);
   const bedankt=read('page-styles/bedankt.css');
   assert.match(bedankt,/\.bedankt-card/);
+});
+
+test('bedanktpagina gebruikt dezelfde footercomponenten als de aanmeldpagina',()=>{
+  const thank=read('bedankt.php'), register=read('aanmelden.php');
+  const ids=['footer-brand-text','footer-nav-title','footer-join-title','footer-sponsors-title',
+    'sponsors-grid','footer-sponsors-cta','footer-year','footer-credit-text'];
+  for(const id of ids){
+    assert.ok(thank.includes('id="'+id+'"'),'Bedanktfooter mist '+id);
+    assert.ok(register.includes('id="'+id+'"'),'Aanmeldfooter mist '+id);
+  }
+  assert.match(thank,/class="footer-inner"/);
+  assert.match(thank,/class="footer-top"/);
+  assert.match(thank,/class="footer-sponsors"/);
+  assert.match(thank,/class="footer-bottom"/);
+  const own=read('page-styles/bedankt.css');
+  assert.doesNotMatch(own,/\.footer\s*\{/,'Geen afwijkende footer op bedanktpagina');
+  assert.match(own,/\.iban-card\s*\{[^}]+var\(--gold-light\)/);
+  assert.match(own,/\.iban-number-row\s*\{[^}]*flex-wrap:\s*wrap/);
 });
