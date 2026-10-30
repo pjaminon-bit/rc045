@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="site-styles.php">
   <style>
     
-    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/hero-achtergrond.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
+    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
     
     .main { max-width: 800px; margin: 0 auto; padding: 56px 24px 80px; }
     
