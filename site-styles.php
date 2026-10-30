@@ -4,8 +4,8 @@ declare(strict_types=1);
 /**
  * Gedeelde CSS voor alle publieke RC045-pagina's.
  * Gedeelde opmaak staat in styles.css; pagina-eigen CSS in page-styles/.
- * No-store voorkomt dat een oude stylesheet de actieve navigatie overschrijft.
- * Er zijn geen versienummers of datumparameters nodig.
+ * Voor URL's met de actuele inhoudshash is langdurige caching veilig.
+ * Oude of verkeerd geversioneerde URL's blijven bewust no-store.
  */
 $bestand = __DIR__ . '/styles.css';
 
@@ -15,9 +15,7 @@ if (!is_file($bestand) || !is_readable($bestand)) {
     exit('Stylesheet niet beschikbaar.');
 }
 
-header('Content-Type: text/css; charset=UTF-8');
-header('Cache-Control: no-store, no-cache, max-age=0, must-revalidate');
-header('Pragma: no-cache');
-header('Expires: 0');
+require_once __DIR__ . '/site-css-version.php';
+rc045CssCacheHeaders('styles.css');
 
 readfile($bestand);
