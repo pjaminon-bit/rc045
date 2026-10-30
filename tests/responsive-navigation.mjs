@@ -209,5 +209,34 @@ if(process.env.MOBILE_OVERFLOW_DIAG==='1'){
     console.log('MOBILE OVERFLOW DIAGNOSTIC '+JSON.stringify(result));
   }
 }
+// Regressietest: de volledige homepage mag nooit horizontaal scrollen.
+await cmd('Page.navigate',{url:'http://127.0.0.1:8123/index.php'});
+let homeReady=false;
+for(let i=0;i<60;i++){
+  await delay(150);
+  homeReady=await evaluate("!!document.querySelector('#telefoon') && !!document.querySelector('#contact') && !!document.querySelector('.nav-tools')");
+  if(homeReady)break;
+}
+assert.ok(homeReady,'Homepage of contactformulier ontbreekt');
+for(const language of ['nl','en','de']){
+  await evaluate("setLang("+JSON.stringify(language)+")");
+  for(const theme of ['licht','donker']){
+    await evaluate("document.documentElement.setAttribute('data-thema',"+JSON.stringify(theme)+")");
+    for(const width of [320,360,375,390,480,600,700,768,900,1200,1440]){
+      await viewport(width);
+      const result=await evaluate("(() => {const d=document.documentElement;const tel=document.querySelector('#telefoon').getBoundingClientRect();return {width:innerWidth,client:d.clientWidth,scroll:d.scrollWidth,phoneRight:tel.right,phoneLeft:tel.left,formWidth:document.querySelector('#contact-form').getBoundingClientRect().width};})()");
+      assert.ok(result.scroll<=result.client+1,
+        'Horizontale scroll '+language+'/'+theme+'/'+width+'px: '+JSON.stringify(result));
+      assert.ok(result.phoneLeft>=-1 && result.phoneRight<=result.client+1,
+        'Telefoonveld buiten scherm '+language+'/'+theme+'/'+width+'px: '+JSON.stringify(result));
+    }
+    await viewport(320);
+    await evaluate("document.querySelector('#hamburger').click()");
+    const opened=await evaluate("({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth})");
+    assert.ok(opened.scroll<=opened.client+1,'Open mobiel menu veroorzaakt overflow '+language+'/'+theme+': '+JSON.stringify(opened));
+    await evaluate("document.querySelector('#hamburger').click()");
+  }
+  console.log('Homepage horizontale overflow getest in '+language+': 11 breedtes, licht/donker');
+}
 ws.close();
 console.log('Viewporttests gereed'+(diagnostic?' (diagnostiek)':' (geslaagd)'));
