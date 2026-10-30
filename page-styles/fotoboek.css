@@ -1,5 +1,5 @@
 /* RC045: pagina-specifieke opmaak fotoboek. De algemene stijlen staan in styles.css. */
-.page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/crawlercollage.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
+.page-hero-bg { background-image: url('images/crawlercollage.jpg'); }
     
     .main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 80px; }
     
