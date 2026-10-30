@@ -7,7 +7,16 @@
 - **`site-styles.php`** serveert de gedeelde stylesheet.
 - **`page-styles.php?page=<pagina>`** serveert uitsluitend een van de zeven toegestane pagina-stylesheets. De twee links staan in deze volgorde in de HTML, zodat pagina-specifieke overschrijvingen behouden blijven.
 
-Bestaande cachingheaders (`no-store`) zijn bewust niet gewijzigd. Eventuele toekomstige cachingoptimalisatie is een afzonderlijk auditpunt.
+## CSS-caching (automatische versiehash)
+
+De zeven publieke PHP-pagina's genereren twee stylesheetlinks met een inhoudshash van 16 hex-tekens (`?v=<hash>`) via `site-css-version.php`.
+
+- **Actuele hash:** `site-styles.php` en `page-styles.php` sturen `Cache-Control: public, max-age=31536000, immutable`. Het bestand kan dan tot een jaar uit de browsercache komen zonder nieuwe download.
+- **Gewijzigde CSS:** de inhoudshash (SHA-256) verandert en de PHP-pagina geeft automatisch een nieuwe URL terug. De browser haalt dus direct de nieuwe CSS op bij het bezoeken van de aangepaste pagina.
+- **Oude links zonder hash of met onjuiste hash:** blijven `no-store` en geven de actuele CSS terug. Bestaande bookmarks of oude pagina's blijven daardoor werken en ontvangen geen verouderde styling.
+- **Toegestane pagina's:** `page-styles.php` blijft een vaste whitelist hanteren en gebruikt geen vrij doorgegeven bestandsnaam.
+
+Wijzig een versienummer niet handmatig. De inhoud van het CSS-bestand is de enige bron van waarheid. De beveiliging geldt alleen voor de publieke CSS; de server-only beheerdata (`data/`) en leden-/beheerpanelen hebben geen aangepaste cachingregels.
 
 ## Wijzigingsregels
 
