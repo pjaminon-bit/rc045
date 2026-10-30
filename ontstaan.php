@@ -14,43 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site-styles.php">
-  <style>
-    
-    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-image: url('images/crawlergroen.jpg'); background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
-    
-    .main { max-width: 1000px; margin: 0 auto; padding: 56px 24px 80px; }
-    
-    .story-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); margin-bottom: 48px; }
-    
-    .story-card p { font-size: 16px; color: var(--muted); line-height: 1.85; margin-bottom: 18px; }
-    
-    .story-card p:last-child { margin-bottom: 0; }
-    
-    .story-card strong { color: var(--dark); }
-    
-    .photos-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 20px; }
-    
-    .ontstaan-grid { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 240px; gap: 16px; border-radius: var(--radius); overflow: hidden; }
-    
-    .ontstaan-grid + .ontstaan-grid { margin-top: 16px; }
-    
-    .ontstaan-photo { object-fit: cover; width: 100%; height: 100%; transition: transform 0.4s; cursor: pointer; }
-    
-    .ontstaan-photo:hover { transform: scale(1.05); }
-    
-    .ontstaan-photo-wrap { overflow: hidden; }
-    
-    .ontstaan-photo-wrap.tall { grid-row: span 2; }
-    
-    .ontstaan-photo-wrap.empty { background: var(--teal-light); display: flex; align-items: center; justify-content: center; color: var(--teal-dark); font-size: 13px; font-weight: 600; text-align: center; padding: 16px; }
-    
-    @media (max-width: 700px) {
-    .ontstaan-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
-    .ontstaan-photo-wrap.tall { grid-row: span 1; }
-    }
-    
-    @media (max-width: 600px) { .story-card { padding: 24px 20px; } }
-  </style>
+  <link rel="stylesheet" href="page-styles.php?page=ontstaan">
   <script data-goatcounter="https://rc045.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
