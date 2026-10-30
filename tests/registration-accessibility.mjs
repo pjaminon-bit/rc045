@@ -49,8 +49,17 @@ function faqState(){
 }
 const faq=()=>evaluate('('+faqState.toString()+')()');
 async function press(key,code,windowsVirtualKeyCode){
-  await cmd('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode});
-  await cmd('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode});
+  // CDP laat bij Enter/spatie de karaktergebeurtenis afzonderlijk
+  // doorlopen; een losse keyDown is niet altijd een volledige toetsaanslag.
+  if (key === 'Enter' || key === ' ') {
+    const text = key === 'Enter' ? '\r' : ' ';
+    await cmd('Input.dispatchKeyEvent',{type:'rawKeyDown',key,code,windowsVirtualKeyCode});
+    await cmd('Input.dispatchKeyEvent',{type:'char',key,code,windowsVirtualKeyCode,text,unmodifiedText:text});
+    await cmd('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode});
+  } else {
+    await cmd('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode});
+    await cmd('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode});
+  }
   await delay(70);
 }
 try{
