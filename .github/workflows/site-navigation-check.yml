@@ -9,6 +9,7 @@ on:
       - fix/contrast-wcag-public-panel-20261030
       - fix/responsive-public-nav-20261030
       - fix/mobile-page-overflow-20261030
+      - fix/registration-mobile-faq-accessibility-20261030
     paths:
       - 'site-nav.php'
       - 'site-styles.php'
@@ -19,6 +20,8 @@ on:
       - 'site-i18n.js'
       - 'tests/shared-navigation.test.cjs'
       - 'tests/responsive-navigation.mjs'
+      - 'tests/registration-accessibility.mjs'
+      - 'tests/registration-faq-fixture.json'
       - '.github/workflows/site-navigation-check.yml'
   workflow_dispatch:
 
@@ -75,9 +78,13 @@ jobs:
         run: |
           set -euo pipefail
           google-chrome --version
+          # Alleen de CI-runner krijgt testdata; servergegevens blijven ongemoeid.
+          mkdir -p data
+          cp tests/registration-faq-fixture.json data/faq.json
           php -S 127.0.0.1:8123 -t . >/tmp/rc045-responsive-php.log 2>&1 &
           php_pid=$!
           google-chrome --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --remote-allow-origins='*' --remote-debugging-port=9222 --user-data-dir=/tmp/rc045-nav-cdp about:blank >/tmp/rc045-responsive-chrome.log 2>&1 &
           chrome_pid=$!
           trap 'status=$?; if [ "$status" -ne 0 ]; then tail -60 /tmp/rc045-responsive-chrome.log || true; tail -40 /tmp/rc045-responsive-php.log || true; fi; kill "$php_pid" "$chrome_pid" 2>/dev/null || true' EXIT
           node tests/responsive-navigation.mjs
+          node tests/registration-accessibility.mjs
