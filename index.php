@@ -509,6 +509,11 @@
     
     .form-group input, .form-group textarea, .form-group select { padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--text); background: var(--bg); transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
     
+    /* In de telefoonrij blijft de landcode 110px; het invoerveld
+       moet op telefoons wel kleiner mogen worden dan de standaard
+       min-content-breedte van een HTML-input. */
+    #telefoon { min-width: 0; }
+
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,122,119,0.12); }
     
     .form-group textarea { resize: vertical; min-height: 120px; }
