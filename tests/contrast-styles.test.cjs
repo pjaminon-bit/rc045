@@ -80,7 +80,7 @@ test('navigatieglow en zeven gedeelde pagina-templates blijven bestaan',()=>{
   assert.ok(css.includes('.page-hero .section-label, .rules .section-label { color: var(--gold); }'));
   for(const page of ['index','aanmelden','baanreglement','fotoboek','media','ontstaan','bedankt']){
     const html=read(page+'.php');
-    assert.ok(html.includes('href="site-styles.php"'),page+' stylesheet');
+    assert.ok(html.includes('href="site-styles.php?v='),page+' stylesheet');
     assert.ok(html.includes("require __DIR__ . '/site-nav.php'"),page+' navigation');
   }
 });
