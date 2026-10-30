@@ -212,6 +212,21 @@ function updateInternalLinks(lang) {
     document.addEventListener('touchstart', function (e) {
       if (balk && !balk.contains(e.target)) sluit();
     }, { passive: true });
+
+    // Niet opnieuw openvallen bij het terugschalen van desktop naar mobiel.
+    var desktop = window.matchMedia('(min-width: 1101px)');
+    if (desktop.addEventListener) desktop.addEventListener('change', sluit);
+    else if (desktop.addListener) desktop.addListener(sluit);
+
+    links.addEventListener('click', function (e) {
+      if (e.target.closest('a')) sluit();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && links.classList.contains('open')) {
+        sluit();
+        knop.focus();
+      }
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
