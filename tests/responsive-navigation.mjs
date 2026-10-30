@@ -6,14 +6,14 @@ const diagnostic = process.env.NAV_DIAGNOSTICS_ONLY === '1';
 const widths = [320,360,375,390,480,600,700,701,768,820,900,960,1024,1080,1100,1120,1150,1200,1201,1440];
 const delay = ms => new Promise(r => setTimeout(r,ms));
 let target;
-for (let i=0;i<40;i++) {
+for (let i=0;i<120;i++) {
   try {
     const res=await fetch('http://127.0.0.1:9222/json');
     if(res.ok){target=(await res.json()).find(x=>x.type==='page');if(target?.webSocketDebuggerUrl)break;}
   } catch {}
-  await delay(200);
+  await delay(250);
 }
-assert.ok(target?.webSocketDebuggerUrl,'Chrome niet bereikbaar');
+assert.ok(target?.webSocketDebuggerUrl,'Chrome niet bereikbaar (30 seconden lang geen CDP-endpoint)');
 const ws=new WebSocket(target.webSocketDebuggerUrl);
 await new Promise((resolve,reject)=>{ws.addEventListener('open',resolve,{once:true});ws.addEventListener('error',reject,{once:true});});
 let id=0;
