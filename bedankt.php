@@ -67,7 +67,53 @@
 </main>
 
 <footer class="footer">
-  <p>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South · <a href="index.html" data-i18n="nav.back">Terug naar de site</a></p>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img width="400" height="423" src="rc045-logo.png" alt="RC045" loading="lazy" decoding="async">
+        <p id="footer-brand-text" data-i18n="footer.brand">Een gezellige vereniging voor liefhebbers van elektrisch aangedreven RC-auto's in de regio Zuid-Limburg. Voor beginners én ervaren rijders.</p>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/rc045/" target="_blank" title="Facebook" aria-label="RC045 op Facebook" id="footer-facebook-link">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/2023_Facebook_icon.svg" alt="" width="28" height="28" aria-hidden="true" loading="lazy" decoding="async">
+          </a>
+          <span title="Instagram (binnenkort)" class="footer-social-soon" aria-label="Instagram binnenkort beschikbaar">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="" width="28" height="28" aria-hidden="true" loading="lazy" decoding="async">
+          </span>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 id="footer-nav-title" data-i18n="footer.nav">Navigatie</h4>
+        <ul>
+          <li><a href="index.html#over-ons" id="footer-link-about" data-i18n="nav.about">Over ons</a></li>
+          <li><a href="ontstaan.html" id="footer-link-origin" data-i18n="footer.origin">Het ontstaan</a></li>
+          <li><a href="media.html" id="footer-link-media" data-i18n="footer.media">Media</a></li>
+          <li><a href="fotoboek.html" id="footer-link-photobook" data-i18n="footer.photobook">Fotoboek</a></li>
+          <li><a href="index.html#activiteiten" id="footer-link-calendar" data-i18n="footer.calendar">Activiteitenkalender</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 id="footer-join-title" data-i18n="footer.join">Meedoen</h4>
+        <ul>
+          <li><a href="aanmelden.html" id="footer-link-become" data-i18n="footer.become">Lid worden</a></li>
+          <li><a href="index.html#lidmaatschap" id="footer-link-guesttag" data-i18n="guest.tag">Gastrijden</a></li>
+          <li><a href="baanreglement.html" id="footer-link-rules" data-i18n="footer.rules">Baanreglement</a></li>
+          <li><a href="index.html#contact" id="footer-link-sponsor" data-i18n="footer.sponsor">Sponsoring</a></li>
+          <li><a href="index.html#contact" id="footer-link-contact" data-i18n="nav.contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-sponsors">
+      <div class="footer-sponsors-title" id="footer-sponsors-title" data-i18n="footer.sponsors.title">Met dank aan onze sponsoren</div>
+      <div class="footer-sponsors-grid" id="sponsors-grid">
+        <!-- Sponsors worden hier ingevuld vanuit data/sponsors.json, bij te werken via beheer.php -->
+      </div>
+      <p class="footer-sponsors-cta" id="footer-sponsors-cta"></p>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2021 – <span id="footer-year"></span> RC045 · Bashers of the South</span>
+      <span><span id="footer-credit-text" data-i18n="footer.credit">Website door</span> <a class="footer-credit-link" href="mailto:pjaminon@me.com?subject=Website%20RC045">Pascal Jaminon</a></span>
+    </div>
+  </div>
 </footer>
 
 <script src="site-i18n.js"></script>
