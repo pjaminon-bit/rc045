@@ -98,7 +98,7 @@
     
     .info-location-link:hover { color: var(--teal-dark); border-bottom-color: var(--teal-dark); }
     
-    .status-open { display: inline-flex; align-items: center; gap: 6px; color: #16A34A; font-size: 13px; font-weight: 600; margin-top: 2px; }
+    .status-open { display: inline-flex; align-items: center; gap: 6px; color: #147D37; font-size: 13px; font-weight: 600; margin-top: 2px; }
     
     .status-open::before { content: ''; width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
     
@@ -172,7 +172,7 @@
     
     .feature-card p { font-size: 13px; color: var(--muted); }
     
-    .about-photos-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin: 56px 0 20px; }
+    .about-photos-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-text); margin: 56px 0 20px; }
     
     .about-photos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; border-radius: var(--radius); overflow: hidden; }
     
@@ -310,7 +310,7 @@
     
     .agenda-card-tag.open-dag { background: var(--teal-light); color: var(--teal-dark); }
     
-    .agenda-card-tag.leden { background: var(--gold-light); color: var(--gold); }
+    .agenda-card-tag.leden { background: var(--gold-light); color: var(--gold-text); }
     
     .agenda-card-tag.wedstrijd { background: #FEE2E2; color: #DC2626; }
     
@@ -336,7 +336,7 @@
 
     .nieuws-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
 
-    .nieuws-card-date { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); margin-bottom: 8px; }
+    .nieuws-card-date { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold-text); margin-bottom: 8px; }
 
     .nieuws-card h3 { font-size: 17px; font-weight: 700; color: var(--dark); margin-bottom: 8px; }
 
