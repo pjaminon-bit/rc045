@@ -71,8 +71,6 @@ jobs:
           node-version: 22
 
       - name: Responsive menu met Chrome testen op 19 schermbreedtes
-        env:
-          NAV_DIAGNOSTICS_ONLY: '1'
         run: |
           set -euo pipefail
           google-chrome --version
