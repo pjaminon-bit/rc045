@@ -517,6 +517,11 @@
     
     @media (max-width: 900px) {
           .about-grid, .pricing-grid, .location-grid, .contact-grid, .footer-top { grid-template-columns: 1fr; }
+          /* De afbeeldingen in 'Over ons' hebben een intrinsieke breedte.
+             Met 1fr houdt CSS Grid die minimummaat aan (ca. 676px), zelfs
+             op een smalle telefoon. Laat de kolom en beide kinderen krimpen. */
+          .about-grid { grid-template-columns: minmax(0, 1fr); }
+          .about-grid > * { min-width: 0; }
           .info-bar-inner { grid-template-columns: 1fr; }
           .info-item { border-right: none; border-bottom: 1px solid var(--border); padding: 20px 0 !important; }
           .info-item:last-child { border-bottom: none; }
