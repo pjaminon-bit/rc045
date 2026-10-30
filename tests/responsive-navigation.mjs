@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 
 const diagnostic = process.env.NAV_DIAGNOSTICS_ONLY === '1';
-const widths = [320,360,375,390,480,600,700,701,768,820,900,960,1024,1080,1100,1120,1150,1200,1440];
+const widths = [320,360,375,390,480,600,700,701,768,820,900,960,1024,1080,1100,1120,1150,1200,1201,1440];
 const delay = ms => new Promise(r => setTimeout(r,ms));
 let target;
 for (let i=0;i<40;i++) {
@@ -85,12 +85,12 @@ for(const width of widths){
     logoRight:logo.right,toolsLeft:tools.left,menuWidth:links.width,navScroll:m.navScrollWidth,navClient:m.navClientWidth,broken}));
   if(!diagnostic){
     assert.equal(broken,false,'Overlap/overflow op '+width+'px');
-    assert.equal(desktop,width>1100,'Onjuist breakpoint op '+width+'px');
+    assert.equal(desktop,width>1200,'Onjuist breakpoint op '+width+'px');
     assert.ok(m.joinGlow!=='none','Lid worden glow ontbreekt bij '+width+'px');
   }
 }
 if(!diagnostic){
-  for(const width of [320,375,700,768,900,1100]){
+  for(const width of [320,375,700,900,1100,1200]){
     await viewport(width);
     for(const theme of ['licht','donker']){
       await evaluate("document.documentElement.setAttribute('data-thema',"+JSON.stringify(theme)+")");
@@ -104,17 +104,18 @@ if(!diagnostic){
       assert.ok(!m.open&&m.expanded==='false','Mobiel menu sluit niet: '+width+'/'+theme);
     }
   }
-  await viewport(1100);
+  await viewport(1200);
   await evaluate("document.querySelector('#hamburger').click()");
   assert.ok((await metrics()).open);
-  await viewport(1101);
+  await viewport(1201);
   assert.equal((await metrics()).expanded,'false','Open mobiel menu reset niet na vergroten');
-  await viewport(1100);
+  await viewport(1200);
   assert.equal((await metrics()).open,false,'Mobiel menu heropent onbedoeld');
   for(const lang of ['nl','en','de']){
-    await viewport(1101);
+    await viewport(1201);
     await evaluate("setLang("+JSON.stringify(lang)+")");
     const m=await metrics();
+    console.log('Locale desktop '+lang+' '+JSON.stringify({menuWidth:m['.nav-links'].width,available:m['.nav-inner'].width,items:m.items.map(i=>({text:i.text,lineBoxes:i.lineBoxes,width:i.rect.width}))}));
     assert.equal(m['.nav-links'].display,'flex');
     assert.ok(m['.nav-logo'].right<=m['.nav-links'].left+0.5,'Logo raakt menu in '+lang);
     assert.ok(m['.nav-links'].right<=m['.nav-tools'].left+0.5,'Menu raakt knoppen in '+lang);
