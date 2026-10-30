@@ -14,45 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="site-styles.php">
-  <style>
-    
-    .page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
-    
-    .main { max-width: 800px; margin: 0 auto; padding: 56px 24px 80px; }
-    
-    .intro-card { background: var(--teal-light); border: 1.5px solid var(--teal); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 40px; font-size: 15px; color: var(--teal-dark); line-height: 1.7; }
-    
-    .artikel { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 20px; box-shadow: var(--shadow); }
-    
-    .artikel-header { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 20px; }
-    
-    .artikel-num { font-family: 'Poppins', sans-serif; font-size: 36px; font-weight: 800; color: rgba(200,154,26,0.35); line-height: 1; flex-shrink: 0; min-width: 48px; }
-    
-    .artikel-title { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 700; color: var(--dark); padding-top: 6px; }
-    
-    .artikel-body { font-size: 15px; color: var(--muted); line-height: 1.8; }
-    
-    .artikel-body p { margin-bottom: 12px; }
-    
-    .artikel-body p:last-child { margin-bottom: 0; }
-    
-    .artikel-body ul { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-    
-    .artikel-body ul li { display: flex; align-items: flex-start; gap: 10px; }
-    
-    .artikel-body ul li::before { content: '•'; color: var(--teal); font-size: 18px; flex-shrink: 0; margin-top: -1px; }
-    
-    .sub-artikel { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
-    
-    .sub-artikel-title { font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
-    
-    @media (max-width: 600px) {
-          .artikel { padding: 24px 20px; }
-          .artikel-num { font-size: 28px; }
-          .artikel-title { font-size: 17px; }
-        }
-    
-    </style>
+  <link rel="stylesheet" href="page-styles.php?page=baanreglement">
   <script data-goatcounter="https://rc045.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
