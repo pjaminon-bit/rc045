@@ -298,6 +298,8 @@ body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; colo
 .footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 48px 24px 32px; }
 
 .page-hero { background: var(--dark); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; min-height: 280px; display: flex; align-items: center; justify-content: center; }
+/* Gedeelde hero-afbeeldingslaag: pagina's kiezen alleen eventueel hun eigen foto. */
+.page-hero-bg { position: absolute; top: -80px; left: 0; right: 0; bottom: -80px; background-size: cover; background-position: center; opacity: 0.35; will-change: transform; }
 
 .page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto; line-height: 1.7; }
 
