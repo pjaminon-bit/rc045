@@ -470,3 +470,6 @@ body { font-family: 'Inter', sans-serif; font-size: 16px; line-height: 1.6; colo
   .nav-tools { gap: 6px; }
   .thema-switch { width: 33px; }
 }
+
+/* Gedeelde, nog niet beschikbare Instagram-link in de publieke footers. */
+.footer-social-soon { opacity: 0.3; display: flex; align-items: center; }
