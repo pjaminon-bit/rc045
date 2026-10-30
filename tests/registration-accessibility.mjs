@@ -98,7 +98,15 @@ try{
   }
   await evaluate("document.querySelector('#faq-items button.faq-question').focus()");
   assert.ok((await faq())[0].focused,'FAQ niet focusbaar');
-  assert.equal((await faq())[0].outline,'solid','FAQ-focusrand niet zichtbaar');
+  // Gebruik echte Tab-navigatie: focus-visible wordt pas na toetsenbordfocus
+  // verwacht, niet bij een programmatische .focus() na muis/touch-emulatie.
+  await press('Tab','Tab',9);
+  assert.ok((await faq())[1].focused,'Tab bereikt volgende FAQ-vraag niet');
+  await cmd('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9,modifiers:8});
+  await cmd('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9,modifiers:8});
+  await delay(70);
+  assert.ok((await faq())[0].focused,'Shift+Tab keert niet terug naar eerste vraag');
+  assert.equal((await faq())[0].outline,'solid','Focusrand ontbreekt bij toetsenbordnavigatie');
 
   await press('Enter','Enter',13);
   items=await faq();
