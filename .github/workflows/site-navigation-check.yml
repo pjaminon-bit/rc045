@@ -71,9 +71,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Responsive navigatie met Chrome testen op 20 schermbreedtes en zeven pagina's
-        env:
-          MOBILE_OVERFLOW_DIAG: '1'
+      - name: Responsive navigatie en mobiele paginabreedte testen met Chrome
         run: |
           set -euo pipefail
           google-chrome --version
