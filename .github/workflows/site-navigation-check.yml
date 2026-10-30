@@ -7,6 +7,7 @@ on:
       - feature/shared-public-navigation-20261029
       - fix/unified-css-no-cache-20261029
       - fix/contrast-wcag-public-panel-20261030
+      - fix/responsive-public-nav-20261030
     paths:
       - 'site-nav.php'
       - 'site-styles.php'
@@ -16,6 +17,7 @@ on:
       - '*.php'
       - 'site-i18n.js'
       - 'tests/shared-navigation.test.cjs'
+      - 'tests/responsive-navigation.mjs'
       - '.github/workflows/site-navigation-check.yml'
   workflow_dispatch:
 
@@ -56,3 +58,27 @@ jobs:
           grep -qi '^Cache-Control: .*no-store' /tmp/rc045-css-headers
           grep -Fq '.nav-links .nav-lid.nav-active a' /tmp/rc045-css-body
           grep -Fq '@keyframes navJoinGlow' /tmp/rc045-css-body
+
+  viewport:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Node 22 beschikbaar maken
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Responsive menu met Chrome testen op 19 schermbreedtes
+        env:
+          NAV_DIAGNOSTICS_ONLY: '1'
+        run: |
+          set -euo pipefail
+          google-chrome --version
+          php -S 127.0.0.1:8123 -t . >/tmp/rc045-responsive-php.log 2>&1 &
+          php_pid=$!
+          google-chrome --headless --no-sandbox --disable-gpu --remote-allow-origins='*' --remote-debugging-port=9222 --user-data-dir=/tmp/rc045-nav-cdp about:blank >/tmp/rc045-responsive-chrome.log 2>&1 &
+          chrome_pid=$!
+          trap 'kill "$php_pid" "$chrome_pid" 2>/dev/null || true' EXIT
+          node tests/responsive-navigation.mjs
