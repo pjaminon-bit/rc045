@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/seo-head.php'; ?><!DOCTYPE html>
+<?php require_once __DIR__ . '/seo-head.php'; require_once __DIR__ . '/site-css-version.php'; ?><!DOCTYPE html>
 <html lang="<?php echo rc045Taal(); ?>">
 <head>
 <meta charset="UTF-8">
@@ -13,8 +13,8 @@
 <meta name="theme-color" content="#1E2C13">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="site-styles.php">
-  <link rel="stylesheet" href="page-styles.php?page=ontstaan">
+<link rel="stylesheet" href="site-styles.php?v=<?= rc045CssVersion('styles.css') ?>">
+  <link rel="stylesheet" href="page-styles.php?page=ontstaan&amp;v=<?= rc045CssVersion('page-styles/ontstaan.css') ?>">
   <script data-goatcounter="https://rc045.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
