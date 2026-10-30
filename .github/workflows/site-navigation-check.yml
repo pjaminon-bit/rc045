@@ -6,10 +6,13 @@ on:
       - main
       - feature/shared-public-navigation-20261029
       - fix/unified-css-no-cache-20261029
+      - fix/contrast-wcag-public-panel-20261030
     paths:
       - 'site-nav.php'
       - 'site-styles.php'
       - 'styles.css'
+      - 'paneel.css'
+      - 'tests/contrast-styles.test.cjs'
       - '*.php'
       - 'site-i18n.js'
       - 'tests/shared-navigation.test.cjs'
@@ -37,6 +40,9 @@ jobs:
 
       - name: Gedeelde menustructuur testen
         run: node --test tests/shared-navigation.test.cjs
+
+      - name: WCAG AA contrastwaarden en gedeelde opmaak testen
+        run: node --test tests/contrast-styles.test.cjs
 
       - name: HTTP-headers en glow van stylesheet controleren
         run: |
