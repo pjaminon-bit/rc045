@@ -21,3 +21,9 @@ Bij een volgende wijziging in een publieke pagina met een nieuw vast `images/*.j
 Inventarisatie van de vaste afbeeldingsverwijzingen komt uit de actuele publieke PHP/HTML/CSS/JS-bronnen. De eenmalige FTPS-import is alleen-lezen voor de productiehosting en schrijft ontbrekende bestanden uitsluitend naar de GitHub-featurebranch. Controleer de ontbrekende bestandsnamen in het workflowlog voordat de import wordt gepubliceerd.
 
 De bestaande FTPS-deployment staat ingesteld met `dangerous-clean-slate: false` en uitzonderingen voor alle dynamische uploadmappen. Die uitzonderingen mogen niet worden verwijderd.
+
+## Resultaat inventarisatie op 30 oktober 2026
+
+Van de 35 unieke vaste afbeeldingsverwijzingen zijn 34 originele afbeeldingen (samen 18.077.576 bytes) rechtstreeks van de productiehosting overgenomen naar de repository. De SHA256-controlewaarden staan in het importlog van GitHub Actions-run 41057218666. De fotoboek- en sponsoruploadmappen zijn niet geïmporteerd.
+
+**Nog ontbrekend op de productiehosting:** `images/hero-achtergrond.jpg`, waarnaar `aanmelden.php` en `baanreglement.php` verwijzen. Dit bestand is bewust niet vervangen door een niet-overeenkomende foto. Hiervoor is een afzonderlijke keuze van een passende afbeelding nodig.
