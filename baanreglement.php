@@ -57,7 +57,7 @@
       <div class="artikel-title" id="br-a2-title" data-i18n="a2.title">Veiligheid</div>
     </div>
     <div class="artikel-body" id="br-a2-body">
-      <div class="sub-artikel" style="padding-top:0; border-top:none;">
+      <div class="sub-artikel sub-artikel-no-divider">
         <div class="sub-artikel-title" data-i18n="a2.1.title">2.1 Rijderspodium</div>
         <p data-i18n="a2.1.p1">Het is verboden voor niet-rijders zich op de baan te bevinden. Alleen rijders bevinden zich op de baan (rijderspodium). Aangewezen personen met een hesje mogen op de baan zijn in de rol van baanmeester. Kijkers dienen achter de draad te staan.</p>
         <p data-i18n="a2.1.p2">De definitie van rijder is een lid of gastrijder die op dat moment een RC-auto bestuurt.</p>
@@ -147,7 +147,7 @@
       <div class="artikel-title" id="br-a8-title" data-i18n="a8.title">Opruimen</div>
     </div>
     <div class="artikel-body" id="br-a8-body">
-      <div class="sub-artikel" style="padding-top:0; border-top:none;">
+      <div class="sub-artikel sub-artikel-no-divider">
         <div class="sub-artikel-title" data-i18n="a8.1.title">8.1 Terrein netjes houden</div>
         <p data-i18n="a8.1.p1">Ieder lid en gastrijder verplicht zich tot het opruimen en netjes houden van ons terrein. Zwerfafval moet worden voorkomen, waar nodig ruimen we dit met z'n allen op. Afval doen we scheiden in de daarvoor aangewezen prullenbakken en zakken. De kantine wordt door iedereen opgeruimd en schoongemaakt.</p>
       </div>
