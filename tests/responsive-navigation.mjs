@@ -46,7 +46,8 @@ function browserMetrics(){
       top:Math.round(r.top*10)/10,bottom:Math.round(r.bottom*10)/10,
       width:Math.round(r.width*10)/10,display:s.display};
   };
-  const out={width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+  const nav=document.querySelector('#main-nav');
+  const out={width:innerWidth,navScrollWidth:nav.scrollWidth,navClientWidth:nav.clientWidth,
     lang:document.documentElement.lang,theme:document.documentElement.dataset.thema};
   for(const selector of ids){
     const el=document.querySelector(selector);
@@ -54,7 +55,7 @@ function browserMetrics(){
   }
   const links=document.querySelector('.nav-links');
   out.items=Array.from(links?.querySelectorAll('li')||[],el=>({
-    text:el.innerText,rect:rect(el),textRect:rect(el.querySelector('a'))
+    text:el.innerText,rect:rect(el),textRect:rect(el.querySelector('a')),lineBoxes:el.querySelector('a').getClientRects().length
   }));
   out.joinGlow=getComputedStyle(document.querySelector('#nav-join')).boxShadow;
   out.open=links?.classList.contains('open')||false;
@@ -78,10 +79,10 @@ for(const width of widths){
   const between=desktop?links.left-logo.right:tools.left-logo.right;
   const after=desktop?tools.left-links.right:hamb.left-tools.right;
   const overlap=between< -0.5||after< -0.5;
-  const compressed=desktop&&m.items.some(i=>i.rect.width+0.5<i.textRect.width);
-  const broken=overlap||compressed||m.scrollWidth>width+1;
+  const compressed=desktop&&m.items.some(i=>i.rect.width+0.5<i.textRect.width||i.lineBoxes>1);
+  const broken=overlap||compressed||m.navScrollWidth>m.navClientWidth+1;
   console.log(JSON.stringify({width,desktop,between:+between.toFixed(1),after:+after.toFixed(1),innerWidth:inner.width,
-    logoRight:logo.right,toolsLeft:tools.left,menuWidth:links.width,scroll:m.scrollWidth,broken}));
+    logoRight:logo.right,toolsLeft:tools.left,menuWidth:links.width,navScroll:m.navScrollWidth,navClient:m.navClientWidth,broken}));
   if(!diagnostic){
     assert.equal(broken,false,'Overlap/overflow op '+width+'px');
     assert.equal(desktop,width>1100,'Onjuist breakpoint op '+width+'px');
@@ -111,13 +112,17 @@ if(!diagnostic){
   await viewport(1100);
   assert.equal((await metrics()).open,false,'Mobiel menu heropent onbedoeld');
   for(const lang of ['nl','en','de']){
-    await viewport(1440);
+    await viewport(1101);
     await evaluate("setLang("+JSON.stringify(lang)+")");
     const m=await metrics();
     assert.equal(m['.nav-links'].display,'flex');
     assert.ok(m['.nav-logo'].right<=m['.nav-links'].left+0.5,'Logo raakt menu in '+lang);
     assert.ok(m['.nav-links'].right<=m['.nav-tools'].left+0.5,'Menu raakt knoppen in '+lang);
-    assert.ok(m.items.every(i=>i.rect.width+0.5>=i.textRect.width),'Menu-item te smal in '+lang);
+    assert.ok(m.items.every(i=>i.rect.width+0.5>=i.textRect.width&&i.lineBoxes===1),'Menu-item te smal in '+lang);
+    assert.ok(m.navScrollWidth<=m.navClientWidth+1,'Navbar te breed in '+lang);
+    await viewport(1440);
+    const wide=await metrics();
+    assert.ok(wide['.nav-logo'].right<=wide['.nav-links'].left+0.5,'Logo raakt menu op groot scherm in '+lang);
   }
 }
 ws.close();
