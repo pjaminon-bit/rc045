@@ -1,25 +1,54 @@
-name: RC045 vaste afbeeldingen inventariseren (eenmalig)
+name: RC045 vaste afbeeldingen importeren (eenmalig)
 
 on:
   push:
     branches:
       - fix/static-site-images-20261030
+    paths:
+      - '.github/workflows/site-images-inventory.yml'
+      - 'scripts/static-image-inventory.py'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  audit:
+  import:
     runs-on: ubuntu-latest
     steps:
       - name: Repository ophalen
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Vaste afbeeldingen inventariseren via beveiligde FTPS-verbinding
+      - name: Alleen ontbrekende vaste afbeeldingen 1-op-1 van server lezen
         env:
           RC045_FTP_USERNAME: ${{ secrets.RC045_FTP_USERNAME }}
           RC045_FTP_PASSWORD: ${{ secrets.RC045_FTP_PASSWORD }}
         run: |
           set -euo pipefail
-          python3 scripts/static-image-inventory.py --mode inventory
+          python3 scripts/static-image-inventory.py --mode import
+
+      - name: Uitsluitend geïmporteerde vaste afbeeldingen op feature-branch committen
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Fotoboek- en sponsorbestanden zijn uitgesloten in .gitignore.
+          git add -- images/
+          if git diff --cached --quiet; then
+            echo "Er zijn geen nieuwe vaste afbeeldingen"
+            exit 0
+          fi
+          echo "Bestanden die naar GitHub gaan:"
+          git diff --cached --name-only
+          # Alleen bestanden direct in images/ en niets in dynamische submappen.
+          git diff --cached --name-only | while IFS= read -r path; do
+            case "$path" in
+              images/*/*|images/fotoboek/*|images/sponsors/*)
+                echo "ONVEILIG PAD: $path"; exit 1;;
+              images/*.jpg|images/*.jpeg|images/*.png|images/*.webp|images/*.gif|images/*.svg)
+                :;;
+              *) echo "ONVERWACHT PAD: $path"; exit 1;;
+            esac
+          done
+          git commit -m "Back up fixed RC045 website images from live FTPS into GitHub"
+          git push origin HEAD:refs/heads/fix/static-site-images-20261030
