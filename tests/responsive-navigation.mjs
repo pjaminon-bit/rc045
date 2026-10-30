@@ -168,5 +168,46 @@ if(!diagnostic){
     console.log('Gedeelde navigatie getest: '+page);
   }
 }
+// Diagnoseer horizontale overflow van de homepage los van het menuvlak.
+if(process.env.MOBILE_OVERFLOW_DIAG==='1'){
+  await cmd('Page.navigate',{url:'http://127.0.0.1:8123/index.php'});
+  await delay(850);
+  for(const width of [320,360,375,390,480,600]){
+    await viewport(width);
+    await delay(250);
+    const result=await evaluate('('+function(){
+      const viewport=innerWidth;
+      const elInfo=el=>{
+        const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+        return {tag:el.tagName.toLowerCase(),id:el.id,cl:String(el.className||'').slice(0,100),
+          right:+r.right.toFixed(1),left:+r.left.toFixed(1),width:+r.width.toFixed(1),
+          sw:el.scrollWidth,cw:el.clientWidth,position:s.position,overflowX:s.overflowX,
+          display:s.display,transform:s.transform!=='none'};
+      };
+      const original=document.documentElement.scrollWidth;
+      const children=[...document.body.children];
+      const sectionContributors=[];
+      for(const el of children){
+        const st=el.style.display;
+        el.style.setProperty('display','none','important');
+        const without=document.documentElement.scrollWidth;
+        el.style.display=st;
+        if(original-without>=2)sectionContributors.push({element:elInfo(el),reduction:original-without});
+      }
+      const offenders=[...document.querySelectorAll('body *')]
+        .filter(el=>{
+          const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+          return (r.right>viewport+2||r.left< -2)&&s.display!=='none'&&s.visibility!=='hidden'&&r.width>0;
+        })
+        .map(el=>elInfo(el))
+        .sort((a,b)=>b.right-a.right)
+        .slice(0,35);
+      return {viewport,scrollWidth:original,clientWidth:document.documentElement.clientWidth,
+        bodyScroll:document.body.scrollWidth,
+        sectionContributors,offenders};
+    }.toString()+')()');
+    console.log('MOBILE OVERFLOW DIAGNOSTIC '+JSON.stringify(result));
+  }
+}
 ws.close();
 console.log('Viewporttests gereed'+(diagnostic?' (diagnostiek)':' (geslaagd)'));
