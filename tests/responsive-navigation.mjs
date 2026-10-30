@@ -138,7 +138,23 @@ if(!diagnostic){
       ready=await evaluate(`!!document.querySelector('#nav-join') && !!document.querySelector('.nav-tools') && !!document.querySelector('link[href="site-styles.php"]')?.sheet && !!document.querySelector('link[href="page-styles.php?page=${page}"]')?.sheet`);
       if(ready)break;
     }
-    assert.ok(ready,'Gedeelde navigatie niet geladen op '+page);
+    assert.ok(ready,'Gedeelde navigatie of pagina-CSS niet geladen op '+page);
+    const cssCount=await evaluate(`document.querySelector('link[href="page-styles.php?page=${page}"]').sheet.cssRules.length`);
+    assert.ok(cssCount>5,page+': pagina-stylesheet bevat te weinig CSS-regels');
+    const spotchecks={
+      index:['.track-feature-list','display','flex'],
+      aanmelden:['.faq-card','border-top-style','solid'],
+      baanreglement:['.artikel','display','block'],
+      fotoboek:['.album-grid','display','grid'],
+      media:['.media-grid','display','grid'],
+      ontstaan:['.ontstaan-grid','display','grid'],
+      bedankt:['.bedankt-card','display','block']
+    };
+    const [selector,property,expected]=spotchecks[page];
+    const actual=await evaluate('(() => { const el=document.querySelector('+
+      JSON.stringify(selector)+'); return el ? getComputedStyle(el).getPropertyValue('+
+      JSON.stringify(property)+').trim() : null; })()');
+    assert.equal(actual,expected,page+': pagina-CSS niet actief ('+selector+'/'+property+')');
     for(const width of [320,768,1200,1201,1440]){
       await viewport(width);
       const m=await metrics();
