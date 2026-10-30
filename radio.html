@@ -2568,8 +2568,6 @@
 
     .station-search {
       display: flex;
-      flex: 0 1 275px;
-      width: min(100%, 275px);
       min-width: 0;
       align-items: center;
       gap: 9px;
@@ -2806,14 +2804,9 @@
         flex: 0 0 auto;
         max-width: 100%;
       }
-      .station-search {
-        flex: none;
-        width: min(100%, 340px);
-      }
     }
     @media (max-width: 420px) {
-      .radio-country-tabs,
-      .station-search {
+      .radio-country-tabs {
         width: 100%;
       }
       .radio-country-tab-list {
@@ -2956,9 +2949,6 @@
       opacity: .82;
     }
     .station-search {
-      flex: 0 1 290px;
-      width: min(100%, 290px);
-      min-height: 52px;
       padding-left: 15px;
       border-radius: 15px;
     }
@@ -2980,10 +2970,9 @@
         gap: 12px;
       }
       .radio-country-tabs { width: fit-content; max-width: 100%; }
-      .station-search { flex: 0 0 auto; width: min(100%, 360px); }
     }
     @media (max-width: 520px) {
-      .radio-country-tabs, .station-search { width: 100%; }
+      .radio-country-tabs { width: 100%; }
       .radio-country-tab-list {
         flex: 1 1 auto;
         display: grid;
@@ -3197,13 +3186,14 @@
         background var(--ui-motion-fast);
     }
     .station-search { border-radius: var(--ui-radius-control); }
-    /* De zoekbalk heeft exact de buitenbreedte van één zenderkaart.
-       Een kaart is de bron; niet de landkeuze. Bij weinig ruimte wrappen
-       de toolbar-elementen in plaats van het zoekveld smaller te maken. */
-    .station-toolbar .station-search {
-      flex: 0 0 var(--radio-station-card-width, 290px);
+    /* Een echte zenderkaart is de enige bron voor breedte EN hoogte.
+       flex:none voorkomt dat de breedte op mobiel de flex-hoogte wordt. */
+    .station-toolbar > .station-search {
+      flex: none;
       width: min(100%, var(--radio-station-card-width, 290px));
       max-width: 100%;
+      height: var(--radio-station-card-height, 78px);
+      min-height: var(--radio-station-card-height, 78px);
       box-sizing: border-box;
     }
     .station-search-clear {
@@ -3346,11 +3336,10 @@
         overflow: hidden;
       }
       .station-toolbar { gap: var(--ui-space-3); }
-      .station-search { max-width: 100%; }
     }
     @media (max-width: 520px) {
       .app { width: calc(100% - 28px); }
-      .radio-country-tabs, .station-search { width: 100%; }
+      .radio-country-tabs { width: 100%; }
       .artwork { width: clamp(148px, 45vw, 188px); }
       .player-info h1 { font-size: clamp(28px, 8vw, 36px); }
       .track-title-row {
@@ -14570,19 +14559,25 @@ initialise();
   // zoekbalk. Geen schattingen op basis van de landkeuze of vaste pixels.
   const toolbar = document.querySelector(".station-toolbar");
   let stationCardWidth = 0;
+  let stationCardHeight = 0;
   function syncSearchWidth() {
-    // Zoekresultaten kunnen tijdelijk één heel brede gridkaart opleveren.
-    // Houd tijdens typen de normale kaartbreedte aan, zodat de balk niet springt.
+    // Bij zoeken de gewone kaartmaat vasthouden, zodat één resultaat
+    // de breedte niet oprekt. Bij resize / tabwissel opnieuw meten.
     if (!toolbar || (input.value.trim() && stationCardWidth)) return;
     const card = [...stationsRoot.querySelectorAll(".country-group")]
       .filter(group => !group.hidden)
       .map(group => [...group.querySelectorAll(".country-stations > .station")]
         .find(item => !item.hidden))
       .find(Boolean);
-    const width = card?.getBoundingClientRect().width || 0;
-    if (width > 0 && Math.abs(width - stationCardWidth) > .01) {
-      stationCardWidth = width;
-      toolbar.style.setProperty("--radio-station-card-width", width + "px");
+    const rect = card?.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) return;
+    if (Math.abs(rect.width - stationCardWidth) > .01) {
+      stationCardWidth = rect.width;
+      toolbar.style.setProperty("--radio-station-card-width", rect.width + "px");
+    }
+    if (Math.abs(rect.height - stationCardHeight) > .01) {
+      stationCardHeight = rect.height;
+      toolbar.style.setProperty("--radio-station-card-height", rect.height + "px");
     }
   }
   if (toolbar) {
