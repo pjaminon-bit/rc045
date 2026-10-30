@@ -534,3 +534,17 @@
           .track-photo-wrap.tall { grid-row: span 1; }
           .photo-strip { height: 320px; }
         }
+
+
+/* Presentatie van de homepage staat hier, niet meer verspreid in HTML-attributen. */
+.hero-watermark { position: absolute; right: -40px; top: 50%; transform: translateY(-50%); height: 520px; width: auto; opacity: 0.13; pointer-events: none; filter: drop-shadow(0 0 40px rgba(200,154,26,0.2)); z-index: 1; }
+.hero-logo { height: 140px; width: auto; margin-bottom: 24px; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4)); }
+#hp-about-p1 { color: var(--muted); line-height: 1.8; margin-bottom: 24px; }
+#hp-about-p2 { color: var(--muted); line-height: 1.8; }
+#hp-guest-text { font-size: 14px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+#hp-member-text { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 8px; line-height: 1.6; }
+#hp-track-p1, #hp-track-p2 { color: var(--muted); line-height: 1.8; margin-bottom: 28px; }
+.track-feature-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.track-feature-list li { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+.track-feature-list li > span:first-child { color: var(--green); font-size: 18px; }
+#hp-addr-route { display: inline-block; margin-top: 12px; color: var(--teal); font-weight: 600; font-size: 14px; }
