@@ -36,7 +36,7 @@ function token(source,selector,name) {
   return found[1];
 }
 test('kleine goudkleurige tekst en groene openstatus in licht thema',()=>{
-  const css=read('styles.css'), homepage=read('index.php');
+  const css=read('styles.css'), homepage=read('page-styles/index.css');
   const gold=token(css,':root {','--gold-text');
   for(const [label,bg] of [['papier','#FAF6EC'],['wit','#FFFFFF'],['goudvlak','#FBF4DF'],['tealvlak','#EAF4F3']]) {
     contrast('Goud op '+label,gold,bg);
@@ -46,7 +46,7 @@ test('kleine goudkleurige tekst en groene openstatus in licht thema',()=>{
   for(const selector of ['.about-photos-title {','.agenda-card-tag.leden {','.nieuws-card-date {']){
     assert.ok(block(homepage,selector).includes('var(--gold-text)'),selector);
   }
-  assert.ok(block(read('aanmelden.php'),'.form-section-title {').includes('var(--gold-text)'));
+  assert.ok(block(read('page-styles/aanmelden.css'),'.form-section-title {').includes('var(--gold-text)'));
 });
 test('publieke donkere knoppen en footerhover',()=>{
   const css=read('styles.css');
